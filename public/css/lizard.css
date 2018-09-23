@@ -175,13 +175,10 @@ textarea:active {
   color: #ffffff;
 }
 
-#headerTopPanel a,
-#headerTopPanel span {
+#headerTopPanel a {
   height: 32px;
   line-height: 20px;
   color: #ffffff;
-  padding: 6px 15px;
-  display: inline-block;
 }
 
 #headerTopPanel a:hover:not(.disabled) {
@@ -189,21 +186,22 @@ textarea:active {
   text-decoration: none;
 }
 
-#headerTopPanel ul {
-  margin: 0;
-}
-
-#headerTopPanel ul li {
-  display: inline-block;
-}
-
-#headerTopPanel #headerTopPanelLanguage span {
+#headerTopPanel #headerTopPanelLanguage {
   color: #555555;
+  line-height: 32px;
 }
 
-#headerTopPanel #headerTopPanelLanguage a,
-#headerTopPanel #headerTopPanelLanguage span {
-  padding: 6px 2px;
+#headerTopPanel #headerTopPanelLanguage a {
+  color: #555555;
+  padding: 6px 10px;
+}
+
+#headerTopPanel #headerTopPanelLanguage a.disabled {
+  cursor: default;
+}
+
+#headerTopPanel #headerTopPanelLanguage a:not(.disabled) {
+  color: white;
 }
 
 #headerTopPanel .dropdown-toggle {

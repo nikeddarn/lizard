@@ -1,13 +1,5 @@
-<nav>
-        <ul>
-            <li>
-                <a href="#">Оптовым покупателям</a>
-            </li>
-            <li>
-                <a href="#">Условия гарантии</a>
-            </li>
-            <li>
-                <a href="#">Контакты</a>
-            </li>
-        </ul>
+<nav class="nav">
+    <a class="nav-link" href="#">Оптовым покупателям</a>
+    <a class="nav-link" href="#">Условия гарантии</a>
+    <a class="nav-link" href="#">Контакты</a>
 </nav>
