@@ -1,0 +1,271 @@
+// Variables
+@import 'variables';
+// Custom variables
+@import 'lizard_variables';
+
+// -------------------------------------------------- common styles ----------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+
+html, body {
+  line-height: 1.7rem;
+  font-family: RobotoDraft, Roboto, sans-serif;
+  font-size: $lizard-font-size;
+}
+
+body, #app {
+  min-height: 100vh;
+}
+
+.flex-fill {
+  flex: 1 1 auto;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: RobotoDraft, Roboto, sans-serif;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+p {
+  text-indent: 1.5rem;
+}
+
+a {
+  color: $lizard-primary-color;
+  text-decoration: none;
+}
+
+a:hover {
+  color: $lizard-primary-darken-color;
+  text-decoration: underline;
+  outline: 0;
+}
+
+.text-gray {
+  color: $lizard-text-gray-color;
+}
+
+/* Underlined Title */
+
+.underlined-title {
+  border-bottom: 3px solid $lizard-primary-color;
+  //margin-bottom: 2rem;
+}
+
+.underlined-title h1,
+.underlined-title h2,
+.underlined-title h3,
+.underlined-title h4,
+.underlined-title h5 {
+  //margin-top: 4rem;
+  border-bottom: 3px solid $lizard-primary-darken-color;
+  display: inline-block;
+  margin-bottom: -3px;
+  padding-bottom: 10px;
+}
+// content layout
+.page-content{
+  padding-top: 4rem;
+
+  .col, [class^="col-"]{
+    margin-bottom: 2rem;
+  }
+}
+
+// -------------------------------------------------- input styles ----------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+
+input:not([type="radio"]):not([type="checkbox"]) {
+  outline: none !important;
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+  padding: 6px 12px !important;
+  height: 34px !important;
+  border-color: #ccc !important;
+  border-radius: 0 !important;
+}
+
+input:focus:not([type="radio"]):not([type="checkbox"]),
+input:active:not([type="radio"]):not([type="checkbox"]) {
+  border-color: $lizard-primary-color !important;
+}
+
+.checkbox {
+  padding-left: 16px;
+}
+
+.checkbox input[type="checkbox"] {
+  display: none;
+}
+
+.checkbox label {
+  cursor: pointer;
+  margin-left: -16px;
+}
+
+.checkbox input[type="checkbox"] + label:before {
+  border: 1px solid #ccc;
+  content: "\A0";
+  display: inline-block;
+  font: 16px/1em sans-serif;
+  height: 16px;
+  margin: 2px .25em 0 0;
+  padding: 0;
+  vertical-align: top;
+  width: 16px;
+  font-weight: bold;
+}
+
+.checkbox input[type="checkbox"]:checked + label:before {
+  background: #fff;
+  color: $lizard-primary-color;
+  content: "\2714";
+  text-align: center;
+}
+
+.checkbox input[type="checkbox"]:checked + label:after {
+  font-weight: bold;
+}
+
+.btn,
+button {
+  border-radius: 0 !important;
+  outline: none !important;
+}
+
+.btn:hover,
+.btn:active,
+button:hover,
+button:active {
+  outline: none !important;
+}
+
+select,
+textarea {
+  outline: none !important;
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  border: 1px solid #ccc;
+}
+
+select:focus,
+select:active,
+textarea:focus,
+textarea:active {
+  border: 1px solid $lizard-primary-color !important;
+  border-radius: 0 !important;
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: $lizard-primary-color;
+  border-color: $lizard-primary-color;
+}
+
+.btn-primary:hover {
+  background-color: $lizard-primary-darken-color;
+  border-color: $lizard-primary-darken-color;
+}
+
+// -------------------------------------------------- header styles ----------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+
+#headerTopPanel {
+
+  background-color: $lizard-primary-color;
+  color: #ffffff;
+
+  a, span {
+    height: 32px;
+    line-height: 20px;
+    color: #ffffff;
+    padding: 6px 15px;
+    display: inline-block;
+  }
+
+  a:hover:not(.disabled) {
+    background-color: $lizard-primary-darken-color;
+    text-decoration: none;
+  }
+
+  ul {
+    margin: 0;
+
+    li {
+      display: inline-block;
+    }
+  }
+
+  #headerTopPanelLanguage {
+
+    span {
+      color: $lizard-text-gray-color;
+    }
+
+    a, span {
+      padding: 6px 2px;
+    }
+  }
+
+  .dropdown-toggle{
+    margin: 0;
+    padding: 0 6px;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    height: 32px;
+    background-color: $lizard-primary-color;
+    color: #ffffff;
+
+    span{
+      display: inline;
+      font-size: $lizard-font-size;
+      padding: 6px 2px;
+    }
+  }
+
+  .dropdown-menu{
+    margin: 0;
+    border-radius: 0;
+  }
+
+  .dropdown-menu a{
+    color: $lizard-text-gray-color;
+    font-size: $lizard-font-size;
+  }
+
+  .dropdown-menu a:hover{
+    background-color: $lizard-primary-color;
+    color: white;
+  }
+}
+
+
+// -------------------------------------------------- header styles ----------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+
+#userNavbar{
+  ul{
+    width: 100%;
+  }
+
+  li a{
+    color: $lizard-text-gray-color;
+    padding: 6px 10px;
+  }
+
+  li.active a{
+    color: white;
+    background-color: $lizard-primary-color;
+  }
+
+  li:hover:not(.active) a{
+    background-color: $store-light-background-color;
+  }
+}

@@ -143,4 +143,7 @@ return [
 
     'attributes' => [],
 
+    // custom rules
+    'old_password_confirmed' => 'Wrong old password',
+
 ];

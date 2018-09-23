@@ -1,0 +1,259 @@
+html,
+body {
+  line-height: 1.7rem;
+  font-family: RobotoDraft, Roboto, sans-serif;
+  font-size: 14px;
+}
+
+body,
+#app {
+  min-height: 100vh;
+}
+
+.flex-fill {
+  -webkit-box-flex: 1;
+      -ms-flex: 1 1 auto;
+          flex: 1 1 auto;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: RobotoDraft, Roboto, sans-serif;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+p {
+  text-indent: 1.5rem;
+}
+
+a {
+  color: #30A193;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #1e665d;
+  text-decoration: underline;
+  outline: 0;
+}
+
+.text-gray {
+  color: #555555;
+}
+
+/* Underlined Title */
+
+.underlined-title {
+  border-bottom: 3px solid #30A193;
+}
+
+.underlined-title h1,
+.underlined-title h2,
+.underlined-title h3,
+.underlined-title h4,
+.underlined-title h5 {
+  border-bottom: 3px solid #1e665d;
+  display: inline-block;
+  margin-bottom: -3px;
+  padding-bottom: 10px;
+}
+
+.page-content {
+  padding-top: 4rem;
+}
+
+.page-content .col,
+.page-content [class^="col-"] {
+  margin-bottom: 2rem;
+}
+
+input:not([type="radio"]):not([type="checkbox"]) {
+  outline: none !important;
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+  padding: 6px 12px !important;
+  height: 34px !important;
+  border-color: #ccc !important;
+  border-radius: 0 !important;
+}
+
+input:focus:not([type="radio"]):not([type="checkbox"]),
+input:active:not([type="radio"]):not([type="checkbox"]) {
+  border-color: #30A193 !important;
+}
+
+.checkbox {
+  padding-left: 16px;
+}
+
+.checkbox input[type="checkbox"] {
+  display: none;
+}
+
+.checkbox label {
+  cursor: pointer;
+  margin-left: -16px;
+}
+
+.checkbox input[type="checkbox"] + label:before {
+  border: 1px solid #ccc;
+  content: "\A0";
+  display: inline-block;
+  font: 16px/1em sans-serif;
+  height: 16px;
+  margin: 2px .25em 0 0;
+  padding: 0;
+  vertical-align: top;
+  width: 16px;
+  font-weight: bold;
+}
+
+.checkbox input[type="checkbox"]:checked + label:before {
+  background: #fff;
+  color: #30A193;
+  content: "\2714";
+  text-align: center;
+}
+
+.checkbox input[type="checkbox"]:checked + label:after {
+  font-weight: bold;
+}
+
+.btn,
+button {
+  border-radius: 0 !important;
+  outline: none !important;
+}
+
+.btn:hover,
+.btn:active,
+button:hover,
+button:active {
+  outline: none !important;
+}
+
+select,
+textarea {
+  outline: none !important;
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  border: 1px solid #ccc;
+}
+
+select:focus,
+select:active,
+textarea:focus,
+textarea:active {
+  border: 1px solid #30A193 !important;
+  border-radius: 0 !important;
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: #30A193;
+  border-color: #30A193;
+}
+
+.btn-primary:hover {
+  background-color: #1e665d;
+  border-color: #1e665d;
+}
+
+#headerTopPanel {
+  background-color: #30A193;
+  color: #ffffff;
+}
+
+#headerTopPanel a,
+#headerTopPanel span {
+  height: 32px;
+  line-height: 20px;
+  color: #ffffff;
+  padding: 6px 15px;
+  display: inline-block;
+}
+
+#headerTopPanel a:hover:not(.disabled) {
+  background-color: #1e665d;
+  text-decoration: none;
+}
+
+#headerTopPanel ul {
+  margin: 0;
+}
+
+#headerTopPanel ul li {
+  display: inline-block;
+}
+
+#headerTopPanel #headerTopPanelLanguage span {
+  color: #555555;
+}
+
+#headerTopPanel #headerTopPanelLanguage a,
+#headerTopPanel #headerTopPanelLanguage span {
+  padding: 6px 2px;
+}
+
+#headerTopPanel .dropdown-toggle {
+  margin: 0;
+  padding: 0 6px;
+  border: none !important;
+  outline: none !important;
+  -webkit-box-shadow: none !important;
+          box-shadow: none !important;
+  height: 32px;
+  background-color: #30A193;
+  color: #ffffff;
+}
+
+#headerTopPanel .dropdown-toggle span {
+  display: inline;
+  font-size: 14px;
+  padding: 6px 2px;
+}
+
+#headerTopPanel .dropdown-menu {
+  margin: 0;
+  border-radius: 0;
+}
+
+#headerTopPanel .dropdown-menu a {
+  color: #555555;
+  font-size: 14px;
+}
+
+#headerTopPanel .dropdown-menu a:hover {
+  background-color: #30A193;
+  color: white;
+}
+
+#userNavbar ul {
+  width: 100%;
+}
+
+#userNavbar li a {
+  color: #555555;
+  padding: 6px 10px;
+}
+
+#userNavbar li.active a {
+  color: white;
+  background-color: #30A193;
+}
+
+#userNavbar li:hover:not(.active) a {
+  background-color: #f3f3f3;
+}
+

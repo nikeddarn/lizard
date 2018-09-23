@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'Lizard'),
 
     /*
     |--------------------------------------------------------------------------
@@ -78,7 +78,10 @@ return [
     |
     */
 
-    'locale' => 'en',
+    'locale' => 'ru',
+
+    // Available locales
+    'available_locales' => ['ru', 'ua'],
 
     /*
     |--------------------------------------------------------------------------
@@ -159,6 +162,7 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        App\Providers\ComposerServiceProvider::class
 
     ],
 
