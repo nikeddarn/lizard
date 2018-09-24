@@ -4,17 +4,31 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 
+/**
+ * ****************************************************************
+ * ToDo this routes must be removed after setup completed !!!!!!!!!!!
+ * ****************************************************************
+ */
+Route::get('/setup', 'Setup\SetupController@setup');
+
+
 // --------------------------------------------- Common Routes ---------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
-
-Auth::routes();
 
 Route::get('/language/{locale}', 'LocaleController@switchLocale')->name('language');
 
 Route::get('/', 'MainPageController@show');
 
 
-// --------------------------------------------- User Routes ---------------------------------------------------------
+// --------------------------------------------- Auth Routes ---------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+
+Auth::routes();
+
+Route::get('/admin/login', 'Auth\LoginController@showAdminLoginForm')->name('admin.login');
+
+
+// --------------------------------------------- User Routes -----------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
 
 Route::middleware(['auth:web'])->group(function () {
@@ -51,4 +65,14 @@ Route::middleware(['auth:web'])->group(function () {
     // password
     Route::get('/user/password', 'User\PasswordController@showChangePasswordForm')->name('user.password.show');
     Route::post('/user/password/change', 'User\PasswordController@changePassword')->name('user.password.change');
+});
+
+// --------------------------------------------- Admin Routes -----------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+
+Route::middleware('auth.admin')->group(function (){
+
+    // admin main page
+    Route::get('/admin', 'Admin\AdminController@index')->name('admin');
+
 });

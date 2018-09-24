@@ -4,7 +4,7 @@
 
     <div class="container">
 
-        <div class="row">
+        <div class="row page-content">
 
             <div class="col-sm-4">
                 <div class="underlined-title">

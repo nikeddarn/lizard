@@ -1,0 +1,24 @@
+// Variables
+@import 'variables';
+// Custom variables
+@import 'lizard_variables';
+
+
+#admin-header{
+  height: 40px;
+  background-color: $lizard-primary-color;
+  color: white;
+}
+
+
+// -------------------------------------------------- sidebar styles ----------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+#sidebar {
+  min-width: 130px;
+}
+.nav-link[data-toggle].collapsed:after {
+  content: "▾";
+}
+.nav-link[data-toggle]:not(.collapsed):after {
+  content: "▴";
+}

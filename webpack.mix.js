@@ -12,9 +12,13 @@ const mix = require('laravel-mix');
  */
 
 // Application styles an scripts
-mix.js('resources/js/app.js', 'public/js');
-   mix.sass('resources/sass/app.scss', 'public/css');
+mix.js('resources/js/app.js', 'public/js')
+   .sass('resources/sass/app.scss', 'public/css');
 
 // Custom styles an scripts
 mix.js('resources/js/lizard.js', 'public/js')
     .sass('resources/sass/lizard.scss', 'public/css');
+
+// admin styles
+mix.js('resources/js/admin.js', 'public/js')
+    .sass('resources/sass/admin.scss', 'public/css');

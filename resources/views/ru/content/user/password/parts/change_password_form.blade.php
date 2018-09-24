@@ -1,8 +1,8 @@
+<form id="change-password-form" role="form" method="POST" action="{{ route('user.password.change') }}">
 
-    <form id="change-password-form" role="form" method="POST" action="{{ route('user.password.change') }}">
+    @csrf
 
-        @csrf
-<div class="row justify-content-md-center">
+    <div class="row justify-content-md-center">
 
         <div class="col-sm-8 form-group{{ $errors->has('old_password') ? ' has-error' : '' }}">
             <label for="old_password">Старый пароль</label>
@@ -50,5 +50,5 @@
         </div>
 
 
-</div>
-    </form>
+    </div>
+</form>

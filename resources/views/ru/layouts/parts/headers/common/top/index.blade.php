@@ -17,7 +17,7 @@
             </div>
 
 
-            <div class="col-6 col-md-2 text-right">
+            <div class="col-6 col-md-2">
                 @if(auth('web')->check())
                     @include('layouts.parts.headers.common.top.parts.user')
                 @else

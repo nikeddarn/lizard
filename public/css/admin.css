@@ -1,0 +1,20 @@
+@charset "UTF-8";
+
+#admin-header {
+  height: 40px;
+  background-color: #30A193;
+  color: white;
+}
+
+#sidebar {
+  min-width: 130px;
+}
+
+.nav-link[data-toggle].collapsed:after {
+  content: "\25BE";
+}
+
+.nav-link[data-toggle]:not(.collapsed):after {
+  content: "\25B4";
+}
+

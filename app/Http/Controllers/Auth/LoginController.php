@@ -46,4 +46,15 @@ class LoginController extends Controller
     {
         return view('content.auth.user.login.index');
     }
+
+
+    /**
+     * Show admin login form.
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function showAdminLoginForm()
+    {
+        return view('content.auth.admin.login.index');
+    }
 }

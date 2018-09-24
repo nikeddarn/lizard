@@ -10,6 +10,7 @@
 
     @csrf
 
+    <div class="row">
     <div class="col-sm-8 form-group{{ $errors->has('email') ? ' has-error' : '' }}">
         <label for="email">E-Mail Адрес</label>
         <input id="email" type="email" class="form-control" name="email" value="{{ old('email') }}" required
@@ -22,12 +23,12 @@
     </div>
 
     <div class="col-sm-8 form-group">
-        <div>
             <button type="submit" class="btn btn-primary">
                 <i class="fa fa-long-arrow-right"></i>
                 Отправить запрос
             </button>
-        </div>
+    </div>
+
     </div>
 
 </form>
