@@ -16,3 +16,11 @@
     </section>
 
 @endsection
+
+@section('scripts')
+    <script type="text/javascript" src="/js/input-file.js"></script>
+@endsection
+
+@section('styles')
+    <link href="/css/input-file.css" rel="stylesheet">
+@endsection

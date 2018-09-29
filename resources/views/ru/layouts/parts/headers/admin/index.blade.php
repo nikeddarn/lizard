@@ -1,9 +1,12 @@
-<div class="container-fluid">
+<header id="admin-header" class="container-fluid">
     <div class="row">
-        <div class="col-lg-12">
-            <header id="admin-header">
-                <h4>{{ config('app.name') }}</h4>
-            </header>
+
+        <div class="col-3 pl-0">
+            @include('layouts.parts.headers.admin.parts.logo')
+        </div>
+
+        <div class="col">
+            @include('layouts.parts.headers.admin.parts.navbar')
         </div>
     </div>
-</div>
+</header>

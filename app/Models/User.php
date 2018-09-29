@@ -41,4 +41,15 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\Models\UserRole', 'users_id', 'id');
     }
+
+    /**
+     * Has user any of given role?
+     *
+     * @param array $roles
+     * @return bool
+     */
+    public function hasAnyRole(array $roles)
+    {
+        return (bool)$this->roles()->whereIn('id', $roles)->count();
+    }
 }

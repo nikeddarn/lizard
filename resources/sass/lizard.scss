@@ -3,6 +3,9 @@
 // Custom variables
 @import 'lizard_variables';
 
+// bootstrap-select
+@import "vendor/snapappointments/bootstrap-select/sass/bootstrap-select.scss";
+
 // -------------------------------------------------- common styles ----------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -17,7 +20,7 @@ body, #app {
 }
 
 .flex-fill {
-  flex: 1 1 auto;
+  flex: 1;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -36,12 +39,15 @@ p {
 a {
   color: $lizard-primary-color;
   text-decoration: none;
+  outline: none;
+  box-shadow: none;
 }
 
 a:hover {
   color: $lizard-primary-darken-color;
   text-decoration: underline;
   outline: 0;
+  box-shadow: none;
 }
 
 .text-gray {
@@ -66,11 +72,12 @@ a:hover {
   margin-bottom: -3px;
   padding-bottom: 10px;
 }
+
 // content layout
-.page-content{
+.page-content {
   padding-top: 4rem;
 
-  .col, [class^="col-"]{
+  .col, [class^="col-"] {
     margin-bottom: 2rem;
   }
 }
@@ -84,8 +91,10 @@ input:not([type="radio"]):not([type="checkbox"]) {
   box-shadow: none !important;
   padding: 6px 12px !important;
   height: 34px !important;
-  border-color: #ccc !important;
+  border-color: $lizard-input-border-color !important;
   border-radius: 0 !important;
+  border: 1px solid;
+  background-color: white !important;
 }
 
 input:focus:not([type="radio"]):not([type="checkbox"]),
@@ -134,13 +143,23 @@ input:active:not([type="radio"]):not([type="checkbox"]) {
 button {
   border-radius: 0 !important;
   outline: none !important;
+  border: 1px solid #ccc;
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
 }
 
-.btn:hover,
 .btn:active,
-button:hover,
-button:active {
+.btn:focus,
+button:active,
+button:focus {
   outline: none !important;
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+  border-color: $lizard-primary-color !important;
+}
+
+select{
+  height: 34px;
 }
 
 select,
@@ -150,6 +169,7 @@ textarea {
   box-shadow: none !important;
   border-radius: 0 !important;
   border: 1px solid #ccc;
+  background-color: white !important;
 }
 
 select:focus,
@@ -173,6 +193,30 @@ textarea:active {
   border-color: $lizard-primary-darken-color;
 }
 
+.btn-default{
+  background-color: white;
+}
+
+.btn-default:hover{
+  background-color: whitesmoke;
+}
+
+// -------------------------------------------------- bootstrap-select styles ------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+
+.bootstrap-select{
+  button{
+    background-color: white !important;
+  }
+  button:hover, button:active, button:focus{
+    background-color: white !important;
+  }
+  li.active a, li:hover a{
+    background-color: $lizard-primary-color !important;
+        color: white !important;
+  }
+}
+
 // -------------------------------------------------- header styles ----------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -180,7 +224,6 @@ textarea:active {
 
   background-color: $lizard-primary-color;
   color: #ffffff;
-
 
   a {
     height: 32px;
@@ -197,21 +240,21 @@ textarea:active {
     color: $lizard-text-gray-color;
     line-height: 32px;
 
-    a{
+    a {
       color: $lizard-text-gray-color;
       padding: 6px 10px;
     }
 
-    a.disabled{
+    a.disabled {
       cursor: default;
     }
 
-    a:not(.disabled){
+    a:not(.disabled) {
       color: white;
     }
   }
 
-  .dropdown-toggle{
+  .dropdown-toggle {
     margin: 0;
     padding: 0 6px;
     border: none !important;
@@ -221,49 +264,48 @@ textarea:active {
     background-color: $lizard-primary-color;
     color: #ffffff;
 
-    span{
+    span {
       display: inline;
       font-size: $lizard-font-size;
       padding: 6px 2px;
     }
   }
 
-  .dropdown-menu{
+  .dropdown-menu {
     margin: 0;
     border-radius: 0;
   }
 
-  .dropdown-menu a{
+  .dropdown-menu a {
     color: $lizard-text-gray-color;
     font-size: $lizard-font-size;
   }
 
-  .dropdown-menu a:hover{
+  .dropdown-menu a:hover {
     background-color: $lizard-primary-color;
     color: white;
   }
 }
 
-
 // -------------------------------------------------- header styles ----------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
 
-#userNavbar{
-  ul{
+#userNavbar {
+  ul {
     width: 100%;
   }
 
-  li a{
+  li a {
     color: $lizard-text-gray-color;
     padding: 6px 10px;
   }
 
-  li.active a{
+  li.active a {
     color: white;
     background-color: $lizard-primary-color;
   }
 
-  li:hover:not(.active) a{
-    background-color: $store-light-background-color;
+  li:hover:not(.active) a {
+    background-color: $lizard-light-background-color;
   }
 }

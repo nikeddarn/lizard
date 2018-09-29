@@ -3,22 +3,104 @@
 // Custom variables
 @import 'lizard_variables';
 
+// -------------------------------------------------- header styles ---------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
-#admin-header{
-  height: 40px;
+#admin-header {
   background-color: $lizard-primary-color;
-  color: white;
+  color: #ffffff;
+  height: 32px;
+
+  a {
+    height: 32px;
+    line-height: 20px;
+    color: #ffffff;
+    padding: 6px 10px;
+    display: inline-block;
+  }
+
+  a:hover:not(.disabled) {
+    background-color: $lizard-primary-darken-color;
+    text-decoration: none;
+  }
 }
 
-
-// -------------------------------------------------- sidebar styles ----------------------------------------------------
+// -------------------------------------------------- sidebar styles ---------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
+
 #sidebar {
   min-width: 130px;
+
+  .nav-link[data-toggle].collapsed:after {
+    content: "▾";
+  }
+  .nav-link[data-toggle]:not(.collapsed):after {
+    content: "▴";
+  }
+
+  a {
+    color: $lizard-text-gray-color;
+    font-size: 1.2rem;
+    padding: .5rem 0;
+  }
+
+  a:hover {
+    color: black;
+  }
+
+  ul, li {
+    display: block;
+  }
 }
-.nav-link[data-toggle].collapsed:after {
-  content: "▾";
+
+// -------------------------------------------------- content styles ---------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+
+.admin-content-header {
+  margin: 3rem 0;
 }
-.nav-link[data-toggle]:not(.collapsed):after {
-  content: "▴";
+
+.tab-content {
+  padding: 2rem 0;
+}
+
+label.required:after {
+  color: red;
+  content: " *";
+  font-size: 1.4rem;
+}
+
+// -------------------------------------------------- category styles ---------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+
+.cat-depth-1 {
+  padding-left: 3.5rem;
+}
+
+.cat-depth-2 {
+  padding-left: 5.5rem;
+}
+
+.cat-depth-3 {
+  padding-left: 7.5rem;
+}
+
+.cat-depth-4 {
+  padding-left: 9.5rem;
+}
+
+.cat-depth-5 {
+  padding-left: 11.5rem;
+}
+
+.category-form{
+  display: inline-block;
+}
+
+.category-open-cell {
+  width: 4rem;
+}
+
+.category-control-cell{
+  width: 10rem;
 }

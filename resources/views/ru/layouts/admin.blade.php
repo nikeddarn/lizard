@@ -9,27 +9,21 @@
 
 <div id="app" class="d-flex flex-column">
 
-    <header>
-        @include('layouts.parts.headers.admin.index')
-    </header>
+    @include('layouts.parts.headers.admin.index')
 
 
     <main class="flex-fill">
 
-        <div class="container-fluid">
+        <div class="container-fluid h-100">
 
-            <div class="row">
+            <div class="row h-100">
 
-                <div class="col-sm-4 col-md-3">
-
+                <div class="col-6 col-md-3 col-lg-2 collapse d-md-flex bg-faded pt-2 pb-2 h-100" id="sidebar">
                     @include('layouts.parts.admin.menu.index')
-
                 </div>
 
-                <div class="col-sm-8 col-md-9 page-content">
-
+                <div class="col">
                     @yield ('content')
-
                 </div>
 
             </div>

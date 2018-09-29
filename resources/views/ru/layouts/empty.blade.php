@@ -7,7 +7,7 @@
 
 <body>
 
-<div id="app" class=" row align-items-center justify-content-md-center">
+<div id="app" class="container-fluid">
 
     @yield('content')
 

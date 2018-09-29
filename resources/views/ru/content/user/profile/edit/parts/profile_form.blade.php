@@ -26,7 +26,7 @@
                 <div class="col-sm-12 col-md-6 form-group{{ $errors->has('avatar') ? ' has-error' : '' }}">
                     <label for="avatar">Аватар пользователя</label>
                     <div>
-                        <input id="avatar" type="file" class="form-control" name="avatar">
+                        @include('elements.input_image.index', ['inputFileFieldName' => 'avatar'])
                         @if ($errors->has('avatar'))
                             <span class="help-block">
                     <strong>{{ $errors->first('avatar') }}</strong>

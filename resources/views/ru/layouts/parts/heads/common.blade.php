@@ -12,14 +12,12 @@
 
 {{-- Yield page's sryles ans scripts if exists--}}
 @yield('styles')
-@yield('scripts')
 
 {{-- Application css file --}}
 <link href="/css/app.css" rel="stylesheet">
 
 {{-- Font-awesome--}}
 <link href="/css/font-awesome.min.css" rel="stylesheet">
-
 
 
 <!-- Custom css -->
@@ -31,7 +29,10 @@
 <script type="text/javascript" src="/js/app.js"></script>
 
 
+
 <script type="text/javascript" src="/js/lizard.js"></script>
+
+@yield('scripts')
 
 <script>
     $.ajaxSetup({

@@ -145,5 +145,6 @@ return [
 
     // custom rules
     'old_password_confirmed' => 'Wrong old password',
+    'no_categories' => 'There are not categories. Create any category first.',
 
 ];
