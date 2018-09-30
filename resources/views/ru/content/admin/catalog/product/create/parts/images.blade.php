@@ -1,62 +1,24 @@
-<div class="card p-5 mb-5">
+<div id="create-product-images-list">
 
-    <div class="row form-group">
-        <div class="col-sm-2">
-            <label class="required" for="price1">Изображение</label>
+    <div class="card p-5 mb-5 create-product-image-item">
+
+        <div class="create-product-image-preview d-none">
+            <img src="" class="img-responsive create-product-image">
+
+            <button type="button" class="btn btn-danger create-product-image-delete" data-toggle="tooltip" title="Удалить">
+                <i class="fa fa-trash-o"></i>
+            </button>
+
         </div>
-        <div class="col-sm-8">
-            <div class="input-group image-preview">
 
-                {{-- don't give a name === doesn't send on POST/GET --}}
-                <input type="text" class="form-control image-preview-filename" disabled="disabled">
-
-                <div class="input-group-btn">
-
-                    {{-- image-preview-clear button --}}
-                    <button type="button" class="btn btn-default image-preview-clear" style="display:none;">
-                        <span class="fa fa-remove"></span> Очистить
-                    </button>
-
-                    {{-- image-preview-input --}}
-                    <div class="btn btn-default image-preview-input">
-                        <span class="fa fa-folder-open"></span>
-                        <span class="image-preview-input-title">Выбрать</span>
-                        <input type="file" name="image[]"/>
-                    </div>
-                </div>
-
+        <div class="create-product-image-input text-right">
+            <div class="btn btn-primary">
+                <i class="fa fa-plus"></i>&nbsp;
+                <span class="image-preview-input-title">Добавить изображение</span>
+                <input type="file" name="image[]"/>
             </div>
         </div>
-    </div>
 
-</div>
-
-<div class="card p-5 mb-5">
-
-    <div class="row form-group">
-        <div class="col-sm-2">
-            <label class="required" for="price1">Цена 1</label>
-        </div>
-        <div class="col-sm-8">
-            <div class="input-group image-preview">
-
-                <input type="text" class="form-control image-preview-filename" disabled="disabled">
-
-                <div class="input-group-btn">
-
-                    <button type="button" class="btn btn-default image-preview-clear" style="display:none;">
-                        <span class="fa fa-remove"></span> Очистить
-                    </button>
-
-                    <div class="btn btn-default image-preview-input">
-                        <span class="fa fa-folder-open"></span>
-                        <span class="image-preview-input-title">Выбрать</span>
-                        <input type="file" name="image[]"/>
-                    </div>
-                </div>
-
-            </div>
-        </div>
     </div>
 
 </div>

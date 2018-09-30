@@ -70,7 +70,7 @@ label.required:after {
   font-size: 1.4rem;
 }
 
-// -------------------------------------------------- category styles ---------------------------------------------------
+// -------------------------------------------------- category styles --------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
 
 .cat-depth-1 {
@@ -103,4 +103,40 @@ label.required:after {
 
 .category-control-cell{
   width: 10rem;
+}
+
+
+// -------------------------------------------------- product styles --------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+
+.create-product-image{
+  width: 200px;
+  max-width: 100%;
+}
+
+.create-product-image-preview{
+  position: relative;
+
+  button{
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+}
+
+.create-product-image-input .btn {
+  position: relative;
+  height: 100%;
+}
+
+.create-product-image-input input[type=file] {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0;
+  padding: 0;
+  font-size: 20px;
+  cursor: pointer;
+  opacity: 0;
+  filter: alpha(opacity=0);
 }

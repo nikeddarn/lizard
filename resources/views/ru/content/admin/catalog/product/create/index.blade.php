@@ -33,22 +33,22 @@
                   enctype="multipart/form-data">
                 @csrf
 
-            <nav>
-                <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                    <a class="nav-item nav-link active" data-toggle="tab" href="#product-general" role="tab"
-                       aria-controls="product-general" aria-selected="true">Основное</a>
-                    <a class="nav-item nav-link" data-toggle="tab" href="#product-seo" role="tab"
-                       aria-controls="product-seo" aria-selected="false">SEO</a>
-                    <a class="nav-item nav-link" data-toggle="tab" href="#product-content" role="tab"
-                       aria-controls="product-content" aria-selected="false">Описание</a>
-                    <a class="nav-item nav-link" data-toggle="tab" href="#product-images" role="tab"
-                       aria-controls="product-images" aria-selected="false">Изображения</a>
-                    <a class="nav-item nav-link" data-toggle="tab" href="#product-attributes" role="tab"
-                       aria-controls="product-attributes" aria-selected="false">Характеристики</a>
-                    <a class="nav-item nav-link" data-toggle="tab" href="#product-price" role="tab"
-                       aria-controls="product-price" aria-selected="false">Цены</a>
-                </div>
-            </nav>
+                <nav>
+                    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                        <a class="nav-item nav-link active" data-toggle="tab" href="#product-general" role="tab"
+                           aria-controls="product-general" aria-selected="true">Основное</a>
+                        <a class="nav-item nav-link" data-toggle="tab" href="#product-seo" role="tab"
+                           aria-controls="product-seo" aria-selected="false">SEO</a>
+                        <a class="nav-item nav-link" data-toggle="tab" href="#product-content" role="tab"
+                           aria-controls="product-content" aria-selected="false">Описание</a>
+                        <a class="nav-item nav-link" data-toggle="tab" href="#product-images" role="tab"
+                           aria-controls="product-images" aria-selected="false">Изображения</a>
+                        <a class="nav-item nav-link" data-toggle="tab" href="#product-attributes" role="tab"
+                           aria-controls="product-attributes" aria-selected="false">Характеристики</a>
+                        <a class="nav-item nav-link" data-toggle="tab" href="#product-price" role="tab"
+                           aria-controls="product-price" aria-selected="false">Цены</a>
+                    </div>
+                </nav>
 
                 <div class="tab-content">
                     <div class="tab-pane fade show active" id="product-general" role="tabpanel"
@@ -145,10 +145,36 @@
             });
 
         });
+
+        // add product images handler
+        $('.create-product-image-input').find('input').change(insertNewImage);
+
+        function insertNewImage() {
+            let imageItem = $(this).closest('.create-product-image-item');
+            let newImageItem = $(imageItem).clone();
+
+            let reader = new FileReader();
+            reader.readAsDataURL(this.files[0]);
+
+            reader.onload = function (e) {
+
+                $(imageItem).find('.create-product-image-preview').removeClass('d-none').addClass('d-block')
+                    .find('img').attr('src', e.target.result);
+
+                $(imageItem).find('.create-product-image-input').addClass('d-none');
+
+                // register delete button
+                $(imageItem).find('.create-product-image-delete').click(function () {
+                    $(imageItem).remove();
+                });
+
+                //append and register new image item
+                $('#create-product-images-list').append(newImageItem);
+                $(newImageItem).find('input').change(insertNewImage);
+            };
+
+        }
+
     </script>
 
-@endsection
-
-@section('styles')
-    <link href="/css/input-file.css" rel="stylesheet">
 @endsection
