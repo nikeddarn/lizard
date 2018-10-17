@@ -28,7 +28,8 @@ class StoreCategoryRequest extends FormRequest
             'keywords_ua' => 'nullable|string|max:128',
             'content_ru' => 'nullable|string',
             'content_ua' => 'nullable|string',
-            'image' => 'file',
+            'image' => 'required|image',
+            'filter_id.*' => 'nullable|integer',
         ];
     }
 

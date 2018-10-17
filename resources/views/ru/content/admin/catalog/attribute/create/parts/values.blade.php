@@ -1,30 +1,10 @@
-<div class="card p-5 mb-5">
+<div id="attribute-value-list"></div>
 
-    <div class="row form-group">
-        <div class="col-sm-2">
-            <label class="required" for="name_ru">Значение (ru)</label>
-        </div>
-        <div class="col-sm-8">
-            <input id="name_ru" name="name_ru" type="text" required class="w-100" value="{{ old('name_ru') }}">
-        </div>
+<div class="card p-5 mb-5 text-right">
+    <div>
+        <button class="btn btn-primary attribute-value-add-item" type="button">
+            <i class="fa fa-plus"></i>&nbsp;
+            <span>Добавить значение</span>
+        </button>
     </div>
-
-    <div class="row form-group">
-        <div class="col-sm-2">
-            <label class="required" for="name_ru">Значение (ua)</label>
-        </div>
-        <div class="col-sm-8">
-            <input id="name_ru" name="name_ru" type="text" required class="w-100" value="{{ old('name_ru') }}">
-        </div>
-    </div>
-
-    <div class="row form-group">
-        <div class="col-sm-2">
-            <label class="required" for="name_ru">Изображение</label>
-        </div>
-        <div class="col-sm-8">
-            @include('elements.input_image.index')
-        </div>
-    </div>
-
 </div>

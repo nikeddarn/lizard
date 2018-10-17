@@ -7,7 +7,7 @@
         <div class="row page-content">
 
             <div class="col-sm-4">
-                <div class="underlined-title">
+                <div class="underlined-title mb-4">
                     <h3 class="page-header text-gray">Вход пользователя</h3>
                 </div>
 
@@ -17,7 +17,7 @@
             </div>
 
             <div class="col-sm-8">
-                <div class="underlined-title">
+                <div class="underlined-title mb-4">
                     <h3 class="page-header text-gray">Нет аккаунта? Зарегистрируйтесь</h3>
                 </div>
 

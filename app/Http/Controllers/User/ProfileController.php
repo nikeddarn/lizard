@@ -43,7 +43,6 @@ class ProfileController extends Controller
      */
     public function save(Request $request)
     {
-
         $this->validate($request, $this->rules($request->user()));
 
         $this->storeProfileData($request);

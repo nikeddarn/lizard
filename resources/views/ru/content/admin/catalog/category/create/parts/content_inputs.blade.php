@@ -5,7 +5,7 @@
             <label for="content_ru">Описание (ru)</label>
         </div>
         <div class="col-sm-8">
-            <textarea id="content_ru" name="content_ru" type="text" class="w-100 summernote" rows="10">{{ old('url') }}</textarea>
+            <textarea id="content_ru" name="content_ru" type="text" class="w-100 summernote" rows="10">{{ old('content_ru') }}</textarea>
         </div>
     </div>
 
@@ -14,7 +14,7 @@
             <label for="content_ua">Описание (ua)</label>
         </div>
         <div class="col-sm-8">
-            <textarea id="content_ua" name="content_ua" type="text" class="w-100 summernote" rows="10">{{ old('url') }}</textarea>
+            <textarea id="content_ua" name="content_ua" type="text" class="w-100 summernote" rows="10">{{ old('content_ua') }}</textarea>
         </div>
     </div>
 

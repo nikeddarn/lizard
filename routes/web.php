@@ -83,8 +83,15 @@ Route::middleware('auth.admin')->group(function (){
     Route::get('/admin/categories/{id}/edit', 'Admin\CategoryController@edit')->name('admin.categories.edit');
     Route::put('/admin/categories/{id}', 'Admin\CategoryController@update')->name('admin.categories.update');
     Route::delete('/admin/categories/{id}', 'Admin\CategoryController@destroy')->name('admin.categories.destroy');
+    Route::get('/admin/categories/{id}/up', 'Admin\CategoryController@up')->name('admin.categories.up');
+    Route::get('/admin/categories/{id}/down', 'Admin\CategoryController@down')->name('admin.categories.down');
     // upload "summernote" editor images
     Route::post('/admin/categories/upload/image', 'Admin\CategoryController@uploadImage')->name('admin.categories.upload.image');
+
+    // category filters
+    Route::get('/admin/categories/{id}/filter/create', 'Admin\CategoryFilterController@create')->name('admin.categories.filter.create');
+    Route::post('/admin/categories/filter', 'Admin\CategoryFilterController@store')->name('admin.categories.filter.store');
+    Route::delete('/admin/categories/filter/destroy', 'Admin\CategoryFilterController@destroy')->name('admin.categories.filter.destroy');
 
     // products
     Route::get('/admin/products', 'Admin\ProductController@index')->name('admin.products.index');
@@ -97,6 +104,24 @@ Route::middleware('auth.admin')->group(function (){
     // upload "summernote" editor images
     Route::post('/admin/products/upload/image', 'Admin\ProductController@uploadImage')->name('admin.products.upload.image');
 
+    // product images
+    Route::get('/admin/products/{id}/image/create', 'Admin\ProductImageController@create')->name('admin.products.image.create');
+    Route::post('/admin/products/image', 'Admin\ProductImageController@store')->name('admin.products.image.store');
+    Route::delete('/admin/products/image/{id}', 'Admin\ProductImageController@destroy')->name('admin.products.image.destroy');
+    // set image as priority
+    Route::post('/admin/products/image/{id}/priority', 'Admin\ProductImageController@priority')->name('admin.products.image.priority');
+
+    // product attributes
+    Route::get('/admin/products/{id}/attribute/create', 'Admin\ProductAttributeController@create')->name('admin.products.attribute.create');
+    Route::post('/admin/products/attribute', 'Admin\ProductAttributeController@store')->name('admin.products.attribute.store');
+    Route::delete('/admin/products/attribute/destroy', 'Admin\ProductAttributeController@destroy')->name('admin.products.attribute.destroy');
+
+    // product filters
+    Route::get('/admin/products/{id}/filter/create', 'Admin\ProductFilterController@create')->name('admin.products.filter.create');
+    Route::post('/admin/products/filter', 'Admin\ProductFilterController@store')->name('admin.products.filter.store');
+    Route::delete('/admin/products/filter/destroy', 'Admin\ProductFilterController@destroy')->name('admin.products.filter.destroy');
+
+
     // attributes
     Route::get('/admin/attributes', 'Admin\AttributeController@index')->name('admin.attributes.index');
     Route::get('/admin/attributes/create', 'Admin\AttributeController@create')->name('admin.attributes.create');
@@ -105,8 +130,45 @@ Route::middleware('auth.admin')->group(function (){
     Route::get('/admin/attributes/{id}/edit', 'Admin\AttributeController@edit')->name('admin.attributes.edit');
     Route::put('/admin/attributes/{id}', 'Admin\AttributeController@update')->name('admin.attributes.update');
     Route::delete('/admin/attributes/{id}', 'Admin\AttributeController@destroy')->name('admin.attributes.destroy');
-    // upload "summernote" editor images
-    Route::post('/admin/attributes/upload/image', 'Admin\AttributeController@uploadImage')->name('admin.attributes.upload.image');
 
+    // attribute values
+    Route::get('/admin/attributes/{id}/value/create', 'Admin\AttributeValueController@create')->name('admin.attributes.value.create');
+    Route::post('/admin/attributes/value', 'Admin\AttributeValueController@store')->name('admin.attributes.value.store');
+    Route::get('/admin/attributes/value/{id}/edit', 'Admin\AttributeValueController@edit')->name('admin.attributes.value.edit');
+    Route::put('/admin/attributes/value/{id}', 'Admin\AttributeValueController@update')->name('admin.attribute.values.update');
+    Route::delete('/admin/attributes/values/{id}', 'Admin\AttributeValueController@destroy')->name('admin.attribute.values.destroy');
+
+    // filters
+    Route::get('/admin/filters', 'Admin\FilterController@index')->name('admin.filters.index');
+    Route::get('/admin/filters/create', 'Admin\FilterController@create')->name('admin.filters.create');
+    Route::post('/admin/filters/', 'Admin\FilterController@store')->name('admin.filters.store');
+    Route::get('/admin/filters/show/{id}', 'Admin\FilterController@show')->name('admin.filters.show');
+    Route::get('/admin/filters/{id}/edit', 'Admin\FilterController@edit')->name('admin.filters.edit');
+    Route::put('/admin/filters/{id}', 'Admin\FilterController@update')->name('admin.filters.update');
+    Route::delete('/admin/filters/{id}', 'Admin\FilterController@destroy')->name('admin.filters.destroy');
+
+    // users
+    Route::get('/admin/users/customers', 'Admin\UserController@customers')->name('admin.users.customers');
+    Route::get('/admin/users/administrators', 'Admin\UserController@administrators')->name('admin.users.administrators');
+    Route::get('/admin/users/show/{id}', 'Admin\UserController@show')->name('admin.users.show');
+    Route::get('/admin/users/{id}/edit', 'Admin\UserController@edit')->name('admin.users.edit');
+    Route::put('/admin/users/{id}', 'Admin\UserController@update')->name('admin.users.update');
+    Route::delete('/admin/users/{id}', 'Admin\UserController@destroy')->name('admin.users.destroy');
+
+    // user roles
+    Route::get('/admin/users/{id}/role/create', 'Admin\UserRoleController@create')->name('admin.users.role.create');
+    Route::post('/admin/users/role', 'Admin\UserRoleController@store')->name('admin.users.role.store');
+    Route::delete('/admin/users/role/destroy', 'Admin\UserRoleController@destroy')->name('admin.users.role.destroy');
 
 });
+
+
+
+// --------------------------------------------- Shop Routes -----------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+
+
+Route::get('/category/{url}', 'Shop\CategoryController@index')->name('shop.category.index');
+
+
+Route::get('/shop/cart', 'Shop\CartController@index')->name('shop.cart.index');

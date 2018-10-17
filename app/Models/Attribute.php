@@ -31,6 +31,13 @@ class Attribute extends Model
     public $translatable = ['name'];
 
     /**
+     * Indicates if the model should be timestamped.
+     *
+     * @var bool
+     */
+    public $timestamps = false;
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function attributeValues()

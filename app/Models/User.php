@@ -31,7 +31,7 @@ class User extends Authenticatable
      */
     public function roles()
     {
-        return $this->belongsToMany('App\Models\Role', 'user_role', 'users_id', 'roles_id' )->withTimestamps();
+        return $this->belongsToMany('App\Models\Role', 'user_role', 'users_id', 'roles_id')->withTimestamps();
     }
 
     /**
@@ -43,13 +43,27 @@ class User extends Authenticatable
     }
 
     /**
-     * Has user any of given role?
+     * Has user any role or role from given array?
      *
      * @param array $roles
      * @return bool
      */
-    public function hasAnyRole(array $roles)
+    public function hasAnyRole(array $roles = null)
     {
-        return (bool)$this->roles()->whereIn('id', $roles)->count();
+        if ($roles) {
+            return (bool)$this->roles()->whereIn('id', $roles)->count();
+        } else {
+            return (bool)$this->roles()->count();
+        }
+    }
+
+    /**
+     * Has user any role or role from given array?
+     *
+     * @return bool
+     */
+    public function isEmployee()
+    {
+        return (bool)$this->roles()->count();
     }
 }

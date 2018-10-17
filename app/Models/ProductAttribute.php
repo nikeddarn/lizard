@@ -14,11 +14,32 @@ class ProductAttribute extends Model
     protected $table = 'product_attribute';
 
     /**
+     * Array of composite primary keys.
+     *
+     * @var array
+     */
+    protected $primaryKey = ['products_id', 'attribute_values_id'];
+
+    /**
+     * Non auto incrementing primary key.
+     *
+     * @var bool
+     */
+    public $incrementing = false;
+
+    /**
      * The attributes that aren't mass assignable.
      *
      * @var array
      */
     protected $guarded = [];
+
+    /**
+     * Indicates if the model should be timestamped.
+     *
+     * @var bool
+     */
+    public $timestamps = false;
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

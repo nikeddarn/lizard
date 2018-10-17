@@ -1,27 +1,39 @@
-<table id="categories-list-table" class="table table-bordered">
+@if($products->count())
 
-    <thead>
-    <tr>
-        <td colspan="4"><strong>Список продуктов</strong></td>
-    </tr>
+    <table class="table">
 
-    </thead>
+        <thead>
+        <tr class="text-center">
+            <td class="d-none d-lg-table-cell"></td>
+            <td class="d-none d-lg-table-cell">Id</td>
+            <td>Название</td>
+            <td>Категория</td>
+            <td></td>
+        </tr>
+        </thead>
 
-    <tbody>
+        <tbody>
 
-    @if($products->count())
 
         @foreach($products as $product)
 
             <tr>
 
-                <td><img src="{{ $product->image }}" class="img-responsive"></td>
+                <td class="d-none d-lg-table-cell">
+                    @if($product->primaryImage)
+                        <img src="/storage/{{ $product->primaryImage->image }}" class="img-responsive table-image">
+                    @endif
+                </td>
+
+                <td class="d-none d-lg-table-cell text-center">{{ $product->id }}</td>
 
                 <td>{{ $product->name }}</td>
 
-                <td>{{ $product->category->name }}</td>
+                <td>
+                    <a href="{{ route('admin.categories.show', ['id' => $product->category->id]) }}">{{ $product->category->name }}</a>
+                </td>
 
-                <td class="category-control-cell text-center">
+                <td class="text-center">
 
                     <a href="{{ route('admin.products.show', ['id' => $product->id]) }}" data-toggle="tooltip"
                        title="Просмотреть" class="btn btn-primary"><i class="fa fa-eye" aria-hidden="true"></i></a>
@@ -29,10 +41,11 @@
                     <a href="{{ route('admin.products.edit', ['id' => $product->id]) }}" data-toggle="tooltip"
                        title="Редактировать" class="btn btn-primary"><i class="fa fa-pencil"></i></a>
 
-                    <form class="category-form ml-2" action="{{ route('admin.products.destroy', ['id' => $product->id]) }}" method="post">
+                    <form class="product-delete-form d-inline-block ml-lg-2"
+                          action="{{ route('admin.products.destroy', ['id' => $product->id]) }}" method="post">
                         @csrf
-                        <input type="hidden" name="_method" value="delete" />
-                        <input type="hidden" name="id" value="{{ $product->id }}">
+                        @method('DELETE')
+
                         <button type="submit" class="btn btn-danger" data-toggle="tooltip" title="Удалить">
                             <i class="fa fa-trash-o"></i>
                         </button>
@@ -44,13 +57,15 @@
 
         @endforeach
 
-    @else
+        </tbody>
+    </table>
 
-        <tr>
-            <td colspan="4">Нет ни одного продукта</td>
-        </tr>
+@else
 
-    @endif
+    <p>Нет ни одного продукта</p>
 
-    </tbody>
-</table>
+@endif
+
+@if($products->links())
+    <div class="col-lg-12 my-4 items-pagination">{{$products->links()}}</div>
+@endif

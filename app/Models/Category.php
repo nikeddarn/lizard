@@ -50,6 +50,22 @@ class Category extends Model
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function filters()
+    {
+        return $this->belongsToMany('App\Models\Filter', 'category_filter', 'categories_id', 'filters_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function categoryFilter()
+    {
+        return $this->hasMany('App\Models\CategoryFilter', 'categories_id', 'id');
+    }
+
+    /**
      * @param  string  $value
      * @return void
      */

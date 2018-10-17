@@ -37,10 +37,10 @@
 
     <div class="row form-group">
         <div class="col-sm-2">
-            <label class="required" for="parent_id">Категория</label>
+            <label class="required" for="categories_id">Категория</label>
         </div>
         <div class="col-sm-8">
-            <select id="parent_id" name="parent_id" class="selectpicker w-100">
+            <select id="categories_id" name="categories_id" class="selectpicker w-100">
                 @include('content.admin.catalog.product.create.parts.select_category_options')
             </select>
         </div>

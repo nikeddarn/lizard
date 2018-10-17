@@ -1,4 +1,4 @@
-<div class="input-group image-preview">
+<div class="input-group input-file-block">
 
     {{-- don't give a name === doesn't send on POST/GET --}}
     <input type="text" class="form-control image-preview-filename" disabled="disabled">
@@ -14,7 +14,7 @@
         <div class="btn btn-default image-preview-input">
             <span class="fa fa-folder-open"></span>
             <span class="image-preview-input-title">Выбрать</span>
-            <input type="file" name="{{ isset($inputFileFieldName) ? $inputFileFieldName : 'image' }}"/>
+            <input type="file" name="{{ isset($inputFileFieldName) ? $inputFileFieldName : 'image' }}" accept="image/*"/>
         </div>
     </span>
 

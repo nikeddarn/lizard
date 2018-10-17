@@ -32,7 +32,7 @@
 
 <script type="text/javascript" src="/js/lizard.js"></script>
 
-@yield('scripts')
+<script type="text/javascript" src="/js/isotope.min.js"></script>
 
 <script>
     $.ajaxSetup({
@@ -41,3 +41,5 @@
         }
     });
 </script>
+
+@yield('scripts')

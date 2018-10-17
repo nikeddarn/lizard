@@ -1,5 +1,6 @@
 <ul class="nav flex-column">
     <li class="nav-item"><a class="nav-link" href="{{ route('admin') }}">Обзор</a></li>
+
     <li class="nav-item">
         <a class="nav-link collapsed" href="#sidebar-catalog"  data-toggle="collapse" data-target="#sidebar-catalog">Каталог</a>
         <div class="collapse" id="sidebar-catalog" aria-expanded="false">
@@ -7,10 +8,21 @@
                 <li class="nav-item"><a class="nav-link py-1" href="{{ route('admin.categories.index') }}">Категории</a></li>
                 <li class="nav-item"><a class="nav-link py-1" href="{{ route('admin.products.index') }}">Продукты</a></li>
                 <li class="nav-item"><a class="nav-link py-1" href="{{ route('admin.attributes.index') }}">Атрибуты продуктов</a></li>
-                <li class="nav-item"><a class="nav-link py-1" href="">Фильтры категорий</a></li>
+                <li class="nav-item"><a class="nav-link py-1" href="{{ route('admin.filters.index') }}">Фильтры</a></li>
             </ul>
         </div>
     </li>
+
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#sidebar-users"  data-toggle="collapse" data-target="#sidebar-users">Пользователи</a>
+        <div class="collapse" id="sidebar-users" aria-expanded="false">
+            <ul class="flex-column pl-3 nav">
+                <li class="nav-item"><a class="nav-link py-1" href="{{ route('admin.users.administrators') }}">Сотрудники</a></li>
+                <li class="nav-item"><a class="nav-link py-1" href="{{ route('admin.users.customers') }}">Пользователи</a></li>
+            </ul>
+        </div>
+    </li>
+
     <li class="nav-item">
         <a class="nav-link collapsed" href="#submenu1" data-toggle="collapse" data-target="#submenu1">Reports</a>
         <div class="collapse" id="submenu1" aria-expanded="false">

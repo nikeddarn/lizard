@@ -3,8 +3,8 @@
 // Custom variables
 @import 'lizard_variables';
 
-// bootstrap-select
-@import "vendor/snapappointments/bootstrap-select/sass/bootstrap-select.scss";
+// bootstrap-touchspin
+//@import "../../node_modules/bootstrap-touchspin/src/jquery.bootstrap-touchspin.css";
 
 // -------------------------------------------------- common styles ----------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
@@ -82,8 +82,31 @@ a:hover {
   }
 }
 
-// -------------------------------------------------- input styles ----------------------------------------------------
+// -------------------------------------------------- pagination styles ------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
+
+.pagination {
+
+  .page-link {
+    color: $lizard-text-gray-color;
+    outline: none;
+    box-shadow: none;
+  }
+
+  .active .page-link {
+    color: white;
+    background-color: $lizard-primary-color;
+  }
+
+}
+
+// -------------------------------------------------- input styles -----------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+
+.custom-control-input:checked ~ .custom-control-label::before {
+  color: #fff;
+  background-color: $lizard-primary-color !important;
+}
 
 input:not([type="radio"]):not([type="checkbox"]) {
   outline: none !important;
@@ -143,7 +166,7 @@ input:active:not([type="radio"]):not([type="checkbox"]) {
 button {
   border-radius: 0 !important;
   outline: none !important;
-  border: 1px solid #ccc;
+  //border: none;
   -webkit-box-shadow: none !important;
   box-shadow: none !important;
 }
@@ -158,7 +181,7 @@ button:focus {
   border-color: $lizard-primary-color !important;
 }
 
-select{
+select {
   height: 34px;
 }
 
@@ -180,6 +203,7 @@ textarea:active {
   border-radius: 0 !important;
   -webkit-box-shadow: none !important;
   box-shadow: none !important;
+  outline: none !important;
 }
 
 .btn-primary {
@@ -193,27 +217,78 @@ textarea:active {
   border-color: $lizard-primary-darken-color;
 }
 
-.btn-default{
+.btn-default {
+  border-color: $lizard-input-border-color;
   background-color: white;
 }
 
-.btn-default:hover{
+.btn-default:hover {
   background-color: whitesmoke;
+}
+
+// -------------------------------------------------- input-file styles ------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+
+.input-file-block {
+
+  .image-preview-input {
+    position: relative;
+    overflow: hidden;
+    margin: 0;
+    color: #333;
+    background-color: #fff;
+    border-color: #ccc;
+    height: 100%;
+    border-style: solid;
+  }
+
+  .image-preview-input input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0;
+    filter: alpha(opacity=0);
+  }
+
+  .image-preview-input-title {
+    margin-left: 2px;
+  }
+
+  .image-preview-clear {
+    height: 100%;
+  }
+
+  .popover-header {
+    overflow: hidden;
+  }
+
 }
 
 // -------------------------------------------------- bootstrap-select styles ------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
 
-.bootstrap-select{
-  button{
+.bootstrap-select {
+
+  button {
+    border: 1px solid $lizard-input-border-color;
     background-color: white !important;
   }
-  button:hover, button:active, button:focus{
+
+  button:active, button:focus {
     background-color: white !important;
+    outline: none !important;
+    -webkit-box-shadow: none !important;
+    box-shadow: none !important;
+    border-color: $lizard-primary-color !important;
   }
-  li.active a, li:hover a{
+
+  li.active a, li:hover a {
     background-color: $lizard-primary-color !important;
-        color: white !important;
+    color: white !important;
   }
 }
 
@@ -308,4 +383,106 @@ textarea:active {
   li:hover:not(.active) a {
     background-color: $lizard-light-background-color;
   }
+}
+
+#header-middle {
+  background-color: $lizard-lighter-background-color;
+}
+
+#header-bottom {
+  position: relative;
+  background-color: $lizard-light-background-color;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+}
+
+// -------------------------------------------------- Mega Menu styles -------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+
+.mega-menu {
+
+  position: relative;
+
+  .mega-menu-dropdown {
+    position: static;
+  }
+
+  .mega-menu-content {
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: 0;
+    border-radius: 0;
+  }
+
+  .nav-link {
+    color: $lizard-text-gray-color;
+  }
+
+  .mega-menu-dropdown:hover .nav-link, .mega-menu-dropdown.show .nav-link, .nav-link:hover,  .mega-menu-dropdown .nav-link.active{
+    color: white;
+    background-color: $lizard-primary-color;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  h4 {
+    cursor: default;
+    margin: 0;
+  }
+
+  a span {
+    display: none;
+  }
+
+  a.active span {
+    display: block;
+  }
+
+  a:hover, h4:hover {
+    color: $lizard-primary-darken-color;
+  }
+
+  .fa {
+    opacity: .8;
+  }
+}
+
+// -------------------------------------------------- Mega Menu Content ------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+
+#v-pills-categories-tabs {
+  box-shadow: 0 2px 2px 2px $lizard-light-background-color;
+  border: 1px solid $lizard-light-background-color;
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+  }
+}
+
+#v-pills-categoriesContent {
+  border: 1px solid $lizard-light-background-color;
+  box-shadow: 0 2px 2px 2px $lizard-light-background-color;
+
+}
+
+
+// -------------------------------------------------- Breadcrumbs ------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+
+.breadcrumb-wrapper {
+  background-color: $lizard-light-background-color;
+}
+
+.breadcrumb {
+  margin: 0;
+  background-color: $lizard-light-background-color;;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+  content: '\00BB';
 }

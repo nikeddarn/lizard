@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Support\Translatable;
 use Illuminate\Database\Eloquent\Model;
 
 class Role extends Model
 {
+    use Translatable;
+
     /**
      * Table name.
      *
@@ -26,6 +29,13 @@ class Role extends Model
      * @var array
      */
     protected $guarded = [];
+
+    /**
+     * The attributes that should be selected depends on locale from JSON type field.
+     *
+     * @var array
+     */
+    public $translatable = ['title'];
 
     /**
      * Indicates if the model should be timestamped.

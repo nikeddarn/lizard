@@ -1,7 +1,11 @@
 // Variables
 @import 'variables';
+
 // Custom variables
 @import 'lizard_variables';
+
+// bootstrap-select
+@import "vendor/snapappointments/bootstrap-select/sass/bootstrap-select.scss";
 
 // -------------------------------------------------- header styles ---------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
@@ -53,11 +57,22 @@
   }
 }
 
+// -------------------------------------------------- header styles ----------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+
+.admin-content-actions{
+  text-align: right;
+}
+
 // -------------------------------------------------- content styles ---------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
 
 .admin-content-header {
   margin: 3rem 0;
+}
+
+.admin-content-sub-header{
+  display: inline-block;
 }
 
 .tab-content {
@@ -70,8 +85,29 @@ label.required:after {
   font-size: 1.4rem;
 }
 
+
+// -------------------------------------------------- tables styles ----------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+
+.table-image{
+  height: 40px;
+}
+
+.table-large-image{
+  height: 60px;
+}
+
 // -------------------------------------------------- category styles --------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
+
+.category-list{
+  list-style: none;
+  line-height: 34px;
+}
+
+.parent-category-row{
+  background-color: white;
+}
 
 .cat-depth-1 {
   padding-left: 3.5rem;
@@ -93,50 +129,62 @@ label.required:after {
   padding-left: 11.5rem;
 }
 
-.category-form{
-  display: inline-block;
-}
-
-.category-open-cell {
-  width: 4rem;
-}
-
-.category-control-cell{
-  width: 10rem;
-}
-
-
-// -------------------------------------------------- product styles --------------------------------------------------
+// -------------------------------------------------- product and attributes styles ------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
 
-.create-product-image{
-  width: 200px;
-  max-width: 100%;
-}
 
-.create-product-image-preview{
+
+.attribute-value-item, .product-image-item, .product-attribute-item, .product-filter-item, .category-filter-item {
   position: relative;
 
-  button{
+  .attribute-value-item-delete, .product-image-item-delete, .product-attribute-item-delete, .product-filter-item-delete, .category-filter-item-delete {
+    display: inline-block;
     position: absolute;
     right: 0;
     top: 0;
+    padding: 2px 2px 2px 6px;
   }
 }
 
-.create-product-image-input .btn {
-  position: relative;
-  height: 100%;
+.add-image-input {
+
+  display: inline-block;
+
+  input {
+    display: inline-block;
+    float: left;
+    width: auto;
+  }
+
+  .btn {
+    position: relative;
+    height: 100%;
+
+    input[type=file] {
+      position: absolute;
+      top: 0;
+      right: 0;
+      margin: 0;
+      padding: 0;
+      font-size: 20px;
+      cursor: pointer;
+      opacity: 0;
+      filter: alpha(opacity=0);
+    }
+  }
 }
 
-.create-product-image-input input[type=file] {
-  position: absolute;
-  top: 0;
-  right: 0;
-  margin: 0;
-  padding: 0;
-  font-size: 20px;
-  cursor: pointer;
-  opacity: 0;
-  filter: alpha(opacity=0);
+// -------------------------------------------------- attribute values styles ------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+
+#attribute-values-list-table {
+
+  .attribute-value-image {
+
+    width: 30%;
+
+    img {
+      max-height: 100px;
+    }
+  }
 }

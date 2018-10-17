@@ -22,7 +22,7 @@ class Product extends Model
      *
      * @var array
      */
-    protected $guarded = ['price1', 'price2', 'price3'];
+    protected $guarded = [];
 
     /**
      * The attributes that should be selected depends on locale from JSON type field.
@@ -37,6 +37,38 @@ class Product extends Model
     public function category()
     {
         return $this->belongsTo('App\Models\Category', 'categories_id', 'id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function productImages()
+    {
+        return $this->hasMany('App\Models\ProductImage', 'products_id', 'id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function primaryImage()
+    {
+        return $this->hasOne('App\Models\ProductImage', 'products_id', 'id')->where('priority', 1);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function productAttributes()
+    {
+        return $this->hasMany('App\Models\ProductAttribute', 'products_id', 'id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function attributeValues()
+    {
+        return $this->belongsToMany('App\Models\AttributeValue', 'product_attribute', 'products_id', 'attribute_values_id');
     }
 
     /**
@@ -55,5 +87,13 @@ class Product extends Model
     public function setContentUaAttribute($value)
     {
         $this->attributes['content_ua'] = Purifier::clean($value);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function filters()
+    {
+        return $this->belongsToMany('App\Models\Filter', 'product_filter', 'products_id', 'filters_id');
     }
 }
