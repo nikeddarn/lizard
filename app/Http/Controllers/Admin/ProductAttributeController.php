@@ -79,12 +79,13 @@ class ProductAttributeController extends Controller
         $productsId = $request->get('products_id');
 
         $this->validate($request, [
-            'attribute_values_id' => ['integer', Rule::unique('product_attribute', 'attribute_values_id')->where('products_id', $productsId)],
-            'products_id' => ['integer'],
+            'attributes_id' => ['integer', Rule::unique('product_attribute', 'attributes_id')->where('products_id', $productsId)],
+            'attribute_values_id' => 'integer',
+            'products_id' => 'integer',
         ]);
 
 
-        $this->productAttribute->newQuery()->create($request->only(['products_id', 'attribute_values_id']));
+        $this->productAttribute->newQuery()->create($request->only(['products_id', 'attributes_id', 'attribute_values_id']));
 
         return redirect(route('admin.products.show', ['id' => $productsId]));
     }

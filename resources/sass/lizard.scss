@@ -3,14 +3,10 @@
 // Custom variables
 @import 'lizard_variables';
 
-// bootstrap-touchspin
-//@import "../../node_modules/bootstrap-touchspin/src/jquery.bootstrap-touchspin.css";
-
 // -------------------------------------------------- common styles ----------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
 
 html, body {
-  line-height: 1.7rem;
   font-family: RobotoDraft, Roboto, sans-serif;
   font-size: $lizard-font-size;
 }
@@ -25,6 +21,7 @@ body, #app {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: RobotoDraft, Roboto, sans-serif;
+  line-height: 1.7rem;
 }
 
 img {
@@ -34,6 +31,7 @@ img {
 
 p {
   text-indent: 1.5rem;
+  line-height: 1.7rem;
 }
 
 a {
@@ -50,8 +48,20 @@ a:hover {
   box-shadow: none;
 }
 
+table tr td {
+  vertical-align: middle !important;
+}
+
 .text-gray {
   color: $lizard-text-gray-color;
+}
+
+.text-gray-lighter {
+  color: $lizard-text-gray-lighter-color;
+}
+
+.text-lizard{
+  color: $lizard-primary-color;
 }
 
 /* Underlined Title */
@@ -80,6 +90,11 @@ a:hover {
   .col, [class^="col-"] {
     margin-bottom: 2rem;
   }
+}
+
+.nav-tabs .nav-link:not(.active):hover {
+  border-color: $lizard-pastel-color;
+  background-color: $lizard-pastel-color;
 }
 
 // -------------------------------------------------- pagination styles ------------------------------------------------
@@ -112,8 +127,6 @@ input:not([type="radio"]):not([type="checkbox"]) {
   outline: none !important;
   -webkit-box-shadow: none !important;
   box-shadow: none !important;
-  padding: 6px 12px !important;
-  height: 34px !important;
   border-color: $lizard-input-border-color !important;
   border-radius: 0 !important;
   border: 1px solid;
@@ -224,6 +237,19 @@ textarea:active {
 
 .btn-default:hover {
   background-color: whitesmoke;
+}
+
+.btn-outline-theme {
+  color: $lizard-primary-color;
+  background-color: transparent;
+  background-image: none;
+  border-color: $lizard-primary-color;
+}
+
+.btn-outline-theme:hover {
+  color: #fff;
+  background-color: $lizard-primary-color;
+  border-color: $lizard-primary-color;
 }
 
 // -------------------------------------------------- input-file styles ------------------------------------------------
@@ -362,6 +388,17 @@ textarea:active {
   }
 }
 
+// fixed to top panel
+.fixed-top-container {
+  position: fixed;
+  top: -64px;
+  left: 0;
+  right: 0;
+  padding: 0 !important;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+
 // -------------------------------------------------- header styles ----------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -395,6 +432,23 @@ textarea:active {
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
 }
 
+.header-action{
+  position: relative;
+
+  span{
+    font-size: .8125rem;
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    color: #fff;
+    border-radius: 100%;
+    background: $lizard-primary-color;
+  }
+}
+
 // -------------------------------------------------- Mega Menu styles -------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -418,7 +472,7 @@ textarea:active {
     color: $lizard-text-gray-color;
   }
 
-  .mega-menu-dropdown:hover .nav-link, .mega-menu-dropdown.show .nav-link, .nav-link:hover,  .mega-menu-dropdown .nav-link.active{
+  .mega-menu-dropdown:hover .nav-link, .mega-menu-dropdown.show .nav-link, .nav-link:hover, .mega-menu-dropdown .nav-link.active {
     color: white;
     background-color: $lizard-primary-color;
   }
@@ -470,7 +524,6 @@ textarea:active {
 
 }
 
-
 // -------------------------------------------------- Breadcrumbs ------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -486,3 +539,302 @@ textarea:active {
 .breadcrumb-item + .breadcrumb-item::before {
   content: '\00BB';
 }
+
+// -------------------------------------------------- Adjust header sizes ----------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+
+.h1 {
+  font-size: 2.5rem;
+}
+
+.h2 {
+  font-size: 2rem;
+}
+
+.h3 {
+  font-size: 1.75rem;
+}
+
+.h4 {
+  font-size: 1.5rem;
+}
+
+.h5 {
+  font-size: 1.25rem;
+}
+
+.h6 {
+  font-size: 1rem;
+}
+
+// -------------------------------------------------- Products list ----------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+
+.available-product {
+  color: $lizard-primary-color;
+  line-height: 1.2rem;
+}
+
+.unavailable-product {
+  color: $red;
+  line-height: 1.2rem;
+}
+
+.card-product {
+  overflow: hidden;
+  margin-bottom: 15px;
+  border-color: transparent;
+}
+
+@media (min-width: 768px) {
+  .card-product {
+    -webkit-transition: border-color .15s ease-in-out, -webkit-box-shadow .15s ease-in-out;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out, -webkit-box-shadow .15s ease-in-out;
+  }
+
+  .card-product:hover {
+    border-color: #009688;
+    -webkit-box-shadow: 0 0 0 .2rem rgba(0, 150, 136, .25);
+    box-shadow: 0 0 0 .2rem rgba(0, 150, 136, .25);
+  }
+}
+
+// ---------------------------------- product card actions ---------------------------------------
+.card-product {
+
+  .card-image {
+    position: relative;
+  }
+
+  .action {
+    position: absolute;
+    bottom: 5%;
+    left: 0;
+    display: none;
+    width: 100%;
+    text-align: center;
+
+    .btn > .fa {
+      font-size: 145%;
+      vertical-align: top;
+    }
+
+    .btn-outline-theme {
+      background-color: #fff;
+      color: $lizard-primary-color;
+      border-color: $lizard-primary-color;
+    }
+
+    .btn-theme {
+      font-size: .9rem;
+      color: #fff;
+      background-color: $lizard-primary-color;
+      border-color: $lizard-primary-color;
+    }
+
+  }
+
+  .small-action {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+  }
+
+  span[data-toggle=dropdown] {
+    font-size: 1.5rem;
+    width: 8px;
+    cursor: pointer;
+  }
+
+}
+
+@media (min-width: 768px) {
+
+  .card-product:hover .action {
+    display: block;
+
+    .btn-theme, .btn-outline-theme {
+      -webkit-animation-duration: .2s;
+      animation-duration: .2s;
+      -webkit-animation-fill-mode: both;
+      animation-fill-mode: both;
+    }
+
+    .btn-outline-theme {
+      -webkit-animation-name: fadeDown;
+      animation-name: fadeDown;
+    }
+
+    .btn-theme {
+      -webkit-animation-name: fadeUp;
+      animation-name: fadeUp;
+    }
+
+    .btn-outline-theme:hover {
+      background-color: #e6e6e6;
+    }
+
+    .btn-theme:hover {
+      color: white;
+      background-color: $lizard-primary-darken-color;
+      border-color: $lizard-primary-darken-color;
+    }
+  }
+
+  @keyframes fadeDown {
+    0% {
+      -webkit-transform: translate3d(0, -100%, 0);
+      transform: translate3d(0, -100%, 0);
+      opacity: 0;
+    }
+
+    100% {
+      -webkit-transform: translate3d(0, 0, 0);
+      transform: translate3d(0, 0, 0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes fadeUp {
+    0% {
+      -webkit-transform: translate3d(0, 100%, 0);
+      transform: translate3d(0, 100%, 0);
+      opacity: 0;
+    }
+    100% {
+      -webkit-transform: translate3d(0, 0, 0);
+      transform: translate3d(0, 0, 0);
+      opacity: 1;
+    }
+  }
+}
+
+// ------------------------------------------- Product badges ----------------------------------------------------------
+
+.product-card-badges {
+  position: absolute;
+  left: auto;
+  right: 5px;
+  top: 5px;
+}
+
+// -------------------------------------------------- Products details -------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+
+.owl-theme .owl-nav {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  margin-top: 0;
+}
+
+.owl-theme .owl-nav .owl-prev {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.owl-theme .owl-nav .owl-next {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.owl-theme .owl-nav [class*='owl-'] {
+  font-size: 18px;
+  line-height: 1;
+  margin: 0;
+  padding: 0 5px;
+  opacity: .5;
+  border-radius: 0;
+}
+
+.owl-carousel .owl-item img {
+  display: block;
+  width: 100%;
+}
+
+.img-thumbnail {
+  border-radius: 0;
+}
+
+.img-thumbnail:hover {
+  border: 1px solid $lizard-primary-color;
+}
+
+.product-price {
+  color: #EF5350;
+}
+
+.storage-badge {
+  font-size: 1rem;
+}
+
+#product-attributes-table {
+  tr td:first-child {
+    background-color: #f8f8f8;
+    @media (min-width: 992px) {
+      width: 30%;
+    }
+  }
+}
+
+.product-rating {
+  color: #fc0;
+}
+
+.product-comment {
+  img {
+    width: 64px;
+  }
+}
+
+// -------------------------------------------------- Products favourite and recent ------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+
+.table-product-image{
+  height: 100px;
+}
+
+
+// -------------------------------------------------- Products filters -------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+
+#filters-toggle{
+  background-color: $lizard-pastel-color;
+  border-color: $lizard-pastel-color !important;
+}
+
+.filter-sidebar-checkbox {
+  display: block;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  color: $lizard-text-gray-color;
+}
+
+.filter-sidebar-checkbox label {
+  min-height: 20px;
+  //padding-left: 20px;
+  margin-bottom: 0;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.filter-sidebar-checkbox label:before {
+  border: 1px solid $lizard-input-border-color;
+  content: "\00a0";
+  display: inline-block;
+  font: 16px/1em sans-serif;
+  height: 16px;
+  margin: 2px .25em 0 0;
+  padding: 0;
+  vertical-align: top;
+  width: 16px;
+  font-weight: bold;
+}
+
+.filter-sidebar-checkbox label.filter-sidebar-checkbox-checked:before {
+  background: #fff;
+  color: $lizard-primary-color;
+  content: "\2714";
+  text-align: center;
+}
+

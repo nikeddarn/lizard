@@ -58,6 +58,28 @@
             <hr>
         </li>
 
+        <li class="nav-item @if(strpos(Illuminate\Support\Facades\Route::currentRouteName(), 'favourites')) active @endif">
+            <a class="nav-link" href="{{ route('user.favourites.index') }}">
+                <span>Фаворитные</span>&nbsp;
+                @if(isset($userBadges['favourites']))
+                    <span class="badge badge-info">{{ $userBadges['favourites'] }}</span>
+                @endif
+            </a>
+        </li>
+
+        <li class="nav-item @if(strpos(Illuminate\Support\Facades\Route::currentRouteName(), 'recent')) active @endif">
+            <a class="nav-link" href="{{ route('user.recent.index') }}">
+                <span>Недавние</span>&nbsp;
+                @if(isset($userBadges['recent']))
+                    <span class="badge badge-info">{{ $userBadges['recent'] }}</span>
+                @endif
+            </a>
+        </li>
+
+        <li>
+            <hr>
+        </li>
+
         <li class="nav-item @if(strpos(Illuminate\Support\Facades\Route::currentRouteName(), 'profile')) active @endif">
             <a class="nav-link" href="{{ route('user.profile.show') }}">Профиль</a>
         </li>

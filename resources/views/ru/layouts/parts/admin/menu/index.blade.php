@@ -24,6 +24,16 @@
     </li>
 
     <li class="nav-item">
+        <a class="nav-link collapsed" href="#sidebar-vendors"  data-toggle="collapse" data-target="#sidebar-vendors">Поставщики</a>
+        <div class="collapse" id="sidebar-vendors" aria-expanded="false">
+            <ul class="flex-column pl-3 nav">
+                <li class="nav-item"><a class="nav-link py-1" href="{{ route('admin.vendors.categories.index') }}">Категории</a></li>
+                {{--<li class="nav-item"><a class="nav-link py-1" href="{{ route('admin.users.customers') }}">Пользователи</a></li>--}}
+            </ul>
+        </div>
+    </li>
+
+    <li class="nav-item">
         <a class="nav-link collapsed" href="#submenu1" data-toggle="collapse" data-target="#submenu1">Reports</a>
         <div class="collapse" id="submenu1" aria-expanded="false">
             <ul class="flex-column pl-2 nav">

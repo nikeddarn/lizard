@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Setup;
 
 use App\Contracts\Auth\RoleInterface;
+use App\Models\Badge;
+use App\Models\City;
 use App\Models\Role;
+use App\Models\StorageDepartment;
 use App\Models\User;
 use App\Http\Controllers\Controller;
 
@@ -16,6 +19,9 @@ class SetupController extends Controller
     {
         $this->fillLibraries();
         $this->insertRootUser();
+        $this->insertMainStorage();
+
+        return view('elements.setup.setup_complete');
     }
 
     /**
@@ -23,7 +29,17 @@ class SetupController extends Controller
      */
     private function fillLibraries()
     {
-        Role::create(require app_path('Http/Controllers/Setup/Libraries/roles.php'));
+        foreach (require app_path('Http/Controllers/Setup/Libraries/roles.php') as $role) {
+            Role::firstOrNew($role)->save();
+        }
+
+        foreach (require app_path('Http/Controllers/Setup/Libraries/storage_departments.php') as $department) {
+            StorageDepartment::firstOrNew($department)->save();
+        }
+
+        foreach (require app_path('Http/Controllers/Setup/Libraries/product_badges.php') as $badge) {
+            Badge::firstOrNew($badge)->save();
+        }
     }
 
     /**
@@ -34,11 +50,13 @@ class SetupController extends Controller
     private function insertRootUser()
     {
         // create root user
-        $user = User::create([
+        $user = User::firstOrNew([
             'name' => 'Nikeddarn',
             'email' => 'nikeddarn@gmail.com',
-            'password' => bcrypt('assodance'),
         ]);
+
+        $user->password = bcrypt('assodance');
+        $user->save();
 
         // attach roles to root user
         $user->roles()->sync([
@@ -48,5 +66,23 @@ class SetupController extends Controller
             RoleInterface::SERVICEMAN,
             RoleInterface::STOREKEEPER,
         ]);
+    }
+
+    private function insertMainStorage()
+    {
+        $city = City::firstOrNew([
+            'name_ru' => 'Киев',
+            'name_ua' => 'Київ',
+        ]);
+
+        $city->save();
+
+        $storage = $city->storages()->firstOrNew([
+            'name_ru' => 'Лукьяновка',
+            'name_ua' => 'Лук\'янівка',
+            'primary' => 1,
+        ]);
+
+        $storage->save();
     }
 }

@@ -8,19 +8,28 @@
 
         <div class="row form-group">
             <div class="col-sm-2">
-                <label class="required" for="value_ru">Значение (ru)</label>
+                <label class="required">Значение (ru)</label>
             </div>
             <div class="col-sm-8">
-                <input id="value_ru" name="value_ru[]" type="text" required class="w-100">
+                <input name="value_ru[]" type="text" required class="value_ru w-100">
             </div>
         </div>
 
         <div class="row form-group">
             <div class="col-sm-2">
-                <label class="required" for="value_ua">Значение (ua)</label>
+                <label class="required">Значение (ua)</label>
             </div>
             <div class="col-sm-8">
-                <input id="value_ua" name="value_ua[]" type="text" required class="w-100">
+                <input name="value_ua[]" type="text" required class="value_ua w-100">
+            </div>
+        </div>
+
+        <div class="row form-group">
+            <div class="col-sm-2">
+                <label class="required">Url</label>
+            </div>
+            <div class="col-sm-8">
+                <input name="url[]" type="text" required class="url w-100" placeholder="Last part of filtered products route">
             </div>
         </div>
 

@@ -11,7 +11,7 @@
                 <label for="attribute-select" class="required">Атрибут</label>
             </div>
             <div class="col-sm-8">
-                <select id="attribute-select" name="attribute_id" class="w-100 attribute-id-select">
+                <select id="attribute-select" name="attributes_id" class="w-100 attribute-id-select">
                     <option value="0" selected>Выберете атрибут</option>
                     @foreach($attributes as $attribute)
                         <option value="{{ $attribute->id }}"

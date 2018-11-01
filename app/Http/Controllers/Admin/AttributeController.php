@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Requests\Admin\StoreAttributeRequest;
 use App\Models\Attribute;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Str;
 
 class AttributeController extends Controller
 {
@@ -67,11 +68,13 @@ class AttributeController extends Controller
 
             $valuesRu = $request->get('value_ru');
             $valuesUa = $request->get('value_ua');
+            $url = $request->get('url');
 
             for ($i = 0; $i < count($valuesRu); $i++){
                 $attributeValue = [
                     'value_ru' => $valuesRu[$i],
                     'value_ua' => $valuesUa[$i],
+                    'url' => $url[$i],
                 ];
 
                 if (isset($request->image[$i])){

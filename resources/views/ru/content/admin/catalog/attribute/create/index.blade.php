@@ -68,6 +68,8 @@
 
 @section('scripts')
 
+    <script type="text/javascript" src="/js/generate-url.js"></script>
+
     <script>
 
         $(document).ready(function () {
@@ -82,8 +84,12 @@
                 checkMultiTabForm(attributeForm);
             });
 
+            let attributeValueCounter = 0;
+
             // add new attribute value
             $('.attribute-value-add-item').click(function () {
+
+                attributeValueCounter ++;
 
                 // create new attribute value input
                 let newItem = $('#attribute-value-template').find('.attribute-value-item').clone();
@@ -97,6 +103,15 @@
                 // register deleting attribute button
                 $(newItem).find('.attribute-value-item-delete').click(function () {
                     $(this).closest('.attribute-value-item').remove();
+                });
+
+                let generateUrlTargetClass = 'generateUrlTarget' + attributeValueCounter;
+                $(newItem).find('.url').addClass(generateUrlTargetClass);
+
+                // auto generate url
+                $(newItem).find('.value_ru').generateUrl({
+                    urlField: '.' + generateUrlTargetClass,
+                    emptyOnly: false
                 });
 
             });

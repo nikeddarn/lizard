@@ -46,6 +46,8 @@
                            aria-controls="product-content" aria-selected="false">Описание</a>
                         <a class="nav-item nav-link" data-toggle="tab" href="#product-price" role="tab"
                            aria-controls="product-price" aria-selected="false">Цены</a>
+                        <a class="nav-item nav-link" data-toggle="tab" href="#product-parameters" role="tab"
+                           aria-controls="product-parameters" aria-selected="false">Параметры</a>
                     </div>
                 </nav>
 
@@ -64,6 +66,10 @@
                     <div class="tab-pane fade" id="product-price" role="tabpanel"
                          aria-labelledby="product-price-tab">
                         @include('content.admin.catalog.product.update.parts.price')
+                    </div>
+                    <div class="tab-pane fade" id="product-parameters" role="tabpanel"
+                         aria-labelledby="product-parameters-tab">
+                        @include('content.admin.catalog.product.update.parts.parameters')
                     </div>
                 </div>
 

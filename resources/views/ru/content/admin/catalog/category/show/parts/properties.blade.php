@@ -10,7 +10,11 @@
                     <strong>Родитель</strong>
                 </div>
                 <div class="col col-lg-8">
-                    {{ $category->parent->name }}
+                    @if($category->parent)
+                        {{ $category->parent->name }}
+                    @else
+                        Корневая категория
+                    @endif
                 </div>
             </div>
         </li>

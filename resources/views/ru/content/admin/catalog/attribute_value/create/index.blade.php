@@ -41,17 +41,16 @@
 
 @section('scripts')
 
+    <script type="text/javascript" src="/js/generate-url.js"></script>
+
     <script>
 
         $(document).ready(function () {
 
-            $(".delete-item-form").submit(function (event) {
-                if (confirm('Удалить значение атрибута ?')) {
-                    return true;
-                } else {
-                    event.preventDefault();
-                    return false;
-                }
+            // auto generate url
+            $('#value_ru').generateUrl({
+                urlField: '#url',
+                emptyOnly: false
             });
 
         });

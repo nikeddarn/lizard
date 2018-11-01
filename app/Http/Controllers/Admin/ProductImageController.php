@@ -90,10 +90,12 @@ class ProductImageController extends Controller
 
         $productsId = $image->products_id;
 
-        if ($image->priority){
+        if ($image->priority) {
             $firstNotPrimaryImage = $this->productImage->newQuery()->where(['products_id' => $productsId, 'priority' => 0])->first();
-            $firstNotPrimaryImage->priority = 1;
-            $firstNotPrimaryImage->save();
+            if ($firstNotPrimaryImage) {
+                $firstNotPrimaryImage->priority = 1;
+                $firstNotPrimaryImage->save();
+            }
         }
 
         $image->delete();
@@ -119,7 +121,7 @@ class ProductImageController extends Controller
 
         $oldPriorityImage = $this->productImage->newQuery()->where(['products_id' => $newPriorityImage->products_id, 'priority' => 1])->first();
 
-        if ($oldPriorityImage){
+        if ($oldPriorityImage) {
             $oldPriorityImage->priority = 0;
             $oldPriorityImage->save();
         }

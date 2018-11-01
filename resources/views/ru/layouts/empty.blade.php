@@ -2,7 +2,7 @@
 <html lang="ru">
 
 <head>
-    @include('layouts.parts.heads.common')
+    @include('layouts.parts.heads.admin')
 </head>
 
 <body>

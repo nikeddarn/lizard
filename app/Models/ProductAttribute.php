@@ -18,7 +18,7 @@ class ProductAttribute extends Model
      *
      * @var array
      */
-    protected $primaryKey = ['products_id', 'attribute_values_id'];
+    protected $primaryKey = ['products_id', 'attributes_id'];
 
     /**
      * Non auto incrementing primary key.
@@ -47,6 +47,14 @@ class ProductAttribute extends Model
     public function product()
     {
         return $this->belongsTo('App\Models\Product', 'products_id', 'id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function attribute()
+    {
+        return $this->belongsTo('App\Models\Attribute', 'attributes_id', 'id');
     }
 
     /**

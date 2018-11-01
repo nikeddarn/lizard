@@ -18,6 +18,7 @@ class StoreAttributeValueRequest extends FormRequest
             'attributeId' => 'numeric',
             'value_ru' => ['string', 'max:32', Rule::unique('attribute_values')],
             'value_ua' => ['string', 'max:32', Rule::unique('attribute_values')],
+            'url' => ['string', 'max:64', Rule::unique('attribute_values')],
             'image' => 'nullable|image',
         ];
     }

@@ -67,5 +67,5 @@
 @endif
 
 @if($products->links())
-    <div class="col-lg-12 my-4 items-pagination">{{$products->links()}}</div>
+    <div class="col-lg-12 my-4">{{$products->links()}}</div>
 @endif

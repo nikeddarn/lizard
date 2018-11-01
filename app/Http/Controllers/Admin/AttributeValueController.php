@@ -61,7 +61,7 @@ class AttributeValueController extends Controller
 
         $attributeId = $request->get('attributeId');
 
-        $attributeValueData = $request->only(['value_ru', 'value_ua']);
+        $attributeValueData = $request->only(['value_ru', 'value_ua', 'url']);
 
         $attributeValueData['attributes_id'] = $attributeId;
 
@@ -104,7 +104,7 @@ class AttributeValueController extends Controller
 
         $attributeValue = $this->attributeValue->newQuery()->findOrFail($id);
 
-        $attributeValueData = $request->only('value_ru', 'value_ua');
+        $attributeValueData = $request->only('value_ru', 'value_ua', 'url');
 
         if ($request->has('image')){
             $attributeValueData['image'] = $request->image->store('images/attributes/values', 'public');

@@ -46,6 +46,8 @@
             $("#price_group").TouchSpin({
                 min: 1,
                 max: 3,
+                buttondown_class: "btn btn-primary h-100",
+                buttonup_class: "btn btn-primary h-100"
             });
         });
 

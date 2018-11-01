@@ -50,6 +50,22 @@
 
         <hr>
 
+        <a class="dropdown-item" href="{{ route('user.favourites.index') }}">
+            <span>Фаворитные</span>&nbsp;
+            @if(isset($userBadges['payments']))
+                <span class="badge badge-info">{{ $userBadges['favourites'] }}</span>
+            @endif
+        </a>
+
+        <a class="dropdown-item" href="{{ route('user.recent.index') }}">
+            <span>Недавние</span>&nbsp;
+            @if(isset($userBadges['payments']))
+                <span class="badge badge-info">{{ $userBadges['recent'] }}</span>
+            @endif
+        </a>
+
+        <hr>
+
         <a class="dropdown-item" href="{{ route('user.profile.show') }}">Профиль</a>
 
         <a class="dropdown-item" href="{{ route('user.password.show') }}">Сменить пароль</a>

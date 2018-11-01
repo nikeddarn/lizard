@@ -4,5 +4,6 @@
     "/css/lizard.css": "/css/lizard.css",
     "/css/admin.css": "/css/admin.css",
     "/js/admin.js": "/js/admin.js",
-    "/js/lizard.js": "/js/lizard.js"
+    "/js/lizard.js": "/js/lizard.js",
+    "/js/common.js": "/js/common.js"
 }

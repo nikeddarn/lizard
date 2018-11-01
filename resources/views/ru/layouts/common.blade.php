@@ -24,6 +24,9 @@
         @include('layouts.parts.footers.common.index')
     </footer>
 
+    {{-- Modal Main Menu --}}
+    @include('layouts/parts/modals/modal_main_menu')
+
 
 </div>
 

@@ -20,6 +20,7 @@ class StoreAttributeRequest extends FormRequest
             'name_ua' => ['required', 'string', 'max:64', $this->createUniqueRule()],
             'value_ru.*' => ['required', 'string', 'max:32', 'distinct', Rule::unique('attribute_values', 'value_ru')],
             'value_ua.*' => ['required', 'string', 'max:32', 'distinct', Rule::unique('attribute_values', 'value_ua')],
+            'url.*' => ['required', 'string', 'max:64', 'distinct', Rule::unique('attribute_values', 'url')],
             'image.*' => ['nullable', 'image'],
         ];
     }

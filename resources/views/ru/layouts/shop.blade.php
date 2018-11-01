@@ -15,7 +15,7 @@
     </header>
 
     {{-- breadcrumbs --}}
-        @include('elements.breadcrumbs.index')
+    @yield('breadcrumbs')
 
     <main class="flex-fill">
 
@@ -32,6 +32,8 @@
         @include('layouts.parts.footers.common.index')
     </footer>
 
+    {{-- Modal Main Menu --}}
+    @include('layouts/parts/modals/modal_main_menu')
 
 </div>
 

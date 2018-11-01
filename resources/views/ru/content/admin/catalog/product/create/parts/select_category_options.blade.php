@@ -5,7 +5,7 @@
     </option>
 
     @if($category->children->count())
-        @include('content.admin.catalog.category.create.parts.select_category_options', ['categories' => $category->children])
+        @include('content.admin.catalog.product.create.parts.select_category_options', ['categories' => $category->children])
     @endif
 
 @endforeach

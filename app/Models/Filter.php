@@ -44,4 +44,12 @@ class Filter extends Model
     {
         return $this->belongsToMany('App\Models\Product', 'product_filter', 'filters_id', 'products_id');
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function categories()
+    {
+        return $this->belongsToMany('App\Models\Category', 'category_filter', 'filters_id', 'categories_id');
+    }
 }

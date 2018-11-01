@@ -26,6 +26,15 @@
 
         <div class="row form-group">
             <div class="col-sm-2">
+                <label class="required" for="url">Url</label>
+            </div>
+            <div class="col-sm-8">
+                <input id="url" name="url" type="text" required class="w-100" value="{{ old('url') }}" placeholder="Last part of filtered products route">
+            </div>
+        </div>
+
+        <div class="row form-group">
+            <div class="col-sm-2">
                 <label for="image">Изображение</label>
             </div>
             <div class="col-sm-8">

@@ -10,7 +10,10 @@
                 <ul class="w-100">
                     @foreach($megaMenuCategories as $key => $category)
                         <li>
-                            @if($category->children->count())
+                            @if($category->isLeaf())
+                                <a class="text-gray d-block px-2 py-1 {{($key === 0)? ' show active' : ''}}"
+                                   href="{{ route('shop.category.leaf.index', ['url' => $category->url]) }}">{{ $category->name }}</a>
+                            @else
                                 <a class="text-gray d-block px-2 py-1 {{($key === 0)? ' active' : ''}}"
                                    data-toggle="pill"
                                    href="#v-pills-{{ $category->id }}" role="tab"
@@ -18,9 +21,6 @@
                                    aria-selected="false">{{ $category->name }}
                                     <span class="float-right"><i class="fa fa-chevron-right"></i></span>
                                 </a>
-                            @else
-                                <a class="text-gray d-block px-2 py-1 {{($key === 0)? ' show active' : ''}}"
-                                   href="{{ route('shop.category.index', $category->url) }}">{{ $category->name }}</a>
                             @endif
                         </li>
                     @endforeach

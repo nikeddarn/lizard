@@ -17,6 +17,7 @@ class UpdateAttributeValueRequest extends FormRequest
         return [
             'value_ru' => ['string', 'max:32', Rule::unique('attribute_values')->ignore(request('id'), 'id')],
             'value_ua' => ['string', 'max:32', Rule::unique('attribute_values')->ignore(request('id'), 'id')],
+            'url' => ['string', 'max:64', Rule::unique('attribute_values')->ignore(request('id'), 'id')],
             'image' => 'nullable|image',
         ];
     }

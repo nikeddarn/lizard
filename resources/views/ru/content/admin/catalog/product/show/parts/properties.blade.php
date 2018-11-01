@@ -187,6 +187,76 @@
             </div>
         </li>
 
+        <li class="list-group-item">
+            <div class="row">
+                <div class="col col-lg-4">
+                    <strong>Состояние</strong>
+                </div>
+                <div class="col col-lg-8">
+                    @if($product->is_new)
+                        <span>Новый</span>
+                        @else
+                        <span>Б/У</span>
+                    @endif
+                </div>
+            </div>
+        </li>
+
+        <li class="list-group-item">
+            <div class="row">
+                <div class="col col-lg-4">
+                    <strong>Гарантия</strong>
+                </div>
+                <div class="col col-lg-8">
+                    {{ $product->warranty }}
+                </div>
+            </div>
+        </li>
+
+        <li class="list-group-item">
+            <div class="row">
+                <div class="col col-lg-4">
+                    <strong>Длина (см)</strong>
+                </div>
+                <div class="col col-lg-8">
+                    {{ $product->length }}
+                </div>
+            </div>
+        </li>
+
+        <li class="list-group-item">
+            <div class="row">
+                <div class="col col-lg-4">
+                    <strong>Ширина (см)</strong>
+                </div>
+                <div class="col col-lg-8">
+                    {{ $product->width }}
+                </div>
+            </div>
+        </li>
+
+        <li class="list-group-item">
+            <div class="row">
+                <div class="col col-lg-4">
+                    <strong>Высота (см)</strong>
+                </div>
+                <div class="col col-lg-8">
+                    {{ $product->height }}
+                </div>
+            </div>
+        </li>
+
+        <li class="list-group-item">
+            <div class="row">
+                <div class="col col-lg-4">
+                    <strong>Объем (м<sup>3</sup>)</strong>
+                </div>
+                <div class="col col-lg-8">
+                    {{ number_format($product->volume, 8) }}
+                </div>
+            </div>
+        </li>
+
     </ul>
 
 </div>

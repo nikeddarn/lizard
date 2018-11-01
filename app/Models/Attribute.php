@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Support\Translatable;
+use Illuminate\Support\Str;
 
 class Attribute extends Model
 {
@@ -46,10 +47,40 @@ class Attribute extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function productAttributes()
     {
-        return $this->hasManyThrough('App\Models\ProductAttribute', 'App\Models\AttributeValue', 'attributes_id', 'attribute_values_id');
+        return $this->hasMany('App\Models\ProductAttribute', 'attributes_id', 'id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function products()
+    {
+        return $this->belongsToMany('App\Models\Product', 'product_attribute', 'attributes_id', 'products_id');
+    }
+
+    /**
+     * Set attribute's name_ru.
+     *
+     * @param  string  $value
+     * @return void
+     */
+    public function setNameRuAttribute($value)
+    {
+        $this->attributes['name_ru'] = Str::ucfirst(Str::lower($value));
+    }
+
+    /**
+     * Set attribute's name_ua.
+     *
+     * @param  string  $value
+     * @return void
+     */
+    public function setNameUaAttribute($value)
+    {
+        $this->attributes['name_ua'] = Str::ucfirst(Str::lower($value));
     }
 }

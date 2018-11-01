@@ -65,12 +65,22 @@ Route::middleware(['auth:web'])->group(function () {
     // password
     Route::get('/user/password', 'User\PasswordController@showChangePasswordForm')->name('user.password.show');
     Route::post('/user/password/change', 'User\PasswordController@changePassword')->name('user.password.change');
+
 });
+
+// favourite products
+Route::get('/user/favourites', 'User\FavouriteProductController@index')->name('user.favourites.index');
+Route::get('/user/favourites/add/{id}', 'User\FavouriteProductController@addProductToFavourite')->name('user.favourites.add');
+Route::get('/user/favourites/remove/{id}', 'User\FavouriteProductController@removeProductFromFavourite')->name('user.favourites.remove');
+
+// recent products
+Route::get('/user/recent', 'User\RecentProductController@index')->name('user.recent.index');
+
 
 // --------------------------------------------- Admin Routes -----------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
 
-Route::middleware('auth.admin')->group(function (){
+Route::middleware('auth.admin')->group(function () {
 
     // overview page
     Route::get('/admin', 'Admin\OverviewController@index')->name('admin');
@@ -78,7 +88,7 @@ Route::middleware('auth.admin')->group(function (){
     // categories
     Route::get('/admin/categories', 'Admin\CategoryController@index')->name('admin.categories.index');
     Route::get('/admin/categories/create', 'Admin\CategoryController@create')->name('admin.categories.create');
-    Route::post('/admin/categories/', 'Admin\CategoryController@store')->name('admin.categories.store');
+    Route::post('/admin/categories', 'Admin\CategoryController@store')->name('admin.categories.store');
     Route::get('/admin/categories/show/{id}', 'Admin\CategoryController@show')->name('admin.categories.show');
     Route::get('/admin/categories/{id}/edit', 'Admin\CategoryController@edit')->name('admin.categories.edit');
     Route::put('/admin/categories/{id}', 'Admin\CategoryController@update')->name('admin.categories.update');
@@ -96,7 +106,7 @@ Route::middleware('auth.admin')->group(function (){
     // products
     Route::get('/admin/products', 'Admin\ProductController@index')->name('admin.products.index');
     Route::get('/admin/products/create', 'Admin\ProductController@create')->name('admin.products.create');
-    Route::post('/admin/products/', 'Admin\ProductController@store')->name('admin.products.store');
+    Route::post('/admin/products', 'Admin\ProductController@store')->name('admin.products.store');
     Route::get('/admin/products/show/{id}', 'Admin\ProductController@show')->name('admin.products.show');
     Route::get('/admin/products/{id}/edit', 'Admin\ProductController@edit')->name('admin.products.edit');
     Route::put('/admin/products/{id}', 'Admin\ProductController@update')->name('admin.products.update');
@@ -125,7 +135,7 @@ Route::middleware('auth.admin')->group(function (){
     // attributes
     Route::get('/admin/attributes', 'Admin\AttributeController@index')->name('admin.attributes.index');
     Route::get('/admin/attributes/create', 'Admin\AttributeController@create')->name('admin.attributes.create');
-    Route::post('/admin/attributes/', 'Admin\AttributeController@store')->name('admin.attributes.store');
+    Route::post('/admin/attributes', 'Admin\AttributeController@store')->name('admin.attributes.store');
     Route::get('/admin/attributes/show/{id}', 'Admin\AttributeController@show')->name('admin.attributes.show');
     Route::get('/admin/attributes/{id}/edit', 'Admin\AttributeController@edit')->name('admin.attributes.edit');
     Route::put('/admin/attributes/{id}', 'Admin\AttributeController@update')->name('admin.attributes.update');
@@ -141,7 +151,7 @@ Route::middleware('auth.admin')->group(function (){
     // filters
     Route::get('/admin/filters', 'Admin\FilterController@index')->name('admin.filters.index');
     Route::get('/admin/filters/create', 'Admin\FilterController@create')->name('admin.filters.create');
-    Route::post('/admin/filters/', 'Admin\FilterController@store')->name('admin.filters.store');
+    Route::post('/admin/filters', 'Admin\FilterController@store')->name('admin.filters.store');
     Route::get('/admin/filters/show/{id}', 'Admin\FilterController@show')->name('admin.filters.show');
     Route::get('/admin/filters/{id}/edit', 'Admin\FilterController@edit')->name('admin.filters.edit');
     Route::put('/admin/filters/{id}', 'Admin\FilterController@update')->name('admin.filters.update');
@@ -163,12 +173,35 @@ Route::middleware('auth.admin')->group(function (){
 });
 
 
+// ---------------------------------------------- Vendor Routes --------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+
+Route::middleware('auth.admin')->group(function () {
+
+    Route::get('/admin/vendors/categories', 'Vendor\VendorCategoryController@index')->name('admin.vendors.categories.index');
+
+});
+
 
 // --------------------------------------------- Shop Routes -----------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
 
+// subcategories
+Route::get('/categories/{url}', 'Shop\CategoryController@index')->name('shop.category.index');
 
-Route::get('/category/{url}', 'Shop\CategoryController@index')->name('shop.category.index');
+// leaf category
+Route::get('/category/{url}', 'Shop\LeafCategoryController@index')->name('shop.category.leaf.index');
 
+// filtered category
+Route::get('/category/{url}/{filters}', 'Shop\FilterCategoryController@index')->name('shop.category.filter.single');
+Route::get('filter/category/{url}/filters={filters}', 'Shop\FilterCategoryController@index')->name('shop.category.filter.multi')->where('filters', '.*');
 
+// product details and comments
+Route::get('/product/{url}', 'Shop\ProductDetailsController@index')->name('shop.product.index');
+Route::post('/product/comments/', 'Shop\ProductCommentController@store')->name('product.comments.store');
+
+// user cart
 Route::get('/shop/cart', 'Shop\CartController@index')->name('shop.cart.index');
+Route::get('/shop/cart/add/{id}', 'Shop\CartController@addProduct')->name('shop.cart.add');
+Route::post('/shop/cart/count/{id}', 'Shop\CartController@addProduct')->name('shop.cart.count');
+

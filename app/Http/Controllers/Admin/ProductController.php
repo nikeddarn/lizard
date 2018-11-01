@@ -2,14 +2,19 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Contracts\Shop\ProductBadgesInterface;
 use App\Http\Requests\Admin\Product\CreateProductRequest;
 use App\Http\Requests\Admin\Product\UpdateProductRequest;
 use App\Models\Attribute;
 use App\Models\Category;
 use App\Models\Filter;
 use App\Models\Product;
+use App\Support\Images\ImageCreator;
+use Carbon\Carbon;
+use Illuminate\Http\File;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -29,6 +34,10 @@ class ProductController extends Controller
      * @var Filter
      */
     private $filter;
+    /**
+     * @var ImageCreator
+     */
+    private $imageCreator;
 
     /**
      * CategoryController constructor.
@@ -36,13 +45,15 @@ class ProductController extends Controller
      * @param Category $category
      * @param Attribute $attribute
      * @param Filter $filter
+     * @param ImageCreator $imageCreator
      */
-    public function __construct(Product $product, Category $category, Attribute $attribute, Filter $filter)
+    public function __construct(Product $product, Category $category, Attribute $attribute, Filter $filter, ImageCreator $imageCreator)
     {
         $this->product = $product;
         $this->category = $category;
         $this->attribute = $attribute;
         $this->filter = $filter;
+        $this->imageCreator = $imageCreator;
     }
 
     /**
@@ -108,7 +119,12 @@ class ProductController extends Controller
     {
         $this->authorize('create', $this->attribute);
 
-        $productData = $request->only(['name_ru', 'name_ua', 'url', 'categories_id', 'title_ru', 'title_ua', 'description_ru', 'description_ua', 'keywords_ru', 'keywords_ua', 'content_ru', 'content_ua', 'price1', 'price2', 'price3']);
+        $productData = $request->only(['name_ru', 'name_ua', 'url', 'categories_id', 'title_ru', 'title_ua', 'description_ru', 'description_ua', 'keywords_ru', 'keywords_ua', 'content_ru', 'content_ua', 'price1', 'price2', 'price3', 'is_new', 'warranty', 'length', 'width', 'height', 'volume']);
+
+        // calculate product volume
+        if (!$request->get('volume') && $request->has(['length', 'width', 'height'])){
+            $productData['volume'] = ($request->get('length') * $request->get('width') * $request->get('height')) / pow(10, 6);
+        }
 
         $product = $this->product->newQuery()->create($productData);
 
@@ -119,20 +135,38 @@ class ProductController extends Controller
 
             foreach ($request->image as $index => $image) {
 
-                $productImageData = ['image' => $image->store('images/products', 'public')];
+                $uploadedImagePath = $image->getPathName();
 
-                if ($index === $priorityImageIndex) {
-                    $productImageData['priority'] = 1;
-                }
+                $imagesDirectory = 'images/products/' . $product->id . '/';
 
-                $product->productImages()->create($productImageData);
+                // original image
+                $productImage['image'] = Storage::disk('public')->putFile($imagesDirectory, new File($uploadedImagePath));
+
+                // handled images
+                $productImage['small'] = $imagesDirectory . uniqid() . '.jpg';
+                $productImage['medium'] = $imagesDirectory . uniqid() . '.jpg';
+                $productImage['large'] = $imagesDirectory . uniqid() . '.jpg';
+
+                Storage::disk('public')->put($productImage['small'], $this->imageCreator->createSmallImageResource($uploadedImagePath));
+                Storage::disk('public')->put($productImage['medium'], $this->imageCreator->createMediumImageResource($uploadedImagePath));
+                Storage::disk('public')->put($productImage['large'], $this->imageCreator->createLargeImageResource($uploadedImagePath));
+
+                // image priority
+                $productImage['priority'] = $index === $priorityImageIndex ? 1 : 0;
+
+                $product->productImages()->create($productImage);
             }
         }
 
         // insert attributes
-        if ($request->has('attribute_value_id')) {
-            foreach (array_filter(array_unique($request->get('attribute_value_id'))) as $attributeValueId) {
-                $product->attributeValues()->attach($attributeValueId);
+        if ($request->has('attribute_id')) {
+
+            $attributesValues = $request->get('attribute_value_id');
+
+            foreach ($request->get('attribute_id') as $key => $attributeId) {
+                if ($attributeId) {
+                    $product->attributes()->attach($attributeId, ['attribute_values_id' => $attributesValues[$key]]);
+                }
             }
         }
 
@@ -142,6 +176,10 @@ class ProductController extends Controller
                 $product->filters()->attach($filterId);
             }
         }
+
+        // add 'new' badge
+        $newProductBadgeExpired = Carbon::now()->addDays(config('shop.badges.ttl.' . ProductBadgesInterface::NEW));
+        $product->badges()->attach(ProductBadgesInterface::NEW, ['expired' => $newProductBadgeExpired]);
 
         return redirect(route('admin.products.show', ['id' => $product->id]));
     }
@@ -195,9 +233,22 @@ class ProductController extends Controller
     {
         $this->authorize('update', $this->product);
 
-        $productData = $request->only(['name_ru', 'name_ua', 'url', 'categories_id', 'title_ru', 'title_ua', 'description_ru', 'description_ua', 'keywords_ru', 'keywords_ua', 'content_ru', 'content_ua', 'price1', 'price2', 'price3']);
+        $productData = $request->only(['name_ru', 'name_ua', 'url', 'categories_id', 'title_ru', 'title_ua', 'description_ru', 'description_ua', 'keywords_ru', 'keywords_ua', 'content_ru', 'content_ua', 'price1', 'price2', 'price3', 'is_new', 'warranty', 'length', 'width', 'height', 'volume']);
 
-        $product = $this->product->newQuery()->findOrFail($id)->update($productData);
+        // calculate product volume
+        if (!$request->get('volume') && $request->has(['length', 'width', 'height'])){
+            $productData['volume'] = ($request->get('length') * $request->get('width') * $request->get('height')) / pow(10, 6);
+        }
+
+        $product = $this->product->newQuery()->findOrFail($id);
+
+        if ($productData['price1'] < $product->price1 || $productData['price2'] < $product->price2 || $productData['price3'] < $product->price3){
+            // add 'discount' badge
+            $discountProductBadgeExpired = Carbon::now()->addDays(config('shop.badges.ttl.' . ProductBadgesInterface::PRICE_DOWN));
+            $product->badges()->syncWithoutDetaching([ProductBadgesInterface::PRICE_DOWN => ['expired' => $discountProductBadgeExpired]]);
+        }
+
+        $product->update($productData);
 
         return redirect(route('admin.products.show', ['id' => $id]));
     }

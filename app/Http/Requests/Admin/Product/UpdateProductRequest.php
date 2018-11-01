@@ -19,10 +19,10 @@ class UpdateProductRequest extends FormRequest
             'name_ua' => ['required', 'string', 'max:64', Rule::unique('products')->ignore(request('id'), 'id')],
             'url' => ['required', 'string', 'max:128', Rule::unique('products')->ignore(request('id'), 'id')],
             'categories_id' => 'required|numeric',
-            'title_ru' => ['required', 'string', 'max:128', Rule::unique('products')->ignore(request('id'), 'id')],
-            'title_ua' => ['required', 'string', 'max:128', Rule::unique('products')->ignore(request('id'), 'id')],
-            'description_ru' => ['required', 'string', 'max:255', Rule::unique('products')->ignore(request('id'), 'id')],
-            'description_ua' => ['required', 'string', 'max:255', Rule::unique('products')->ignore(request('id'), 'id')],
+            'title_ru' => ['nullable', 'string', 'max:128', Rule::unique('products')->ignore(request('id'), 'id')],
+            'title_ua' => ['nullable', 'string', 'max:128', Rule::unique('products')->ignore(request('id'), 'id')],
+            'description_ru' => ['nullable', 'string', 'max:255', Rule::unique('products')->ignore(request('id'), 'id')],
+            'description_ua' => ['nullable', 'string', 'max:255', Rule::unique('products')->ignore(request('id'), 'id')],
             'keywords_ru' => 'nullable|string|max:128',
             'keywords_ua' => 'nullable|string|max:128',
             'content_ru' => 'nullable|string',
@@ -30,6 +30,12 @@ class UpdateProductRequest extends FormRequest
             'price1' => 'nullable|numeric',
             'price2' => 'nullable|numeric',
             'price3' => 'nullable|numeric',
+            'is_new' => 'integer',
+            'warranty' => 'nullable|integer',
+            'length' => 'nullable|numeric',
+            'width' => 'nullable|numeric',
+            'height' => 'nullable|numeric',
+            'volume' => 'nullable|numeric',
         ];
     }
 }

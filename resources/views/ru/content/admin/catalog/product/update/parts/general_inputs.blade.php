@@ -41,7 +41,7 @@
         </div>
         <div class="col-sm-8">
             <select id="categories_id" name="categories_id" class="selectpicker w-100">
-                @include('content.admin.catalog.product.create.parts.select_category_options')
+                @include('content.admin.catalog.product.update.parts.select_category_options')
             </select>
         </div>
     </div>

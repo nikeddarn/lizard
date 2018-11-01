@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Models\FavouriteProduct;
+use App\Models\RecentProduct;
 use App\Models\User;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
@@ -43,7 +47,7 @@ class RegisterController extends Controller
     /**
      * Get a validator for an incoming registration request.
      *
-     * @param  array  $data
+     * @param  array $data
      * @return \Illuminate\Contracts\Validation\Validator
      */
     protected function validator(array $data)
@@ -58,7 +62,7 @@ class RegisterController extends Controller
     /**
      * Create a new user instance after a valid registration.
      *
-     * @param  array  $data
+     * @param  array $data
      * @return User
      */
     protected function create(array $data)
@@ -68,5 +72,30 @@ class RegisterController extends Controller
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
+    }
+
+    /**
+     * The user has been registered.
+     *
+     * @param Request $request
+     * @param  User $user
+     * @return void
+     */
+    protected function registered(Request $request, $user)
+    {
+        // associate created user with unregistered user by it's 'uuid' cookie
+        if (Cookie::has('uuid')) {
+
+            $uuid = Cookie::get('uuid');
+
+            FavouriteProduct::where('uuid', $uuid)->update([
+                'users_id' => $user->id,
+            ]);
+
+            RecentProduct::where('uuid', $uuid)->update([
+                'users_id' => $user->id,
+            ]);
+        }
+
     }
 }

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Carbon;
 
 class User extends Authenticatable
 {
@@ -65,5 +66,29 @@ class User extends Authenticatable
     public function isEmployee()
     {
         return (bool)$this->roles()->count();
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function favouriteProducts()
+    {
+        return $this->belongsToMany('App\Models\Product', 'favourite_products', 'users_id', 'products_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function recentProducts()
+    {
+        return $this->belongsToMany('App\Models\Product', 'recent_products', 'users_id', 'products_id')->withTimestamps();
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function timeLimitedRecentProducts()
+    {
+        return $this->belongsToMany('App\Models\Product', 'recent_products', 'users_id', 'products_id')->wherePivot('updated_at', '>=', Carbon::now()->subDays(config('shop.recent_product_ttl')));
     }
 }
