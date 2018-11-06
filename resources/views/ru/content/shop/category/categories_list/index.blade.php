@@ -15,6 +15,10 @@
         </div>
     </div>
 
+    <div class="row">
+        <div class="col-lg-12 my-5">{!! $category->content !!}</div>
+    </div>
+
 @endsection
 
 @section('breadcrumbs')

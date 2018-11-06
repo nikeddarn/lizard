@@ -2,7 +2,7 @@
 
     <div class="col-6 col-sm-4 col-md-6 col-lg-4 col-xl-3 mb-4">
 
-        <div class=" h-100 card card-product">
+        <div class="h-100 card card-product">
 
             <div class="card-image">
 

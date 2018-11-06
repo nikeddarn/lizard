@@ -60,7 +60,7 @@ table tr td {
   color: $lizard-text-gray-lighter-color;
 }
 
-.text-lizard{
+.text-lizard {
   color: $lizard-primary-color;
 }
 
@@ -95,6 +95,10 @@ table tr td {
 .nav-tabs .nav-link:not(.active):hover {
   border-color: $lizard-pastel-color;
   background-color: $lizard-pastel-color;
+}
+
+.text-decoration-none, .text-decoration-none:hover {
+  text-decoration: none !important;
 }
 
 // -------------------------------------------------- pagination styles ------------------------------------------------
@@ -173,6 +177,10 @@ input:active:not([type="radio"]):not([type="checkbox"]) {
 
 .checkbox input[type="checkbox"]:checked + label:after {
   font-weight: bold;
+}
+
+.empty-checkbox-label {
+  min-height: 1rem;
 }
 
 .btn,
@@ -432,10 +440,10 @@ textarea:active {
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
 }
 
-.header-action{
+.header-action {
   position: relative;
 
-  span{
+  span {
     font-size: .8125rem;
     position: absolute;
     top: -10px;
@@ -790,15 +798,14 @@ textarea:active {
 // -------------------------------------------------- Products favourite and recent ------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
 
-.table-product-image{
+.table-product-image {
   height: 100px;
 }
-
 
 // -------------------------------------------------- Products filters -------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
 
-#filters-toggle{
+#filters-toggle {
   background-color: $lizard-pastel-color;
   border-color: $lizard-pastel-color !important;
 }

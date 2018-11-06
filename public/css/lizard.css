@@ -98,6 +98,11 @@ table tr td {
   background-color: #dee2e6;
 }
 
+.text-decoration-none,
+.text-decoration-none:hover {
+  text-decoration: none !important;
+}
+
 .pagination .page-link {
   color: #555555;
   outline: none;
@@ -165,6 +170,10 @@ input:active:not([type="radio"]):not([type="checkbox"]) {
 
 .checkbox input[type="checkbox"]:checked + label:after {
   font-weight: bold;
+}
+
+.empty-checkbox-label {
+  min-height: 1rem;
 }
 
 .btn,

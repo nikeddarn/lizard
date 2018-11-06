@@ -4,7 +4,7 @@
         <li class="card my-1">
             <div class="row">
                 <div class="col-auto">
-                    <button class="btn btn-primary" data-toggle="collapse"
+                    <button class="btn btn-primary show-subcategory" data-toggle="collapse"
                             data-target="#category-{{ $category->id }}">
                         <i class="fa fa-plus" aria-hidden="true"></i>
                     </button>

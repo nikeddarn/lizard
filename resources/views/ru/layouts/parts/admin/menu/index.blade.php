@@ -27,8 +27,21 @@
         <a class="nav-link collapsed" href="#sidebar-vendors"  data-toggle="collapse" data-target="#sidebar-vendors">Поставщики</a>
         <div class="collapse" id="sidebar-vendors" aria-expanded="false">
             <ul class="flex-column pl-3 nav">
-                <li class="nav-item"><a class="nav-link py-1" href="{{ route('admin.vendors.categories.index') }}">Категории</a></li>
-                {{--<li class="nav-item"><a class="nav-link py-1" href="{{ route('admin.users.customers') }}">Пользователи</a></li>--}}
+
+                @foreach($vendors as $vendor)
+                <li class="nav-item">
+                    <a class="nav-link collapsed py-0" href="#vendor-{{ $vendor->id }}" data-toggle="collapse"
+                       data-target="#vendor-{{ $vendor->id }}">{{ $vendor->name }}</a>
+
+                    <div class="collapse small" id="vendor-{{ $vendor->id }}" aria-expanded="false">
+                        <ul class="flex-column nav pl-4">
+                            <li class="nav-item">
+                                <a class="nav-link p-0" href="{{ route('vendor.categories.index', ['vendorId' => $vendor->id]) }}">Категории</a>
+                            </li>
+                        </ul>
+                    </div>
+                    @endforeach
+
             </ul>
         </div>
     </li>

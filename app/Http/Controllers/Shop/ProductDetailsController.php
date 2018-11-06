@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Shop;
 
+use App\Models\Category;
 use App\Models\Product;
 use App\Support\ExchangeRates\ExchangeRates;
 use App\Support\ProductAvailability\ProductAvailability;
@@ -54,7 +55,7 @@ class ProductDetailsController extends Controller
 
         $comments = $product->productComments()->with('user')->paginate(config('shop.show_product_comments_per_page'));
 
-        $breadcrumbs = $this->product->category()->newQuery()->ancestorsAndSelf($product->category->id);
+        $breadcrumbs = $this->getBreadcrumbs($product);
 
         $this->addProductToRecentViewed($product);
 
@@ -107,11 +108,11 @@ class ProductDetailsController extends Controller
      */
     private function addProductToRecentViewed(Product $product)
     {
-        if (auth('web')->check()){
+        if (auth('web')->check()) {
             $product->recentProducts()->firstOrNew([
                 'users_id' => auth('web')->id(),
             ])->touch();
-        }else{
+        } else {
             $uuid = Cookie::get('uuid', Str::uuid());
 
             $product->recentProducts()->firstOrNew([
@@ -120,5 +121,26 @@ class ProductDetailsController extends Controller
 
             Cookie::queue(Cookie::forever('uuid', $uuid));
         }
+    }
+
+    /**
+     * Get breadcrumbs.
+     *
+     * @param Product $product
+     * @return array
+     */
+    private function getBreadcrumbs(Product $product): array
+    {
+        $breadcrumbs = $product->category->newQuery()->ancestorsAndSelf($product->category->id)
+            ->each(function (Category $category) {
+                if ($category->isLeaf()) {
+                    $category->href = route('shop.category.leaf.index', ['url' => $category->url]);
+                } else {
+                    $category->href = route('shop.category.index', ['url' => $category->url]);
+                }
+            })
+            ->pluck('href', 'name')->toArray();
+
+        return $breadcrumbs;
     }
 }

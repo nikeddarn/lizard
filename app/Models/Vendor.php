@@ -48,8 +48,32 @@ class Vendor extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function vendorCategory()
+    public function vendorCategories()
     {
         return $this->hasMany('App\Models\VendorCategory', 'vendors_id', 'id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function vendorProducts()
+    {
+        return $this->hasMany('App\Models\VendorProduct', 'vendors_id', 'id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function vendorAttribute()
+    {
+        return $this->hasMany('App\Models\VendorAttribute', 'vendors_id', 'id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function vendorAttributeValue()
+    {
+        return $this->hasMany('App\Models\VendorAttributeValue', 'vendors_id', 'id');
     }
 }

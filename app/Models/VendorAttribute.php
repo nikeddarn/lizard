@@ -2,19 +2,16 @@
 
 namespace App\Models;
 
-use App\Models\Support\Translatable;
 use Illuminate\Database\Eloquent\Model;
 
-class VendorCategory extends Model
+class VendorAttribute extends Model
 {
-    use Translatable;
-
     /**
      * Table name.
      *
      * @var string
      */
-    protected $table = 'vendor_categories';
+    protected $table = 'vendors_attributes';
 
     /**
      * The attributes that aren't mass assignable.
@@ -28,7 +25,7 @@ class VendorCategory extends Model
      *
      * @var array
      */
-    protected $primaryKey = ['vendors_id', 'categories_id'];
+    protected $primaryKey = ['vendors_id', 'attributes_id'];
 
     /**
      * Non auto incrementing primary key.
@@ -36,13 +33,6 @@ class VendorCategory extends Model
      * @var bool
      */
     public $incrementing = false;
-
-    /**
-     * The attributes that should be selected depends on locale from JSON type field.
-     *
-     * @var array
-     */
-    public $translatable = ['name'];
 
     /**
      * Indicates if the model should be timestamped.
@@ -63,8 +53,8 @@ class VendorCategory extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function category()
+    public function attribute()
     {
-        return $this->belongsTo('App\Models\Category', 'categories_id', 'id');
+        return $this->belongsTo('App\Models\Attribute', 'attributes_id', 'id');
     }
 }

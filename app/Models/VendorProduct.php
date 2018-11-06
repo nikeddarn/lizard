@@ -30,9 +30,9 @@ class VendorProduct extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function vendorCategory()
+    public function vendor()
     {
-        return $this->belongsTo('App\Models\VendorCategory', 'vendor_categories_id', 'id');
+        return $this->belongsTo('App\Models\Vendor', 'vendors_id', 'id');
     }
 
     /**

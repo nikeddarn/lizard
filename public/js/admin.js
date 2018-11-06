@@ -545,7 +545,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     this.init();
   };
 
-  Selectpicker.VERSION = '1.13.2';
+  Selectpicker.VERSION = '1.13.3';
 
   Selectpicker.BootstrapVersion = version.major;
 
@@ -678,9 +678,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           that.$button.addClass('bs-invalid');
 
           that.$element.on({
-            'shown.bs.select': function shownBsSelect() {
+            'shown.bs.select.invalid': function shownBsSelectInvalid() {
               that.$element.val(that.$element.val()) // set the value to hide the validation message in Chrome when menu is opened
-              .off('shown.bs.select');
+              .off('shown.bs.select.invalid');
             },
             'rendered.bs.select': function renderedBsSelect() {
               // if select is no longer invalid, remove the bs-invalid class
@@ -706,12 +706,31 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       // If we are multiple or showTick option is set, then add the show-tick class
       var showTick = this.multiple || this.options.showTick ? ' show-tick' : '',
           autofocus = this.autofocus ? ' autofocus' : '';
+
       // Elements
-      var header = this.options.header ? '<div class="' + classNames.POPOVERHEADER + '"><button type="button" class="close" aria-hidden="true">&times;</button>' + this.options.header + '</div>' : '';
-      var searchbox = this.options.liveSearch ? '<div class="bs-searchbox">' + '<input type="text" class="form-control" autocomplete="off"' + (null === this.options.liveSearchPlaceholder ? '' : ' placeholder="' + htmlEscape(this.options.liveSearchPlaceholder) + '"') + ' role="textbox" aria-label="Search">' + '</div>' : '';
-      var actionsbox = this.multiple && this.options.actionsBox ? '<div class="bs-actionsbox">' + '<div class="btn-group btn-group-sm btn-block">' + '<button type="button" class="actions-btn bs-select-all btn ' + classNames.BUTTONCLASS + '">' + this.options.selectAllText + '</button>' + '<button type="button" class="actions-btn bs-deselect-all btn ' + classNames.BUTTONCLASS + '">' + this.options.deselectAllText + '</button>' + '</div>' + '</div>' : '';
-      var donebutton = this.multiple && this.options.doneButton ? '<div class="bs-donebutton">' + '<div class="btn-group btn-block">' + '<button type="button" class="btn btn-sm ' + classNames.BUTTONCLASS + '">' + this.options.doneButtonText + '</button>' + '</div>' + '</div>' : '';
-      var drop = '<div class="dropdown bootstrap-select' + showTick + '">' + '<button type="button" class="' + this.options.styleBase + ' dropdown-toggle" ' + (this.options.display === 'static' ? 'data-display="static"' : '') + 'data-toggle="dropdown"' + autofocus + ' role="button">' + '<div class="filter-option">' + '<div class="filter-option-inner">' + '<div class="filter-option-inner-inner"></div>' + '</div> ' + '</div>' + (version.major === '4' ? '' : '<span class="bs-caret">' + this.options.template.caret + '</span>') + '</button>' + '<div class="' + classNames.MENU + ' ' + (version.major === '4' ? '' : classNames.SHOW) + '" role="combobox">' + header + searchbox + actionsbox + '<div class="inner ' + classNames.SHOW + '" role="listbox" aria-expanded="false" tabindex="-1">' + '<ul class="' + classNames.MENU + ' inner ' + (version.major === '4' ? classNames.SHOW : '') + '">' + '</ul>' + '</div>' + donebutton + '</div>' + '</div>';
+      var drop,
+          header = '',
+          searchbox = '',
+          actionsbox = '',
+          donebutton = '';
+
+      if (this.options.header) {
+        header = '<div class="' + classNames.POPOVERHEADER + '">' + '<button type="button" class="close" aria-hidden="true">&times;</button>' + this.options.header + '</div>';
+      }
+
+      if (this.options.liveSearch) {
+        searchbox = '<div class="bs-searchbox">' + '<input type="text" class="form-control" autocomplete="off"' + (null === this.options.liveSearchPlaceholder ? '' : ' placeholder="' + htmlEscape(this.options.liveSearchPlaceholder) + '"') + ' role="textbox" aria-label="Search">' + '</div>';
+      }
+
+      if (this.multiple && this.options.actionsBox) {
+        actionsbox = '<div class="bs-actionsbox">' + '<div class="btn-group btn-group-sm btn-block">' + '<button type="button" class="actions-btn bs-select-all btn ' + classNames.BUTTONCLASS + '">' + this.options.selectAllText + '</button>' + '<button type="button" class="actions-btn bs-deselect-all btn ' + classNames.BUTTONCLASS + '">' + this.options.deselectAllText + '</button>' + '</div>' + '</div>';
+      }
+
+      if (this.multiple && this.options.doneButton) {
+        donebutton = '<div class="bs-donebutton">' + '<div class="btn-group btn-block">' + '<button type="button" class="btn btn-sm ' + classNames.BUTTONCLASS + '">' + this.options.doneButtonText + '</button>' + '</div>' + '</div>';
+      }
+
+      drop = '<div class="dropdown bootstrap-select' + showTick + '">' + '<button type="button" class="' + this.options.styleBase + ' dropdown-toggle" ' + (this.options.display === 'static' ? 'data-display="static"' : '') + 'data-toggle="dropdown"' + autofocus + ' role="button">' + '<div class="filter-option">' + '<div class="filter-option-inner">' + '<div class="filter-option-inner-inner"></div>' + '</div> ' + '</div>' + (version.major === '4' ? '' : '<span class="bs-caret">' + this.options.template.caret + '</span>') + '</button>' + '<div class="' + classNames.MENU + ' ' + (version.major === '4' ? '' : classNames.SHOW) + '" role="combobox">' + header + searchbox + actionsbox + '<div class="inner ' + classNames.SHOW + '" role="listbox" aria-expanded="false" tabindex="-1">' + '<ul class="' + classNames.MENU + ' inner ' + (version.major === '4' ? classNames.SHOW : '') + '">' + '</ul>' + '</div>' + donebutton + '</div>' + '</div>';
 
       return $(drop);
     },
@@ -941,11 +960,15 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         li: document.createElement('li'),
         whitespace: document.createTextNode('\xA0')
       },
-          checkMark = elementTemplates.span.cloneNode(false),
+          checkMark,
           fragment = document.createDocumentFragment();
 
-      checkMark.className = that.options.iconBase + ' ' + that.options.tickIcon + ' check-mark';
-      elementTemplates.a.appendChild(checkMark);
+      if (that.options.showTick || that.multiple) {
+        checkMark = elementTemplates.span.cloneNode(false);
+        checkMark.className = that.options.iconBase + ' ' + that.options.tickIcon + ' check-mark';
+        elementTemplates.a.appendChild(checkMark);
+      }
+
       elementTemplates.a.setAttribute('role', 'option');
 
       elementTemplates.subtext.className = 'text-muted';
@@ -956,12 +979,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       // Helper functions
       /**
        * @param content
-       * @param [index]
        * @param [classes]
        * @param [optgroup]
        * @returns {HTMLElement}
        */
-      var generateLI = function generateLI(content, index, classes, optgroup) {
+      var generateLI = function generateLI(content, classes, optgroup) {
         var li = elementTemplates.li.cloneNode(false);
 
         if (content) {
@@ -1146,7 +1168,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
           if (showDivider && mainData[mainData.length - 1].type !== 'divider') {
             liIndex++;
-            mainElements.push(generateLI(false, null, classNames.DIVIDER, optID + 'div'));
+            mainElements.push(generateLI(false, classNames.DIVIDER, optID + 'div'));
             mainData.push({
               type: 'divider',
               optID: optID
@@ -1184,7 +1206,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             if (index !== 0 && mainElements.length > 0) {
               // Is it NOT the first option of the select && are there elements in the dropdown?
               liIndex++;
-              mainElements.push(generateLI(false, null, classNames.DIVIDER, optID + 'div'));
+              mainElements.push(generateLI(false, classNames.DIVIDER, optID + 'div'));
               mainData.push({
                 type: 'divider',
                 optID: optID
@@ -1198,7 +1220,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
               labelIcon: labelIcon
             });
 
-            mainElements.push(generateLI(labelElement, null, 'dropdown-header' + optGroupClass, optID));
+            mainElements.push(generateLI(labelElement, 'dropdown-header' + optGroupClass, optID));
             mainData.push({
               content: labelEscaped,
               subtext: labelSubtext,
@@ -1221,7 +1243,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             optionIcon: icon
           });
 
-          mainElements.push(generateLI(generateA(textElement, 'opt ' + optionClass + optGroupClass, inline), index, '', optID));
+          mainElements.push(generateLI(generateA(textElement, 'opt ' + optionClass + optGroupClass, inline), '', optID));
           mainData.push({
             content: optionContent || text,
             subtext: subtext,
@@ -1236,7 +1258,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
           availableOptionsCount++;
         } else if (thisData.divider === true) {
-          mainElements.push(generateLI(false, index, classNames.DIVIDER));
+          mainElements.push(generateLI(false, classNames.DIVIDER));
           mainData.push({
             type: 'divider',
             originalIndex: index,
@@ -1259,7 +1281,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
           if (showDivider && mainData[mainData.length - 1].type !== 'divider') {
             liIndex++;
-            mainElements.push(generateLI(false, null, classNames.DIVIDER, optID + 'div'));
+            mainElements.push(generateLI(false, classNames.DIVIDER, optID + 'div'));
             mainData.push({
               type: 'divider',
               optID: optID
@@ -1273,7 +1295,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             optionIcon: icon
           });
 
-          mainElements.push(generateLI(generateA(textElement, optionClass, inline), index));
+          mainElements.push(generateLI(generateA(textElement, optionClass, inline)));
           mainData.push({
             content: optionContent || text,
             subtext: subtext,
@@ -1447,12 +1469,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           header = this.options.header && this.$menu.find('.' + classNames.POPOVERHEADER).length > 0 ? this.$menu.find('.' + classNames.POPOVERHEADER)[0].cloneNode(true) : null,
           search = this.options.liveSearch ? document.createElement('div') : null,
           actions = this.options.actionsBox && this.multiple && this.$menu.find('.bs-actionsbox').length > 0 ? this.$menu.find('.bs-actionsbox')[0].cloneNode(true) : null,
-          doneButton = this.options.doneButton && this.multiple && this.$menu.find('.bs-donebutton').length > 0 ? this.$menu.find('.bs-donebutton')[0].cloneNode(true) : null;
+          doneButton = this.options.doneButton && this.multiple && this.$menu.find('.bs-donebutton').length > 0 ? this.$menu.find('.bs-donebutton')[0].cloneNode(true) : null,
+          firstOption = this.$element.find('option')[0];
 
       this.sizeInfo.selectWidth = this.$newElement[0].offsetWidth;
 
       text.className = 'text';
-      a.className = 'dropdown-item ' + this.$element.find('option')[0].className;
+      a.className = 'dropdown-item ' + (firstOption ? firstOption.className : '');
       newElement.className = this.$menu[0].parentNode.className + ' ' + classNames.SHOW;
       newElement.style.width = this.sizeInfo.selectWidth + 'px';
       if (this.options.width === 'auto') menu.style.minWidth = 0;
@@ -1462,7 +1485,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       divider.className = classNames.DIVIDER;
       dropdownHeader.className = 'dropdown-header';
 
-      text.appendChild(document.createTextNode('Inner text'));
+      text.appendChild(document.createTextNode('\u200B'));
       a.appendChild(text);
       li.appendChild(a);
       dropdownHeader.appendChild(text.cloneNode(true));
@@ -1729,7 +1752,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         var containerPosition = {},
 
         // fall back to dropdown's default display setting if display is not manually set
-        display = that.options.display || $.fn.dropdown.Constructor.Default.display;
+        display = that.options.display || (
+        // Bootstrap 3 doesn't have $.fn.dropdown.Constructor.Default
+        $.fn.dropdown.Constructor.Default ? $.fn.dropdown.Constructor.Default.display : false);
 
         that.$bsContainer.addClass($element.attr('class').replace(/form-control|fit-width/gi, '')).toggleClass(classNames.DROPUP, $element.hasClass(classNames.DROPUP));
         pos = $element.offset();
@@ -1847,10 +1872,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           prevActiveIndex = this.selectpicker.main.map.newIndex[this.prevActiveIndex];
           prevActive = this.selectpicker.main.elements[prevActiveIndex];
 
-          prevActive.classList.toggle('selected', selected);
           prevActive.classList.remove('active');
           if (prevActive.firstChild) {
-            prevActive.firstChild.classList.toggle('selected', selected);
             prevActive.firstChild.classList.remove('active');
           }
         }
@@ -2164,7 +2187,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           changed_arguments = null;
         },
         'focus': function focus() {
-          that.$button.focus();
+          if (!that.options.mobile) that.$button.focus();
         }
       });
     },

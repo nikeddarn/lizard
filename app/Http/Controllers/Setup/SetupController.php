@@ -9,6 +9,7 @@ use App\Models\Role;
 use App\Models\StorageDepartment;
 use App\Models\User;
 use App\Http\Controllers\Controller;
+use App\Models\Vendor;
 
 class SetupController extends Controller
 {
@@ -20,6 +21,7 @@ class SetupController extends Controller
         $this->fillLibraries();
         $this->insertRootUser();
         $this->insertMainStorage();
+        $this->insertVendors();
 
         return view('elements.setup.setup_complete');
     }
@@ -84,5 +86,12 @@ class SetupController extends Controller
         ]);
 
         $storage->save();
+    }
+
+    private function insertVendors()
+    {
+        foreach (require app_path('Http/Controllers/Setup/Libraries/vendors.php') as $vendor) {
+            Vendor::firstOrNew($vendor)->save();
+        }
     }
 }

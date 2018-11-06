@@ -178,8 +178,17 @@ Route::middleware('auth.admin')->group(function () {
 
 Route::middleware('auth.admin')->group(function () {
 
-    Route::get('/admin/vendors/categories', 'Vendor\VendorCategoryController@index')->name('admin.vendors.categories.index');
+    // categories
+    Route::get('/vendor/{vendorId}/categories', 'Vendor\VendorCategoryController@index')->name('vendor.categories.index');
+    Route::get('/vendor/{vendorId}/category/{categoryId}/sync', 'Vendor\VendorCategoryController@sync')->name('vendor.category.sync');
+    Route::post('/vendor/category/link', 'Vendor\VendorCategoryController@link')->name('vendor.category.link');
+    Route::delete('/vendor/category/unlink', 'Vendor\VendorCategoryController@unlink')->name('vendor.category.unlink');
+    Route::delete('/vendor/category/delete', 'Vendor\VendorCategoryController@delete')->name('vendor.category.delete');
 
+    //products
+    Route::get('/vendor/{vendorId}/category/{categoryId}/products', 'Vendor\VendorProductController@index')->name('vendor.category.products.index');
+    Route::post('/vendor/category/products/upload', 'Vendor\VendorProductController@upload')->name('vendor.category.products.upload');
+    Route::post('/vendor/category/products/upload/all', 'Vendor\VendorProductController@uploadAll')->name('vendor.category.products.upload.all');
 });
 
 

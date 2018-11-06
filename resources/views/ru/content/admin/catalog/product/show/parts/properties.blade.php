@@ -195,7 +195,7 @@
                 <div class="col col-lg-8">
                     @if($product->is_new)
                         <span>Новый</span>
-                        @else
+                    @else
                         <span>Б/У</span>
                     @endif
                 </div>
@@ -252,7 +252,9 @@
                     <strong>Объем (м<sup>3</sup>)</strong>
                 </div>
                 <div class="col col-lg-8">
-                    {{ number_format($product->volume, 8) }}
+                    @if($product->volume)
+                        {{ number_format($product->volume, 8) }}
+                    @endif
                 </div>
             </div>
         </li>
