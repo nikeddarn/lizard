@@ -54,12 +54,25 @@
                 }
             });
 
-            $(".user-role-delete-form").submit(function (event) {
-                if (confirm('Удалить роль пользователя ?')) {
-                    return true;
+            // delete user role
+            let deleteUserRoleForms = $(".user-role-delete-form");
+
+            $(deleteUserRoleForms).submit(function (event) {
+
+                if (deleteUserRoleForms.length === 1) {
+                    if (confirm('Удаление единственной роли переведет сотрудника в разряд пользователей. Продолжить ?')) {
+                        return true;
+                    } else {
+                        event.preventDefault();
+                        return false;
+                    }
                 } else {
-                    event.preventDefault();
-                    return false;
+                    if (confirm('Удалить роль пользователя ?')) {
+                        return true;
+                    } else {
+                        event.preventDefault();
+                        return false;
+                    }
                 }
             });
 

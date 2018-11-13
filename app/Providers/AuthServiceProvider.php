@@ -4,8 +4,10 @@ namespace App\Providers;
 
 use App\Models\Attribute;
 use App\Models\AttributeValue;
+use App\Models\Brand;
 use App\Models\Category;
 use App\Models\CategoryFilter;
+use App\Models\CategoryProduct;
 use App\Models\Filter;
 use App\Models\Product;
 use App\Models\ProductAttribute;
@@ -15,10 +17,12 @@ use App\Models\User;
 use App\Models\UserRole;
 use App\Policies\Admin\AttributePolicy;
 use App\Policies\Admin\AttributeValuePolicy;
+use App\Policies\Admin\BrandPolicy;
 use App\Policies\Admin\CategoryFilterPolicy;
 use App\Policies\Admin\CategoryPolicy;
 use App\Policies\Admin\FilterPolicy;
 use App\Policies\Admin\ProductAttributePolicy;
+use App\Policies\Admin\ProductCategoryPolicy;
 use App\Policies\Admin\ProductFilterPolicy;
 use App\Policies\Admin\ProductImagePolicy;
 use App\Policies\Admin\ProductPolicy;
@@ -43,6 +47,9 @@ class AuthServiceProvider extends ServiceProvider
         ProductImage::class => ProductImagePolicy::class,
         ProductAttribute::class => ProductAttributePolicy::class,
         ProductFilter::class => ProductFilterPolicy::class,
+        CategoryProduct::class => ProductCategoryPolicy::class,
+
+        Brand::class => BrandPolicy::class,
 
         Attribute::class => AttributePolicy::class,
         AttributeValue::class => AttributeValuePolicy::class,

@@ -7,17 +7,6 @@
         <li class="list-group-item">
             <div class="row">
                 <div class="col col-lg-4">
-                    <strong>Категория</strong>
-                </div>
-                <div class="col col-lg-8">
-                    {{ $product->category->name_ru }}
-                </div>
-            </div>
-        </li>
-
-        <li class="list-group-item">
-            <div class="row">
-                <div class="col col-lg-4">
                     <strong>Наименование (RU)</strong>
                 </div>
                 <div class="col col-lg-8">
@@ -44,6 +33,39 @@
                 </div>
                 <div class="col col-lg-8">
                     {{ $product->url }}
+                </div>
+            </div>
+        </li>
+
+        <li class="list-group-item">
+            <div class="row">
+                <div class="col col-lg-4">
+                    <strong>Бренд</strong>
+                </div>
+                <div class="col col-lg-8">
+                    {{ $product->brand ? $product->brand->name : '' }}
+                </div>
+            </div>
+        </li>
+
+        <li class="list-group-item">
+            <div class="row">
+                <div class="col col-lg-4">
+                    <strong>Страна производитель (RU)</strong>
+                </div>
+                <div class="col col-lg-8">
+                    {{ $product->manufacturer_ru }}
+                </div>
+            </div>
+        </li>
+
+        <li class="list-group-item">
+            <div class="row">
+                <div class="col col-lg-4">
+                    <strong>Страна производитель (UA)</strong>
+                </div>
+                <div class="col col-lg-8">
+                    {{ $product->manufacturer_ua }}
                 </div>
             </div>
         </li>
@@ -110,6 +132,46 @@
                 </div>
                 <div class="col col-lg-8">
                     {{ $product->keywords_ua }}
+                </div>
+            </div>
+        </li>
+
+        <li class="list-group-item">
+            <div class="row">
+                <div class="col col-lg-4">
+                    <strong>Короткое описание (RU)</strong>
+                </div>
+                <div class="col col-lg-8">
+                    @if($product->brief_content_ru)
+                        <a data-toggle="collapse" href="#brief_content_ru" role="button" aria-expanded="false"
+                           aria-controls="brief_content_ru">
+                            <i class="fa fa-eye"></i>&nbsp;
+                            <span>Смотреть короткое описание</span>
+                        </a>
+                        <div class="collapse" id="brief_content_ru">
+                            <div class="card card-body">{!! $product->brief_content_ru !!}</div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </li>
+
+        <li class="list-group-item">
+            <div class="row">
+                <div class="col col-lg-4">
+                    <strong>Короткое описание (UA)</strong>
+                </div>
+                <div class="col col-lg-8">
+                    @if($product->brief_content_ua)
+                        <a data-toggle="collapse" href="#brief_content_ua" role="button" aria-expanded="false"
+                           aria-controls="brief_content_ua">
+                            <i class="fa fa-eye"></i>&nbsp;
+                            <span>Смотреть короткое описание</span>
+                        </a>
+                        <div class="collapse" id="brief_content_ua">
+                            <div class="card card-body">{!! $product->brief_content_ua !!}</div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </li>

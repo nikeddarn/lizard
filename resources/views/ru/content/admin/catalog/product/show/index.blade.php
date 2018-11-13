@@ -33,6 +33,10 @@
         </div>
 
         <div class="col-lg-12">
+            @include('content.admin.catalog.product.show.parts.categories')
+        </div>
+
+        <div class="col-lg-12">
             @include('content.admin.catalog.product.show.parts.images')
         </div>
 
@@ -73,6 +77,24 @@
 
             $(".product-filter-delete-form").submit(function (event) {
                 if (confirm('Удалить фильтр продукта ?')) {
+                    return true;
+                } else {
+                    event.preventDefault();
+                    return false;
+                }
+            });
+
+            // delete product from category
+            let deleteCategoryForms = $(".product-category-delete-form");
+
+            $(deleteCategoryForms).submit(function (event) {
+                // prevent to delete single category
+                if (deleteCategoryForms.length === 1){
+                    alert('Запрещено удалять единственную категорию');
+                    return false;
+                }
+
+                if (confirm('Удалить продукт из категории ?')) {
                     return true;
                 } else {
                     event.preventDefault();

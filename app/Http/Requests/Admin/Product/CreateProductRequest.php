@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin\Product;
 
+use App\Rules\LeafCategory;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -18,7 +19,7 @@ class CreateProductRequest extends FormRequest
             'name_ru' => ['required', 'string', 'max:64', Rule::unique('products')],
             'name_ua' => ['required', 'string', 'max:64', Rule::unique('products')],
             'url' => ['required', 'string', 'max:128', Rule::unique('products')],
-            'categories_id' => 'required|numeric',
+            'categories_id.*' => ['required', 'numeric', 'distinct', new LeafCategory()],
             'title_ru' => ['nullable', 'string', 'max:128', Rule::unique('products')],
             'title_ua' => ['nullable', 'string', 'max:128', Rule::unique('products')],
             'description_ru' => ['nullable', 'string', 'max:255', Rule::unique('products')],

@@ -3,7 +3,7 @@
 @section('content')
 
     <div class="row admin-content-header">
-        <div class="col admin-content-title"><h2>Редактировать категорию</h2></div>
+        <div class="col admin-content-title"><h2>Редактировать категорию:<i class="ml-5 admin-content-sub-header">{{ $category->name }}</i></h2></div>
         <div class="col-auto admin-content-actions">
             <button type="submit" form="category-form" data-toggle="tooltip" title="Сохранить изменения" class="btn btn-primary">
                 <i class="fa fa-save"></i></button>

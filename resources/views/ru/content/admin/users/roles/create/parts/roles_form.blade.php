@@ -12,7 +12,6 @@
             </div>
             <div class="col-sm-8">
                 <select id="filter-select" name="roles_id" class="w-100 selectpicker">
-                    <option value="0" selected>Выберете роль</option>
                     @foreach($roles as $role)
                         <option value="{{ $role->id }}">{{ $role->title }}</option>
                     @endforeach

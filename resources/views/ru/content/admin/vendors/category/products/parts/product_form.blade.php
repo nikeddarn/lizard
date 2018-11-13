@@ -3,7 +3,7 @@
     <form id="sync-products-form" method="post">
         @csrf
         <input type="hidden" name="vendors_id" value="{{ $vendorCategory->vendor->id }}">
-        <input type="hidden" name="page" value="{{ $products->currentPage() }}">
+        <input type="hidden" name="vendor_categories_id" value="{{ $vendorCategory->id }}">
 
         <table class="table">
 
@@ -38,16 +38,9 @@
                     <td class="text-center">
                         <div class="custom-control custom-checkbox">
 
-                            @if(in_array($product->id, $synchronizedProductsIds))
-                                <input id="select-product-{{ $product->id }}" type="checkbox"
-                                       class="custom-control-input" name="vendor_product_id[]"
-                                       value="{{ $product->id }}" checked="checked">
-                            @else
-                                <input id="select-product-{{ $product->id }}" type="checkbox"
-                                       class="custom-control-input"
-                                       name="vendor_product_id[]"
-                                       value="{{ $product->id }}">
-                            @endif
+                            <input id="select-product-{{ $product->id }}" type="checkbox"
+                                   class="custom-control-input" name="vendor_product_id[]"
+                                   value="{{ $product->id }}" {{ $product->checked ? 'checked="checked"' : '' }}>
 
                             <label class="custom-control-label empty-checkbox-label"
                                    for="select-product-{{ $product->id }}"></label>
@@ -61,8 +54,12 @@
             </tbody>
         </table>
 
-        <button class="btn btn-primary" type="submit" formaction="{{ route('vendor.category.products.upload') }}">Синхронизировать выбранное</button>
-        <button class="btn btn-primary ml-2" type="submit" formaction="{{ route('vendor.category.products.upload.all') }}">Загрузить все товары</button>
+        <button class="btn btn-primary" type="submit" formaction="{{ route('vendor.category.products.upload') }}">
+            Синхронизировать выбранное
+        </button>
+        <button class="btn btn-primary ml-2" type="submit"
+                formaction="{{ route('vendor.category.products.upload.all') }}">Синхронизировать все
+        </button>
 
     </form>
 

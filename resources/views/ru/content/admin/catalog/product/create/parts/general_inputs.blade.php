@@ -34,15 +34,38 @@
 </div>
 
 <div class="card p-5 mb-5">
+    <div class="row form-group">
+        <div class="col-sm-2">
+            <label for="brands_id">Бренд</label>
+        </div>
+        <div class="col-sm-8">
+            <select id="brands_id" name="brands_id" class="selectpicker w-100">
+                <option value="0" {{ !old('brands_id') ? 'selected' : '' }}>Нет бренда</option>
+                @foreach($brands as $brand)
+                    <option value="{{ $brand->id }}" {{ $brand->id == old('brands_id') ? 'selected' : '' }}>{{ $brand->name }}</option>
+                    @endforeach
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="card p-5 mb-5">
 
     <div class="row form-group">
         <div class="col-sm-2">
-            <label class="required" for="categories_id">Категория</label>
+            <label for="manufacturer_ru">Страна производитель (ru)</label>
         </div>
         <div class="col-sm-8">
-            <select id="categories_id" name="categories_id" class="selectpicker w-100">
-                @include('content.admin.catalog.product.create.parts.select_category_options')
-            </select>
+            <input id="manufacturer_ru" name="manufacturer_ru" type="text" class="w-100" value="{{ old('manufacturer_ru') }}">
+        </div>
+    </div>
+
+    <div class="row form-group">
+        <div class="col-sm-2">
+            <label for="manufacturer_ua">Страна производитель (ua)</label>
+        </div>
+        <div class="col-sm-8">
+            <input id="manufacturer_ua" name="manufacturer_ua" type="text" class="w-100" value="{{ old('manufacturer_ua') }}">
         </div>
     </div>
 

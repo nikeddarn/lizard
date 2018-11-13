@@ -23,19 +23,6 @@ class VendorCategory extends Model
      */
     protected $guarded = [];
 
-    /**
-     * Array of composite primary keys.
-     *
-     * @var array
-     */
-    protected $primaryKey = ['vendors_id', 'categories_id'];
-
-    /**
-     * Non auto incrementing primary key.
-     *
-     * @var bool
-     */
-    public $incrementing = false;
 
     /**
      * The attributes that should be selected depends on locale from JSON type field.
@@ -61,10 +48,26 @@ class VendorCategory extends Model
 
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function category()
+    public function categories()
     {
-        return $this->belongsTo('App\Models\Category', 'categories_id', 'id');
+        return $this->belongsToMany('App\Models\Category','vendor_local_categories', 'vendor_categories_id', 'categories_id')->withPivot('auto_add_new_products')->withTimestamps();
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function vendorProducts()
+    {
+        return $this->hasMany('App\Models\VendorProduct', 'vendor_categories_id', 'id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function products()
+    {
+        return $this->belongsToMany('App\Models\Product', 'vendor_products', 'vendor_categories_id', 'products_id');
     }
 }

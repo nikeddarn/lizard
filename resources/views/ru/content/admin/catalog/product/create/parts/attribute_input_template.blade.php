@@ -13,7 +13,7 @@
             </div>
             <div class="col-sm-8">
                 <select name="attribute_id[]" class="w-100 attribute-id-select">
-                    <option value="0" selected>Выберете атрибут</option>
+                    <option disabled value selected>Выберете атрибут</option>
                     @foreach($attributes as $attribute)
                         <option value="{{ $attribute->id }}"
                                 data-attribute-values="{{ $attribute->attribute_values }}">{{ $attribute->name }}</option>
@@ -28,7 +28,7 @@
             </div>
             <div class="col-sm-8">
                 <select name="attribute_value_id[]" class="w-100 attribute-value-id-select">
-                    <option value="0" selected>Выберете значение</option>
+                    <option disabled value selected>Выберете значение</option>
                 </select>
             </div>
         </div>

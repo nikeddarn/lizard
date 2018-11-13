@@ -103,6 +103,10 @@ table tr td {
   text-decoration: none !important;
 }
 
+.table-border-top-none tr:first-child td {
+  border-top: none;
+}
+
 .pagination .page-link {
   color: #555555;
   outline: none;

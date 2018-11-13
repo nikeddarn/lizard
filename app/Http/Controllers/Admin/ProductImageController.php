@@ -4,8 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Product;
 use App\Models\ProductImage;
+use App\Support\Images\ImageCreator;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\File;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image;
 
 class ProductImageController extends Controller
 {
@@ -17,17 +22,23 @@ class ProductImageController extends Controller
      * @var ProductImage
      */
     private $productImage;
+    /**
+     * @var ImageCreator
+     */
+    private $imageCreator;
 
     /**
      * ProductImageController constructor.
      * @param Product $product
      * @param ProductImage $productImage
+     * @param ImageCreator $imageCreator
      */
-    public function __construct(Product $product, ProductImage $productImage)
+    public function __construct(Product $product, ProductImage $productImage, ImageCreator $imageCreator)
     {
 
         $this->product = $product;
         $this->productImage = $productImage;
+        $this->imageCreator = $imageCreator;
     }
 
     /**
@@ -54,6 +65,7 @@ class ProductImageController extends Controller
      * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request)
     {
@@ -65,12 +77,7 @@ class ProductImageController extends Controller
 
         $product = $this->product->newQuery()->findOrFail($request->get('products_id'));
 
-        $hasProductPrimaryImage = (bool)$product->primaryImage()->count();
-
-        $product->productImages()->create([
-            'image' => $request->image->store('images/products', 'public'),
-            'priority' => !$hasProductPrimaryImage,
-        ]);
+        $this->insertProductImages($request, $product);
 
         return redirect(route('admin.products.show', ['id' => $product->id]));
     }
@@ -130,5 +137,66 @@ class ProductImageController extends Controller
         $newPriorityImage->save();
 
         return redirect(route('admin.products.show', ['id' => $productsId]));
+    }
+
+    /**
+     * Create and store images.
+     *
+     * @param Request $request
+     * @param Product|Model $product
+     */
+    public function insertProductImages(Request $request, Product $product)
+    {
+        $image = $request->image;
+
+        $imagesDirectory = 'images/products/' . $product->id . '/';
+
+        // original image
+        $productImage['image'] = Storage::disk('public')->putFile($imagesDirectory, $image);
+
+        // small image
+        $productImage['small'] = $imagesDirectory . uniqid() . '.jpg';
+        Storage::disk('public')->put($productImage['small'], $this->createImage($image, config('shop.images.products.small'))->stream('jpg', 100));
+
+        // medium image
+        $productImage['medium'] = $imagesDirectory . uniqid() . '.jpg';
+        Storage::disk('public')->put($productImage['medium'], $this->createImage($image, config('shop.images.products.medium'))->stream('jpg', 100));
+
+        // large image
+        $productImage['large'] = $imagesDirectory . uniqid() . '.jpg';
+        Storage::disk('public')->put($productImage['large'], $this->createImage($image, config('shop.images.products.large'))->stream('jpg', 100));
+
+        $product->productImages()->create($productImage);
+    }
+
+    /**
+     * Create image.
+     *
+     * @param $image
+     * @param $imageSizes
+     * @return mixed
+     */
+    private function createImage($image, $imageSizes)
+    {
+        $createdImage = Image::make($image);
+        $createdImage->resize($imageSizes['w'], $imageSizes['h']);
+
+        if (config('shop.images.products.watermark')) {
+
+            $watermarkConfig = config('shop.images.watermark');
+
+            $imageText = config('app.name');
+            $baseX = $imageSizes['w'] * $watermarkConfig['baseX'];
+            $baseY = $imageSizes['h'] * $watermarkConfig['baseY'];
+            $fontSize = ($imageSizes['w'] - $baseX * 2) / strlen($imageText) * 2;
+
+            $createdImage->text($imageText, $baseX, $baseY, function ($font) use ($watermarkConfig, $fontSize) {
+                $font->file(public_path($watermarkConfig['font']));
+                $font->size($fontSize);
+                $font->color($watermarkConfig['color']);
+            });
+        }
+
+        return $createdImage;
     }
 }

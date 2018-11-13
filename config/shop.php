@@ -45,36 +45,44 @@ return [
     'recent_product_ttl' => 20,
 
     // images
-    'image' => [
-        // transform image aspect ratio to this value
-        'ratio' => [
-            'use' => true,
-            'value' => 1.3333
-        ],
+    'images' => [
 
-        // rotate if width > height
-        'rotate' => true,
-
-        // width of images in px
-        'width' => [
-            'small' => 100,
-            'medium' => 200,
-            'large' => 1200,
-        ],
-
-        // watermark
-        'watermark' => [
-            'use' => true,
-            'color' => [
-                'r' => 48,
-                'g' => 161,
-                'b' => 147,
-                // alpha in %
-                'a' => 90,
+        'products' => [
+            'small' => [
+                'w' => 100,
+                'h' => 100,
             ],
-            // from 0 to 1
-            'left' => 0.1,
-            'top' => 0.8,
+            'medium' => [
+                'w' => 300,
+                'h' => 400,
+            ],
+            'large' => [
+                'w' => 1050,
+                'h' => 1400,
+            ],
+
+            'watermark' => true,
         ],
-    ]
+
+        'category' => [
+            'w' => 300,
+            'h' => 400,
+        ],
+
+        'brand' => [
+            'w' => 400,
+            'h' => 300,
+        ],
+
+        'watermark' => [
+            'font' => 'fonts/OpenSans-Regular.ttf',
+            'size' => 0.2,
+            'color' => [48, 161, 147, 0.2],
+            'align' => 'center',
+            'valign' => 'bottom',
+            'angle' => 0,
+            'baseX' => 0.1,
+            'baseY' => 0.8,
+        ],
+    ],
 ];

@@ -13,7 +13,7 @@
 
                     <td class="d-none d-lg-table-cell">
                         @if($product->primaryImage)
-                            <img src="/storage/{{ $product->primaryImage->image }}" class="img-fluid table-image">
+                            <img src="/storage/{{ $product->primaryImage->small }}" class="img-fluid table-image">
                         @endif
                     </td>
 

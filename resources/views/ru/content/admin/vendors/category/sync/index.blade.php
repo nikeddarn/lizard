@@ -17,15 +17,24 @@
         @endif
     </div>
 
+    @if ($errors->any())
+        <div class="row">
+            <div class="col-sm-8">
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <div class="row">
         <div class="col-lg-12">
 
-            @if(isset($vendorCategory))
-                @include('content.admin.vendors.category.sync.parts.form')
-            @else
-                <h4 class="text-gray">Не удалось получить данные от поставщика. Попробуйте позже</h4>
-            @endif
-
+            @include('content.admin.vendors.category.sync.parts.form')
 
         </div>
     </div>

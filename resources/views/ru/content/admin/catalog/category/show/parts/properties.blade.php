@@ -25,7 +25,7 @@
                     <strong>Изображение</strong>
                 </div>
                 <div class="col col-lg-8">
-                    <img class="table-large-image img-fluid" src="/storage/{{ $category->image }}">
+                    <img class="table-image img-fluid" src="/storage/{{ $category->image }}">
                 </div>
             </div>
         </li>

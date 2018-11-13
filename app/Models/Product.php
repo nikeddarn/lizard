@@ -7,6 +7,7 @@ use App\Models\Support\Translatable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Str;
 use Mews\Purifier\Facades\Purifier;
 
 class Product extends Model
@@ -32,14 +33,22 @@ class Product extends Model
      *
      * @var array
      */
-    public $translatable = ['name', 'title', 'description', 'keywords', 'content'];
+    public $translatable = ['name', 'title', 'description', 'keywords', 'content', 'manufacturer', 'brief_content'];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsToMany
      */
-    public function category()
+    public function categories()
     {
-        return $this->belongsTo('App\Models\Category', 'categories_id', 'id');
+        return $this->belongsToMany('App\Models\Category', 'category_product', 'products_id', 'categories_id');
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function vendorCategories()
+    {
+        return $this->belongsToMany('App\Models\VendorCategory', 'vendor_products', 'products_id', 'vendor_categories_id');
     }
 
     /**
@@ -147,11 +156,45 @@ class Product extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function vendorProduct()
+    public function vendorProducts()
     {
-        return $this->hasOne('App\Models\VendorProduct', 'products_id', 'id');
+        return $this->hasMany('App\Models\VendorProduct', 'products_id', 'id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function categoryProducts()
+    {
+        return $this->hasMany('App\Models\CategoryProduct', 'products_id', 'id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function brand()
+    {
+        return $this->belongsTo('App\Models\Brand', 'brands_id', 'id');
+    }
+
+    /**
+     * @param  string  $value
+     * @return void
+     */
+    public function setBriefContentRuAttribute($value)
+    {
+        $this->attributes['brief_content_ru'] = Purifier::clean($value);
+    }
+
+    /**
+     * @param  string  $value
+     * @return void
+     */
+    public function setBriefContentUaAttribute($value)
+    {
+        $this->attributes['brief_content_ua'] = Purifier::clean($value);
     }
 
     /**
@@ -170,5 +213,23 @@ class Product extends Model
     public function setContentUaAttribute($value)
     {
         $this->attributes['content_ua'] = Purifier::clean($value);
+    }
+
+    /**
+     * @param  string  $value
+     * @return void
+     */
+    public function setManufacturerRuAttribute($value)
+    {
+        $this->attributes['manufacturer_ru'] = Str::ucfirst($value);
+    }
+
+    /**
+     * @param  string  $value
+     * @return void
+     */
+    public function setManufacturerUaAttribute($value)
+    {
+        $this->attributes['content_ua'] = Str::ucfirst($value);
     }
 }

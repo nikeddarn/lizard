@@ -9,9 +9,9 @@
                 <a href="{{ route('shop.product.index', ['url' => $product->url]) }}">
 
                     @if($product->primaryImage)
-                        <img src="/storage/{{ $product->primaryImage->medium }}">
+                        <img class="img-fluid w-100" src="/storage/{{ $product->primaryImage->medium }}">
                     @else
-                        <img src="/images/common/no_image.png"/>
+                        <img class="img-fluid w-100" src="/images/common/no_image.png"/>
                     @endif
 
                     @if($product->badges)

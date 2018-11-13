@@ -18,7 +18,7 @@ class UpdateProductRequest extends FormRequest
             'name_ru' => ['required', 'string', 'max:64', Rule::unique('products')->ignore(request('id'), 'id')],
             'name_ua' => ['required', 'string', 'max:64', Rule::unique('products')->ignore(request('id'), 'id')],
             'url' => ['required', 'string', 'max:128', Rule::unique('products')->ignore(request('id'), 'id')],
-            'categories_id' => 'required|numeric',
+            'categories_id.*' => 'required|numeric',
             'title_ru' => ['nullable', 'string', 'max:128', Rule::unique('products')->ignore(request('id'), 'id')],
             'title_ua' => ['nullable', 'string', 'max:128', Rule::unique('products')->ignore(request('id'), 'id')],
             'description_ru' => ['nullable', 'string', 'max:255', Rule::unique('products')->ignore(request('id'), 'id')],

@@ -4,8 +4,14 @@
 
     @csrf
 
-    <table id="product-detail-table" class="table">
+    <table class="table">
         <tbody>
+
+        @if($product->brief_content)
+            <tr>
+                <td colspan="2">{!! $product->brief_content !!}</td>
+            </tr>
+        @endif
 
         <tr>
             <td>Артикул товара</td>
@@ -70,12 +76,19 @@
             </td>
         </tr>
 
+        @if($product->manufacturer_ru)
+            <tr>
+                <td>Производство</td>
+                <td>{{ $product->manufacturer_ru }}</td>
+            </tr>
+        @endif
+
         <tr>
             <td>Состояние</td>
             <td>
                 @if($product->is_new)
                     <span>Новый</span>
-                    @else
+                @else
                     <span>Уцененный</span>
                 @endif
             </td>

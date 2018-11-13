@@ -2,10 +2,10 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">
-                    <a href="{{ route('shop.product.index', ['id' => $product->url]) }}}"
+                <h1 class="modal-title h3 text-center">
+                    <a href="{{ route('shop.product.index', ['id' => $product->url]) }}"
                        class="text-dark">{{ $product->name }}</a>
-                </h4>
+                </h1>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -66,14 +66,18 @@
 
                         <div class="col col-sm-6">
 
-                            <h1 class="text-gray h3">{{ $product->name }}</h1>
-
                             <form action="{{ route('shop.cart.count', ['id' => $product->id]) }}" method="post">
 
                                 @csrf
 
-                                <table id="product-detail-table" class="table">
+                                <table class="table table-border-top-none">
                                     <tbody>
+
+                                    @if($product->brief_content)
+                                        <tr>
+                                            <td colspan="2">{!! $product->brief_content !!}</td>
+                                        </tr>
+                                    @endif
 
                                     <tr>
                                         <td>Артикул товара</td>
@@ -137,6 +141,13 @@
                                             @endif
                                         </td>
                                     </tr>
+
+                                    @if($product->manufacturer_ru)
+                                        <tr>
+                                            <td>Производство</td>
+                                            <td>{{ $product->manufacturer_ru }}</td>
+                                        </tr>
+                                    @endif
 
                                     <tr>
                                         <td>Состояние</td>

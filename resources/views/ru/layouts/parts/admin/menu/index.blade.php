@@ -7,6 +7,7 @@
             <ul class="flex-column pl-3 nav">
                 <li class="nav-item"><a class="nav-link py-1" href="{{ route('admin.categories.index') }}">Категории</a></li>
                 <li class="nav-item"><a class="nav-link py-1" href="{{ route('admin.products.index') }}">Продукты</a></li>
+                <li class="nav-item"><a class="nav-link py-1" href="{{ route('admin.brands.index') }}">Бренды</a></li>
                 <li class="nav-item"><a class="nav-link py-1" href="{{ route('admin.attributes.index') }}">Атрибуты продуктов</a></li>
                 <li class="nav-item"><a class="nav-link py-1" href="{{ route('admin.filters.index') }}">Фильтры</a></li>
             </ul>

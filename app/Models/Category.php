@@ -42,11 +42,11 @@ class Category extends Model
 
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function products()
     {
-        return $this->hasMany('App\Models\Product', 'categories_id', 'id');
+        return $this->belongsToMany('App\Models\Product', 'category_product', 'categories_id', 'products_id');
     }
 
     /**
@@ -66,11 +66,11 @@ class Category extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function vendorCategory()
+    public function vendorCategories()
     {
-        return $this->belongsTo('App\Models\VendorCategory', 'vendor_categories_id', 'id');
+        return $this->belongsToMany('App\Models\VendorCategory', 'vendor_local_categories', 'categories_id', 'vendor_categories_id', 'id')->withPivot('auto_add_new_products')->withTimestamps();
     }
 
     /**

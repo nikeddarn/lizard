@@ -31,6 +31,10 @@ class ProductDetailsController extends Controller
      * @var ProductAvailability
      */
     private $productAvailability;
+    /**
+     * @var Category
+     */
+    private $category;
 
     /**
      * ProductDetailsController constructor.
@@ -38,18 +42,20 @@ class ProductDetailsController extends Controller
      * @param ExchangeRates $exchangeRates
      * @param ProductPrice $productPrice
      * @param ProductAvailability $productAvailability
+     * @param Category $category
      */
-    public function __construct(Product $product, ExchangeRates $exchangeRates, ProductPrice $productPrice, ProductAvailability $productAvailability)
+    public function __construct(Product $product, ExchangeRates $exchangeRates, ProductPrice $productPrice, ProductAvailability $productAvailability, Category $category)
     {
         $this->product = $product;
         $this->exchangeRates = $exchangeRates;
         $this->productPrice = $productPrice;
         $this->productAvailability = $productAvailability;
+        $this->category = $category;
     }
 
     public function index(string $url)
     {
-        $product = $this->product->newQuery()->where('url', $url)->with('productImages', 'attributeValues.attribute', 'category')->firstOrFail();
+        $product = $this->product->newQuery()->where('url', $url)->with('productImages', 'attributeValues.attribute')->firstOrFail();
 
         $this->addProductProperties($product);
 
@@ -131,7 +137,13 @@ class ProductDetailsController extends Controller
      */
     private function getBreadcrumbs(Product $product): array
     {
-        $breadcrumbs = $product->category->newQuery()->ancestorsAndSelf($product->category->id)
+        if (session()->has('product_category_id')){
+            $categoryId = session()->get('product_category_id');
+        }else{
+            $categoryId = $product->categories()->first()->id;
+        }
+
+        $breadcrumbs = $this->category->newQuery()->ancestorsAndSelf($categoryId)
             ->each(function (Category $category) {
                 if ($category->isLeaf()) {
                     $category->href = route('shop.category.leaf.index', ['url' => $category->url]);

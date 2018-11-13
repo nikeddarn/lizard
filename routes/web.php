@@ -131,6 +131,18 @@ Route::middleware('auth.admin')->group(function () {
     Route::post('/admin/products/filter', 'Admin\ProductFilterController@store')->name('admin.products.filter.store');
     Route::delete('/admin/products/filter/destroy', 'Admin\ProductFilterController@destroy')->name('admin.products.filter.destroy');
 
+    // product categories
+    Route::get('/admin/products/{id}/category/create', 'Admin\ProductCategoryController@create')->name('admin.products.category.create');
+    Route::post('/admin/products/category', 'Admin\ProductCategoryController@store')->name('admin.products.category.store');
+    Route::delete('/admin/products/category/destroy', 'Admin\ProductCategoryController@destroy')->name('admin.products.category.destroy');
+
+    // brands
+    Route::get('/admin/brands', 'Admin\BrandController@index')->name('admin.brands.index');
+    Route::get('/admin/brands/create', 'Admin\BrandController@create')->name('admin.brands.create');
+    Route::post('/admin/brands', 'Admin\BrandController@store')->name('admin.brands.store');
+    Route::get('/admin/brands/{id}/edit', 'Admin\BrandController@edit')->name('admin.brands.edit');
+    Route::put('/admin/brands/{id}', 'Admin\BrandController@update')->name('admin.brands.update');
+    Route::delete('/admin/brands/{id}', 'Admin\BrandController@destroy')->name('admin.brands.destroy');
 
     // attributes
     Route::get('/admin/attributes', 'Admin\AttributeController@index')->name('admin.attributes.index');
@@ -179,16 +191,21 @@ Route::middleware('auth.admin')->group(function () {
 Route::middleware('auth.admin')->group(function () {
 
     // categories
-    Route::get('/vendor/{vendorId}/categories', 'Vendor\VendorCategoryController@index')->name('vendor.categories.index');
-    Route::get('/vendor/{vendorId}/category/{categoryId}/sync', 'Vendor\VendorCategoryController@sync')->name('vendor.category.sync');
-    Route::post('/vendor/category/link', 'Vendor\VendorCategoryController@link')->name('vendor.category.link');
-    Route::delete('/vendor/category/unlink', 'Vendor\VendorCategoryController@unlink')->name('vendor.category.unlink');
-    Route::delete('/vendor/category/delete', 'Vendor\VendorCategoryController@delete')->name('vendor.category.delete');
+    Route::get('/admin/vendor/{vendorId}/categories', 'Vendor\VendorCategoryController@index')->name('vendor.categories.index');
+
+    Route::get('/admin/vendor/{vendorId}/category/{vendorOwnCategoryId}/sync', 'Vendor\VendorCategoryController@sync')->name('vendor.category.sync');
+    Route::post('/admin/vendor/category/link', 'Vendor\VendorCategoryController@link')->name('vendor.category.link');
+    Route::delete('/admin/vendor/category/unlink', 'Vendor\VendorCategoryController@unlink')->name('vendor.category.unlink');
+
+    Route::post('/admin/vendor/category/products/auto/on', 'Vendor\VendorCategoryController@autoDownloadOn')->name('vendor.category.products.auto.on');
+    Route::post('/admin/vendor/category/products/auto/off', 'Vendor\VendorCategoryController@autoDownloadOff')->name('vendor.category.products.auto.off');
+
 
     //products
-    Route::get('/vendor/{vendorId}/category/{categoryId}/products', 'Vendor\VendorProductController@index')->name('vendor.category.products.index');
-    Route::post('/vendor/category/products/upload', 'Vendor\VendorProductController@upload')->name('vendor.category.products.upload');
-    Route::post('/vendor/category/products/upload/all', 'Vendor\VendorProductController@uploadAll')->name('vendor.category.products.upload.all');
+    Route::get('/admin/vendor/{vendorId}/category/{vendorCategoryId}/local/{localCategoryId}/products', 'Vendor\VendorProductController@index')->name('vendor.category.products.index');
+
+    Route::post('/admin/vendor/category/products/upload', 'Vendor\VendorProductController@upload')->name('vendor.category.products.upload');
+    Route::post('/admin/vendor/category/products/upload/all', 'Vendor\VendorProductController@uploadAll')->name('vendor.category.products.upload.all');
 });
 
 

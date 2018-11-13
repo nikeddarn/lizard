@@ -31,9 +31,17 @@ interface VendorProviderInterface
      * Get products of category.
      *
      * @param int $categoryId
-     * @param int $productsPerPage
      * @param int $page
      * @return LengthAwarePaginator
      */
-    public function getProducts(int $categoryId, int $productsPerPage, int $page): LengthAwarePaginator;
+    public function getCategoryProducts(int $categoryId, int $page): LengthAwarePaginator;
+
+    /**
+     * Get products data.
+     *
+     * @param array $vendorProductsIds
+     * @param string $locale
+     * @return Collection
+     */
+    public function getProductsData(array $vendorProductsIds, string $locale): Collection;
 }

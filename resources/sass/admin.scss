@@ -90,11 +90,7 @@ label.required:after {
 // ---------------------------------------------------------------------------------------------------------------------
 
 .table-image{
-  height: 40px;
-}
-
-.table-large-image{
-  height: 60px;
+  width: 100px;
 }
 
 // -------------------------------------------------- category styles --------------------------------------------------
@@ -134,10 +130,10 @@ label.required:after {
 
 
 
-.attribute-value-item, .product-image-item, .product-attribute-item, .product-filter-item, .category-filter-item {
+.attribute-value-item, .product-image-item, .product-attribute-item, .product-filter-item, .category-filter-item, .product-category-item {
   position: relative;
 
-  .attribute-value-item-delete, .product-image-item-delete, .product-attribute-item-delete, .product-filter-item-delete, .category-filter-item-delete {
+  .attribute-value-item-delete, .product-image-item-delete, .product-attribute-item-delete, .product-filter-item-delete, .category-filter-item-delete, .product-category-item-delete {
     display: inline-block;
     position: absolute;
     right: 0;

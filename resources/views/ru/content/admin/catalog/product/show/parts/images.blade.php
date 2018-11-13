@@ -12,7 +12,7 @@
                 <tr>
 
                     <td>
-                        <img src="/storage/{{ $image->image }}" class="table-large-image img-fluid img-thumbnail">
+                        <img src="/storage/{{ $image->small }}" class="img-fluid img-thumbnail table-image">
                     </td>
 
                     <td class="text-right">

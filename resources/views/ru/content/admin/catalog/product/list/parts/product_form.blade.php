@@ -4,10 +4,10 @@
 
         <thead>
         <tr class="text-center">
-            <td class="d-none d-lg-table-cell"></td>
-            <td class="d-none d-lg-table-cell">Id</td>
-            <td>Название</td>
-            <td>Категория</td>
+            <td class="d-none d-lg-table-cell"><strong>Изображение</strong></td>
+            <td class="d-none d-lg-table-cell"><strong>Id</strong></td>
+            <td><strong>Название</strong></td>
+            <td><strong>Категории</strong></td>
             <td></td>
         </tr>
         </thead>
@@ -21,7 +21,7 @@
 
                 <td class="d-none d-lg-table-cell">
                     @if($product->primaryImage)
-                        <img src="/storage/{{ $product->primaryImage->image }}" class="img-responsive table-image">
+                        <img src="/storage/{{ $product->primaryImage->small }}" class="img-responsive table-image">
                     @endif
                 </td>
 
@@ -30,7 +30,9 @@
                 <td>{{ $product->name }}</td>
 
                 <td>
-                    <a href="{{ route('admin.categories.show', ['id' => $product->category->id]) }}">{{ $product->category->name }}</a>
+                    @foreach($product->categories as $category)
+                        <a class="d-block" href="{{ route('admin.categories.show', ['id' => $category->id]) }}">{{ $category->name }}</a>
+                    @endforeach
                 </td>
 
                 <td class="text-center">

@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Requests\Admin\StoreAttributeRequest;
 use App\Models\Attribute;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Str;
 
 class AttributeController extends Controller
 {

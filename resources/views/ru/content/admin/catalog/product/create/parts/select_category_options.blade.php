@@ -1,6 +1,6 @@
 @foreach($categories as $category)
 
-    <option class="cat-depth-{{$category->depth}}" value="{{ $category->id }}" {{ old('parent_id') == $category->id ? 'selected="selected"' : ''}}>
+    <option class="cat-depth-{{$category->depth}}" value="{{ $category->id }}">
         {{ $category->name }}
     </option>
 

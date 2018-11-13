@@ -3,8 +3,12 @@
 namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\VendorCategory;
+use App\Models\VendorProduct;
+use App\Support\Vendor\VendorProductManager;
 use App\Support\Vendors\VendorBroker;
+use Exception;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\View\View;
 
@@ -18,73 +22,129 @@ class VendorProductController extends Controller
      * @var VendorBroker
      */
     private $vendorBroker;
+    /**
+     * @var VendorProduct
+     */
+    private $vendorProduct;
+    /**
+     * @var Category
+     */
+    private $category;
+    /**
+     * @var VendorProductManager
+     */
+    private $vendorProductManager;
 
     /**
      * VendorProductController constructor.
      * @param VendorCategory $vendorCategory
+     * @param Category $category
      * @param VendorBroker $vendorBroker
+     * @param VendorProduct $vendorProduct
+     * @param VendorProductManager $vendorProductManager
      */
-    public function __construct(VendorCategory $vendorCategory, VendorBroker $vendorBroker)
+    public function __construct(VendorCategory $vendorCategory, Category $category, VendorBroker $vendorBroker, VendorProduct $vendorProduct, VendorProductManager $vendorProductManager)
     {
         $this->vendorCategory = $vendorCategory;
         $this->vendorBroker = $vendorBroker;
+        $this->vendorProduct = $vendorProduct;
+        $this->category = $category;
+        $this->vendorProductManager = $vendorProductManager;
     }
 
     /**
      * @param int $vendorId
-     * @param int $categoryId
+     * @param int $vendorCategoryId
+     * @param int $localCategoryId
      * @return View
+     * @throws Exception
      */
-    public function index(int $vendorId, int $categoryId): View
+    public function index(int $vendorId, int $vendorCategoryId, int $localCategoryId)
     {
-        $vendorCategory = $this->vendorCategory->newQuery()
-            ->where([
-                ['vendors_id', $vendorId],
-                ['vendor_category_id', $categoryId],
-            ])->with('vendor', 'vendorProducts', 'localCategory')
-            ->first();
+            $vendorCategory = $this->vendorCategory->newQuery()->where('id', $vendorCategoryId)->with('vendor')->firstOrFail();
+            $localCategory = $this->category->newQuery()->findOrFail($localCategoryId);
 
-        $synchronizedProductsIds = $vendorCategory->vendorProducts->pluck('vendor_product_id')->toArray();
+            $synchronizedVendorProducts = $this->vendorProduct->newQuery()
+                ->whereHas('vendorCategory', function ($query) use ($vendorCategoryId) {
+                    $query->where('id', $vendorCategoryId);
+                })
+                ->whereHas('product.categories', function ($query) use ($localCategoryId) {
+                    $query->where('id', $localCategoryId);
+                })
+                ->get();
 
-        $productsPerPage = config('admin.vendor_products_per_page');
+            $synchronizedVendorProductsCount = $synchronizedVendorProducts->count();
 
-        $page = request()->has('page') ? request()->get('page') : 1;
+            $page = request()->has('page') ? request()->get('page') : 1;
 
         try {
-            $products = $this->vendorBroker->getVendorProvider($vendorId)->getProducts($categoryId, $productsPerPage, $page);
 
-            // remove archive products
-            if (!config('admin.archive_products.sync')) {
-                $products->filter(function ($product) {
-                    return !$product->is_archive;
-                });
-            }
+            $products = $this->vendorBroker->getVendorProvider($vendorId)->getCategoryProducts($vendorCategory->vendor_category_id, $page);
 
-            session()->put('synchronizedProductsIds', $synchronizedProductsIds);
-
-            return view('content.admin.vendors.category.products.index')->with(compact('vendorCategory', 'products', 'synchronizedProductsIds'));
-
-        } catch (RequestException $e) {
-            return view('content.admin.vendors.category.products.index')->with(compact('vendorCategory'));
+        } catch (Exception $exception) {
+            return back()->withErrors(['message' => $exception->getMessage()]);
         }
+
+            // store current page products ids
+            session()->flash('synchronizing_vendor_products_ids', $products->pluck('id')->toArray());
+
+            $doSyncArchiveProduct = config('admin.archive_products.sync');
+            $synchronizedVendorProductsIds = $synchronizedVendorProducts->pluck('vendor_product_id')->toArray();
+
+            $products->filter(function ($product) use ($doSyncArchiveProduct, $synchronizedVendorProductsIds) {
+                // define already synchronized products
+                $product->checked = in_array($product->id, $synchronizedVendorProductsIds);
+
+                // remove archive products if needing
+                return $doSyncArchiveProduct || !$product->is_archive;
+            });
+
+            return view('content.admin.vendors.category.products.index')->with(compact('vendorCategory', 'localCategory', 'products', 'synchronizedVendorProductsCount'));
+
+
     }
+
 
     public function upload()
     {
-        $vendorsId = (int)request()->get('vendors_id');
+        $vendorId = (int)request()->get('vendors_id');
+        $vendorCategoryId = (int)request()->get('vendor_categories_id');
 
-        $oldSynchronizedProductsIds = session()->pull('synchronizedProductsIds');
-        $newSynchronizedProductsIds = request()->get('vendor_product_id');
+        $synchronizingVendorProductsIds = (array)session()->pull('synchronizing_vendor_products_ids');
+        $checkedVendorProductsIds = request()->get('vendor_product_id');
 
+        if (!is_array($checkedVendorProductsIds)) {
+            $checkedVendorProductsIds = [];
+        }
 
+        $synchronizedVendorProductsIds = $this->vendorProduct->newQuery()
+            ->where('vendor_categories_id', $vendorCategoryId)
+            ->whereIn('vendor_product_id', $synchronizingVendorProductsIds)
+            ->get()->pluck('vendor_product_id')->toArray();
 
-            var_dump(request()->get('vendor_product_id'));
+        $insertingVendorProductsIds = array_diff($checkedVendorProductsIds, $synchronizedVendorProductsIds);
+        $deletingVendorProductsIds = array_diff($synchronizedVendorProductsIds, $checkedVendorProductsIds);
+
+        try {
+
+            if (!empty($insertingVendorProductsIds)) {
+                $this->vendorProductManager->insertVendorProducts($vendorId, $insertingVendorProductsIds);
+            }
+
+            if (!empty($deletingVendorProductsIds)) {
+                $this->vendorProductManager->deleteVendorProducts($vendorId, $deletingVendorProductsIds);
+            }
+
+        } catch (Exception $exception) {
+            return back()->withErrors(['message' => $exception->getMessage()]);
+        }
+
+        return back();
     }
 
     public function uploadAll()
     {
         $vendorsId = (int)request()->get('vendors_id');
-
 
 
         var_dump(request()->get('vendor_product_id'));

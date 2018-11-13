@@ -38,6 +38,8 @@
                     <div class="nav nav-tabs" id="nav-tab" role="tablist">
                         <a class="nav-item nav-link active" data-toggle="tab" href="#product-general" role="tab"
                            aria-controls="product-general" aria-selected="true">Основное</a>
+                        <a class="nav-item nav-link" data-toggle="tab" href="#product-placement" role="tab"
+                           aria-controls="product-placement" aria-selected="true">Размещение</a>
                         <a class="nav-item nav-link" data-toggle="tab" href="#product-seo" role="tab"
                            aria-controls="product-seo" aria-selected="false">SEO</a>
                         <a class="nav-item nav-link" data-toggle="tab" href="#product-content" role="tab"
@@ -59,6 +61,10 @@
                     <div class="tab-pane fade show active" id="product-general" role="tabpanel"
                          aria-labelledby="product-general-tab">
                         @include('content.admin.catalog.product.create.parts.general_inputs')
+                    </div>
+                    <div class="tab-pane fade" id="product-placement" role="tabpanel"
+                         aria-labelledby="product-placement-tab">
+                        @include('content.admin.catalog.product.create.parts.product-placement')
                     </div>
                     <div class="tab-pane fade" id="product-seo" role="tabpanel" aria-labelledby="product-seo-tab">
                         @include('content.admin.catalog.product.create.parts.seo_inputs')
@@ -101,6 +107,9 @@
 
             {{-- input filter template (hidden) --}}
             @include('content.admin.catalog.product.create.parts.filter_input_template')
+
+            {{-- input filter template (hidden) --}}
+            @include('content.admin.catalog.product.create.parts.select_category_template')
 
         </div>
     </div>
@@ -212,9 +221,9 @@
 
                 // create new attribute item from template and show it
                 let newAttributeItem = $('#product-attribute-input-template').find('.product-attribute-item').clone().removeClass('d-none');
-                // append new image item to images list block
+                // append new image item to attributes list block
                 $('#product-attributes-list').append(newAttributeItem);
-                // delete image item
+                // delete attribute item
                 $(newAttributeItem).find('.product-attribute-item-delete').click(function () {
                     $(this).closest(newAttributeItem).remove();
                 });
@@ -267,6 +276,28 @@
 
                 // activate selectpicker
                 $(newFilterItem).find('.filter-id-select').addClass('selectpicker').selectpicker();
+
+            });
+
+            // subscribe old categories delete buttons (after redirect back with errors)
+            $('.product-category-item').find('.product-category-item-delete').click(function () {
+                $(this).closest('.product-category-item').remove();
+            });
+
+            // insert categories
+            $('#product-category-add-button').click(function () {
+
+                // create new select category item from template and show it
+                let newSelectCategoryItem = $('#product-category-input-template').find('.product-category-item').clone().removeClass('d-none');
+                // append new image item to images list block
+                $('#product-categories-list').append(newSelectCategoryItem);
+                // delete filter item
+                $(newSelectCategoryItem).find('.product-category-item-delete').click(function () {
+                    $(this).closest(newSelectCategoryItem).remove();
+                });
+
+                // activate selectpicker
+                $(newSelectCategoryItem).find('.category-id-select').addClass('selectpicker').selectpicker();
 
             });
 

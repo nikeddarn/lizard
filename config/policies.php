@@ -8,6 +8,7 @@
 use App\Contracts\Auth\RoleInterface;
 use App\Models\Attribute;
 use App\Models\AttributeValue;
+use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Filter;
 use App\Models\Product;
@@ -28,6 +29,12 @@ return [
   ],
 
     Attribute::class  => [
+      RoleInterface::ADMIN,
+      RoleInterface::VENDOR_MANAGER,
+      RoleInterface::USER_MANAGER,
+  ],
+
+    Brand::class  => [
       RoleInterface::ADMIN,
       RoleInterface::VENDOR_MANAGER,
       RoleInterface::USER_MANAGER,

@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Requests\Admin\StoreCategoryRequest;
+use App\Http\Requests\Admin\Category\StoreCategoryRequest;
+use App\Http\Requests\Admin\Category\UpdateCategoryRequest;
 use App\Models\Category;
 use App\Models\Filter;
 use Exception;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image;
 
 class CategoryController extends Controller
 {
@@ -82,7 +85,10 @@ class CategoryController extends Controller
 
         // insert image
         if ($request->has('image')) {
-            $attributes['image'] = $request->image->store('images/categories/intro', 'public');
+            $attributes['image'] = 'images/categories/intro/' . uniqid() . '.jpg';
+            $categoryImageSizes = config('shop.images.category');
+            $createdImage = Image::make($request->image)->resize($categoryImageSizes['w'], $categoryImageSizes['h']);
+            Storage::disk('public')->put($attributes['image'], $createdImage->stream('jpg', 100));
         }
 
         $category = $this->category->create($attributes);
@@ -143,13 +149,13 @@ class CategoryController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param UpdateCategoryRequest $request
      * @param string $id
      * @return \Illuminate\Http\Response
      * @throws Exception
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateCategoryRequest $request, string $id)
     {
         $this->authorize('update', $this->category);
 
@@ -162,14 +168,23 @@ class CategoryController extends Controller
             $attributes = $request->only(['name_ru', 'name_ua', 'url', 'title_ru', 'title_ua', 'description_ru', 'description_ua', 'keywords_ru', 'keywords_ua', 'content_ru', 'content_ua']);
 
             if ($request->has('image')) {
-                $attributes['image'] = $request->image->store('images/categories/intro', 'public');
+                $attributes['image'] = 'images/categories/intro/' . uniqid() . '.jpg';
+                $categoryImageSizes = config('shop.images.category');
+                $createdImage = Image::make($request->image)->resize($categoryImageSizes['w'], $categoryImageSizes['h']);
+                Storage::disk('public')->put($attributes['image'], $createdImage->stream('jpg', 100));
             }
 
             $category->update($attributes);
 
-            if ($category->parent_id !== (int)$request->get('parent_id')) {
-                $parent = $this->category->newQuery()->where('id', $request->get('parent_id'))->first();
-                $category->appendToNode($parent)->save();
+            // change parent
+            $parentId = (int)$request->get('parent_id');
+            if ($category->parent_id != $parentId) {
+                if ($parentId === 0) {
+                    $category->saveAsRoot();
+                } else {
+                    $parent = $this->category->newQuery()->where('id', $parentId)->first();
+                    $category->appendToNode($parent)->save();
+                }
             }
 
             DB::commit();
@@ -179,7 +194,7 @@ class CategoryController extends Controller
             throw $e;
         }
 
-        return redirect(route('admin.categories.index'));
+        return redirect(route('admin.categories.show', ['id' => $category->id]));
     }
 
     /**
@@ -257,6 +272,7 @@ class CategoryController extends Controller
      *
      * @param Request $request
      * @return string
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function uploadImage(Request $request)
     {

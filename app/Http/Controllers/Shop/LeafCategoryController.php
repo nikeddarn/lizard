@@ -64,6 +64,9 @@ class LeafCategoryController extends Controller
     {
         $category = $this->category->newQuery()->where('url', $url)->firstOrFail();
 
+        // store category's id in session to create product details breadcrumbs
+        session()->flash('product_category_id', $category->id);
+
         if (!$category->isLeaf()) {
             abort(422);
         }
