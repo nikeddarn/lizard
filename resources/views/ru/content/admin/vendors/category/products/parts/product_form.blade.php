@@ -4,6 +4,7 @@
         @csrf
         <input type="hidden" name="vendors_id" value="{{ $vendorCategory->vendor->id }}">
         <input type="hidden" name="vendor_categories_id" value="{{ $vendorCategory->id }}">
+        <input type="hidden" name="local_categories_id" value="{{ $localCategory->id }}">
 
         <table class="table">
 
@@ -30,7 +31,7 @@
 
                 <tr>
 
-                    <td class="text-center">{{ $product->product_code }}</td>
+                    <td class="text-center">{{ $product->code }}</td>
                     <td>{{ $product->name }}</td>
                     <td class="text-center">{{ $product->country }}</td>
                     <td class="text-center">{{ $product->warranty }}</td>

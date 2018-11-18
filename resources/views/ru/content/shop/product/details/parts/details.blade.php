@@ -7,16 +7,18 @@
     <table class="table">
         <tbody>
 
+        @if($product->model_ru)
+            <tr>
+                <td>Модель товара</td>
+                <td>{{ $product->model_ru }}</td>
+            </tr>
+        @endif
+
         @if($product->brief_content)
             <tr>
                 <td colspan="2">{!! $product->brief_content !!}</td>
             </tr>
         @endif
-
-        <tr>
-            <td>Артикул товара</td>
-            <td>{{ $product->id }}</td>
-        </tr>
 
         @if($product->price)
             <tr>

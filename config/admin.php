@@ -12,7 +12,9 @@ return [
 
     // archive products
     'archive_products' => [
+        // sync archive products ?
         'sync' => false,
+        // show archive products to user ?
         'show' => false,
     ],
 ];

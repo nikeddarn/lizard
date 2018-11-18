@@ -85,4 +85,12 @@ return [
             'baseY' => 0.8,
         ],
     ],
+
+    // discount profit from vendor products for columns
+    // use negative value for rise profit
+    'vendor_price_discount' => [
+        'price1' => 0,
+        'price2' => 0.2,
+        'price3' => 0.5,
+    ],
 ];

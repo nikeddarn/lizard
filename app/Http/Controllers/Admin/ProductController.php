@@ -90,12 +90,13 @@ class ProductController extends Controller
         $categories = $this->category->withDepth()->get()->toTree();
 
         $attributes = $this->attribute->newQuery()
-            ->join('attribute_values', 'attributes.id', '=', 'attribute_values.attributes_id')
-            ->selectRaw("attributes.id AS id, attributes.name_$locale AS name_$locale, CONCAT('[', GROUP_CONCAT(JSON_OBJECT('id', attribute_values.id, 'value',  attribute_values.value_$locale) ORDER BY attribute_values.value_$locale ASC SEPARATOR ','), ']') AS attribute_values")
-            ->groupBy('attributes.id')
-            ->orderBy("attributes.name_$locale")
+            ->has('attributeValues')
+            ->orderBy("name_$locale")
+            ->with(['attributeValues' => function($query) use ($locale) {
+                $query->orderBy("value_$locale")->select(['id', 'attributes_id', "value_$locale as name"]);
+            }])
             ->get()
-        ->keyBy('id');
+            ->keyBy('id');
 
         $filters = $this->filter->newQuery()->orderBy("name_$locale")->get();
 
@@ -120,7 +121,7 @@ class ProductController extends Controller
     {
         $this->authorize('create', $this->attribute);
 
-        $productData = $request->only(['name_ru', 'name_ua', 'url', 'title_ru', 'title_ua', 'description_ru', 'description_ua', 'keywords_ru', 'keywords_ua', 'brief_content_ru', 'brief_content_ua', 'content_ru', 'content_ua', 'manufacturer_ru', 'manufacturer_ua', 'price1', 'price2', 'price3', 'is_new', 'warranty', 'length', 'width', 'height', 'volume']);
+        $productData = $request->only(['name_ru', 'name_ua', 'model_ru', 'model_ua', 'articul', 'code', 'url', 'title_ru', 'title_ua', 'description_ru', 'description_ua', 'keywords_ru', 'keywords_ua', 'brief_content_ru', 'brief_content_ua', 'content_ru', 'content_ua', 'manufacturer_ru', 'manufacturer_ua', 'min_order_quantity', 'price1', 'price2', 'price3', 'is_new', 'warranty', 'weight', 'length', 'width', 'height', 'volume']);
 
         // calculate product volume
         if (!$request->get('volume') && $request->has(['length', 'width', 'height'])) {
@@ -129,7 +130,7 @@ class ProductController extends Controller
 
         // insert brand
         $brandId = $request->get('brands_id');
-        if ($brandId > 0){
+        if ($brandId > 0) {
             $productData['brands_id'] = $brandId;
         }
 
@@ -219,7 +220,7 @@ class ProductController extends Controller
     {
         $this->authorize('update', $this->product);
 
-        $productData = $request->only(['name_ru', 'name_ua', 'url', 'title_ru', 'title_ua', 'description_ru', 'description_ua', 'keywords_ru', 'keywords_ua', 'brief_content_ru', 'brief_content_ua', 'content_ru', 'content_ua', 'manufacturer_ru', 'manufacturer_ua', 'price1', 'price2', 'price3', 'is_new', 'warranty', 'length', 'width', 'height', 'volume']);
+        $productData = $request->only(['name_ru', 'name_ua', 'model_ru', 'model_ua', 'articul', 'code', 'url', 'title_ru', 'title_ua', 'description_ru', 'description_ua', 'keywords_ru', 'keywords_ua', 'brief_content_ru', 'brief_content_ua', 'content_ru', 'content_ua', 'manufacturer_ru', 'manufacturer_ua', 'min_order_quantity', 'price1', 'price2', 'price3', 'is_new', 'warranty', 'weight', 'length', 'width', 'height', 'volume']);
 
         // calculate product volume
         if (!$request->get('volume') && $request->has(['length', 'width', 'height'])) {
@@ -228,9 +229,9 @@ class ProductController extends Controller
 
         // insert brand
         $brandId = (int)$request->get('brands_id');
-        if ($brandId === 0){
+        if ($brandId === 0) {
             $productData['brands_id'] = null;
-        }else{
+        } else {
             $productData['brands_id'] = $brandId;
         }
 

@@ -40,7 +40,7 @@
             <label class="required" for="parent_id">Родитель</label>
         </div>
         <div class="col-sm-8">
-            <select id="parent_id" name="parent_id" class="selectpicker w-100">
+            <select id="parent_id" name="parent_id" class="selectpicker" data-width="100%">
                 <option value="0" {{ old('parent_id') == "0" ? 'selected="selected"' : ''}}>Корневая категория</option>
                 @include('content.admin.catalog.category.create.parts.select_category_options')
             </select>

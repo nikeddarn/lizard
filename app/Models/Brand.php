@@ -58,6 +58,6 @@ class Brand extends Model
      */
     public function setNameAttribute($value)
     {
-        $this->attributes['content_ua'] = Str::ucfirst($value);
+        $this->attributes['name'] = Str::ucfirst($value);
     }
 }

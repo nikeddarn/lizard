@@ -21,5 +21,19 @@
                 </div>
             </div>
         </li>
+        <li class="list-group-item">
+            <div class="row">
+                <div class="col col-lg-4">
+                    <strong>Несколько значений у одного продукта</strong>
+                </div>
+                <div class="col col-lg-8">
+                    @if($attribute->multiply_product_values)
+                        Разрешено
+                    @else
+                        Запрещено
+                    @endif
+                </div>
+            </div>
+        </li>
     </ul>
 </div>

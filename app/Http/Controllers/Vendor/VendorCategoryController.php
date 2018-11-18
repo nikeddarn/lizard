@@ -91,7 +91,7 @@ class VendorCategoryController extends Controller
 
         try {
 
-            $vendorCategories = $this->vendorBroker->getVendorProvider($vendorId)->getCategories();
+            $vendorCategories = $this->vendorBroker->getVendorAdapter($vendorId)->getVendorCategoriesTree();
 
         } catch (Exception $exception) {
             return view('content.admin.vendors.category.list.index')->with(compact('vendor'))->withErrors(['message' => $exception->getMessage()]);
@@ -153,20 +153,9 @@ class VendorCategoryController extends Controller
 
         if (!$vendorCategory) {
 
-            try {
-                $vendorCategoryRu = $this->vendorBroker->getVendorProvider($vendorsId)->getCategory($vendorOwnCategoryId, 'ru');
-                $vendorCategoryUa = $this->vendorBroker->getVendorProvider($vendorsId)->getCategory($vendorOwnCategoryId, 'ua');
+            $vendorCategoryData = $this->vendorBroker->getVendorAdapter($vendorsId)->getVendorCategoryData($vendorOwnCategoryId);
 
-            } catch (Exception $exception) {
-                return back()->withErrors(['message' => $exception->getMessage()]);
-            }
-
-            $vendorCategory = $this->vendorCategory->newQuery()->create([
-                'vendors_id' => $vendorsId,
-                'vendor_category_id' => $vendorOwnCategoryId,
-                'name_ru' => $vendorCategoryRu->name,
-                'name_ua' => $vendorCategoryUa->name,
-            ]);
+            $vendorCategory = $this->vendorCategory->newQuery()->create($vendorCategoryData);
         }
 
         $vendorCategory->categories()->attach($localCategoryId, ['auto_add_new_products' => $autoAddNewProducts]);

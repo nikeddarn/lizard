@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
  * ****************************************************************
  */
 Route::get('/setup', 'Setup\SetupController@setup');
+Route::get('/setup/vendors', 'Setup\SetupController@setupVendors');
 
 
 // --------------------------------------------- Common Routes ---------------------------------------------------------

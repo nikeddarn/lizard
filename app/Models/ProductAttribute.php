@@ -18,7 +18,7 @@ class ProductAttribute extends Model
      *
      * @var array
      */
-    protected $primaryKey = ['products_id', 'attributes_id'];
+    protected $primaryKey = ['products_id', 'attribute_values_id'];
 
     /**
      * Non auto incrementing primary key.

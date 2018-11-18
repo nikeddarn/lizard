@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Requests\Admin\StoreAttributeRequest;
 use App\Models\Attribute;
 use App\Http\Controllers\Controller;
+use App\Models\AttributeValue;
+use Illuminate\View\View;
 
 class AttributeController extends Controller
 {
@@ -12,14 +14,20 @@ class AttributeController extends Controller
      * @var Attribute
      */
     private $attribute;
+    /**
+     * @var AttributeValue
+     */
+    private $attributeValue;
 
     /**
      * AttributeController constructor.
      * @param Attribute $attribute
+     * @param AttributeValue $attributeValue
      */
-    public function __construct(Attribute $attribute)
+    public function __construct(Attribute $attribute, AttributeValue $attributeValue)
     {
         $this->attribute = $attribute;
+        $this->attributeValue = $attributeValue;
     }
 
     /**
@@ -61,22 +69,26 @@ class AttributeController extends Controller
     {
         $this->authorize('create', $this->attribute);
 
-        $attribute = $this->attribute->newQuery()->create($request->only(['name_ru', 'name_ua']));
+        $attributeData = $request->only(['name_ru', 'name_ua']);
+        $attributeData['multiply_product_values'] = (int)$request->has('multiply_product_values');
 
-        if ($request->has('value_ru')){
+
+        $attribute = $this->attribute->newQuery()->create($attributeData);
+
+        if ($request->has('value_ru')) {
 
             $valuesRu = $request->get('value_ru');
             $valuesUa = $request->get('value_ua');
             $url = $request->get('url');
 
-            for ($i = 0; $i < count($valuesRu); $i++){
+            for ($i = 0; $i < count($valuesRu); $i++) {
                 $attributeValue = [
                     'value_ru' => $valuesRu[$i],
                     'value_ua' => $valuesUa[$i],
                     'url' => $url[$i],
                 ];
 
-                if (isset($request->image[$i])){
+                if (isset($request->image[$i])) {
                     $attributeValue['image'] = $request->image[$i]->store('images/attributes/values', 'public');
                 }
 
@@ -98,9 +110,11 @@ class AttributeController extends Controller
     {
         $this->authorize('view', $this->attribute);
 
+        $locale = app()->getLocale();
+
         $attribute = $this->attribute->newQuery()->findOrFail($id);
 
-        $attributeValues = $attribute->attributeValues()->paginate(config('admin.show_items_per_page'));
+        $attributeValues = $attribute->attributeValues()->orderBy("value_$locale")->paginate(config('admin.show_items_per_page'));
 
         return view('content.admin.catalog.attribute.show.index')->with([
             'attribute' => $attribute,
@@ -137,7 +151,10 @@ class AttributeController extends Controller
     {
         $this->authorize('update', $this->attribute);
 
-        $this->attribute->newQuery()->findOrFail($id)->update($request->only(['name_ru', 'name_ua']));
+        $attributeData = $request->only(['name_ru', 'name_ua']);
+        $attributeData['multiply_product_values'] = (int)$request->has('multiply_product_values');
+
+        $this->attribute->newQuery()->findOrFail($id)->update($attributeData);
 
         return redirect(route('admin.attributes.index'));
     }

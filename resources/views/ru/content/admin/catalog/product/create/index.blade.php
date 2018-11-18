@@ -14,7 +14,7 @@
 
     @if ($errors->any())
         <div class="row">
-            <div class="col-sm-8">
+            <div class="col-lg-12">
                 <div class="alert alert-danger">
                     <ul>
                         @foreach ($errors->all() as $error)
@@ -217,6 +217,34 @@
             });
 
             // insert attributes
+            let onchangeAttribute = function (e) {
+                e.stopImmediatePropagation();
+
+                let attributeValues = $(this).find('option:selected').data('attribute-values');
+                let attributeValueSelect = $(this).closest('.product-attribute-item').find('select.attribute-value-id-select');
+
+                // clear old option elements
+                if ($(attributeValueSelect).hasClass('selectpicker')) {
+                    $(attributeValueSelect).empty();
+                }
+
+                // create new option elements
+                $.each(attributeValues, function (index, attributeValue) {
+                    let optionElement = $('<option/>').attr('value', attributeValue.id).text(attributeValue.name);
+                    $(attributeValueSelect).append(optionElement);
+                });
+
+                // activate selectpicker
+                $(attributeValueSelect).addClass('selectpicker').selectpicker('refresh');
+
+                // show select attribute values block
+                $(attributeValueSelect).closest('.row').removeClass('d-none');
+
+                // remove start select option
+                $(this).find('option[value="0"]').remove();
+                $(this).selectpicker('refresh');
+            };
+
             $('#product-attribute-add-button').click(function () {
 
                 // create new attribute item from template and show it
@@ -228,38 +256,35 @@
                     $(this).closest(newAttributeItem).remove();
                 });
 
+                let attributeSelect = $(newAttributeItem).find('.attribute-id-select');
+
                 // activate selectpicker
-                $(newAttributeItem).find('.attribute-id-select').addClass('selectpicker').selectpicker();
+                $(attributeSelect).addClass('selectpicker').selectpicker();
 
                 // add attribute values options on attribute selected
-                $('.attribute-id-select').change(function (e) {
-                    e.stopImmediatePropagation();
+                $(attributeSelect).change(function (e) {
+                    onchangeAttribute.call(this, e);
+                });
 
-                    let attributeValues = $(this).find('option:selected').data('attribute-values');
-                    let attributeValueSelect = $(this).closest(newAttributeItem).find('select.attribute-value-id-select');
+            });
 
-                    // clear old option elements
-                    if ($(attributeValueSelect).hasClass('selectpicker')) {
-                        $(attributeValueSelect).empty();
-                    }
+            // activate old attributes
+            $('#old-product-attributes-list').find('.product-attribute-item').each(function () {
+                // activate delete button
+                $(this).find('.product-attribute-item-delete').click(function () {
+                    $(this).closest('.product-attribute-item').remove();
+                });
 
-                    // create new option elements
-                    $.each(attributeValues, function (index, attributeValue) {
-                        let optionElement = $('<option/>').attr('value', attributeValue.id).text(attributeValue.value);
-                        $(attributeValueSelect).append(optionElement);
-                    });
+                let attributeSelect = $(this).find('.attribute-id-select');
+                let attributeValueSelect = $(this).find('.attribute-value-id-select');
 
-                    // activate selectpicker
-                    $(attributeValueSelect).addClass('selectpicker').selectpicker('refresh');
+                // activate selectpicker
+                $(attributeSelect).add(attributeValueSelect).addClass('selectpicker').selectpicker();
 
-                    // show select attribute values block
-                    $(attributeValueSelect).closest('.row').removeClass('d-none');
-
-                    // remove start select option
-                    $(this).find('option[value="0"]').remove();
-                    $(this).selectpicker('refresh');
-                })
-
+                // activate change attribute
+                $(attributeSelect).change(function (e) {
+                    onchangeAttribute.call(this, e);
+                });
             });
 
             // insert filters

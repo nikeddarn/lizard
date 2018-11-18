@@ -35,7 +35,7 @@ class BrandController extends Controller
         $this->authorize('view', $this->brand);
 
         return view('content.admin.catalog.brand.list.index')->with([
-            'brands' => $this->brand->newQuery()->get(),
+            'brands' => $this->brand->newQuery()->orderBy('name')->get(),
         ]);
     }
 

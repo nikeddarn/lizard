@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Attribute;
+use App\Models\AttributeValue;
 use App\Models\Product;
 use App\Models\ProductAttribute;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 class ProductAttributeController extends Controller
@@ -23,18 +25,24 @@ class ProductAttributeController extends Controller
      * @var Attribute
      */
     private $attribute;
+    /**
+     * @var AttributeValue
+     */
+    private $attributeValue;
 
     /**
      * ProductAttributeController constructor.
      * @param Product $product
      * @param ProductAttribute $productAttribute
      * @param Attribute $attribute
+     * @param AttributeValue $attributeValue
      */
-    public function __construct(Product $product, ProductAttribute $productAttribute, Attribute $attribute)
+    public function __construct(Product $product, ProductAttribute $productAttribute, Attribute $attribute, AttributeValue $attributeValue)
     {
         $this->productAttribute = $productAttribute;
         $this->product = $product;
         $this->attribute = $attribute;
+        $this->attributeValue = $attributeValue;
     }
 
     /**
@@ -53,16 +61,15 @@ class ProductAttributeController extends Controller
         $product = $this->product->newQuery()->findOrFail($id);
 
         $attributes = $this->attribute->newQuery()
-            ->join('attribute_values', 'attributes.id', '=', 'attribute_values.attributes_id')
-            ->selectRaw("attributes.id AS id, attributes.name_$locale AS name_$locale, CONCAT('[', GROUP_CONCAT(JSON_OBJECT('id', attribute_values.id, 'value',  attribute_values.value_$locale) ORDER BY attribute_values.value_$locale ASC SEPARATOR ','), ']') AS attribute_values")
-            ->groupBy('attributes.id')
-            ->orderBy("attributes.name_$locale")
-            ->get();
+            ->has('attributeValues')
+            ->orderBy("name_$locale")
+            ->with(['attributeValues' => function($query) use ($locale) {
+                $query->orderBy("value_$locale")->select(['id', 'attributes_id', "value_$locale as name"]);
+            }])
+            ->get()
+            ->keyBy('id');
 
-        return view('content.admin.catalog.product_attribute.create.index')->with([
-            'product' => $product,
-            'attributes' => $attributes,
-        ]);
+        return view('content.admin.catalog.product_attribute.create.index')->with(compact('product', 'attributes'));
     }
 
     /**
@@ -78,12 +85,15 @@ class ProductAttributeController extends Controller
 
         $productsId = $request->get('products_id');
 
-        $this->validate($request, [
-            'attributes_id' => ['integer', Rule::unique('product_attribute', 'attributes_id')->where('products_id', $productsId)],
-            'attribute_values_id' => 'integer',
+        $validator = Validator::make(request()->all(), [
+            'attributes_id' => 'integer',
+            'attribute_values_id' => ['integer', Rule::unique('product_attribute', 'attribute_values_id')->where('products_id', $productsId)],
             'products_id' => 'integer',
-        ]);
+        ])->sometimes('attributes_id', Rule::unique('product_attribute', 'attributes_id')->where('products_id', $productsId), function ($input) {
+            return !Attribute::where('id', $input->attributes_id)->first()->multiply_product_values;
+        });
 
+        $validator->validate();
 
         $this->productAttribute->newQuery()->create($request->only(['products_id', 'attributes_id', 'attribute_values_id']));
 

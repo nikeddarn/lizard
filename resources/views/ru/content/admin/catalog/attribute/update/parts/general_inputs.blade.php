@@ -19,3 +19,20 @@
     </div>
 
 </div>
+
+<div class="card p-5 mb-5">
+
+    <div class="row form-group align-items-center">
+        <div class="col-sm-2">
+            <label class="required" for="multiply_product_values">Мульти значение</label>
+        </div>
+        <div class="col-sm-8">
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="multiply_product_values"
+                       name="multiply_product_values" {{ (old('multiply_product_values', $attribute->multiply_product_values) ? 'checked' : '') }}>
+                <label class="custom-control-label" for="multiply_product_values">Разрешить присваивать несколько значений атрибута одному продукту</label>
+            </div>
+        </div>
+    </div>
+
+</div>

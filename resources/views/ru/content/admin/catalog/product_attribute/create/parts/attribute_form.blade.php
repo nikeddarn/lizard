@@ -12,25 +12,30 @@
             </div>
             <div class="col-sm-8">
                 <select id="attribute-select" name="attributes_id" class="w-100 attribute-id-select">
-                    <option value="0" selected>Выберете атрибут</option>
-                    @foreach($attributes as $attribute)
-                        <option value="{{ $attribute->id }}"
-                                data-attribute-values="{{ $attribute->attribute_values }}">{{ $attribute->name }}</option>
-                    @endforeach
+
+                    @if(old('attributes_id'))
+                        @foreach($attributes as $attribute)
+                            <option value="{{ $attribute->id }}"
+                                    {{ $attribute->id == old('attributes_id') ? 'selected' : '' }} data-attribute-values="{{ json_encode($attribute->attributeValues) }}">{{ $attribute->name_ru }}</option>
+                        @endforeach
+                    @else
+                        <option value="0" selected disabled>Выберете атрибут</option>
+                        @foreach($attributes as $attribute)
+                            <option value="{{ $attribute->id }}"
+                                    data-attribute-values="{{ json_encode($attribute->attributeValues) }}">{{ $attribute->name_ru }}</option>
+                        @endforeach
+                    @endif
+
                 </select>
             </div>
         </div>
 
-        <div class="row form-group d-none">
-            <div class="col-sm-2">
-                <label for="attribute-value-select" class="required">Значение</label>
-            </div>
-            <div class="col-sm-8">
-                <select id="attribute-value-select" name="attribute_values_id" class="w-100 attribute-value-id-select">
-                    <option value="0" selected>Выберете значение</option>
-                </select>
-            </div>
-        </div>
+        @if(old('attribute_values_id'))
+            @include('content.admin.catalog.product_attribute.create.parts.old_attribute_value')
+        @else
+            @include('content.admin.catalog.product_attribute.create.parts.attribute_value')
+        @endif
+
     </div>
 
     <button type="submit" class="btn btn-primary">Сохранить атрибут</button>

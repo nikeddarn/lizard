@@ -10,6 +10,8 @@ use App\Models\StorageDepartment;
 use App\Models\User;
 use App\Http\Controllers\Controller;
 use App\Models\Vendor;
+use App\Support\Vendors\VendorBroker;
+use Exception;
 
 class SetupController extends Controller
 {
@@ -22,6 +24,30 @@ class SetupController extends Controller
         $this->insertRootUser();
         $this->insertMainStorage();
         $this->insertVendors();
+
+        return view('elements.setup.setup_complete');
+    }
+
+    /**
+     * Setup vendor's data.
+     *
+     * @param Vendor $vendor
+     * @param VendorBroker $vendorBroker
+     * @return $this|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function setupVendors(Vendor $vendor, VendorBroker $vendorBroker)
+    {
+        try {
+
+            $vendor->newQuery()->get()->each(function (Vendor $vendor) use ($vendorBroker) {
+                $vendorBroker->getVendorSetupManager($vendor->id)->setup();
+            });
+
+        } catch (Exception $exception) {
+            return view('elements.setup.setup_complete')->withErrors([
+                'message' => $exception->getMessage(),
+            ]);
+        }
 
         return view('elements.setup.setup_complete');
     }

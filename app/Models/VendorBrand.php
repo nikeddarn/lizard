@@ -25,7 +25,7 @@ class VendorBrand extends Model
      *
      * @var array
      */
-    protected $primaryKey = ['vendors_id', 'brands_id'];
+    protected $primaryKey = ['vendors_id', 'brands_id', 'vendor_brand_id'];
 
     /**
      * Non auto incrementing primary key.

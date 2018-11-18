@@ -17,7 +17,7 @@
 
     @if ($errors->any())
         <div class="row">
-            <div class="col-sm-8">
+            <div class="col-sm-12">
                 <div class="alert alert-danger">
                     <ul>
                         @foreach ($errors->all() as $error)
@@ -44,13 +44,14 @@
     <script>
         $(document).ready(function () {
 
-            let $attributeSelect = $('.attribute-id-select');
+            let attributeSelect = $('.attribute-id-select');
+            let attributeValueSelect = $('.attribute-value-id-select');
 
             // activate selectpicker
-            $($attributeSelect).addClass('selectpicker').selectpicker();
+            $(attributeSelect).add(attributeValueSelect).addClass('selectpicker').selectpicker();
 
             // add attribute values options on attribute selected
-            $($attributeSelect).change(function (e) {
+            $(attributeSelect).change(function (e) {
                 e.stopImmediatePropagation();
 
                 let attributeValues = $(this).find('option:selected').data('attribute-values');
@@ -63,7 +64,7 @@
 
                 // create new option elements
                 $.each(attributeValues, function (index, attributeValue) {
-                    let optionElement = $('<option/>').attr('value', attributeValue.id).text(attributeValue.value);
+                    let optionElement = $('<option/>').attr('value', attributeValue.id).text(attributeValue.name);
                     $(attributeValueSelect).append(optionElement);
                 });
 

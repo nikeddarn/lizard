@@ -12,7 +12,7 @@
                 <label class="required">Фильтр</label>
             </div>
             <div class="col-sm-8">
-                <select name="filter_id[]" class="w-100 filter-id-select">
+                <select name="filter_id[]" class="filter-id-select" data-width="100%">
                     <option value="0" selected>Выберете фильтр</option>
                     @foreach($filters as $filter)
                         <option value="{{ $filter->id }}">{{ $filter->name }}</option>

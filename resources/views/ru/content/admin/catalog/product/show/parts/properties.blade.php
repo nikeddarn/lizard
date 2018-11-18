@@ -29,10 +29,10 @@
         <li class="list-group-item">
             <div class="row">
                 <div class="col col-lg-4">
-                    <strong>URL</strong>
+                    <strong>Модель (RU)</strong>
                 </div>
                 <div class="col col-lg-8">
-                    {{ $product->url }}
+                    {{ $product->model_ru }}
                 </div>
             </div>
         </li>
@@ -40,10 +40,21 @@
         <li class="list-group-item">
             <div class="row">
                 <div class="col col-lg-4">
-                    <strong>Бренд</strong>
+                    <strong>Модель (UA)</strong>
                 </div>
                 <div class="col col-lg-8">
-                    {{ $product->brand ? $product->brand->name : '' }}
+                    {{ $product->model_ua }}
+                </div>
+            </div>
+        </li>
+
+        <li class="list-group-item">
+            <div class="row">
+                <div class="col col-lg-4">
+                    <strong>URL</strong>
+                </div>
+                <div class="col col-lg-8">
+                    {{ $product->url }}
                 </div>
             </div>
         </li>
@@ -271,6 +282,17 @@
                 </div>
                 <div class="col col-lg-8">
                     {{ $product->warranty }}
+                </div>
+            </div>
+        </li>
+
+        <li class="list-group-item">
+            <div class="row">
+                <div class="col col-lg-4">
+                    <strong>Вес (кг)</strong>
+                </div>
+                <div class="col col-lg-8">
+                    {{ $product->weight }}
                 </div>
             </div>
         </li>

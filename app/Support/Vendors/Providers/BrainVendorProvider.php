@@ -12,7 +12,7 @@ use GuzzleHttp\Client;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
-class BrainVendorProvider implements VendorProviderInterface
+class BrainVendorProvider
 {
     const LOGIN = 'sol_dim@mail.ru';
     const PASSWORD = '46910000';
@@ -38,12 +38,12 @@ class BrainVendorProvider implements VendorProviderInterface
     }
 
     /**
-     * Get vendor categories tree.
+     * Get vendor categories.
      *
-     * @return Collection
+     * @return array
      * @throws Exception
      */
-    public function getCategories(): Collection
+    public function getCategories(): array
     {
         $sessionId = $this->getSessionId();
 
@@ -51,13 +51,11 @@ class BrainVendorProvider implements VendorProviderInterface
 
         $response = json_decode($this->client->request('GET', $uri)->getBody()->getContents());
 
-        if ($response->status === 0){
+        if ($response->status === 0) {
             throw new Exception('Can not get data from vendor. Try again later.');
         }
 
-        $categories = $response->result;
-
-        return $this->buildTree($categories);
+        return $response->result;
     }
 
     /**
@@ -78,7 +76,7 @@ class BrainVendorProvider implements VendorProviderInterface
 
         $response = json_decode($this->client->request('GET', $uri)->getBody()->getContents());
 
-        if ($response->status === 0){
+        if ($response->status === 0) {
             throw new Exception('Can not get data from vendor. Try again later.');
         }
 
@@ -95,48 +93,58 @@ class BrainVendorProvider implements VendorProviderInterface
      * Get products of category.
      *
      * @param int $categoryId
-     * @param int $page
-     * @return LengthAwarePaginator
+     * @param int $productsPerPage
+     * @param int $offset
+     * @return object
      * @throws Exception
      */
-    public function getCategoryProducts(int $categoryId, int $page): LengthAwarePaginator
+    public function getCategoryProducts(int $categoryId, int $productsPerPage, int $offset): object
     {
         $sessionId = $this->getSessionId();
 
-        $productsPerPage = config('admin.vendor_products_per_page');
-
-        $offset = ($page - 1) * $productsPerPage;
         $uri = "products/$categoryId/$sessionId?limit=$productsPerPage&offset=$offset";
 
         $response = json_decode($this->client->request('GET', $uri)->getBody()->getContents());
 
-        if ($response->status === 0){
+        if ($response->status === 0) {
             throw new Exception('Can not get data from vendor. Try again later.');
         }
 
-        $productsData = $response->result;
-
-        $products = collect($productsData->list)->each(function ($product){
-            $product->id = $product->productID;
-        });
-
-        $productsTotal = $productsData->count;
-
-
-        return new LengthAwarePaginator($products, $productsTotal, $productsPerPage, $page, [
-            'path' => url()->current(),
-        ]);
+        return $response->result;
     }
 
     /**
-     * Get products data.
+     * Get product data.
      *
-     * @param array $vendorProductsIds
+     * @param int $productId
      * @param string $locale
-     * @return Collection
+     * @return object
      * @throws Exception
      */
-    public function getProductsData(array $vendorProductsIds, string $locale): Collection
+    public function getProductData(int $productId, string $locale)
+    {
+        $sessionId = $this->getSessionId();
+
+        $uri = "product/$productId/$sessionId?lang=$locale";
+
+        $response = json_decode($this->client->request('GET', $uri)->getBody()->getContents());
+
+        if ($response->status === 0) {
+            throw new Exception('Can not get data from vendor. Try again later.');
+        }
+
+        return $response->result;
+    }
+
+    /**
+     * Get product content data.
+     *
+     * @param int $productId
+     * @param string $locale
+     * @return object
+     * @throws Exception
+     */
+    public function getProductContentData(int $productId, string $locale): object
     {
         $sessionId = $this->getSessionId();
 
@@ -145,15 +153,15 @@ class BrainVendorProvider implements VendorProviderInterface
         $response = json_decode($this->client->request('POST', $uri, [
             'form_params' => [
                 'lang' => $locale,
-                'productIDs' => implode(',', $vendorProductsIds),
+                'productIDs' => $productId,
             ],
         ])->getBody()->getContents());
 
-        if ($response->status === 0){
+        if ($response->status === 0) {
             throw new Exception('Can not get data from vendor. Try again later.');
         }
 
-        return collect($response->result->list);
+        return $response->result->list[0];
     }
 
 //    public function getNewProducts(Carbon $fromTime)
@@ -164,6 +172,70 @@ class BrainVendorProvider implements VendorProviderInterface
 //
 //        $productsData = json_decode($this->client->request('GET', $uri)->getBody()->getContents())->result;
 //    }
+
+
+    /**
+     * Get vendors' brands.
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function getBrands(): array
+    {
+        $sessionId = $this->getSessionId();
+
+        $uri = "vendors/$sessionId";
+
+        $response = json_decode($this->client->request('GET', $uri)->getBody()->getContents());
+
+        if ($response->status === 0) {
+            throw new Exception('Can not get data from vendor. Try again later.');
+        }
+
+        return $response->result;
+    }
+
+    /**
+     * Get stocks.
+     *
+     * @return mixed
+     * @throws Exception
+     */
+    public function getStocks()
+    {
+        $sessionId = $this->getSessionId();
+
+        $uri = "stocks/$sessionId";
+
+        $response = json_decode($this->client->request('GET', $uri)->getBody()->getContents());
+
+        if ($response->status === 0) {
+            throw new Exception('Can not get data from vendor. Try again later.');
+        }
+
+        return $response->result;
+    }
+
+    /**
+     * Get USD courses.
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function getUsdCourses(): array
+    {
+        $sessionId = $this->getSessionId();
+
+        $uri = "currencies/$sessionId";
+
+        $response = json_decode($this->client->request('GET', $uri)->getBody()->getContents());
+
+        if ($response->status === 0) {
+            throw new Exception('Can not get data from vendor. Try again later.');
+        }
+
+        return $response->result;
+    }
 
 
     /**
@@ -191,30 +263,5 @@ class BrainVendorProvider implements VendorProviderInterface
         ]];
 
         return json_decode($this->client->request('POST', '/auth', $options)->getBody()->getContents())->result;
-    }
-
-    /**
-     * Build tree from categories.
-     *
-     * @param array $elements
-     * @param int $parentId
-     * @return Collection
-     */
-    private function buildTree(array &$elements, $parentId = 1): Collection
-    {
-        $branch = collect();
-
-        foreach ($elements as $element) {
-            if ($element->parentID == $parentId && $element->realcat == 0) {
-                $children = $this->buildTree($elements, $element->categoryID);
-                if ($children) {
-                    $element->children = $children;
-                }
-                $element->id = $element->categoryID;
-                $branch->push($element);
-            }
-        }
-
-        return $branch;
     }
 }

@@ -9,7 +9,6 @@ use App\Models\VendorProduct;
 use App\Support\Vendor\VendorProductManager;
 use App\Support\Vendors\VendorBroker;
 use Exception;
-use GuzzleHttp\Exception\RequestException;
 use Illuminate\View\View;
 
 class VendorProductController extends Controller
@@ -61,45 +60,41 @@ class VendorProductController extends Controller
      */
     public function index(int $vendorId, int $vendorCategoryId, int $localCategoryId)
     {
-            $vendorCategory = $this->vendorCategory->newQuery()->where('id', $vendorCategoryId)->with('vendor')->firstOrFail();
-            $localCategory = $this->category->newQuery()->findOrFail($localCategoryId);
+        $vendorCategory = $this->vendorCategory->newQuery()->where('id', $vendorCategoryId)->with('vendor')->firstOrFail();
+        $localCategory = $this->category->newQuery()->findOrFail($localCategoryId);
 
-            $synchronizedVendorProducts = $this->vendorProduct->newQuery()
-                ->whereHas('vendorCategory', function ($query) use ($vendorCategoryId) {
-                    $query->where('id', $vendorCategoryId);
-                })
-                ->whereHas('product.categories', function ($query) use ($localCategoryId) {
-                    $query->where('id', $localCategoryId);
-                })
-                ->get();
+        $synchronizedVendorProducts = $this->vendorProduct->newQuery()
+            ->whereHas('vendorCategory', function ($query) use ($vendorCategoryId) {
+                $query->where('id', $vendorCategoryId);
+            })
+            ->whereHas('product.categories', function ($query) use ($localCategoryId) {
+                $query->where('id', $localCategoryId);
+            })
+            ->get();
 
-            $synchronizedVendorProductsCount = $synchronizedVendorProducts->count();
+        $synchronizedVendorProductsCount = $synchronizedVendorProducts->count();
 
-            $page = request()->has('page') ? request()->get('page') : 1;
 
         try {
+            $page = request()->has('page') ? request()->get('page') : 1;
 
-            $products = $this->vendorBroker->getVendorProvider($vendorId)->getCategoryProducts($vendorCategory->vendor_category_id, $page);
+            $products = $this->vendorBroker->getVendorAdapter($vendorId)->getCategoryProducts($vendorCategory->vendor_category_id, $page);
 
         } catch (Exception $exception) {
             return back()->withErrors(['message' => $exception->getMessage()]);
         }
 
-            // store current page products ids
-            session()->flash('synchronizing_vendor_products_ids', $products->pluck('id')->toArray());
+        // store current page products ids
+        session()->flash('synchronizing_vendor_products_ids', $products->pluck('id')->toArray());
 
-            $doSyncArchiveProduct = config('admin.archive_products.sync');
-            $synchronizedVendorProductsIds = $synchronizedVendorProducts->pluck('vendor_product_id')->toArray();
+        $synchronizedVendorProductsIds = $synchronizedVendorProducts->pluck('vendor_product_id')->toArray();
 
-            $products->filter(function ($product) use ($doSyncArchiveProduct, $synchronizedVendorProductsIds) {
-                // define already synchronized products
-                $product->checked = in_array($product->id, $synchronizedVendorProductsIds);
+        $products->each(function ($product) use ($synchronizedVendorProductsIds) {
+            // define already synchronized products
+            $product->checked = in_array($product->id, $synchronizedVendorProductsIds);
+        });
 
-                // remove archive products if needing
-                return $doSyncArchiveProduct || !$product->is_archive;
-            });
-
-            return view('content.admin.vendors.category.products.index')->with(compact('vendorCategory', 'localCategory', 'products', 'synchronizedVendorProductsCount'));
+        return view('content.admin.vendors.category.products.index')->with(compact('vendorCategory', 'localCategory', 'products', 'synchronizedVendorProductsCount'));
 
 
     }
@@ -109,6 +104,7 @@ class VendorProductController extends Controller
     {
         $vendorId = (int)request()->get('vendors_id');
         $vendorCategoryId = (int)request()->get('vendor_categories_id');
+        $localCategoryId = (int)request()->get('local_categories_id');
 
         $synchronizingVendorProductsIds = (array)session()->pull('synchronizing_vendor_products_ids');
         $checkedVendorProductsIds = request()->get('vendor_product_id');
@@ -126,13 +122,14 @@ class VendorProductController extends Controller
         $deletingVendorProductsIds = array_diff($synchronizedVendorProductsIds, $checkedVendorProductsIds);
 
         try {
+            $vendorProductManager = $this->vendorBroker->getVendorProductManager($vendorId);
 
             if (!empty($insertingVendorProductsIds)) {
-                $this->vendorProductManager->insertVendorProducts($vendorId, $insertingVendorProductsIds);
+                $vendorProductManager->insertVendorProducts($vendorCategoryId, $localCategoryId, $insertingVendorProductsIds);
             }
 
             if (!empty($deletingVendorProductsIds)) {
-                $this->vendorProductManager->deleteVendorProducts($vendorId, $deletingVendorProductsIds);
+                $vendorProductManager->deleteVendorProducts($deletingVendorProductsIds);
             }
 
         } catch (Exception $exception) {

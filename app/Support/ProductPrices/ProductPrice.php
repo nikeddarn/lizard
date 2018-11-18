@@ -16,7 +16,7 @@ class ProductPrice
      * @param Product $product
      * @return float|null
      */
-    public function getPrice(Product $product)
+    public function getUsersProductPrice(Product $product)
     {
         $priceColumn = $this->definePriceColumn();
 
@@ -24,7 +24,52 @@ class ProductPrice
     }
 
     /**
-     * Define prive group column.
+     * Get price1 for vendor product.
+     *
+     * @param int $vendorId
+     * @param float $incomingPrice
+     * @param float $recommendedPrice
+     * @return float
+     */
+    public function getVendorProductPrice1(int $vendorId, float $incomingPrice, float $recommendedPrice):float
+    {
+        $profit = $recommendedPrice - $incomingPrice;
+
+        return $recommendedPrice - $profit * min(config('vendor_price_discount.price1'), 1);
+    }
+
+    /**
+     * Get price2 for vendor product.
+     *
+     * @param int $vendorId
+     * @param float $incomingPrice
+     * @param float $recommendedPrice
+     * @return float
+     */
+    public function getVendorProductPrice2(int $vendorId, float $incomingPrice, float $recommendedPrice):float
+    {
+        $profit = $recommendedPrice - $incomingPrice;
+
+        return $recommendedPrice - $profit * min(config('vendor_price_discount.price2'), 1);
+    }
+
+    /**
+     * Get price3 for vendor product.
+     *
+     * @param int $vendorId
+     * @param float $incomingPrice
+     * @param float $recommendedPrice
+     * @return float
+     */
+    public function getVendorProductPrice3(int $vendorId, float $incomingPrice, float $recommendedPrice):float
+    {
+        $profit = $recommendedPrice - $incomingPrice;
+
+        return $recommendedPrice - $profit * min(config('vendor_price_discount.price3'), 1);
+    }
+
+    /**
+     * Define price group column.
      *
      * @return string
      */

@@ -22,10 +22,23 @@
 
     <div class="row form-group">
         <div class="col-sm-2">
-            <label for="warranty">Гарантия</label>
+            <label for="warranty">Гарантия (месяцы)</label>
         </div>
         <div class="col-sm-8">
-            <input id="warranty" name="warranty" type="text" class="w-100" value="{{ old('warranty', $product->warranty) }}" placeholder="Гарантия (месяцы)">
+            <input id="warranty" name="warranty" type="text" class="w-100" value="{{ old('warranty', $product->warranty) }}">
+        </div>
+    </div>
+
+</div>
+
+<div class="card p-5 mb-5">
+
+    <div class="row form-group">
+        <div class="col-sm-2">
+            <label for="weight">Вес (кг)</label>
+        </div>
+        <div class="col-sm-8">
+            <input id="weight" name="weight" type="text" class="w-100" value="{{ old('weight', $product->weight) }}">
         </div>
     </div>
 

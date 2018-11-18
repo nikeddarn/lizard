@@ -148,4 +148,5 @@ return [
     'no_categories' => 'There are not categories. Create any category first.',
     'leaf_category' => 'Selected category must be leaf of categories tree.',
     'parent_category_has_not_products' => 'Parent category should not contain products.',
+    'multiply_product_values' => 'The :attribute attribute does not allow multi values ​​for product.'
 ];

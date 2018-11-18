@@ -25,7 +25,7 @@ class VendorAttribute extends Model
      *
      * @var array
      */
-    protected $primaryKey = ['vendors_id', 'attributes_id'];
+    protected $primaryKey = ['vendors_id', 'attributes_id', 'vendor_attribute_id'];
 
     /**
      * Non auto incrementing primary key.

@@ -86,6 +86,7 @@ class FilterCategoryController extends Controller
 
         $filters = $this->getFilters($unfilteredProducts->pluck('id')->toArray());
 
+
         $this->createFiltersRoutes($filters, $selectedAttributeValues, $category->url);
 
         $usedFilters = $this->createUsedFilters($category, $filters, $selectedAttributeValues);
@@ -140,7 +141,7 @@ class FilterCategoryController extends Controller
 
         foreach ($products as $product) {
             // product prices
-            $productPrice = $this->productPrice->getPrice($product);
+            $productPrice = $this->productPrice->getUsersProductPrice($product);
             $product->price = $productPrice ? number_format($productPrice, 2, '.', ',') : null;
             $product->localPrice = ($productPrice && $exchangeRate) ? number_format($productPrice * $exchangeRate, 0, '.', ',') : null;
 

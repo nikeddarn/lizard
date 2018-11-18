@@ -37,28 +37,51 @@
 </div>
 
 <div class="card p-5 mb-5">
+
     <div class="row form-group">
         <div class="col-sm-2">
-            <label for="brands_id">Бренд</label>
+            <label for="model_ru">Модель (ru)</label>
         </div>
         <div class="col-sm-8">
-            <select id="brands_id" name="brands_id" class="selectpicker w-100">
-
-                @if($product->brand)
-                    <option value="0">Нет бренда</option>
-                    @foreach($brands as $brand)
-                        <option value="{{ $brand->id }}" {{ $brand->id == old('brands_id', $product->brand->id) ? 'selected' : '' }}>{{ $brand->name }}</option>
-                    @endforeach
-                @else
-                    <option selected value="0">Нет бренда</option>
-                    @foreach($brands as $brand)
-                        <option value="{{ $brand->id }}">{{ $brand->name }}</option>
-                    @endforeach
-                @endif
-
-            </select>
+            <input id="model_ru" name="model_ru" type="text" class="w-100" value="{{ old('model_ru', $product->model_ru) }}">
         </div>
     </div>
+
+    <div class="row form-group">
+        <div class="col-sm-2">
+            <label for="model_ua">Модель (ua)</label>
+        </div>
+        <div class="col-sm-8">
+            <input id="model_ua" name="model_ua" type="text" class="w-100" value="{{ old('model_ua', $product->model_ua) }}">
+        </div>
+    </div>
+
+</div>
+
+<div class="card p-5 mb-5">
+
+    <div class="row form-group">
+        <div class="col-sm-2">
+            <label for="articul">Артикул товара</label>
+        </div>
+        <div class="col-sm-8">
+            <input id="articul" name="articul" type="text" class="w-100" value="{{ old('articul') }}">
+        </div>
+    </div>
+
+</div>
+
+<div class="card p-5 mb-5">
+
+    <div class="row form-group">
+        <div class="col-sm-2">
+            <label for="code">Код товара</label>
+        </div>
+        <div class="col-sm-8">
+            <input id="code" name="code" type="text" class="w-100" value="{{ old('code') }}">
+        </div>
+    </div>
+
 </div>
 
 <div class="card p-5 mb-5">

@@ -46,9 +46,25 @@ class AttributeValue extends Model
         return $this->belongsTo('App\Models\Attribute', 'attributes_id', 'id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function productAttributes()
     {
         return $this->hasMany('App\Models\ProductAttribute', 'attribute_values_id', 'id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function vendorAttributeValues()
+    {
+        return $this->hasMany('App\Models\VendorAttributeValue', 'attribute_values_id', 'id');
+    }
+
+    public function vendors()
+    {
+        return $this->belongsToMany('App\Models\Vendor', 'vendor_attribute_values', 'attribute_values_id', 'vendors_id');
     }
 
     /**
