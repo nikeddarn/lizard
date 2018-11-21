@@ -18,7 +18,7 @@ class VendorProduct extends Model
      *
      * @var array
      */
-    protected $guarded = ['price', 'recommendable_price', 'retail_price'];
+    protected $guarded = [];
 
     /**
      * Indicates if the model should be timestamped.

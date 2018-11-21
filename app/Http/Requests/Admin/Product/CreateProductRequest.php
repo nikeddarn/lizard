@@ -60,16 +60,18 @@ class CreateProductRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            foreach (array_count_values(request()->get('attribute_id')) as $attributeId => $attributeCount) {
+            if (request()->has('attribute_id')) {
+                foreach (array_count_values(request()->get('attribute_id')) as $attributeId => $attributeCount) {
 
-                if ($attributeCount === 1) {
-                    continue;
-                }
+                    if ($attributeCount === 1) {
+                        continue;
+                    }
 
-                $attribute = Attribute::where('id', $attributeId)->first();
+                    $attribute = Attribute::where('id', $attributeId)->first();
 
-                if (!$attribute->multiply_product_values) {
-                    $validator->errors()->add('attribute_id', trans('validation.multiply_product_values', ['attribute' => $attribute->name]));
+                    if (!$attribute->multiply_product_values) {
+                        $validator->errors()->add('attribute_id', trans('validation.multiply_product_values', ['attribute' => $attribute->name]));
+                    }
                 }
             }
         });

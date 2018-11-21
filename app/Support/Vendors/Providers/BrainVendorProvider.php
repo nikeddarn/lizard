@@ -6,16 +6,13 @@
 namespace App\Support\Vendors\Providers;
 
 
-use App\Contracts\Vendor\VendorProviderInterface;
 use Exception;
 use GuzzleHttp\Client;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection;
 
 class BrainVendorProvider
 {
     const LOGIN = 'sol_dim@mail.ru';
-    const PASSWORD = '46910000';
+    const PASSWORD = '4691000';
     const BASE_URI = 'http://api.brain.com.ua';
 
     /**
@@ -52,7 +49,7 @@ class BrainVendorProvider
         $response = json_decode($this->client->request('GET', $uri)->getBody()->getContents());
 
         if ($response->status === 0) {
-            throw new Exception('Can not get data from vendor. Try again later.');
+            throw new Exception($response->error_message);
         }
 
         return $response->result;
@@ -77,7 +74,7 @@ class BrainVendorProvider
         $response = json_decode($this->client->request('GET', $uri)->getBody()->getContents());
 
         if ($response->status === 0) {
-            throw new Exception('Can not get data from vendor. Try again later.');
+            throw new Exception($response->error_message);
         }
 
         $categories = collect($response->result)->keyBy('categoryID');
@@ -107,7 +104,7 @@ class BrainVendorProvider
         $response = json_decode($this->client->request('GET', $uri)->getBody()->getContents());
 
         if ($response->status === 0) {
-            throw new Exception('Can not get data from vendor. Try again later.');
+            throw new Exception($response->error_message);
         }
 
         return $response->result;
@@ -121,7 +118,7 @@ class BrainVendorProvider
      * @return object
      * @throws Exception
      */
-    public function getProductData(int $productId, string $locale)
+    public function getProductData(int $productId, string $locale):object
     {
         $sessionId = $this->getSessionId();
 
@@ -130,7 +127,7 @@ class BrainVendorProvider
         $response = json_decode($this->client->request('GET', $uri)->getBody()->getContents());
 
         if ($response->status === 0) {
-            throw new Exception('Can not get data from vendor. Try again later.');
+            throw new Exception($response->error_message);
         }
 
         return $response->result;
@@ -158,7 +155,7 @@ class BrainVendorProvider
         ])->getBody()->getContents());
 
         if ($response->status === 0) {
-            throw new Exception('Can not get data from vendor. Try again later.');
+            throw new Exception($response->error_message);
         }
 
         return $response->result->list[0];
@@ -189,7 +186,7 @@ class BrainVendorProvider
         $response = json_decode($this->client->request('GET', $uri)->getBody()->getContents());
 
         if ($response->status === 0) {
-            throw new Exception('Can not get data from vendor. Try again later.');
+            throw new Exception($response->error_message);
         }
 
         return $response->result;
@@ -210,7 +207,28 @@ class BrainVendorProvider
         $response = json_decode($this->client->request('GET', $uri)->getBody()->getContents());
 
         if ($response->status === 0) {
-            throw new Exception('Can not get data from vendor. Try again later.');
+            throw new Exception($response->error_message);
+        }
+
+        return $response->result;
+    }
+
+    /**
+     * @param int $productId
+     * @param string $locale
+     * @return array
+     * @throws Exception
+     */
+    public function getProductAttributes(int $productId, string $locale):array
+    {
+        $sessionId = $this->getSessionId();
+
+        $uri = "product_options/$productId/$sessionId?lang=$locale";
+
+        $response = json_decode($this->client->request('GET', $uri)->getBody()->getContents());
+
+        if ($response->status === 0) {
+            throw new Exception($response->error_message);
         }
 
         return $response->result;
@@ -231,7 +249,7 @@ class BrainVendorProvider
         $response = json_decode($this->client->request('GET', $uri)->getBody()->getContents());
 
         if ($response->status === 0) {
-            throw new Exception('Can not get data from vendor. Try again later.');
+            throw new Exception($response->error_message);
         }
 
         return $response->result;
@@ -254,14 +272,23 @@ class BrainVendorProvider
      * Get session ID.
      *
      * @return string
+     * @throws Exception
      */
     private function getSessionId(): string
     {
+        $uri = '/auth';
+
         $options = ['form_params' => [
             'login' => self::LOGIN,
             'password' => md5(self::PASSWORD),
         ]];
 
-        return json_decode($this->client->request('POST', '/auth', $options)->getBody()->getContents())->result;
+        $response = json_decode($this->client->request('POST', $uri, $options)->getBody()->getContents());
+
+        if ($response->status === 0) {
+            throw new Exception($response->error_message);
+        }
+
+        return $response->result;
     }
 }

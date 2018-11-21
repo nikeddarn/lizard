@@ -128,7 +128,11 @@ class Product extends Model
      */
     public function actualBadges()
     {
-        return $this->belongsToMany('App\Models\Badge', 'product_badge', 'products_id', 'badges_id')->wherePivot('expired', '>', Carbon::now());
+        return $this->belongsToMany('App\Models\Badge', 'product_badge', 'products_id', 'badges_id')
+            ->withPivot('expired')
+            ->where(function ($query) {
+                $query->where('expired', '>', Carbon::now())->orWhereNull('expired');
+            });
     }
 
     /**
@@ -180,7 +184,7 @@ class Product extends Model
     }
 
     /**
-     * @param  string  $value
+     * @param  string $value
      * @return void
      */
     public function setBriefContentRuAttribute($value)
@@ -189,7 +193,7 @@ class Product extends Model
     }
 
     /**
-     * @param  string  $value
+     * @param  string $value
      * @return void
      */
     public function setBriefContentUaAttribute($value)
@@ -198,7 +202,7 @@ class Product extends Model
     }
 
     /**
-     * @param  string  $value
+     * @param  string $value
      * @return void
      */
     public function setContentRuAttribute($value)
@@ -207,7 +211,7 @@ class Product extends Model
     }
 
     /**
-     * @param  string  $value
+     * @param  string $value
      * @return void
      */
     public function setContentUaAttribute($value)
@@ -216,7 +220,7 @@ class Product extends Model
     }
 
     /**
-     * @param  string  $value
+     * @param  string $value
      * @return void
      */
     public function setManufacturerRuAttribute($value)
@@ -225,7 +229,7 @@ class Product extends Model
     }
 
     /**
-     * @param  string  $value
+     * @param  string $value
      * @return void
      */
     public function setManufacturerUaAttribute($value)

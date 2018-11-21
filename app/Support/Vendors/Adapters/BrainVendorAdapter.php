@@ -121,12 +121,13 @@ class BrainVendorAdapter
 
     /**
      * @param int $vendorProductId
-     * @param float $vendorUsdCourse
      * @return array
      * @throws Exception
      */
-    public function getProductData(int $vendorProductId, float $vendorUsdCourse)
+    public function getProductData(int $vendorProductId)
     {
+        $vendorUsdCourse = $this->getCashUsdCourse();
+
         $productDataRu = $this->vendorProvider->getProductData($vendorProductId, 'ru');
         $productDataUa = $this->vendorProvider->getProductData($vendorProductId, 'ua');
 
@@ -180,7 +181,6 @@ class BrainVendorAdapter
                 'price' => $productDataRu->price,
                 'recommendable_price' => $recommendableUsdPrice,
                 'retail_price' => $retailUsdPrice,
-                'available' => (int)(bool)count($productDataRu->stocks),
                 'self_delivery' => $productDataRu->self_delivery,
             ],
 
@@ -193,12 +193,66 @@ class BrainVendorAdapter
     }
 
     /**
+     * @param int $vendorProductId
+     * @return array
+     * @throws Exception
+     */
+    public function getProductAttributesData(int $vendorProductId): array
+    {
+        $productAttributesDataRu = collect($this->vendorProvider->getProductAttributes($vendorProductId, 'ru'))->keyBy('OptionID');
+        $productAttributesDataUa = collect($this->vendorProvider->getProductAttributes($vendorProductId, 'ua'))->keyBy('OptionID');
+
+        $attributesData = [];
+
+        foreach ($productAttributesDataRu as $key => $attributeData) {
+            $attributesData[] = [
+                'attribute' => [
+                    'vendor_attribute_id' => $attributeData->OptionID,
+                    'data' => [
+                        'name_ru' => $attributeData->OptionName,
+                        'name_ua' => $productAttributesDataUa->get($key)->OptionName,
+                        'multiply_product_values' => 1,
+                    ],
+                ],
+                'attribute_value' => [
+                    'vendor_attribute_value_id' => $attributeData->ValueID,
+                    'data' => [
+                        'value_ru' => $attributeData->ValueName,
+                        'value_ua' => $productAttributesDataUa->get($key)->ValueName,
+                        'url' => Str::slug($attributeData->ValueName),
+                    ],
+                ],
+            ];
+        }
+
+        return $attributesData;
+    }
+
+    /**
+     * Get brand data by vendor's brand id.
+     *
+     * @param int $vendorBrandId
+     * @return array
+     * @throws Exception
+     */
+    public function getBrandDataByVendorBrandId(int $vendorBrandId):array
+    {
+        $vendorBrand = collect($this->vendorProvider->getBrands())->keyBy('vendorID')->get($vendorBrandId);
+
+        return [
+            'value_ru' => $vendorBrand->name,
+            'value_ua' => $vendorBrand->name,
+            'url' => Str::slug($vendorBrand->name),
+        ];
+    }
+
+    /**
      * Get cash usd course.
      *
      * @return float
      * @throws Exception
      */
-    public function getCashUsdCourse():float
+    private function getCashUsdCourse(): float
     {
         return (float)collect($this->vendorProvider->getUsdCourses())->where('currencyID', '=', 2)->first()->value;
     }
@@ -235,15 +289,15 @@ class BrainVendorAdapter
      * @param array $stockAvailableTime
      * @return array
      */
-    private function createProductStocksData(array $stockAvailable, array $stockAvailableTime):array
+    private function createProductStocksData(array $stockAvailable, array $stockAvailableTime): array
     {
         $productStockData = [];
 
-        foreach ($stockAvailable as $stockId => $availabilityStatus){
+        foreach ($stockAvailable as $stockId => $availabilityStatus) {
             $productStockData[$stockId]['available'] = $availabilityStatus;
         }
 
-        foreach ($stockAvailableTime as $stockId => $availableTime){
+        foreach ($stockAvailableTime as $stockId => $availableTime) {
             $productStockData[$stockId]['available_time'] = $availableTime;
         }
 

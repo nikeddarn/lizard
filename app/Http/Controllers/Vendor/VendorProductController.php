@@ -29,10 +29,7 @@ class VendorProductController extends Controller
      * @var Category
      */
     private $category;
-    /**
-     * @var VendorProductManager
-     */
-    private $vendorProductManager;
+
 
     /**
      * VendorProductController constructor.
@@ -40,15 +37,13 @@ class VendorProductController extends Controller
      * @param Category $category
      * @param VendorBroker $vendorBroker
      * @param VendorProduct $vendorProduct
-     * @param VendorProductManager $vendorProductManager
      */
-    public function __construct(VendorCategory $vendorCategory, Category $category, VendorBroker $vendorBroker, VendorProduct $vendorProduct, VendorProductManager $vendorProductManager)
+    public function __construct(VendorCategory $vendorCategory, Category $category, VendorBroker $vendorBroker, VendorProduct $vendorProduct)
     {
         $this->vendorCategory = $vendorCategory;
         $this->vendorBroker = $vendorBroker;
         $this->vendorProduct = $vendorProduct;
         $this->category = $category;
-        $this->vendorProductManager = $vendorProductManager;
     }
 
     /**
@@ -122,16 +117,18 @@ class VendorProductController extends Controller
         $deletingVendorProductsIds = array_diff($synchronizedVendorProductsIds, $checkedVendorProductsIds);
 
         try {
+            // get product manager
             $vendorProductManager = $this->vendorBroker->getVendorProductManager($vendorId);
 
-            if (!empty($insertingVendorProductsIds)) {
-                $vendorProductManager->insertVendorProducts($vendorCategoryId, $localCategoryId, $insertingVendorProductsIds);
+            // insert vendor products
+            foreach ($insertingVendorProductsIds as $vendorProductId) {
+                $vendorProductManager->insertVendorProduct($vendorCategoryId, $localCategoryId, $vendorProductId);
             }
 
-            if (!empty($deletingVendorProductsIds)) {
-                $vendorProductManager->deleteVendorProducts($deletingVendorProductsIds);
+            // delete vendor products
+            foreach ($deletingVendorProductsIds as $vendorProductId) {
+                $vendorProductManager->deleteVendorProducts($vendorProductId);
             }
-
         } catch (Exception $exception) {
             return back()->withErrors(['message' => $exception->getMessage()]);
         }

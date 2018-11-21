@@ -62,6 +62,9 @@ class AttributeValue extends Model
         return $this->hasMany('App\Models\VendorAttributeValue', 'attribute_values_id', 'id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function vendors()
     {
         return $this->belongsToMany('App\Models\Vendor', 'vendor_attribute_values', 'attribute_values_id', 'vendors_id');

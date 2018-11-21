@@ -35,7 +35,7 @@ class ProductPrice
     {
         $profit = $recommendedPrice - $incomingPrice;
 
-        return $recommendedPrice - $profit * min(config('vendor_price_discount.price1'), 1);
+        return $recommendedPrice - $profit * min(config('shop.vendor_price_discount.price1'), 1);
     }
 
     /**
@@ -50,7 +50,7 @@ class ProductPrice
     {
         $profit = $recommendedPrice - $incomingPrice;
 
-        return $recommendedPrice - $profit * min(config('vendor_price_discount.price2'), 1);
+        return $recommendedPrice - $profit * min(config('shop.vendor_price_discount.price2'), 1);
     }
 
     /**
@@ -65,7 +65,7 @@ class ProductPrice
     {
         $profit = $recommendedPrice - $incomingPrice;
 
-        return $recommendedPrice - $profit * min(config('vendor_price_discount.price3'), 1);
+        return $recommendedPrice - $profit * min(config('shop.vendor_price_discount.price3'), 1);
     }
 
     /**

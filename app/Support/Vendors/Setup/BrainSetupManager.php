@@ -6,6 +6,7 @@
 namespace App\Support\Vendors\Setup;
 
 
+use App\Contracts\Shop\AttributesInterface;
 use App\Contracts\Vendor\VendorInterface;
 use App\Models\Attribute;
 use App\Models\VendorStock;
@@ -52,6 +53,7 @@ class BrainSetupManager
     {
         // create attribute
         $brandAttribute = Attribute::firstOrCreate([
+            'defined_attribute_id' => AttributesInterface::BRAND,
             'name_ru' => 'Бренд',
             'name_ua' => 'Бренд',
         ]);

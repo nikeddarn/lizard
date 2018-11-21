@@ -11,7 +11,7 @@ class VendorAttributeValue extends Model
      *
      * @var string
      */
-    protected $table = 'vendors_attribute_values';
+    protected $table = 'vendor_attribute_values';
 
     /**
      * The attributes that aren't mass assignable.

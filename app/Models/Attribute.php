@@ -55,11 +55,27 @@ class Attribute extends Model
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function vendorAttributes()
+    {
+        return $this->hasMany('App\Models\VendorAttribute', 'attributes_id', 'id');
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function products()
     {
         return $this->belongsToMany('App\Models\Product', 'product_attribute', 'attributes_id', 'products_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function vendors()
+    {
+        return $this->belongsToMany('App\Models\Vendor', 'vendor_attributes', 'attributes_id', 'vendors_id');
     }
 
     /**

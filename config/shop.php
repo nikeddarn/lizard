@@ -93,4 +93,12 @@ return [
         'price2' => 0.2,
         'price3' => 0.5,
     ],
+
+    // search double on insert new entity.
+    'search_double_by' => [
+        // fields of product model
+        'product' => [
+            'name_ru', 'name_ua', 'model_ru', 'model_ua', 'articul', 'code',
+        ],
+    ],
 ];

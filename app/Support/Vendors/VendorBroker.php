@@ -13,6 +13,7 @@ use App\Support\Vendors\Adapters\BrainVendorAdapter;
 use App\Support\Vendors\ProductManagers\BrainProductManager;
 use App\Support\Vendors\Providers\BrainVendorProvider;
 use App\Support\Vendors\Setup\BrainSetupManager;
+use Illuminate\Container\Container;
 
 class VendorBroker
 {
@@ -43,7 +44,7 @@ class VendorBroker
     {
         switch ($vendorId) {
             case VendorInterface::BRAIN:
-                return new BrainVendorAdapter(new BrainVendorProvider(), new ProductPrice());
+                return Container::getInstance()->make(BrainVendorAdapter::class);
 
             default:
                 return abort(422);
@@ -60,7 +61,7 @@ class VendorBroker
     {
         switch ($vendorId) {
             case VendorInterface::BRAIN:
-                return new BrainSetupManager(new BrainVendorProvider());
+                return Container::getInstance()->make(BrainSetupManager::class);
 
             default:
                 return abort(422);
@@ -77,7 +78,7 @@ class VendorBroker
     {
         switch ($vendorId) {
             case VendorInterface::BRAIN:
-                return new BrainProductManager(new BrainVendorAdapter(new BrainVendorProvider(), new ProductPrice()));
+                return Container::getInstance()->make(BrainProductManager::class);
 
             default:
                 return abort(422);
