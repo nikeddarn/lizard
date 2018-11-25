@@ -56,11 +56,11 @@ class VendorCategory extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function vendorProducts()
     {
-        return $this->hasMany('App\Models\VendorProduct', 'vendor_categories_id', 'id');
+        return $this->belongsToMany('App\Models\VendorProduct', 'vendor_category_product', 'vendor_categories_id', 'vendor_products_id');
     }
 
     /**

@@ -8,10 +8,10 @@
             <h3 class="mb-2">Поставщик:<i class="ml-5 admin-content-sub-header">{{ $vendorCategory->vendor->name }}</i>
             </h3>
             <h5 class="mb-2 text-gray-lighter">
-                <span>{{ $vendorCategory->name }}&nbsp;({{ $products->total() }})</span>
+                <span>{{ $vendorCategory->name }}&nbsp;({{ $vendorOwnProducts->total() }})</span>
                 <span class="mx-4"><i class="fa fa-long-arrow-right fa-lg"></i></span>
                 <span>{{ $localCategory->name }}&nbsp;
-                    <span>({{ $synchronizedVendorProductsCount }})</span>
+                    <span>({{ $synchronizedProductsCount }})</span>
                 </span>
             </h5>
         </div>
@@ -38,12 +38,12 @@
 
     <div class="row">
 
-        @if($products->count())
+        @if($vendorOwnProducts->count())
             <div class="col-lg-12 my-4">
 
                 <div class="d-inline-block">
-                    @if($products->links())
-                        {{$products->links()}}
+                    @if($vendorOwnProducts->links())
+                        {{$vendorOwnProducts->links()}}
                     @endif
                 </div>
 
@@ -62,8 +62,8 @@
                 @include('content.admin.vendors.category.products.parts.product_form')
             </div>
 
-            @if($products->links())
-                <div class="col-lg-12 my-4">{{$products->links()}}</div>
+            @if($vendorOwnProducts->links())
+                <div class="col-lg-12 my-4">{{$vendorOwnProducts->links()}}</div>
             @endif
 
         @endif

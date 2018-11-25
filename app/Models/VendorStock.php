@@ -60,4 +60,12 @@ class VendorStock extends Model
     {
         return $this->hasMany('App\Models\VendorStockProduct', 'vendor_stocks_id', 'id');
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function vendorProducts()
+    {
+        return $this->belongsToMany('App\Models\VendorProduct', 'vendor_stock_product', 'vendor_stocks_id', 'vendor_products_id');
+    }
 }

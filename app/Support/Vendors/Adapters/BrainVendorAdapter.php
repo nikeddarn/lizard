@@ -5,6 +5,7 @@
 
 namespace App\Support\Vendors\Adapters;
 
+use App\Contracts\Vendor\VendorAdapterInterface;
 use App\Contracts\Vendor\VendorInterface;
 use App\Support\ProductPrices\ProductPrice;
 use App\Support\Vendors\Providers\BrainVendorProvider;
@@ -14,7 +15,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use stdClass;
 
-class BrainVendorAdapter
+class BrainVendorAdapter implements VendorAdapterInterface
 {
     /**
      * @var BrainVendorProvider
@@ -34,6 +35,16 @@ class BrainVendorAdapter
     {
         $this->vendorProvider = $vendorProvider;
         $this->productPrice = $productPrice;
+    }
+
+    /**
+     * Get vendor id.
+     *
+     * @return int
+     */
+    public function getVendorId()
+    {
+        return VendorInterface::BRAIN;
     }
 
 
@@ -129,13 +140,16 @@ class BrainVendorAdapter
         $vendorUsdCourse = $this->getCashUsdCourse();
 
         $productDataRu = $this->vendorProvider->getProductData($vendorProductId, 'ru');
-        $productDataUa = $this->vendorProvider->getProductData($vendorProductId, 'ua');
 
         $productContentDataRu = $this->vendorProvider->getProductContentData($vendorProductId, 'ru');
         $productContentDataUa = $this->vendorProvider->getProductContentData($vendorProductId, 'ua');
 
         $recommendableUsdPrice = $productDataRu->recommendable_price / $vendorUsdCourse;
         $retailUsdPrice = $productDataRu->retail_price_uah / $vendorUsdCourse;
+
+        // prices for calculate sale prices columns
+        $usingWholesalePrice = $productDataRu->price;
+        $usingRetailPrice = $recommendableUsdPrice ? $recommendableUsdPrice : $retailUsdPrice;
 
         $preparedProductsData = [
             'product' => [
@@ -147,17 +161,19 @@ class BrainVendorAdapter
                 'is_archive' => $productDataRu->is_archive,
                 'url' => Str::slug($productDataRu->name),
 
-                'name_ru' => $productDataRu->name,
-                'name_ua' => $productDataUa->name,
-                'brief_content_ru' => $productDataRu->brief_description,
-                'brief_content_ua' => $productDataUa->brief_description,
-                'content_ru' => $productDataRu->description,
-                'content_ua' => $productDataUa->description,
-                'manufacturer_ru' => $productDataRu->country,
-                'manufacturer_ua' => $productDataUa->country,
-
-
                 // from 'content' method
+                'name_ru' => $productContentDataRu->name,
+                'name_ua' => $productContentDataUa->name,
+
+                'brief_content_ru' => $productContentDataRu->brief_description,
+                'brief_content_ua' => $productContentDataUa->brief_description,
+
+                'content_ru' => $productContentDataRu->description,
+                'content_ua' => $productContentDataUa->description,
+
+                'manufacturer_ru' => $productContentDataRu->country,
+                'manufacturer_ua' => $productContentDataUa->country,
+
                 'model_ru' => $productContentDataRu->model,
                 'model_ua' => $productContentDataUa->model,
 
@@ -168,15 +184,15 @@ class BrainVendorAdapter
                 'height' => (float)$productContentDataRu->height,
 
                 // calculated
-                'price1' => $this->productPrice->getVendorProductPrice1(VendorInterface::BRAIN, $productDataRu->price, $recommendableUsdPrice),
-                'price2' => $this->productPrice->getVendorProductPrice2(VendorInterface::BRAIN, $productDataRu->price, $recommendableUsdPrice),
-                'price3' => $this->productPrice->getVendorProductPrice3(VendorInterface::BRAIN, $productDataRu->price, $recommendableUsdPrice),
+                'price1' => $this->productPrice->getVendorProductPrice1(VendorInterface::BRAIN, $usingWholesalePrice, $usingRetailPrice),
+                'price2' => $this->productPrice->getVendorProductPrice2(VendorInterface::BRAIN, $usingWholesalePrice, $usingRetailPrice),
+                'price3' => $this->productPrice->getVendorProductPrice3(VendorInterface::BRAIN, $usingWholesalePrice, $usingRetailPrice),
             ],
 
             'vendor_product' => [
-                'vendor_product_id' => $productDataRu->productID,
                 'code' => $productDataRu->product_code,
                 'articul' => $productDataRu->articul,
+                'availability' => !empty($productDataRu->stocks),
                 'min_order_quantity' => $productDataRu->min_order_amount,
                 'price' => $productDataRu->price,
                 'recommendable_price' => $recommendableUsdPrice,
@@ -187,6 +203,10 @@ class BrainVendorAdapter
             'vendor_brand_id' => (int)$productDataRu->vendorID,
 
             'product_stocks_data' => $this->createProductStocksData((array)$productDataRu->available, (array)$productDataRu->stocks_expected),
+
+            'attributes' => $this->createAttributesData($productContentDataRu->options, $productContentDataUa->options),
+
+            'images' => $this->createImagesData($productContentDataRu->images)
         ];
 
         return $preparedProductsData;
@@ -228,6 +248,7 @@ class BrainVendorAdapter
         return $attributesData;
     }
 
+
     /**
      * Get brand data by vendor's brand id.
      *
@@ -243,6 +264,24 @@ class BrainVendorAdapter
             'value_ru' => $vendorBrand->name,
             'value_ua' => $vendorBrand->name,
             'url' => Str::slug($vendorBrand->name),
+        ];
+    }
+
+    /**
+     * Get brand data by vendor's brand id.
+     *
+     * @param int $vendorStockId
+     * @return array
+     * @throws Exception
+     */
+    public function getStockDataByVendorStockId(int $vendorStockId):array
+    {
+        $vendorBrand = collect($this->vendorProvider->getStocks())->keyBy('stockID')->get($vendorStockId);
+
+        return [
+            'vendor_stock_id' => $vendorStockId,
+            'name_ru' => $vendorBrand->name,
+            'name_ua' => $vendorBrand->name,
         ];
     }
 
@@ -302,5 +341,63 @@ class BrainVendorAdapter
         }
 
         return $productStockData;
+    }
+
+    /**
+     * Create data of product attributes and its values.
+     *
+     * @param array $productAttributesDataRu
+     * @param array $productAttributesDataUa
+     * @return array
+     */
+    private function createAttributesData(array $productAttributesDataRu, array $productAttributesDataUa)
+    {
+        $attributesData = [];
+
+        foreach ($productAttributesDataRu as $key => $attributeData) {
+            $attributesData[] = [
+                'attribute' => [
+                    'vendor_attribute_id' => $attributeData->OptionID,
+                    'data' => [
+                        'name_ru' => $attributeData->OptionName,
+                        'name_ua' => $productAttributesDataUa[$key]->OptionName,
+                        'multiply_product_values' => 1,
+                    ],
+                ],
+                'attribute_value' => [
+                    'vendor_attribute_value_id' => $attributeData->ValueID,
+                    'data' => [
+                        'value_ru' => $attributeData->ValueName,
+                        'value_ua' => $productAttributesDataUa[$key]->ValueName,
+                        'url' => Str::slug($attributeData->ValueName),
+                    ],
+                ],
+            ];
+        }
+
+        return $attributesData;
+    }
+
+    /**
+     * Create images data.
+     *
+     * @param array $imagesData
+     * @return array
+     */
+    private function createImagesData(array $imagesData):array
+    {
+        $productImages = [];
+
+        foreach ($imagesData as $imageData){
+            $productImages[] = [
+                'image' => $imageData->full_image,
+                'small' => $imageData->small_image,
+                'medium' => $imageData->medium_image,
+                'large' => $imageData->large_image,
+                'priority' => (int)!$imageData->priority,
+            ];
+        }
+
+        return $productImages;
     }
 }

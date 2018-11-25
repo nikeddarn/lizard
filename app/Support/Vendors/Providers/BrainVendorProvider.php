@@ -26,12 +26,19 @@ class BrainVendorProvider
     public $client;
 
     /**
+     * @var string|null
+     */
+    public $sessionId = null;
+
+    /**
      * BrainVendorProvider constructor.
+     * @throws Exception
      */
     public function __construct()
     {
         $this->locale = app()->getLocale();
         $this->client = $this->getClient();
+        $this->sessionId = $this->getSessionId();
     }
 
     /**
@@ -42,9 +49,7 @@ class BrainVendorProvider
      */
     public function getCategories(): array
     {
-        $sessionId = $this->getSessionId();
-
-        $uri = "categories/$sessionId?lang=$this->locale";
+        $uri = "categories/$this->sessionId?lang=$this->locale";
 
         $response = json_decode($this->client->request('GET', $uri)->getBody()->getContents());
 
@@ -67,9 +72,7 @@ class BrainVendorProvider
     {
         $categoryLocale = $locale ?? $this->locale;
 
-        $sessionId = $this->getSessionId();
-
-        $uri = "categories/$sessionId?lang=$categoryLocale";
+        $uri = "categories/$this->sessionId?lang=$categoryLocale";
 
         $response = json_decode($this->client->request('GET', $uri)->getBody()->getContents());
 
@@ -97,9 +100,7 @@ class BrainVendorProvider
      */
     public function getCategoryProducts(int $categoryId, int $productsPerPage, int $offset): object
     {
-        $sessionId = $this->getSessionId();
-
-        $uri = "products/$categoryId/$sessionId?limit=$productsPerPage&offset=$offset";
+        $uri = "products/$categoryId/$this->sessionId?limit=$productsPerPage&offset=$offset";
 
         $response = json_decode($this->client->request('GET', $uri)->getBody()->getContents());
 
@@ -120,9 +121,7 @@ class BrainVendorProvider
      */
     public function getProductData(int $productId, string $locale):object
     {
-        $sessionId = $this->getSessionId();
-
-        $uri = "product/$productId/$sessionId?lang=$locale";
+        $uri = "product/$productId/$this->sessionId?lang=$locale";
 
         $response = json_decode($this->client->request('GET', $uri)->getBody()->getContents());
 
@@ -143,9 +142,7 @@ class BrainVendorProvider
      */
     public function getProductContentData(int $productId, string $locale): object
     {
-        $sessionId = $this->getSessionId();
-
-        $uri = "products/content/$sessionId?lang=$locale";
+        $uri = "products/content/$this->sessionId?lang=$locale";
 
         $response = json_decode($this->client->request('POST', $uri, [
             'form_params' => [
@@ -179,9 +176,7 @@ class BrainVendorProvider
      */
     public function getBrands(): array
     {
-        $sessionId = $this->getSessionId();
-
-        $uri = "vendors/$sessionId";
+        $uri = "vendors/$this->sessionId";
 
         $response = json_decode($this->client->request('GET', $uri)->getBody()->getContents());
 
@@ -200,9 +195,7 @@ class BrainVendorProvider
      */
     public function getStocks()
     {
-        $sessionId = $this->getSessionId();
-
-        $uri = "stocks/$sessionId";
+        $uri = "stocks/$this->sessionId";
 
         $response = json_decode($this->client->request('GET', $uri)->getBody()->getContents());
 
@@ -221,9 +214,7 @@ class BrainVendorProvider
      */
     public function getProductAttributes(int $productId, string $locale):array
     {
-        $sessionId = $this->getSessionId();
-
-        $uri = "product_options/$productId/$sessionId?lang=$locale";
+        $uri = "product_options/$productId/$this->sessionId?lang=$locale";
 
         $response = json_decode($this->client->request('GET', $uri)->getBody()->getContents());
 
@@ -242,9 +233,7 @@ class BrainVendorProvider
      */
     public function getUsdCourses(): array
     {
-        $sessionId = $this->getSessionId();
-
-        $uri = "currencies/$sessionId";
+        $uri = "currencies/$this->sessionId";
 
         $response = json_decode($this->client->request('GET', $uri)->getBody()->getContents());
 

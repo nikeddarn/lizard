@@ -28,11 +28,11 @@ class VendorProduct extends Model
     public $timestamps = false;
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function vendorCategory()
+    public function vendorCategories()
     {
-        return $this->belongsTo('App\Models\VendorCategory', 'vendor_categories_id', 'id');
+        return $this->belongsToMany('App\Models\VendorCategory', 'vendor_category_product', 'vendor_products_id', 'vendor_categories_id');
     }
 
     /**
@@ -41,6 +41,14 @@ class VendorProduct extends Model
     public function product()
     {
         return $this->belongsTo('App\Models\Product', 'products_id', 'id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function vendor()
+    {
+        return $this->belongsTo('App\Models\Vendor', 'vendors_id', 'id');
     }
 
     /**
@@ -56,6 +64,6 @@ class VendorProduct extends Model
      */
     public function vendorStocks()
     {
-        return $this->belongsToMany('App\Models\VendorStock', 'vendor_stock_product', 'vendor_products_id', 'vendors_stocks_id');
+        return $this->belongsToMany('App\Models\VendorStock', 'vendor_stock_product', 'vendor_products_id', 'vendor_stocks_id');
     }
 }

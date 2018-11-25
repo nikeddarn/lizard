@@ -71,6 +71,14 @@ class AttributeValue extends Model
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function products()
+    {
+        return $this->belongsToMany('App\Models\Product', 'product_attribute', 'attribute_values_id', 'products_id');
+    }
+
+    /**
      * Set attribute's name_ru.
      *
      * @param  string  $value

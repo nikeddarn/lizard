@@ -8,67 +8,36 @@ namespace App\Support\Repositories;
 
 use App\Models\Product;
 use App\Models\VendorProduct;
+use Illuminate\Database\Eloquent\Model;
 
 class ProductRepository
 {
     /**
-     * Get product by related vendor product model with given own vendor product's is.
+     * Get product by related vendor product model with given own vendor product's id.
      *
-     * @param int $vendorId
-     * @param int $vendorProductId
-     * @return Product|null
+     * @param VendorProduct $vendorProduct
+     * @return Product|Model|null
      */
-    public function getProductByVendorId(int $vendorId, int $vendorProductId)
+    public function getProductByVendorProduct(VendorProduct $vendorProduct)
     {
-        return Product::whereHas('vendorProducts', function ($query) use ($vendorId, $vendorProductId) {
-            $query->where('vendor_product_id', $vendorProductId)
-                ->whereHas('vendorCategory', function ($query) use ($vendorId) {
-                    $query->where('vendors_id', $vendorId);
-                });
-        })
-            ->with('vendorProducts')
-            ->first();
+        return $vendorProduct->product()->first();
     }
 
     /**
      * Get an existing product with fields equal to the inserted.
      *
      * @param array $productData
-     * @return Product|null
+     * @return Product|Model|null
      */
     public function getProductByModelData(array $productData)
     {
         $searchDoubleKeys = config('shop.search_double_by.product');
 
-        return Product::where(function ($query) use ($searchDoubleKeys, $productData) {
+        return Product::query()->where(function ($query) use ($searchDoubleKeys, $productData) {
             foreach ($searchDoubleKeys as $field) {
                 $query->orWhere($field, $productData[$field]);
             }
         })
             ->first();
     }
-
-//    /**
-//     * Get vendor product by vendor product's id.
-//     *
-//     * @param int $vendorProductId
-//     * @return VendorProduct|null
-//     */
-//    public function getVendorProduct(int $vendorProductId)
-//    {
-//        return VendorProduct::where('vendor_product_id', $vendorProductId)->first();
-//    }
-//
-//    /**
-//     * Does vendor product with given vendor product's id exist ?
-//     *
-//     * @param int $vendorProductId
-//     * @return bool
-//     */
-//    public function vendorProductExists(int $vendorProductId)
-//    {
-//        return (bool)VendorProduct::where('vendor_product_id', $vendorProductId)->count();
-//    }
-
-
 }

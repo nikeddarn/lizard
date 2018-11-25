@@ -18,7 +18,7 @@ class VendorStockProduct extends Model
      *
      * @var array
      */
-    protected $primaryKey = ['vendor_products_id', 'vendors_stocks_id'];
+    protected $primaryKey = ['vendor_products_id', 'vendor_stocks_id'];
 
     /**
      * Non auto incrementing primary key.
@@ -40,12 +40,4 @@ class VendorStockProduct extends Model
      * @var bool
      */
     public $timestamps = false;
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function storages()
-    {
-        return $this->hasMany('App\Models\Storage', 'cities_id', 'id');
-    }
 }

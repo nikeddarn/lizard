@@ -100,5 +100,23 @@ return [
         'product' => [
             'name_ru', 'name_ua', 'model_ru', 'model_ua', 'articul', 'code',
         ],
+        // fields of attribute model
+        'attribute' => [
+            'name_ru', 'name_ua',
+        ],
+        // fields of any attribute value model
+        'attribute_value' => [
+            'value_ru', 'value_ua', 'url',
+        ],
+        // fields of brand attribute value model
+        'brand_attribute_value' => [
+            'value_ru', 'value_ua', 'url',
+        ],
     ],
+
+    // insert new vendor products
+    'insert_vendor_product' => [
+        // retry after (minutes)
+        'retry' => 60,
+    ]
 ];

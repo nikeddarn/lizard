@@ -12,7 +12,6 @@ use App\Models\VendorProduct;
 use App\Rules\LeafCategory;
 use App\Support\Vendors\VendorBroker;
 use Exception;
-use GuzzleHttp\Exception\RequestException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -81,7 +80,7 @@ class VendorCategoryController extends Controller
         $vendorSynchronizedCategories = $vendor->vendorCategories()
             ->with(['categories' => function ($query) use ($vendorId) {
                 $query->withCount(['products' => function ($query) use ($vendorId) {
-                    $query->whereHas('vendorProducts.vendorCategory.vendor', function ($query) use ($vendorId) {
+                    $query->whereHas('vendorProducts.vendorCategories', function ($query) use ($vendorId) {
                         $query->where('vendors_id', $vendorId);
                     });
                 }]);

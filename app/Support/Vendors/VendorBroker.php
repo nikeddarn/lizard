@@ -7,7 +7,7 @@ namespace App\Support\Vendors;
 
 
 use App\Contracts\Vendor\VendorInterface;
-use App\Contracts\Vendor\VendorProviderInterface;
+use App\Contracts\Vendor\VendorAdapterInterface;
 use App\Support\ProductPrices\ProductPrice;
 use App\Support\Vendors\Adapters\BrainVendorAdapter;
 use App\Support\Vendors\ProductManagers\BrainProductManager;

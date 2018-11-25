@@ -168,6 +168,14 @@ class Product extends Model
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function vendorProduct()
+    {
+        return $this->hasOne('App\Models\VendorProduct', 'products_id', 'id');
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function categoryProducts()
@@ -234,6 +242,6 @@ class Product extends Model
      */
     public function setManufacturerUaAttribute($value)
     {
-        $this->attributes['content_ua'] = Str::ucfirst($value);
+        $this->attributes['manufacturer_ua'] = Str::ucfirst($value);
     }
 }

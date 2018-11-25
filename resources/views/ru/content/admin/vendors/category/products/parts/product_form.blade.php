@@ -1,4 +1,4 @@
-@if($products->count())
+@if($vendorOwnProducts->count())
 
     <form id="sync-products-form" method="post">
         @csrf
@@ -27,24 +27,26 @@
             <tbody>
 
 
-            @foreach($products as $product)
+            @foreach($vendorOwnProducts as $vendorOwnProduct)
+
+                <input type="hidden" name="vendor_own_product_id[]" value="{{ $vendorOwnProduct->id }}">
 
                 <tr>
 
-                    <td class="text-center">{{ $product->code }}</td>
-                    <td>{{ $product->name }}</td>
-                    <td class="text-center">{{ $product->country }}</td>
-                    <td class="text-center">{{ $product->warranty }}</td>
-                    <td class="text-center">{{ $product->price }}</td>
+                    <td class="text-center">{{ $vendorOwnProduct->code }}</td>
+                    <td>{{ $vendorOwnProduct->name }}</td>
+                    <td class="text-center">{{ $vendorOwnProduct->country }}</td>
+                    <td class="text-center">{{ $vendorOwnProduct->warranty }}</td>
+                    <td class="text-center">{{ $vendorOwnProduct->price }}</td>
                     <td class="text-center">
                         <div class="custom-control custom-checkbox">
 
-                            <input id="select-product-{{ $product->id }}" type="checkbox"
-                                   class="custom-control-input" name="vendor_product_id[]"
-                                   value="{{ $product->id }}" {{ $product->checked ? 'checked="checked"' : '' }}>
+                            <input id="select-product-{{ $vendorOwnProduct->id }}" type="checkbox"
+                                   class="custom-control-input" name="selected_vendor_own_product_id[]"
+                                   value="{{ $vendorOwnProduct->id }}" {{ $vendorOwnProduct->checked ? 'checked="checked"' : '' }}>
 
                             <label class="custom-control-label empty-checkbox-label"
-                                   for="select-product-{{ $product->id }}"></label>
+                                   for="select-product-{{ $vendorOwnProduct->id }}"></label>
                         </div>
                     </td>
 
