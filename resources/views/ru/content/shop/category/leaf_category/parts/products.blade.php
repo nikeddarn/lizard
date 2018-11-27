@@ -59,11 +59,11 @@
                 </div>
 
                 @if($product->price)
-                    <div class="mb-2">
+                    <div class="row no-gutters justify-content-between mb-2">
                         @if($product->localPrice)
-                            <span class="h5">{{ $product->localPrice }}&nbsp;грн</span>
+                            <div class="col-auto h5 px-1">{{ $product->localPrice }}&nbsp;грн</div>
                         @endif
-                        <span class="float-right text-gray">${{ $product->price }}</span>
+                        <div class="col-auto text-gray px-1">${{ $product->price }}</div>
                     </div>
                 @endif
 

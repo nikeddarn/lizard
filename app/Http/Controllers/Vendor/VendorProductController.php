@@ -10,6 +10,7 @@ use App\Models\VendorCategory;
 use App\Models\VendorProduct;
 use App\Support\Vendors\VendorBroker;
 use Exception;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class VendorProductController extends Controller
@@ -197,7 +198,9 @@ class VendorProductController extends Controller
             ]);
 
             $this->dispatch(
-                (new InsertVendorProduct($vendorProduct, $vendorCategoryId, $localCategoryId))->onConnection('database')->onQueue('insert_vendor_product')
+                (new InsertVendorProduct($vendorProduct, $vendorCategoryId, $localCategoryId))
+                    ->onConnection('database')
+                    ->onQueue('insert_vendor_product')
             );
         }
     }

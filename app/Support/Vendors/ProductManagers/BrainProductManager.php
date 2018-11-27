@@ -11,6 +11,7 @@ use App\Contracts\Vendor\VendorInterface;
 use App\Models\VendorProduct;
 use App\Support\Repositories\AttributeRepository;
 use App\Support\Repositories\BrandRepository;
+use App\Support\Repositories\ProductImageUploader;
 use App\Support\Repositories\ProductRepository;
 use App\Support\Vendors\Adapters\BrainVendorAdapter;
 use Exception;
@@ -27,11 +28,12 @@ class BrainProductManager extends VendorProductManager
      * @param ProductRepository $productRepository
      * @param BrandRepository $brandRepository
      * @param AttributeRepository $attributeRepository
+     * @param ProductImageUploader $imageUploader
      * @param BrainVendorAdapter $vendorAdapter
      */
-    public function __construct(ProductRepository $productRepository, BrandRepository $brandRepository, AttributeRepository $attributeRepository, BrainVendorAdapter $vendorAdapter)
+    public function __construct(ProductRepository $productRepository, BrandRepository $brandRepository, AttributeRepository $attributeRepository, ProductImageUploader $imageUploader, BrainVendorAdapter $vendorAdapter)
     {
-        parent::__construct($productRepository, $brandRepository, $attributeRepository);
+        parent::__construct($productRepository, $brandRepository, $attributeRepository, $imageUploader);
         $this->vendorAdapter = $vendorAdapter;
     }
 
@@ -42,6 +44,7 @@ class BrainProductManager extends VendorProductManager
      * @param int $localCategoryId
      * @param VendorProduct $vendorProduct
      * @throws Exception
+     * @throws \Throwable
      */
     public function insertVendorProduct(int $vendorCategoryId, int $localCategoryId, VendorProduct $vendorProduct)
     {
@@ -67,7 +70,7 @@ class BrainProductManager extends VendorProductManager
         $this->insertProductAttributes($product, VendorInterface::BRAIN, $productData['attributes']);
 
         // insert product pictures
-//        $this->insertProductImages($product, $productData['images']);
+        $this->insertProductImages($product, $productData['images']);
     }
 
     /**

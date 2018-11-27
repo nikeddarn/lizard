@@ -10,10 +10,12 @@ use App\Contracts\Shop\AttributesInterface;
 use App\Contracts\Vendor\VendorAdapterInterface;
 use App\Models\Attribute;
 use App\Models\Product;
+use App\Models\ProductImage;
 use App\Models\VendorProduct;
 use App\Models\VendorStock;
 use App\Support\Repositories\AttributeRepository;
 use App\Support\Repositories\BrandRepository;
+use App\Support\Repositories\ProductImageUploader;
 use App\Support\Repositories\ProductRepository;
 use Carbon\Carbon;
 use Exception;
@@ -32,18 +34,24 @@ abstract class VendorProductManager
      * @var AttributeRepository
      */
     private $attributeRepository;
+    /**
+     * @var ProductImageUploader
+     */
+    private $imageUploader;
 
     /**
      * VendorProductManager constructor.
      * @param ProductRepository $productRepository
      * @param BrandRepository $brandRepository
      * @param AttributeRepository $attributeRepository
+     * @param ProductImageUploader $imageUploader
      */
-    public function __construct(ProductRepository $productRepository, BrandRepository $brandRepository, AttributeRepository $attributeRepository)
+    public function __construct(ProductRepository $productRepository, BrandRepository $brandRepository, AttributeRepository $attributeRepository, ProductImageUploader $imageUploader)
     {
         $this->productRepository = $productRepository;
         $this->brandRepository = $brandRepository;
         $this->attributeRepository = $attributeRepository;
+        $this->imageUploader = $imageUploader;
     }
 
     /**
@@ -221,11 +229,43 @@ abstract class VendorProductManager
      * Insert product images.
      *
      * @param Product $product
-     * @param array $productImages
+     * @param array $vendorProductImages
+     * @throws Exception
+     * @throws \Throwable
      */
-    protected function insertProductImages(Product $product, array $productImages)
+    protected function insertProductImages(Product $product, array $vendorProductImages)
     {
+        // collect uploading images data
+        $uploadingImages = [];
 
+        // storing images directory
+        $imagesDirectory = 'images/products/' . $product->id . '/';
+
+        // iterate all product images
+        foreach ($vendorProductImages as $vendorProductImage) {
+            // local product images keys
+            $imageModelFields = ['image', 'small', 'medium', 'large'];
+
+            // create product image data
+            $productImageData = [];
+
+            $productImageData['priority'] = $vendorProductImage['priority'];
+
+            foreach ($imageModelFields as $imageModelField) {
+                // set image path for field
+                $imagePath = $imagesDirectory . uniqid() . '.jpg';
+                $productImageData[$imageModelField] = $imagePath;
+
+                // collect image path with url for upload vendor image
+                $uploadingImages[$imagePath] = $vendorProductImage[$imageModelField];
+            }
+
+            // create ProductImage
+            $product->productImages()->create($productImageData);
+        }
+
+        // upload collected images
+        $this->imageUploader->uploadImages($uploadingImages);
     }
 
     /**
