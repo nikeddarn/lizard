@@ -23,28 +23,27 @@
 {{-- Laravel token--}}
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
-{{-- Yield page's styles and scripts if exists--}}
+{{-- Yield custom page's styles if exists--}}
 @yield('styles')
 
 {{-- Application css file --}}
-<link href="/css/app.css" rel="stylesheet">
+<link href="{{ url('/css/app.css') }}" rel="stylesheet">
 
 {{-- Font-awesome--}}
-<link href="/css/font-awesome.min.css" rel="stylesheet">
+<link href="{{ url('/css/font-awesome.min.css') }}" rel="stylesheet">
 
 
 <!-- Custom css -->
-<link href="/css/lizard.css" rel="stylesheet">
+<link href="{{ mix('css/lizard.css') }}" rel="stylesheet">
 
 
 {{-- Application js file --}}
-<script type="text/javascript" src="/js/app.js"></script>
+<script type="text/javascript" src="{{ url('/js/app.js') }}"></script>
 
 
-<script type="text/javascript" src="/js/common.js"></script>
-<script type="text/javascript" src="/js/lizard.js"></script>
+<script type="text/javascript" src="{{ mix('js/lizard.js') }}"></script>
 
-<script type="text/javascript" src="/js/isotope.min.js"></script>
+<script type="text/javascript" src="{{ url('/js/isotope.min.js') }}"></script>
 
 <script>
     $.ajaxSetup({
@@ -54,4 +53,5 @@
     });
 </script>
 
+{{-- Yield custom page's scripts if exists--}}
 @yield('scripts')

@@ -15,13 +15,11 @@ const mix = require('laravel-mix');
 mix.js('resources/js/app.js', 'public/js')
    .sass('resources/sass/app.scss', 'public/css');
 
-// common scripts
-mix.js('resources/js/common.js', 'public/js');
+// Custom styles and scripts
+mix.js(['resources/js/common.js', 'resources/js/lizard.js'], 'public/js/lizard.js')
+    .sass('resources/sass/lizard.scss', 'public/css')
+    .version();
 
-// Custom styles an scripts
-mix.js('resources/js/lizard.js', 'public/js')
-    .sass('resources/sass/lizard.scss', 'public/css');
-
-// admin styles
-mix.js('resources/js/admin.js', 'public/js')
+// admin styles  and scripts
+mix.js(['resources/js/common.js', 'resources/js/admin.js'], 'public/js/admin.js')
     .sass('resources/sass/admin.scss', 'public/css');

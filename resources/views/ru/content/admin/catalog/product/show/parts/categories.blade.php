@@ -11,7 +11,7 @@
 
                 <tr>
 
-                    <td>{{ $category->name }}</td>
+                    <td><strong>{{ $category->name }}</strong></td>
 
                     <td class="text-right">
 

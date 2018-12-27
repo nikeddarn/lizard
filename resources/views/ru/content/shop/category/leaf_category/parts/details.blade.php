@@ -66,19 +66,20 @@
 
                         <div class="col col-sm-6">
 
+                            @if($product->price)
+                                @if($product->localPrice)
+                                    <h2 class="product-price my-2">{{ $product->localPrice }}&nbsp; грн<small class="ml-4 text-gray-lighter">$&nbsp;{{ $product->price }}</small></h2>
+                                @else
+                                    <h2 class="product-price my-2">$&nbsp;{{ $product->price }}</h2>
+                                @endif
+                            @endif
+
                             <form action="{{ route('shop.cart.count', ['id' => $product->id]) }}" method="post">
 
                                 @csrf
 
-                                <table class="table table-border-top-none">
+                                <table class="table table-border-top-none product-details">
                                     <tbody>
-
-                                    @if($product->model_ru)
-                                        <tr>
-                                            <td>Модель товара</td>
-                                            <td>{{ $product->model_ru }}</td>
-                                        </tr>
-                                    @endif
 
                                     @if($product->brief_content)
                                         <tr>
@@ -86,15 +87,10 @@
                                         </tr>
                                     @endif
 
-                                    @if($product->price)
+                                    @if($product->model_ru)
                                         <tr>
-                                            <td>Цена</td>
-                                            <td class="product-price">
-                                                @if($product->localPrice)
-                                                    <span>{{ $product->localPrice }}&nbsp; грн</span>
-                                                @endif
-                                                <span class="ml-2 ml-md-4 ml-lg-5">$&nbsp;{{ $product->price }}</span>
-                                            </td>
+                                            <td>Модель</td>
+                                            <td>{{ $product->model_ru }}</td>
                                         </tr>
                                     @endif
 
@@ -125,21 +121,21 @@
                                     <tr>
                                         <td>Доступность</td>
                                         <td>
-                                            @if(isset($product->productAvailableStorages) && $product->productAvailableStorages->count())
+                                            @if($product->availableProductStorages->count())
                                                 <div>
-                                                    @foreach($product->productAvailableStorages as $storage)
-                                                        <span class="badge badge-success font-weight-normal py-1 px-2 storage-badge my-2 mr-2">{{ $storage->city->name }}
-                                                            :&emsp;{{ $storage->name }}</span>
+                                                    @foreach($product->availableProductStorages as $storage)
+                                                        <span class="badge badge-success font-weight-normal h6 px-2 my-2 mr-2">{{ $storage->city->name_ru }}
+                                                            :&emsp;{{ $storage->name_ru }}</span>
                                                     @endforeach
                                                 </div>
-                                            @elseif(isset($product->availableTime))
-                                                @if(is_object($product->availableTime))
-                                                    <span class="label label-success">Ожидается {{ $product->availableTime->diffForHumans() }}</span>
-                                                @else
-                                                    <span class="label label-success">Ожидается в ближайшее время</span>
-                                                @endif
+                                            @elseif($product->isAvailable)
+                                                <div class="available-product">Готов к отгрузке</div>
+                                            @elseif($product->isExpectedToday)
+                                                <div class="available-product">Ожидается сегодня</div>
+                                            @elseif($product->expectedAt)
+                                                <div class="expected-product">Ожидается {{ $product->expectedAt->diffForHumans() }}</div>
                                             @else
-                                                <span class="label label-warning">Товара нет в наличии</span>
+                                                <div class="unavailable-product">Нет в наличии</div>
                                             @endif
                                         </td>
                                     </tr>

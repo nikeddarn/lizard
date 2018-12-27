@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class ProductComment extends Model
@@ -34,5 +35,27 @@ class ProductComment extends Model
     public function user()
     {
         return $this->belongsTo('App\Models\User', 'users_id', 'id');
+    }
+
+    /**
+     * Transform timestamp to carbon.
+     *
+     * @param  string  $value
+     * @return string
+     */
+    public function getCreatedAtAttribute($value)
+    {
+        return $value ? Carbon::createFromFormat('Y-m-d H:i:s', $value) : null;
+    }
+
+    /**
+     * Transform timestamp to carbon.
+     *
+     * @param  string  $value
+     * @return string
+     */
+    public function getUpdatedAtAttribute($value)
+    {
+        return $value ? Carbon::createFromFormat('Y-m-d H:i:s', $value) : null;
     }
 }

@@ -4,13 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Product;
 use App\Models\ProductImage;
-use App\Support\Images\ImageCreator;
+use App\Support\ImageHandlers\ProductImageHandler;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\File;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
-use Intervention\Image\Facades\Image;
 
 class ProductImageController extends Controller
 {
@@ -22,23 +20,16 @@ class ProductImageController extends Controller
      * @var ProductImage
      */
     private $productImage;
-    /**
-     * @var ImageCreator
-     */
-    private $imageCreator;
 
     /**
      * ProductImageController constructor.
      * @param Product $product
      * @param ProductImage $productImage
-     * @param ImageCreator $imageCreator
      */
-    public function __construct(Product $product, ProductImage $productImage, ImageCreator $imageCreator)
+    public function __construct(Product $product, ProductImage $productImage)
     {
-
         $this->product = $product;
         $this->productImage = $productImage;
-        $this->imageCreator = $imageCreator;
     }
 
     /**
@@ -63,11 +54,12 @@ class ProductImageController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request $request
+     * @param ProductImageHandler $imageHandler
      * @return \Illuminate\Http\Response
      * @throws \Illuminate\Auth\Access\AuthorizationException
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request)
+    public function store(Request $request, ProductImageHandler $imageHandler)
     {
         $this->authorize('create', $this->productImage);
 
@@ -77,7 +69,7 @@ class ProductImageController extends Controller
 
         $product = $this->product->newQuery()->findOrFail($request->get('products_id'));
 
-        $this->insertProductImages($request, $product);
+        $this->insertProductImage($imageHandler, $request->image, $product);
 
         return redirect(route('admin.products.show', ['id' => $product->id]));
     }
@@ -88,6 +80,7 @@ class ProductImageController extends Controller
      * @param string $id
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Exception
      */
     public function destroy(string $id)
     {
@@ -95,19 +88,26 @@ class ProductImageController extends Controller
 
         $image = $this->productImage->newQuery()->findOrFail($id);
 
-        $productsId = $image->products_id;
+        $productId = $image->products_id;
 
+        // set first image as priority if removing image was priority
         if ($image->priority) {
-            $firstNotPrimaryImage = $this->productImage->newQuery()->where(['products_id' => $productsId, 'priority' => 0])->first();
+            $firstNotPrimaryImage = $this->productImage->newQuery()->where(['products_id' => $productId, 'priority' => 0])->first();
             if ($firstNotPrimaryImage) {
                 $firstNotPrimaryImage->priority = 1;
                 $firstNotPrimaryImage->save();
             }
         }
 
+        // remove images from storage
+        foreach (['image', 'small', 'medium', 'large'] as $type) {
+            Storage::disk('public')->delete($image->$type);
+        }
+
+        // delete image
         $image->delete();
 
-        return redirect(route('admin.products.show', ['id' => $productsId]));
+        return redirect(route('admin.products.show', ['id' => $productId]));
 
     }
 
@@ -142,61 +142,16 @@ class ProductImageController extends Controller
     /**
      * Create and store images.
      *
-     * @param Request $request
+     * @param ProductImageHandler $imageHandler
+     * @param string $sourcePath
      * @param Product|Model $product
      */
-    public function insertProductImages(Request $request, Product $product)
+    private function insertProductImage(ProductImageHandler $imageHandler, string $sourcePath, Product $product)
     {
-        $image = $request->image;
+        // define priority
+        $priority = $product->productImages()->where('priority', 1)->count() ? 0 : 1;
 
-        $imagesDirectory = 'images/products/' . $product->id . '/';
-
-        // original image
-        $productImage['image'] = Storage::disk('public')->putFile($imagesDirectory, $image);
-
-        // small image
-        $productImage['small'] = $imagesDirectory . uniqid() . '.jpg';
-        Storage::disk('public')->put($productImage['small'], $this->createImage($image, config('shop.images.products.small'))->stream('jpg', 100));
-
-        // medium image
-        $productImage['medium'] = $imagesDirectory . uniqid() . '.jpg';
-        Storage::disk('public')->put($productImage['medium'], $this->createImage($image, config('shop.images.products.medium'))->stream('jpg', 100));
-
-        // large image
-        $productImage['large'] = $imagesDirectory . uniqid() . '.jpg';
-        Storage::disk('public')->put($productImage['large'], $this->createImage($image, config('shop.images.products.large'))->stream('jpg', 100));
-
-        $product->productImages()->create($productImage);
-    }
-
-    /**
-     * Create image.
-     *
-     * @param $image
-     * @param $imageSizes
-     * @return mixed
-     */
-    private function createImage($image, $imageSizes)
-    {
-        $createdImage = Image::make($image);
-        $createdImage->resize($imageSizes['w'], $imageSizes['h']);
-
-        if (config('shop.images.products.watermark')) {
-
-            $watermarkConfig = config('shop.images.watermark');
-
-            $imageText = config('app.name');
-            $baseX = $imageSizes['w'] * $watermarkConfig['baseX'];
-            $baseY = $imageSizes['h'] * $watermarkConfig['baseY'];
-            $fontSize = ($imageSizes['w'] - $baseX * 2) / strlen($imageText) * 2;
-
-            $createdImage->text($imageText, $baseX, $baseY, function ($font) use ($watermarkConfig, $fontSize) {
-                $font->file(public_path($watermarkConfig['font']));
-                $font->size($fontSize);
-                $font->color($watermarkConfig['color']);
-            });
-        }
-
-        return $createdImage;
+        // create product images
+        $imageHandler->insertProductImage($product, $sourcePath, $priority);
     }
 }

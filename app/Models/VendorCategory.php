@@ -58,16 +58,32 @@ class VendorCategory extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
+    public function autoAddNewProductsCategories()
+    {
+        return $this->belongsToMany('App\Models\Category','vendor_local_categories', 'vendor_categories_id', 'categories_id')->wherePivot('auto_add_new_products', '=', 1);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function vendorProducts()
     {
         return $this->belongsToMany('App\Models\VendorProduct', 'vendor_category_product', 'vendor_categories_id', 'vendor_products_id');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function products()
+    public function vendorLocalCategories()
     {
-        return $this->belongsToMany('App\Models\Product', 'vendor_products', 'vendor_categories_id', 'products_id');
+        return $this->hasMany('App\Models\VendorLocalCategory', 'vendor_categories_id', 'id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function synchronizingProducts()
+    {
+        return$this->hasMany('App\Models\SynchronizingProduct', 'vendor_categories_id', 'id');
     }
 }

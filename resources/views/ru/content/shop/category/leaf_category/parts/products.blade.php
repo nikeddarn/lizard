@@ -9,16 +9,17 @@
                 <a href="{{ route('shop.product.index', ['url' => $product->url]) }}">
 
                     @if($product->primaryImage)
-                        <img class="img-fluid w-100" src="/storage/{{ $product->primaryImage->medium }}">
+                        <img class="img-fluid w-100" src="/storage/{{ $product->primaryImage->medium }}" alt="Изображение {{ $product->name }}"/>
                     @else
-                        <img class="img-fluid w-100" src="/images/common/no_image.png"/>
+                        <img class="img-fluid w-100" src="{{ url('/images/common/no_image.png') }}"  alt="Нет изображения продукта"/>
                     @endif
 
                     @if($product->badges)
                         <div class="product-badges">
                             @foreach($product->badges as $badge)
                                 <span class="badge-label">
-                                <span class="label label-arrow label-arrow-left label-{{ $badge['class'] }}">{{ $badge['title'] }}</span>
+                                <span
+                                    class="label label-arrow label-arrow-left label-{{ $badge['class'] }}">{{ $badge['title'] }}</span>
                             </span>
                             @endforeach
                         </div>
@@ -67,14 +68,12 @@
                     </div>
                 @endif
 
-                @if( $product->productAvailableStorages->count())
+                @if($product->isAvailable)
                     <div class="available-product">Готов к отгрузке</div>
-                @elseif(isset($product->availableTime))
-                    @if(is_object($product->availableTime))
-                        <div class="available-product">Ожидается {{ $product->availableTime->diffForHumans() }}</div>
-                    @else
-                        <div class="available-product">Ожидается в ближайшее время</div>
-                    @endif
+                @elseif($product->isExpectedToday)
+                    <div class="available-product">Ожидается сегодня</div>
+                @elseif($product->expectedAt)
+                    <div class="expected-product">Ожидается {{ $product->expectedAt->diffForHumans() }}</div>
                 @else
                     <div class="unavailable-product">Нет в наличии</div>
                 @endif
@@ -85,7 +84,7 @@
                               aria-expanded="false">&#10247;</span>
                         <div class="dropdown-menu dropdown-menu-right fadeIn">
                             <a class="dropdown-item" href="{{ route('shop.cart.add', ['id' => $product->id]) }}"><i
-                                        class="fa fa-cart-arrow-down"></i>&nbsp;Купить</a>
+                                    class="fa fa-cart-arrow-down"></i>&nbsp;Купить</a>
                             <a class="dropdown-item product-favourite-add"
                                href="{{ route('user.favourites.add', ['id' => $product->id]) }}">
                                 <i class="fa fa-heart"></i>&nbsp;В избранное</a>

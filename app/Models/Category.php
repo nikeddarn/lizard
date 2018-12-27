@@ -90,4 +90,12 @@ class Category extends Model
     {
         $this->attributes['content_ua'] = Purifier::clean($value);
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function synchronizingProducts()
+    {
+        return$this->hasMany('App\Models\SynchronizingProduct', 'categories_id', 'id');
+    }
 }

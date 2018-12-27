@@ -38,6 +38,10 @@ class AttributeRepository
      */
     public function getAttributeByModelData(array $vendorAttributeData)
     {
+        /**
+         * ToDo Enhance parser. Store attribute in table to merge attributes by manager.
+         */
+
         $searchDoubleKeys = config('shop.search_double_by.attribute');
 
         return Attribute::query()->where(function ($query) use ($searchDoubleKeys, $vendorAttributeData) {
@@ -74,6 +78,10 @@ class AttributeRepository
      */
     public function getAttributeValueByModelData(array $vendorAttributeValueData)
     {
+        /**
+         * ToDo Enhance parser. Store attribute value in table to merge by manager.
+         */
+
         $searchDoubleKeys = config('shop.search_double_by.attribute_value');
 
         return AttributeValue::query()->where(function ($query) use ($searchDoubleKeys, $vendorAttributeValueData) {

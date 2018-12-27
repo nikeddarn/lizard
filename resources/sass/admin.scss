@@ -36,10 +36,10 @@
   min-width: 130px;
 
   .nav-link[data-toggle].collapsed:after {
-    content: "▾";
+    content: "\00a0\00a0▾";
   }
   .nav-link[data-toggle]:not(.collapsed):after {
-    content: "▴";
+    content: "\00a0\00a0▴";
   }
 
   a {
@@ -183,4 +183,11 @@ label.required:after {
       max-height: 100px;
     }
   }
+}
+
+// -------------------------------------------------- Vendor Categories and products -----------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+
+.custom-control-input.queued-product-checkbox:checked ~ .custom-control-label::before{
+    background-color: $orange !important;
 }

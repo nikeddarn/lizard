@@ -60,20 +60,12 @@
 /******/ 	__webpack_require__.p = "/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 43);
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ 43:
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(44);
-
-
-/***/ }),
-
-/***/ 44:
+/***/ "./resources/js/admin.js":
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -81,7 +73,7 @@ module.exports = __webpack_require__(44);
 
 // bootstrap-select
 
-__webpack_require__(45);
+__webpack_require__("./vendor/snapappointments/bootstrap-select/js/bootstrap-select.js");
 
 window.checkMultiTabForm = function (form) {
 
@@ -100,13 +92,150 @@ window.checkMultiTabForm = function (form) {
 
 /***/ }),
 
-/***/ 45:
+/***/ "./resources/js/common.js":
+/***/ (function(module, exports) {
+
+// ----------------------------------- Input Image ------------------------------------
+
+window.inputImageChanged = function () {
+    var allowClearImage = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+
+
+    var fileInput = this;
+    var fileBlock = $(fileInput).closest('.input-file-block');
+
+    // Set the popover default content
+    $(fileBlock).popover({
+        trigger: 'manual',
+        html: true,
+        content: ""
+    });
+
+    var popoverImage = $('<img/>', {
+        id: 'dynamic',
+        width: 160
+    });
+
+    var file = fileInput.files[0];
+    var reader = new FileReader();
+
+    reader.onload = function (e) {
+
+        var clearImageButton = $(fileBlock).find(".image-preview-clear");
+        var fileNameField = $(fileBlock).find(".image-preview-filename");
+
+        // show clear image button if allowed
+        if (allowClearImage) {
+            $(clearImageButton).show();
+        }
+
+        $(fileNameField).val(file.name);
+        popoverImage.attr('src', e.target.result);
+
+        // show and auto hide popover
+        $(fileBlock).attr("data-content", $(popoverImage)[0].outerHTML);
+
+        setTimeout(function () {
+            $(fileBlock).popover('show');
+        }, 100);
+
+        setTimeout(function () {
+            $(fileBlock).popover("hide");
+        }, 4000);
+
+        // bind show popover on hover
+        $(fileBlock).hover(function () {
+            $(this).popover('show');
+        }, function () {
+            $(this).popover('hide');
+        });
+
+        // clear file data
+        $(clearImageButton).click(function () {
+            $(fileBlock).attr("data-content", "").popover('hide');
+            $(fileNameField).val("");
+            $(clearImageButton).hide();
+            $(fileInput).val("");
+
+            // unbind hover
+            $(fileBlock).unbind();
+        });
+    };
+    reader.readAsDataURL(file);
+
+    // unbind hover
+    $(fileBlock).unbind();
+};
+
+$(document).ready(function () {
+
+    // ----------------------------------------- register input file block -------------------------------
+
+    $('.input-file-block .image-preview-input').find('input').change(inputImageChanged);
+});
+
+/***/ }),
+
+/***/ "./vendor/snapappointments/bootstrap-select/js/bootstrap-select.js":
 /***/ (function(module, exports) {
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 (function ($) {
   'use strict';
+
+  // Polyfill for browsers with no classList support
+  // Remove in v2
+
+  if (!('classList' in document.createElement('_'))) {
+    (function (view) {
+      if (!('Element' in view)) return;
+
+      var classListProp = 'classList',
+          protoProp = 'prototype',
+          elemCtrProto = view.Element[protoProp],
+          objCtr = Object,
+          classListGetter = function classListGetter() {
+        var $elem = $(this);
+
+        return {
+          add: function add(classes) {
+            return $elem.addClass(classes);
+          },
+          remove: function remove(classes) {
+            return $elem.removeClass(classes);
+          },
+          toggle: function toggle(classes, force) {
+            return $elem.toggleClass(classes, force);
+          },
+          contains: function contains(classes) {
+            return $elem.hasClass(classes);
+          }
+        };
+      };
+
+      if (objCtr.defineProperty) {
+        var classListPropDesc = {
+          get: classListGetter,
+          enumerable: true,
+          configurable: true
+        };
+        try {
+          objCtr.defineProperty(elemCtrProto, classListProp, classListPropDesc);
+        } catch (ex) {
+          // IE 8 doesn't support enumerable:true
+          // adding undefined to fight this issue https://github.com/eligrey/classList.js/issues/36
+          // modernie IE8-MSW7 machine has IE8 8.0.6001.18702 and is affected
+          if (ex.number === undefined || ex.number === -0x7FF5EC54) {
+            classListPropDesc.enumerable = false;
+            objCtr.defineProperty(elemCtrProto, classListProp, classListPropDesc);
+          }
+        }
+      } else if (objCtr[protoProp].__defineGetter__) {
+        elemCtrProto.__defineGetter__(classListProp, classListGetter);
+      }
+    })(window);
+  }
 
   var testElement = document.createElement('_');
 
@@ -126,6 +255,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     };
   }
 
+  testElement = null;
+
   // shallow array comparison
   function isEqual(array1, array2) {
     return array1.length === array2.length && array1.every(function (element, index) {
@@ -133,7 +264,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     });
   };
 
-  //<editor-fold desc="Shims">
+  // <editor-fold desc="Shims">
   if (!String.prototype.startsWith) {
     (function () {
       'use strict'; // needed to support `apply`/`call` with `undefined`/`null`
@@ -202,7 +333,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       for (k in o) {
         // fill result array with non-prototypical keys
         r.hasOwnProperty.call(o, k) && r.push(k);
-      } // return result
+      }
+      // return result
       return r;
     };
   }
@@ -242,7 +374,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     return valHooks._set.apply(this, arguments);
   };
 
-  var changed_arguments = null;
+  var changedArguments = null;
 
   var EventIsSupported = function () {
     try {
@@ -281,7 +413,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       this.trigger(eventName);
     }
   };
-  //</editor-fold>
+  // </editor-fold>
 
   function stringSearch(li, searchString, method, normalize) {
     var stringTypes = ['content', 'subtext', 'tokens'],
@@ -319,18 +451,92 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     return parseInt(value, 10) || 0;
   }
 
+  // Borrowed from Lodash (_.deburr)
+  /** Used to map Latin Unicode letters to basic Latin letters. */
+  var deburredLetters = {
+    // Latin-1 Supplement block.
+    '\xc0': 'A', '\xc1': 'A', '\xc2': 'A', '\xc3': 'A', '\xc4': 'A', '\xc5': 'A',
+    '\xe0': 'a', '\xe1': 'a', '\xe2': 'a', '\xe3': 'a', '\xe4': 'a', '\xe5': 'a',
+    '\xc7': 'C', '\xe7': 'c',
+    '\xd0': 'D', '\xf0': 'd',
+    '\xc8': 'E', '\xc9': 'E', '\xca': 'E', '\xcb': 'E',
+    '\xe8': 'e', '\xe9': 'e', '\xea': 'e', '\xeb': 'e',
+    '\xcc': 'I', '\xcd': 'I', '\xce': 'I', '\xcf': 'I',
+    '\xec': 'i', '\xed': 'i', '\xee': 'i', '\xef': 'i',
+    '\xd1': 'N', '\xf1': 'n',
+    '\xd2': 'O', '\xd3': 'O', '\xd4': 'O', '\xd5': 'O', '\xd6': 'O', '\xd8': 'O',
+    '\xf2': 'o', '\xf3': 'o', '\xf4': 'o', '\xf5': 'o', '\xf6': 'o', '\xf8': 'o',
+    '\xd9': 'U', '\xda': 'U', '\xdb': 'U', '\xdc': 'U',
+    '\xf9': 'u', '\xfa': 'u', '\xfb': 'u', '\xfc': 'u',
+    '\xdd': 'Y', '\xfd': 'y', '\xff': 'y',
+    '\xc6': 'Ae', '\xe6': 'ae',
+    '\xde': 'Th', '\xfe': 'th',
+    '\xdf': 'ss',
+    // Latin Extended-A block.
+    '\u0100': 'A', '\u0102': 'A', '\u0104': 'A',
+    '\u0101': 'a', '\u0103': 'a', '\u0105': 'a',
+    '\u0106': 'C', '\u0108': 'C', '\u010A': 'C', '\u010C': 'C',
+    '\u0107': 'c', '\u0109': 'c', '\u010B': 'c', '\u010D': 'c',
+    '\u010E': 'D', '\u0110': 'D', '\u010F': 'd', '\u0111': 'd',
+    '\u0112': 'E', '\u0114': 'E', '\u0116': 'E', '\u0118': 'E', '\u011A': 'E',
+    '\u0113': 'e', '\u0115': 'e', '\u0117': 'e', '\u0119': 'e', '\u011B': 'e',
+    '\u011C': 'G', '\u011E': 'G', '\u0120': 'G', '\u0122': 'G',
+    '\u011D': 'g', '\u011F': 'g', '\u0121': 'g', '\u0123': 'g',
+    '\u0124': 'H', '\u0126': 'H', '\u0125': 'h', '\u0127': 'h',
+    '\u0128': 'I', '\u012A': 'I', '\u012C': 'I', '\u012E': 'I', '\u0130': 'I',
+    '\u0129': 'i', '\u012B': 'i', '\u012D': 'i', '\u012F': 'i', '\u0131': 'i',
+    '\u0134': 'J', '\u0135': 'j',
+    '\u0136': 'K', '\u0137': 'k', '\u0138': 'k',
+    '\u0139': 'L', '\u013B': 'L', '\u013D': 'L', '\u013F': 'L', '\u0141': 'L',
+    '\u013A': 'l', '\u013C': 'l', '\u013E': 'l', '\u0140': 'l', '\u0142': 'l',
+    '\u0143': 'N', '\u0145': 'N', '\u0147': 'N', '\u014A': 'N',
+    '\u0144': 'n', '\u0146': 'n', '\u0148': 'n', '\u014B': 'n',
+    '\u014C': 'O', '\u014E': 'O', '\u0150': 'O',
+    '\u014D': 'o', '\u014F': 'o', '\u0151': 'o',
+    '\u0154': 'R', '\u0156': 'R', '\u0158': 'R',
+    '\u0155': 'r', '\u0157': 'r', '\u0159': 'r',
+    '\u015A': 'S', '\u015C': 'S', '\u015E': 'S', '\u0160': 'S',
+    '\u015B': 's', '\u015D': 's', '\u015F': 's', '\u0161': 's',
+    '\u0162': 'T', '\u0164': 'T', '\u0166': 'T',
+    '\u0163': 't', '\u0165': 't', '\u0167': 't',
+    '\u0168': 'U', '\u016A': 'U', '\u016C': 'U', '\u016E': 'U', '\u0170': 'U', '\u0172': 'U',
+    '\u0169': 'u', '\u016B': 'u', '\u016D': 'u', '\u016F': 'u', '\u0171': 'u', '\u0173': 'u',
+    '\u0174': 'W', '\u0175': 'w',
+    '\u0176': 'Y', '\u0177': 'y', '\u0178': 'Y',
+    '\u0179': 'Z', '\u017B': 'Z', '\u017D': 'Z',
+    '\u017A': 'z', '\u017C': 'z', '\u017E': 'z',
+    '\u0132': 'IJ', '\u0133': 'ij',
+    '\u0152': 'Oe', '\u0153': 'oe',
+    '\u0149': "'n", '\u017F': 's'
+  };
+
+  /** Used to match Latin Unicode letters (excluding mathematical operators). */
+  var reLatin = /[\xc0-\xd6\xd8-\xf6\xf8-\xff\u0100-\u017f]/g;
+
+  /** Used to compose unicode character classes. */
+  var rsComboMarksRange = '\\u0300-\\u036f',
+      reComboHalfMarksRange = '\\ufe20-\\ufe2f',
+      rsComboSymbolsRange = '\\u20d0-\\u20ff',
+      rsComboMarksExtendedRange = '\\u1ab0-\\u1aff',
+      rsComboMarksSupplementRange = '\\u1dc0-\\u1dff',
+      rsComboRange = rsComboMarksRange + reComboHalfMarksRange + rsComboSymbolsRange + rsComboMarksExtendedRange + rsComboMarksSupplementRange;
+
+  /** Used to compose unicode capture groups. */
+  var rsCombo = '[' + rsComboRange + ']';
+
   /**
-   * Remove all diatrics from the given text.
-   * @access private
-   * @param {String} text
-   * @returns {String}
+   * Used to match [combining diacritical marks](https://en.wikipedia.org/wiki/Combining_Diacritical_Marks) and
+   * [combining diacritical marks for symbols](https://en.wikipedia.org/wiki/Combining_Diacritical_Marks_for_Symbols).
    */
-  function normalizeToBase(text) {
-    var rExps = [{ re: /[\xC0-\xC6]/g, ch: "A" }, { re: /[\xE0-\xE6]/g, ch: "a" }, { re: /[\xC8-\xCB]/g, ch: "E" }, { re: /[\xE8-\xEB]/g, ch: "e" }, { re: /[\xCC-\xCF]/g, ch: "I" }, { re: /[\xEC-\xEF]/g, ch: "i" }, { re: /[\xD2-\xD6]/g, ch: "O" }, { re: /[\xF2-\xF6]/g, ch: "o" }, { re: /[\xD9-\xDC]/g, ch: "U" }, { re: /[\xF9-\xFC]/g, ch: "u" }, { re: /[\xC7-\xE7]/g, ch: "c" }, { re: /[\xD1]/g, ch: "N" }, { re: /[\xF1]/g, ch: "n" }];
-    $.each(rExps, function () {
-      text = text ? text.replace(this.re, this.ch) : '';
-    });
-    return text;
+  var reComboMark = RegExp(rsCombo, 'g');
+
+  function deburrLetter(key) {
+    return deburredLetters[key];
+  };
+
+  function normalizeToBase(string) {
+    string = string.toString();
+    return string && string.replace(reLatin, deburrLetter).replace(reComboMark, '');
   }
 
   // List of HTML entities for escaping.
@@ -449,6 +655,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     console.warn('There was an issue retrieving Bootstrap\'s version. ' + 'Ensure Bootstrap is being loaded before bootstrap-select and there is no namespace collision. ' + 'If loading Bootstrap asynchronously, the version may need to be manually specified via $.fn.selectpicker.Constructor.BootstrapVersion.', err);
   }
 
+  var selectId = 0;
+
+  var EVENT_KEY = '.bs.select';
+
   var classNames = {
     DISABLED: 'disabled',
     DIVIDER: 'divider',
@@ -475,7 +685,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
   var REGEXP_ARROW = new RegExp(keyCodes.ARROW_UP + '|' + keyCodes.ARROW_DOWN);
   var REGEXP_TAB_OR_ESCAPE = new RegExp('^' + keyCodes.TAB + '$|' + keyCodes.ESCAPE);
-  var REGEXP_ENTER_OR_SPACE = new RegExp(keyCodes.ENTER + '|' + keyCodes.SPACE);
 
   var Selectpicker = function Selectpicker(element, options) {
     var that = this;
@@ -530,7 +739,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       this.options.windowPadding = [winPad, winPad, winPad, winPad];
     }
 
-    //Expose public methods
+    // Expose public methods
     this.val = Selectpicker.prototype.val;
     this.render = Selectpicker.prototype.render;
     this.refresh = Selectpicker.prototype.refresh;
@@ -545,7 +754,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     this.init();
   };
 
-  Selectpicker.VERSION = '1.13.3';
+  Selectpicker.VERSION = '1.13.5';
 
   Selectpicker.BootstrapVersion = version.major;
 
@@ -554,7 +763,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     noneSelectedText: 'Nothing selected',
     noneResultsText: 'No results matched {0}',
     countSelectedText: function countSelectedText(numSelected, numTotal) {
-      return numSelected == 1 ? "{0} item selected" : "{0} items selected";
+      return numSelected == 1 ? '{0} item selected' : '{0} items selected';
     },
     maxOptionsText: function maxOptionsText(numAll, numGroup) {
       return [numAll == 1 ? 'Limit reached ({n} item max)' : 'Limit reached ({n} items max)', numGroup == 1 ? 'Group limit reached ({n} item max)' : 'Group limit reached ({n} items max)'];
@@ -611,6 +820,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       var that = this,
           id = this.$element.attr('id');
 
+      this.selectId = selectId++;
+
       this.$element.addClass('bs-select-hidden');
 
       this.multiple = this.$element.prop('multiple');
@@ -640,7 +851,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       if (this.options.container) {
         this.selectPosition();
       } else {
-        this.$element.on('hide.bs.select', function () {
+        this.$element.on('hide' + EVENT_KEY, function () {
           if (that.isVirtual()) {
             // empty menu on close
             var menuInner = that.$menuInner[0],
@@ -659,17 +870,17 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       this.$newElement.on({
         'hide.bs.dropdown': function hideBsDropdown(e) {
           that.$menuInner.attr('aria-expanded', false);
-          that.$element.trigger('hide.bs.select', e);
+          that.$element.trigger('hide' + EVENT_KEY, e);
         },
         'hidden.bs.dropdown': function hiddenBsDropdown(e) {
-          that.$element.trigger('hidden.bs.select', e);
+          that.$element.trigger('hidden' + EVENT_KEY, e);
         },
         'show.bs.dropdown': function showBsDropdown(e) {
           that.$menuInner.attr('aria-expanded', true);
-          that.$element.trigger('show.bs.select', e);
+          that.$element.trigger('show' + EVENT_KEY, e);
         },
         'shown.bs.dropdown': function shownBsDropdown(e) {
-          that.$element.trigger('shown.bs.select', e);
+          that.$element.trigger('shown' + EVENT_KEY, e);
         }
       });
 
@@ -677,27 +888,24 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         this.$element.on('invalid', function () {
           that.$button.addClass('bs-invalid');
 
-          that.$element.on({
-            'shown.bs.select.invalid': function shownBsSelectInvalid() {
-              that.$element.val(that.$element.val()) // set the value to hide the validation message in Chrome when menu is opened
-              .off('shown.bs.select.invalid');
-            },
-            'rendered.bs.select': function renderedBsSelect() {
-              // if select is no longer invalid, remove the bs-invalid class
-              if (this.validity.valid) that.$button.removeClass('bs-invalid');
-              that.$element.off('rendered.bs.select');
-            }
+          that.$element.on('shown' + EVENT_KEY + '.invalid', function () {
+            that.$element.val(that.$element.val()) // set the value to hide the validation message in Chrome when menu is opened
+            .off('shown' + EVENT_KEY + '.invalid');
+          }).on('rendered' + EVENT_KEY, function () {
+            // if select is no longer invalid, remove the bs-invalid class
+            if (this.validity.valid) that.$button.removeClass('bs-invalid');
+            that.$element.off('rendered' + EVENT_KEY);
           });
 
-          that.$button.on('blur.bs.select', function () {
+          that.$button.on('blur' + EVENT_KEY, function () {
             that.$element.focus().blur();
-            that.$button.off('blur.bs.select');
+            that.$button.off('blur' + EVENT_KEY);
           });
         });
       }
 
       setTimeout(function () {
-        that.$element.trigger('loaded.bs.select');
+        that.$element.trigger('loaded' + EVENT_KEY);
       });
     },
 
@@ -719,7 +927,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       }
 
       if (this.options.liveSearch) {
-        searchbox = '<div class="bs-searchbox">' + '<input type="text" class="form-control" autocomplete="off"' + (null === this.options.liveSearchPlaceholder ? '' : ' placeholder="' + htmlEscape(this.options.liveSearchPlaceholder) + '"') + ' role="textbox" aria-label="Search">' + '</div>';
+        searchbox = '<div class="bs-searchbox">' + '<input type="text" class="form-control" autocomplete="off"' + (this.options.liveSearchPlaceholder === null ? '' : ' placeholder="' + htmlEscape(this.options.liveSearchPlaceholder) + '"') + ' role="textbox" aria-label="Search">' + '</div>';
       }
 
       if (this.multiple && this.options.actionsBox) {
@@ -771,12 +979,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
       this.selectpicker.current = isSearching ? this.selectpicker.search : this.selectpicker.main;
 
-      var $lis;
       var active = [];
       var selected;
       var prevActive;
-      var activeIndex;
-      var prevActiveIndex;
 
       this.setPositionData();
 
@@ -794,7 +999,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             chunkCount,
             firstChunk,
             lastChunk,
-            currentChunk = undefined,
+            currentChunk,
             prevPositions,
             positionIsDifferent,
             previousElements,
@@ -816,17 +1021,17 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         chunkCount = Math.round(size / chunkSize) || 1; // number of chunks
 
         for (var i = 0; i < chunkCount; i++) {
-          var end_of_chunk = (i + 1) * chunkSize;
+          var endOfChunk = (i + 1) * chunkSize;
 
           if (i === chunkCount - 1) {
-            end_of_chunk = size;
+            endOfChunk = size;
           }
 
-          chunks[i] = [i * chunkSize + (!i ? 0 : 1), end_of_chunk];
+          chunks[i] = [i * chunkSize + (!i ? 0 : 1), endOfChunk];
 
           if (!size) break;
 
-          if (currentChunk === undefined && scrollTop <= that.selectpicker.current.data[end_of_chunk - 1].position - that.sizeInfo.menuInnerHeight) {
+          if (currentChunk === undefined && scrollTop <= that.selectpicker.current.data[endOfChunk - 1].position - that.sizeInfo.menuInnerHeight) {
             currentChunk = i;
           }
         }
@@ -897,7 +1102,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             }
 
             if (isVirtual === true) {
-              marginTop = that.selectpicker.view.position0 === 0 ? 0 : that.selectpicker.current.data[that.selectpicker.view.position0 - 1].position, marginBottom = that.selectpicker.view.position1 > size - 1 ? 0 : that.selectpicker.current.data[size - 1].position - that.selectpicker.current.data[that.selectpicker.view.position1 - 1].position;
+              marginTop = that.selectpicker.view.position0 === 0 ? 0 : that.selectpicker.current.data[that.selectpicker.view.position0 - 1].position;
+              marginBottom = that.selectpicker.view.position1 > size - 1 ? 0 : that.selectpicker.current.data[size - 1].position - that.selectpicker.current.data[that.selectpicker.view.position1 - 1].position;
 
               menuInner.firstChild.style.marginTop = marginTop + 'px';
               menuInner.firstChild.style.marginBottom = marginBottom + 'px';
@@ -935,14 +1141,17 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         }
       }
 
-      $(window).off('resize.createView').on('resize.createView', function () {
-        scroll(that.$menuInner[0].scrollTop);
+      $(window).off('resize' + EVENT_KEY + '.' + this.selectId + '.createView').on('resize' + EVENT_KEY + '.' + this.selectId + '.createView', function () {
+        var isActive = that.$newElement.hasClass(classNames.SHOW);
+
+        if (isActive) scroll(that.$menuInner[0].scrollTop);
       });
     },
 
     createLi: function createLi() {
       var that = this,
           mainElements = [],
+          hiddenOptions = {},
           widestOption,
           availableOptionsCount = 0,
           widestOptionLength = 0,
@@ -994,8 +1203,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           }
         }
 
-        if (typeof classes !== 'undefined' && '' !== classes) li.className = classes;
-        if (typeof optgroup !== 'undefined' && null !== optgroup) li.classList.add('optgroup-' + optgroup);
+        if (typeof classes !== 'undefined' && classes !== '') li.className = classes;
+        if (typeof optgroup !== 'undefined' && optgroup !== null) li.classList.add('optgroup-' + optgroup);
 
         return li;
       };
@@ -1017,7 +1226,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           }
         }
 
-        if (typeof classes !== 'undefined' & '' !== classes) a.className = classes;
+        if (typeof classes !== 'undefined' && classes !== '') a.className = classes;
         if (version.major === '4') a.classList.add('dropdown-item');
         if (inline) a.setAttribute('style', inline);
 
@@ -1141,11 +1350,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             isDisabled = this.disabled || isOptgroupDisabled,
             prevHiddenIndex,
             showDivider = this.previousElementSibling && this.previousElementSibling.tagName === 'OPTGROUP',
-            textElement;
+            textElement,
+            labelElement,
+            prevHidden;
 
         var parentData = $parent.data();
 
-        if (thisData.hidden === true || that.options.hideDisabled && (isDisabled && !isOptgroup || isOptgroupDisabled)) {
+        if (thisData.hidden === true || this.hidden || that.options.hideDisabled && (isDisabled || isOptgroupDisabled)) {
           // set prevHiddenIndex - the index of the first hidden option in a group of hidden options
           // used to determine whether or not a divider should be placed after an optgroup if there are
           // hidden options between the optgroup and the first visible option
@@ -1154,11 +1365,15 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
           liIndex--;
 
-          // if previous element is not an optgroup
-          if (!showDivider) {
+          hiddenOptions[index] = {
+            type: 'hidden',
+            data: thisData
+
+            // if previous element is not an optgroup
+          };if (!showDivider) {
             if (prevHiddenIndex !== undefined) {
               // select the element **before** the first hidden element in the group
-              var prevHidden = $selectOptions[prevHiddenIndex].previousElementSibling;
+              prevHidden = $selectOptions[prevHiddenIndex].previousElementSibling;
 
               if (prevHidden && prevHidden.tagName === 'OPTGROUP' && !prevHidden.disabled) {
                 showDivider = true;
@@ -1191,9 +1406,16 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             }
           }
 
-          var optGroupClass = ' ' + parent.className || '';
+          var optGroupClass = ' ' + parent.className || '',
+              previousOption = this.previousElementSibling;
 
-          if (!this.previousElementSibling) {
+          prevHiddenIndex = thisData.prevHiddenIndex;
+
+          if (prevHiddenIndex !== undefined) {
+            previousOption = $selectOptions[prevHiddenIndex].previousElementSibling;
+          }
+
+          if (!previousOption) {
             // Is it the first option of the optgroup?
             optID += 1;
 
@@ -1214,7 +1436,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             }
             liIndex++;
 
-            var labelElement = generateLabel({
+            labelElement = generateLabel({
               labelEscaped: labelEscaped,
               labelSubtext: labelSubtext,
               labelIcon: labelIcon
@@ -1229,11 +1451,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             });
 
             headerIndex = liIndex - 1;
-          }
-
-          if (that.options.hideDisabled && isDisabled || thisData.hidden === true) {
-            liIndex--;
-            return;
           }
 
           textElement = generateText({
@@ -1271,7 +1488,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
             if (prevHiddenIndex !== undefined) {
               // select the element **before** the first hidden element in the group
-              var prevHidden = $selectOptions[prevHiddenIndex].previousElementSibling;
+              prevHidden = $selectOptions[prevHiddenIndex].previousElementSibling;
 
               if (prevHidden && prevHidden.tagName === 'OPTGROUP' && !prevHidden.disabled) {
                 showDivider = true;
@@ -1336,6 +1553,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
       this.selectpicker.main.elements = mainElements;
       this.selectpicker.main.data = mainData;
+      this.selectpicker.main.hidden = hiddenOptions;
 
       this.selectpicker.current = this.selectpicker.main;
 
@@ -1357,17 +1575,16 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
       this.tabIndex();
 
-      for (var i = 0, len = this.selectpicker.main.elements.length; i < len; i++) {
-        var index = this.selectpicker.main.map.originalIndex[i],
-            option = $selectOptions[index];
+      for (var index = 0, len = $selectOptions.length; index < len; index++) {
+        var i = that.selectpicker.main.map.newIndex[index],
+            option = $selectOptions[index],
+            optionData = that.selectpicker.main.data[i] || that.selectpicker.main.hidden[index];
 
-        if (option && option.selected) {
+        if (option && option.selected && optionData) {
           selectedItems.push(option);
 
           if (selectedItemsInTitle.length < 100 && that.options.selectedTextFormat !== 'count' || selectedItems.length === 1) {
-            if (that.options.hideDisabled && (option.disabled || option.parentNode.tagName === 'OPTGROUP' && option.parentNode.disabled)) return;
-
-            var thisData = this.selectpicker.main.data[i].data,
+            var thisData = optionData.data,
                 icon = thisData.icon && that.options.showIcon ? '<i class="' + that.options.iconBase + ' ' + thisData.icon + '"></i> ' : '',
                 subtext,
                 titleItem;
@@ -1391,8 +1608,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         }
       }
 
-      //Fixes issue in IE10 occurring when no default option is selected and at least one option is disabled
-      //Convert all the values into a comma delimited string
+      // Fixes issue in IE10 occurring when no default option is selected and at least one option is disabled
+      // Convert all the values into a comma delimited string
       var title = !this.multiple ? selectedItemsInTitle[0] : selectedItemsInTitle.join(this.options.multipleSeparator);
 
       // add ellipsis
@@ -1419,16 +1636,16 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         title = this.options.title;
       }
 
-      //If we dont have a title, then use the default, or if nothing is set at all, use the not selected text
+      // If the select doesn't have a title, then use the default, or if nothing is set at all, use noneSelectedText
       if (!title) {
         title = typeof this.options.title !== 'undefined' ? this.options.title : this.options.noneSelectedText;
       }
 
-      //strip all HTML tags and trim the result, then unescape any escaped tags
+      // strip all HTML tags and trim the result, then unescape any escaped tags
       this.$button[0].title = htmlUnescape(title.replace(/<[^>]*>?/g, '').trim());
       this.$button.find('.filter-option-inner-inner')[0].innerHTML = title;
 
-      this.$element.trigger('rendered.bs.select');
+      this.$element.trigger('rendered' + EVENT_KEY);
     },
 
     /**
@@ -1440,7 +1657,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         this.$newElement.addClass(this.$element.attr('class').replace(/selectpicker|mobile-device|bs-select-hidden|validate\[.*\]/gi, ''));
       }
 
-      var buttonClass = style ? style : this.options.style;
+      var buttonClass = style || this.options.style;
 
       if (status == 'add') {
         this.$button.addClass(buttonClass);
@@ -1576,9 +1793,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       var winPad = that.options.windowPadding;
 
       this.sizeInfo.selectOffsetTop = pos.top - containerPos.top - $window.scrollTop();
-      this.sizeInfo.selectOffsetBot = $window.height() - this.sizeInfo.selectOffsetTop - this.sizeInfo['selectHeight'] - containerPos.top - winPad[2];
+      this.sizeInfo.selectOffsetBot = $window.height() - this.sizeInfo.selectOffsetTop - this.sizeInfo.selectHeight - containerPos.top - winPad[2];
       this.sizeInfo.selectOffsetLeft = pos.left - containerPos.left - $window.scrollLeft();
-      this.sizeInfo.selectOffsetRight = $window.width() - this.sizeInfo.selectOffsetLeft - this.sizeInfo['selectWidth'] - containerPos.left - winPad[1];
+      this.sizeInfo.selectOffsetRight = $window.width() - this.sizeInfo.selectOffsetLeft - this.sizeInfo.selectWidth - containerPos.left - winPad[1];
       this.sizeInfo.selectOffsetTop -= winPad[0];
       this.sizeInfo.selectOffsetLeft -= winPad[3];
     },
@@ -1586,14 +1803,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     setMenuSize: function setMenuSize(isAuto) {
       this.getSelectPosition();
 
-      var selectWidth = this.sizeInfo['selectWidth'],
-          liHeight = this.sizeInfo['liHeight'],
-          headerHeight = this.sizeInfo['headerHeight'],
-          searchHeight = this.sizeInfo['searchHeight'],
-          actionsHeight = this.sizeInfo['actionsHeight'],
-          doneButtonHeight = this.sizeInfo['doneButtonHeight'],
-          divHeight = this.sizeInfo['dividerHeight'],
-          menuPadding = this.sizeInfo['menuPadding'],
+      var selectWidth = this.sizeInfo.selectWidth,
+          liHeight = this.sizeInfo.liHeight,
+          headerHeight = this.sizeInfo.headerHeight,
+          searchHeight = this.sizeInfo.searchHeight,
+          actionsHeight = this.sizeInfo.actionsHeight,
+          doneButtonHeight = this.sizeInfo.doneButtonHeight,
+          divHeight = this.sizeInfo.dividerHeight,
+          menuPadding = this.sizeInfo.menuPadding,
           menuInnerHeight,
           menuHeight,
           divLength = 0,
@@ -1636,7 +1853,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       }
 
       if (this.options.dropdownAlignRight === 'auto') {
-        this.$menu.toggleClass(classNames.MENURIGHT, this.sizeInfo.selectOffsetLeft > this.sizeInfo.selectOffsetRight && this.sizeInfo.selectOffsetRight < this.$menu[0].offsetWidth - selectWidth);
+        this.$menu.toggleClass(classNames.MENURIGHT, this.sizeInfo.selectOffsetLeft > this.sizeInfo.selectOffsetRight && this.sizeInfo.selectOffsetRight < this.sizeInfo.totalMenuWidth - selectWidth);
       }
 
       this.$menu.css({
@@ -1651,7 +1868,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         'min-height': menuInnerMinHeight + 'px'
       });
 
-      this.sizeInfo['menuInnerHeight'] = menuInnerHeight;
+      this.sizeInfo.menuInnerHeight = menuInnerHeight;
 
       if (this.selectpicker.current.data.length && this.selectpicker.current.data[this.selectpicker.current.data.length - 1].position > this.sizeInfo.menuInnerHeight) {
         this.sizeInfo.hasScrollBar = true;
@@ -1680,12 +1897,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         this.$searchbox.off('input.setMenuSize propertychange.setMenuSize').on('input.setMenuSize propertychange.setMenuSize', function () {
           return that.setMenuSize();
         });
-        $window.off('resize.setMenuSize scroll.setMenuSize').on('resize.setMenuSize scroll.setMenuSize', function () {
+
+        $window.off('resize' + EVENT_KEY + '.' + this.selectId + '.setMenuSize' + ' scroll' + EVENT_KEY + '.' + this.selectId + '.setMenuSize').on('resize' + EVENT_KEY + '.' + this.selectId + '.setMenuSize' + ' scroll' + EVENT_KEY + '.' + this.selectId + '.setMenuSize', function () {
           return that.setMenuSize();
         });
       } else if (this.options.size && this.options.size != 'auto' && this.selectpicker.current.elements.length > this.options.size) {
         this.$searchbox.off('input.setMenuSize propertychange.setMenuSize');
-        $window.off('resize.setMenuSize scroll.setMenuSize');
+        $window.off('resize' + EVENT_KEY + '.' + this.selectId + '.setMenuSize' + ' scroll' + EVENT_KEY + '.' + this.selectId + '.setMenuSize');
       }
 
       if (refresh) {
@@ -1771,11 +1989,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
         // Bootstrap 4+ uses Popper for menu positioning
         if (version.major < 4 || display === 'static') {
-          containerPosition['top'] = pos.top - containerPos.top + actualHeight;
-          containerPosition['left'] = pos.left - containerPos.left;
+          containerPosition.top = pos.top - containerPos.top + actualHeight;
+          containerPosition.left = pos.left - containerPos.left;
         }
 
-        containerPosition['width'] = $element[0].offsetWidth;
+        containerPosition.width = $element[0].offsetWidth;
 
         that.$bsContainer.css(containerPosition);
       };
@@ -1790,11 +2008,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         that.$bsContainer.appendTo(that.options.container).toggleClass(classNames.SHOW, !that.$button.hasClass(classNames.SHOW)).append(that.$menu);
       });
 
-      $(window).on('resize scroll', function () {
-        getPlacement(that.$newElement);
+      $(window).off('resize' + EVENT_KEY + '.' + this.selectId + ' scroll' + EVENT_KEY + '.' + this.selectId).on('resize' + EVENT_KEY + '.' + this.selectId + ' scroll' + EVENT_KEY + '.' + this.selectId, function () {
+        var isActive = that.$newElement.hasClass(classNames.SHOW);
+
+        if (isActive) getPlacement(that.$newElement);
       });
 
-      this.$element.on('hide.bs.select', function () {
+      this.$element.on('hide' + EVENT_KEY, function () {
         that.$menu.data('height', that.$menu.height());
         that.$bsContainer.detach();
       });
@@ -1995,7 +2215,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         }
       }
 
-      this.$element.on('shown.bs.select', function () {
+      this.$element.on('shown' + EVENT_KEY, function () {
         if (that.$menuInner[0].scrollTop !== that.selectpicker.view.scrollTop) {
           that.$menuInner[0].scrollTop = that.selectpicker.view.scrollTop;
         }
@@ -2022,7 +2242,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
         e.preventDefault();
 
-        //Don't run if we have been disabled
+        // Don't run if the select is disabled
         if (!that.isDisabled() && !$this.parent().hasClass(classNames.DISABLED)) {
           var $options = that.$element.find('option'),
               $option = $options.eq(clickedIndex),
@@ -2095,13 +2315,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                   if (maxOptions && maxReached) {
                     $notify.append($('<div>' + maxTxt + '</div>'));
                     triggerChange = false;
-                    that.$element.trigger('maxReached.bs.select');
+                    that.$element.trigger('maxReached' + EVENT_KEY);
                   }
 
                   if (maxOptionsGrp && maxReachedGrp) {
                     $notify.append($('<div>' + maxTxtGrp + '</div>'));
                     triggerChange = false;
-                    that.$element.trigger('maxReachedGrp.bs.select');
+                    that.$element.trigger('maxReachedGrp' + EVENT_KEY);
                   }
 
                   setTimeout(function () {
@@ -2126,7 +2346,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           if (triggerChange) {
             if (prevValue != getSelectValues(that.$element[0]) && that.multiple || prevIndex != that.$element.prop('selectedIndex') && !that.multiple) {
               // $option.prop('selected') is current option state (selected/unselected). prevValue is the value of the select prior to being changed.
-              changed_arguments = [clickedIndex, $option.prop('selected'), prevValue];
+              changedArguments = [clickedIndex, $option.prop('selected'), prevValue];
               that.$element.triggerNative('change');
             }
           }
@@ -2183,8 +2403,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       this.$element.on({
         'change': function change() {
           that.render();
-          that.$element.trigger('changed.bs.select', changed_arguments);
-          changed_arguments = null;
+          that.$element.trigger('changed' + EVENT_KEY, changedArguments);
+          changedArguments = null;
         },
         'focus': function focus() {
           if (!that.options.mobile) that.$button.focus();
@@ -2194,7 +2414,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
     liveSearchListener: function liveSearchListener() {
       var that = this,
-          no_results = document.createElement('li');
+          noResults = document.createElement('li');
 
       this.$button.on('click.bs.dropdown.data-api', function () {
         if (!!that.$searchbox.val()) {
@@ -2222,6 +2442,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
               cacheArr = [],
               searchStyle = that._searchStyle(),
               normalizeSearch = that.options.liveSearchNormalize;
+
+          if (normalizeSearch) q = normalizeToBase(q);
 
           that._$lisSelected = that.$menuInner.find('.selected');
 
@@ -2271,9 +2493,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           that.createView(true);
 
           if (!searchMatch.length) {
-            no_results.className = 'no-results';
-            no_results.innerHTML = that.options.noneResultsText.replace('{0}', '"' + htmlEscape(searchValue) + '"');
-            that.$menuInner[0].firstChild.appendChild(no_results);
+            noResults.className = 'no-results';
+            noResults.innerHTML = that.options.noneResultsText.replace('{0}', '"' + htmlEscape(searchValue) + '"');
+            that.$menuInner[0].firstChild.appendChild(noResults);
           }
         } else {
           that.$menuInner.scrollTop(0);
@@ -2328,7 +2550,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
       this.togglePlaceholder();
 
-      changed_arguments = [null, null, prevValue];
+      changedArguments = [null, null, prevValue];
 
       this.$element.triggerNative('change');
     },
@@ -2573,7 +2795,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
       this.setSize(true);
 
-      this.$element.trigger('refreshed.bs.select');
+      this.$element.trigger('refreshed' + EVENT_KEY);
     },
 
     hide: function hide() {
@@ -2598,7 +2820,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         this.$menu.remove();
       }
 
-      this.$element.off('.bs.select').removeData('selectpicker').removeClass('bs-select-hidden selectpicker');
+      this.$element.off(EVENT_KEY).removeData('selectpicker').removeClass('bs-select-hidden selectpicker');
+
+      $(window).off(EVENT_KEY + '.' + this.selectId);
     }
   };
 
@@ -2618,9 +2842,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       // try to retreive it again
       try {
         version.full = ($.fn.dropdown.Constructor.VERSION || '').split(' ')[0].split('.');
-      }
-      // fall back to use BootstrapVersion
-      catch (err) {
+      } catch (err) {
+        // fall back to use BootstrapVersion
         version.full = Selectpicker.BootstrapVersion.split(' ')[0].split('.');
       }
 
@@ -2666,7 +2889,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     });
 
     if (typeof value !== 'undefined') {
-      //noinspection JSUnusedAssignment
+      // noinspection JSUnusedAssignment
       return value;
     } else {
       return chain;
@@ -2684,19 +2907,28 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     return this;
   };
 
-  $(document).off('keydown.bs.dropdown.data-api').on('keydown.bs.select', '.bootstrap-select [data-toggle="dropdown"], .bootstrap-select [role="listbox"], .bs-searchbox input', Selectpicker.prototype.keydown).on('focusin.modal', '.bootstrap-select [data-toggle="dropdown"], .bootstrap-select [role="listbox"], .bs-searchbox input', function (e) {
+  $(document).off('keydown.bs.dropdown.data-api').on('keydown' + EVENT_KEY, '.bootstrap-select [data-toggle="dropdown"], .bootstrap-select [role="listbox"], .bootstrap-select .bs-searchbox input', Selectpicker.prototype.keydown).on('focusin.modal', '.bootstrap-select [data-toggle="dropdown"], .bootstrap-select [role="listbox"], .bootstrap-select .bs-searchbox input', function (e) {
     e.stopPropagation();
   });
 
   // SELECTPICKER DATA-API
   // =====================
-  $(window).on('load.bs.select.data-api', function () {
+  $(window).on('load' + EVENT_KEY + '.data-api', function () {
     $('.selectpicker').each(function () {
       var $selectpicker = $(this);
       Plugin.call($selectpicker, $selectpicker.data());
     });
   });
 })(jQuery);
+
+/***/ }),
+
+/***/ 2:
+/***/ (function(module, exports, __webpack_require__) {
+
+__webpack_require__("./resources/js/common.js");
+module.exports = __webpack_require__("./resources/js/admin.js");
+
 
 /***/ })
 

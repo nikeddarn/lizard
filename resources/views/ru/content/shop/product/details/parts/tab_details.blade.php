@@ -2,10 +2,10 @@
     <table id="product-attributes-table" class="table table-bordered">
         <tbody>
 
-        @foreach($product->attributeValues as $attributeValue)
+        @foreach($productAttributes as $attribute)
             <tr>
-                <td>{{ $attributeValue->attribute->name }}</td>
-                <td>{{ $attributeValue->value }}</td>
+                <td>{{ $attribute->name }}</td>
+                <td>{{ implode(', ', $attribute->attributeValues->pluck('value_ru')->toArray()) }}</td>
             </tr>
         @endforeach
 

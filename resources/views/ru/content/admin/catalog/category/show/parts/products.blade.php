@@ -5,11 +5,21 @@
 
         <table class="table">
 
+            <thead>
+            <tr class="text-center">
+                <td class="d-none d-lg-table-cell"><strong>Изображение</strong></td>
+                <td class="d-none d-lg-table-cell"><strong>Id</strong></td>
+                <td><strong>Название</strong></td>
+                <td><strong>Поставщики</strong></td>
+                <td></td>
+            </tr>
+            </thead>
+
             <tbody>
 
             @foreach($products as $product)
 
-                <tr>
+                <tr class="text-center">
 
                     <td class="d-none d-lg-table-cell">
                         @if($product->primaryImage)
@@ -17,7 +27,17 @@
                         @endif
                     </td>
 
+                    <td class="d-none d-lg-table-cell">{{ $product->id }}</td>
+
                     <td>{{ $product->name }}</td>
+
+                    <td>
+                        @if($product->vendors->count())
+                            {{ implode(',', $product->vendors->pluck('name_ru')->toArray()) }}
+                        @else
+                            Собственный продукт
+                        @endif
+                    </td>
 
 
                     <td class="text-right">

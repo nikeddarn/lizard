@@ -41,7 +41,7 @@ class Brand extends Model
      */
     public function vendorBrands()
     {
-        return $this->hasMany('App\Models\VendorBrands', 'brands_id', 'id');
+        return $this->hasMany('App\Models\VendorBrand', 'brands_id', 'id');
     }
 
     /**

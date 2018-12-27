@@ -44,14 +44,6 @@ class Product extends Model
     }
 
     /**
-     * @return BelongsToMany
-     */
-    public function vendorCategories()
-    {
-        return $this->belongsToMany('App\Models\VendorCategory', 'vendor_products', 'products_id', 'vendor_categories_id');
-    }
-
-    /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function productImages()
@@ -108,11 +100,41 @@ class Product extends Model
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function availableStorageProducts()
+    {
+        return $this->hasMany('App\Models\StorageProduct', 'products_id', 'id')
+            ->where('storage_departments_id', '=', StorageDepartmentsInterface::STOCK)
+            ->where('available_quantity', '>', 0);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function expectingStorageProducts()
+    {
+        return $this->hasMany('App\Models\StorageProduct', 'products_id', 'id')
+            ->where('storage_departments_id', '=', StorageDepartmentsInterface::STOCK)
+            ->whereNotNull('available_time');
+    }
+
+    /**
      * @return BelongsToMany
      */
-    public function stockStorages()
+    public function storages()
     {
-        return $this->belongsToMany('App\Models\Storage', 'storage_products', 'products_id', 'storages_id')->wherePivot('storage_departments_id', '=', StorageDepartmentsInterface::STOCK)->withPivot('available_quantity', 'stock_quantity', 'available_time');
+        return $this->belongsToMany('App\Models\Storage', 'storage_products', 'products_id', 'storages_id');
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function availableProductStorages()
+    {
+        return $this->belongsToMany('App\Models\Storage', 'storage_products', 'products_id', 'storages_id')
+            ->where('storage_departments_id', '=', StorageDepartmentsInterface::STOCK)
+            ->wherePivot('available_quantity', '>', 0);
     }
 
     /**
@@ -176,6 +198,24 @@ class Product extends Model
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough|\Illuminate\Database\Query\Builder
+     */
+    public function availableVendorProducts()
+    {
+        return $this->hasMany('App\Models\VendorProduct', 'products_id', 'id')
+            ->where('available', '>', 0);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough|\Illuminate\Database\Query\Builder
+     */
+    public function expectingVendorProducts()
+    {
+        return $this->hasMany('App\Models\VendorProduct', 'products_id', 'id')
+            ->whereNotNull('available_time');
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function categoryProducts()
@@ -189,6 +229,14 @@ class Product extends Model
     public function brand()
     {
         return $this->belongsTo('App\Models\Brand', 'brands_id', 'id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function vendors()
+    {
+        return $this->belongsToMany('App\Models\Vendor', 'vendor_products', 'products_id', 'vendors_id');
     }
 
     /**

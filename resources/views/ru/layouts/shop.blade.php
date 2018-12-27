@@ -14,9 +14,6 @@
         @include('layouts.parts.headers.common.index')
     </header>
 
-    {{-- breadcrumbs --}}
-    @yield('breadcrumbs')
-
     <main class="flex-fill">
 
         <div class="container">

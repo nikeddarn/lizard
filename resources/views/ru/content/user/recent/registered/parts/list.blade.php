@@ -1,13 +1,7 @@
 @if($recentProducts->count())
 
     <table class="table table-cart table-wishlist">
-        <thead>
-        <tr>
-            <th scope="col" class="w-50">Товар</th>
-            <th scope="col" class="d-none d-sm-table-cell">Цена</th>
-            <th scope="col" class="text-center">Действие</th>
-        </tr>
-        </thead>
+
         <tbody>
 
         @foreach($recentProducts as $product)
@@ -28,7 +22,7 @@
                             @endif
                         </a>
 
-                        <div class="media-body">
+                        <div class="media-body align-self-center">
                             <a href="{{ route('shop.product.index', ['id' => $product->url]) }}"
                                class="h6">{{ $product->name }}</a>
                             <div class="mb-1">
@@ -45,13 +39,16 @@
 
                                 <div class="small mt-2 d-none d-sm-block">Наличие:</div>
 
-                                @if(isset($product->isProductAvailable) && $product->isProductAvailable)
-                                    <span class="badge badge-success custom-badge arrowed-right">На складе</span>
-                                @elseif(isset($product->isProductExpected) && $product->isProductExpected)
-                                    <span class="badge badge-secondary custom-badge arrowed-right">Ожидается</span>
-                                @else
-                                    <span class="badge badge-danger custom-badge arrowed-right">Нет в наличии</span>
-                                @endif
+                                    @if($product->isAvailable)
+                                        <span class="badge badge-success font-weight-normal smaller">Готов к отгрузке</span>
+                                    @elseif($product->isExpectedToday)
+                                        <span class="badge badge-success font-weight-normal smaller">Ожидается сегодня</span>
+                                    @elseif($product->expectedAt)
+                                        <span
+                                            class="badge badge-success font-weight-normal smaller">Ожидается {{ $product->expectedAt->diffForHumans() }}</span>
+                                    @else
+                                        <span class="badge badge-danger font-weight-normal smaller">Нет в наличии</span>
+                                    @endif
 
                             </div>
                         </div>

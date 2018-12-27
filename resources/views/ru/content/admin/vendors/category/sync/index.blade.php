@@ -8,7 +8,7 @@
         </div>
         @if(isset($vendorCategory))
             <div class="col-auto admin-content-actions">
-                <button type="submit" form="category-form" data-toggle="tooltip" title="Сохранить"
+                <button type="submit" form="sync-category-form" data-toggle="tooltip" title="Синхронизировать категорию"
                         class="btn btn-primary">
                     <i class="fa fa-save"></i></button>
                 <a href="{{ url()->previous() }}" data-toggle="tooltip" title="Отменить"

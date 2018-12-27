@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Shop;
 
+use App\Models\Attribute;
 use App\Models\Category;
 use App\Models\Product;
 use App\Support\ExchangeRates\ExchangeRates;
 use App\Support\ProductAvailability\ProductAvailability;
-use App\Support\ProductPrices\ProductPrice;
+use App\Support\ProductPrices\UserProductPrice;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use App\Http\Controllers\Controller;
@@ -24,7 +25,7 @@ class ProductDetailsController extends Controller
      */
     private $exchangeRates;
     /**
-     * @var ProductPrice
+     * @var UserProductPrice
      */
     private $productPrice;
     /**
@@ -35,27 +36,51 @@ class ProductDetailsController extends Controller
      * @var Category
      */
     private $category;
+    /**
+     * @var Attribute
+     */
+    private $attribute;
 
     /**
      * ProductDetailsController constructor.
      * @param Product $product
      * @param ExchangeRates $exchangeRates
-     * @param ProductPrice $productPrice
+     * @param UserProductPrice $productPrice
      * @param ProductAvailability $productAvailability
      * @param Category $category
+     * @param Attribute $attribute
      */
-    public function __construct(Product $product, ExchangeRates $exchangeRates, ProductPrice $productPrice, ProductAvailability $productAvailability, Category $category)
+    public function __construct(Product $product, ExchangeRates $exchangeRates, UserProductPrice $productPrice, ProductAvailability $productAvailability, Category $category, Attribute $attribute)
     {
         $this->product = $product;
         $this->exchangeRates = $exchangeRates;
         $this->productPrice = $productPrice;
         $this->productAvailability = $productAvailability;
         $this->category = $category;
+        $this->attribute = $attribute;
     }
 
     public function index(string $url)
     {
-        $product = $this->product->newQuery()->where('url', $url)->with('productImages', 'attributeValues.attribute')->firstOrFail();
+        // retrieve product
+        $product = $this->product->newQuery()->where('url', $url)
+            ->with('productImages', 'availableStorageProducts', 'expectingStorageProducts', 'availableVendorProducts', 'expectingVendorProducts', 'availableProductStorages.city')
+            ->firstOrFail();
+
+        // get product's id
+        $productId = $product->id;
+
+        // retrieve product's attributes
+        $productAttributes = $this->attribute->newQuery()
+            ->whereHas('attributeValues.productAttributes', function ($query) use ($productId) {
+                $query->where('products_id', $productId);
+            })
+            ->with(['attributeValues' => function ($query) use ($productId) {
+                $query->whereHas('productAttributes', function ($query) use ($productId) {
+                    $query->where('products_id', $productId);
+                });
+            }])
+            ->get();
 
         $this->addProductProperties($product);
 
@@ -65,7 +90,7 @@ class ProductDetailsController extends Controller
 
         $this->addProductToRecentViewed($product);
 
-        return view('content.shop/product.details.index')->with(compact('product', 'breadcrumbs', 'comments'));
+        return view('content.shop.product.details.index')->with(compact('product', 'breadcrumbs', 'comments', 'productAttributes'));
     }
 
     /**
@@ -80,22 +105,14 @@ class ProductDetailsController extends Controller
 
         // product prices
         $productPrice = $this->productPrice->getUsersProductPrice($product);
-        $product->price = $productPrice ? number_format($productPrice, 2, '.', ',') : null;
-        $product->localPrice = ($productPrice && $exchangeRate) ? number_format($productPrice * $exchangeRate, 0, '.', ',') : null;
+        $product->price = $productPrice ? $this->formatPrice($productPrice) : null;
+        $product->localPrice = ($productPrice && $exchangeRate) ? $this->formatPrice($productPrice * $exchangeRate, 0) : null;
 
         // product availability
-        $availableProductStorages = $this->productAvailability->getHavingProductStorages($product);
-        $product->productAvailableStorages = $availableProductStorages;
-        if (!$availableProductStorages->count()) {
-            $availableTime = $this->productAvailability->getProductAvailableTime($product);
-            if ($availableTime) {
-                if ($availableTime > Carbon::today()->addDay()) {
-                    $product->availableTime = $availableTime;
-                } else {
-                    $product->availableTime = true;
-                }
-            }
-        }
+        $productExpectedAt = $this->productAvailability->getProductExpectedTime($product);
+        $product->isAvailable = $this->productAvailability->isProductAvailable($product);
+        $product->expectedAt = $productExpectedAt;
+        $product->isExpectedToday = ($productExpectedAt && $productExpectedAt < Carbon::today()->addDay()) ? true : false;
 
         // defect rate
         if ($product->sold_quantity >= config('shop.min_quantity_to_show_rate.defect')) {
@@ -109,7 +126,7 @@ class ProductDetailsController extends Controller
     }
 
     /**
-     * @param Product $product
+     * @param Product|Model $product
      * @return void
      */
     private function addProductToRecentViewed(Product $product)
@@ -132,14 +149,14 @@ class ProductDetailsController extends Controller
     /**
      * Get breadcrumbs.
      *
-     * @param Product $product
+     * @param Product|Model $product
      * @return array
      */
     private function getBreadcrumbs(Product $product): array
     {
-        if (session()->has('product_category_id')){
+        if (session()->has('product_category_id')) {
             $categoryId = session()->get('product_category_id');
-        }else{
+        } else {
             $categoryId = $product->categories()->first()->id;
         }
 
@@ -154,5 +171,17 @@ class ProductDetailsController extends Controller
             ->pluck('href', 'name')->toArray();
 
         return $breadcrumbs;
+    }
+
+    /**
+     * Format product price.
+     *
+     * @param float $price
+     * @param int $decimals
+     * @return string
+     */
+    private function formatPrice(float $price, int $decimals = 2)
+    {
+        return number_format($price, $decimals, '.', ',');
     }
 }

@@ -12,13 +12,28 @@
 
         <div class="col-md-8 col-lg-9">
 
-            <div class="row">
+            <div class="shop-section-wrapper my-4">
 
-                <div class="col-lg-12 mb-4 my-md-4">
-                    <div class="underlined-title">
-                        <h1 class="h4 text-gray-lighter px-2">{{ $category->name }}</h1>
+                <div class="row align-items-center">
+                    <div class="col">
+                        @include('layouts.parts.breadcrumbs.shop.index')
                     </div>
+                    <div class="col-auto">
+                        <a href="" class="btn btn-icon rounded-pill btn-sm btn-primary ml-3">
+
+                        </a>
+                        <a href="" class="btn btn-icon rounded-pill btn-sm btn-primary ml-1">
+
+                        </a>
+                    </div>
+
                 </div>
+
+                {{--<div class="col-lg-12 mt-2 mb-4 my-md-4">--}}
+                    {{--<div class="underlined-title">--}}
+                        {{--<h1 class="h4 text-gray-lighter px-2">{{ $category->name }}</h1>--}}
+                    {{--</div>--}}
+                {{--</div>--}}
 
             </div>
 
@@ -44,37 +59,14 @@
 
 @endsection
 
-@section('breadcrumbs')
-
-    <div class="breadcrumb-wrapper">
-        <div class="container">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb py-2">
-                    <li class="breadcrumb-item"><a href="/">Главная</a></li>
-                    @foreach($breadcrumbs as $name => $href)
-                        @if ($loop->last)
-                            <li class="breadcrumb-item active" aria-current="page">{{ $name }}</li>
-                        @else
-                            <li class="breadcrumb-item">
-                                <a href="{{ $href }}">{{ $name }}</a>
-                            </li>
-                        @endif
-                    @endforeach
-                </ol>
-            </nav>
-        </div>
-    </div>
-
-@endsection
-
 @section('styles')
     <!-- bootstrap-touchspin -->
-    <link href="/css/jquery.bootstrap-touchspin.css" rel="stylesheet">
+    <link href="{{ url('/css/jquery.bootstrap-touchspin.css') }} " rel="stylesheet">
 @endsection
 
 @section('scripts')
     <!-- bootstrap-touchspin -->
-    <script src="/js/jquery.bootstrap-touchspin.js"></script>
+    <script src="{{ url('/js/jquery.bootstrap-touchspin.js') }}"></script>
 
     <script>
 

@@ -37,6 +37,10 @@
         </div>
 
         <div class="col-lg-12">
+            @include('content.admin.catalog.product.show.parts.vendors')
+        </div>
+
+        <div class="col-lg-12">
             @include('content.admin.catalog.product.show.parts.images')
         </div>
 
@@ -56,6 +60,15 @@
     <script>
 
         $(document).ready(function () {
+
+            $(".product-delete-form").submit(function (event) {
+                if (confirm('Удалить продукт ?')) {
+                    return true;
+                } else {
+                    event.preventDefault();
+                    return false;
+                }
+            });
 
             $(".product-image-delete-form").submit(function (event) {
                 if (confirm('Удалить изображение продукта ?')) {

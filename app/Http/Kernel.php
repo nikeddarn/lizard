@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\CacheControlHeaders;
 use App\Http\Middleware\Locale;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
@@ -39,6 +40,8 @@ class Kernel extends HttpKernel
 
             // set locale
             Locale::class,
+            // add cache control headers to each response
+            CacheControlHeaders::class,
         ],
 
         'api' => [

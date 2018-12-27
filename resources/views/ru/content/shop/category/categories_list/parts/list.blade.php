@@ -13,7 +13,7 @@
                     <a class="text-decoration-none" href="{{ $subcategory->isLeaf() ? route('shop.category.leaf.index', ['url' => $subcategory->url]) : route('shop.category.index', ['url' => $subcategory->url])}}">
                         <img class="card-img-top" src="/storage/{{ $subcategory->image }}">
                         <div class="card-body">
-                            <h4 class="card-title text-gray">{{ $subcategory->name }}</h4>
+                            <h4 class="card-title text-gray text-center">{{ $subcategory->name }}</h4>
                         </div>
                     </a>
                 </div>

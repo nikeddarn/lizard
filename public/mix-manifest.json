@@ -1,9 +1,8 @@
 {
-    "/js/app.js": "/js/app.js",
-    "/css/app.css": "/css/app.css",
-    "/css/lizard.css": "/css/lizard.css",
-    "/css/admin.css": "/css/admin.css",
-    "/js/admin.js": "/js/admin.js",
-    "/js/lizard.js": "/js/lizard.js",
-    "/js/common.js": "/js/common.js"
+    "/js/app.js": "/js/app.js?id=c11c9d71636425fa4ce9",
+    "/css/app.css": "/css/app.css?id=6a1071eabd7c5cf2b06a",
+    "/css/lizard.css": "/css/lizard.css?id=545a489fdd5eb0a5169e",
+    "/css/admin.css": "/css/admin.css?id=7312940396f39a06cac7",
+    "/js/admin.js": "/js/admin.js?id=f96a720aed0c2b1c6660",
+    "/js/lizard.js": "/js/lizard.js?id=cdb6127710ba549beb5c"
 }

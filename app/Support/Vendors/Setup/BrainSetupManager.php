@@ -10,7 +10,8 @@ use App\Contracts\Shop\AttributesInterface;
 use App\Contracts\Vendor\VendorInterface;
 use App\Models\Attribute;
 use App\Models\VendorStock;
-use App\Support\Vendors\Providers\BrainVendorProvider;
+use App\Support\Repositories\AttributeRepository;
+use App\Support\Vendors\Providers\BrainSetupProvider;
 use Exception;
 use Illuminate\Support\Str;
 
@@ -20,17 +21,23 @@ class BrainSetupManager
     const VENDOR_ID = VendorInterface::BRAIN;
 
     /**
-     * @var BrainVendorProvider
+     * @var BrainSetupProvider
      */
     private $vendorProvider;
+    /**
+     * @var AttributeRepository
+     */
+    private $attributeRepository;
 
     /**
      * BrainSetupManager constructor.
-     * @param BrainVendorProvider $vendorProvider
+     * @param BrainSetupProvider $vendorProvider
+     * @param AttributeRepository $attributeRepository
      */
-    public function __construct(BrainVendorProvider $vendorProvider)
+    public function __construct(BrainSetupProvider $vendorProvider, AttributeRepository $attributeRepository)
     {
         $this->vendorProvider = $vendorProvider;
+        $this->attributeRepository = $attributeRepository;
     }
 
     /**
@@ -52,7 +59,7 @@ class BrainSetupManager
     private function insertBrands()
     {
         // create attribute
-        $brandAttribute = Attribute::firstOrCreate([
+        $brandAttribute = Attribute::query()->firstOrCreate([
             'defined_attribute_id' => AttributesInterface::BRAND,
             'name_ru' => 'Бренд',
             'name_ua' => 'Бренд',
@@ -61,8 +68,46 @@ class BrainSetupManager
         // get vendor brands
         $vendorBrands = $this->vendorProvider->getBrands();
 
-        // create array of unique attribute values data keyed by vendor's original attribute value id
+        // prepare data
+        $attributeValuesData = $this->prepareBrandsData($vendorBrands);
+
+
+        // insert attribute values and attach it to vendor
+        foreach ($attributeValuesData as $vendorAttributeValueId => $attributeValueData) {
+
+            // retrieve attribute value by vendor brand id
+            $attributeValue = $this->attributeRepository->getAttributeValueByVendorId(self::VENDOR_ID, $vendorAttributeValueId);
+
+            // retrieve attribute value by data
+            if (!$attributeValue) {
+                $attributeValue = $this->attributeRepository->getAttributeValueByModelData($attributeValueData);
+            }
+
+            // create attribute value
+            if (!$attributeValue) {
+                $attributeValue = $brandAttribute->attributeValues()->create($attributeValueData);
+            }
+
+            // attach vendor with original attribute value id
+            $attributeValue->vendors()->syncWithoutDetaching([
+                self::VENDOR_ID => [
+                    'vendor_attribute_value_id' => $vendorAttributeValueId,
+                ]
+            ]);
+        }
+    }
+
+    /**
+     * Prepare brands data.
+     *
+     * @param array $vendorBrands
+     * @return array
+     */
+    private function prepareBrandsData(array $vendorBrands): array
+    {
+        // collect unique attribute values data keyed by vendor's original attribute value id
         $attributeValuesData = [];
+
         foreach ($vendorBrands as $vendorBrand) {
             $attributeValuesData[$vendorBrand->vendorID] = [
                 'value_ru' => $vendorBrand->name,
@@ -71,38 +116,20 @@ class BrainSetupManager
             ];
         }
 
-        // insert attribute values and attach it to vendor
-        foreach ($attributeValuesData as $vendorAttributeValueId => $attributeValueData) {
-            try {
-                // retrieve attribute value
-                $attributeValue = $brandAttribute->attributeValues()->where('value_ru', $attributeValueData['value_ru'])->orWhere('url', $attributeValueData['url'])->first();
-
-                // create attribute value
-                if (!$attributeValue) {
-                    $attributeValue = $brandAttribute->attributeValues()->create($attributeValueData);
-                }
-
-                // attach vendor with original attribute value id
-                $attributeValue->vendors()->attach(self::VENDOR_ID, [
-                    'vendor_attribute_value_id' => $vendorAttributeValueId,
-                ]);
-            } catch (Exception $exception) {
-                throw $exception;
-            }
-
-        }
+        return $attributeValuesData;
     }
 
     /**
      * Insert stocks.
+     *
      * @throws Exception
      */
     private function insertStocks()
     {
         $vendorStocks = $this->vendorProvider->getStocks();
 
-        foreach ($vendorStocks as $stock){
-            VendorStock::firstOrCreate([
+        foreach ($vendorStocks as $stock) {
+            VendorStock::query()->firstOrCreate([
                 'vendors_id' => self::VENDOR_ID,
                 'vendor_stock_id' => $stock->stockID,
                 'name_ru' => $stock->name,

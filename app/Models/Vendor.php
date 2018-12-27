@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Contracts\Vendor\SyncTypeInterface;
 use App\Models\Support\Translatable;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class Vendor extends Model
@@ -78,10 +80,58 @@ class Vendor extends Model
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function synchronizingProducts()
+    {
+        return $this->hasMany('App\Models\SynchronizingProduct', 'vendors_id', 'id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function insertingProducts()
+    {
+        return $this->hasMany('App\Models\SynchronizingProduct', 'vendors_id', 'id')
+            ->where('sync_type', SyncTypeInterface::INSERT_PRODUCT);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function updatingProducts()
+    {
+        return $this->hasMany('App\Models\SynchronizingProduct', 'vendors_id', 'id')
+            ->where('sync_type', SyncTypeInterface::UPDATE_PRODUCT)->groupBy('vendor_product_id');
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function brands()
     {
         return $this->belongsToMany('App\Models\Brand', 'vendor_brands', 'vendors_id', 'brands_id');
+    }
+
+    /**
+     * Transform timestamp to carbon.
+     *
+     * @param  string  $value
+     * @return string
+     */
+    public function getSyncPricesAtAttribute($value)
+    {
+        return $value ? Carbon::createFromFormat('Y-m-d H:i:s', $value) : null;
+    }
+
+    /**
+     * Transform timestamp to carbon.
+     *
+     * @param  string  $value
+     * @return string
+     */
+    public function getSyncNewProductsAtAttribute($value)
+    {
+        return $value ? Carbon::createFromFormat('Y-m-d H:i:s', $value) : null;
     }
 }

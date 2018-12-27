@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Models\FavouriteProduct;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
-use App\Models\RecentProduct;
 use App\Support\ExchangeRates\ExchangeRates;
 use App\Support\ProductAvailability\ProductAvailability;
-use App\Support\ProductPrices\ProductPrice;
-use Illuminate\Http\Request;
+use App\Support\ProductPrices\UserProductPrice;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Str;
@@ -25,7 +23,7 @@ class RecentProductController extends Controller
      */
     private $exchangeRates;
     /**
-     * @var ProductPrice
+     * @var UserProductPrice
      */
     private $productPrice;
     /**
@@ -37,10 +35,10 @@ class RecentProductController extends Controller
      * FavouriteProductController constructor.
      * @param Product $product
      * @param ExchangeRates $exchangeRates
-     * @param ProductPrice $productPrice
+     * @param UserProductPrice $productPrice
      * @param ProductAvailability $productAvailability
      */
-    public function __construct(Product $product, ExchangeRates $exchangeRates, ProductPrice $productPrice, ProductAvailability $productAvailability)
+    public function __construct(Product $product, ExchangeRates $exchangeRates, UserProductPrice $productPrice, ProductAvailability $productAvailability)
     {
         $this->product = $product;
         $this->exchangeRates = $exchangeRates;
@@ -57,20 +55,23 @@ class RecentProductController extends Controller
     {
 
         if (auth('web')->check()) {
-            $recentProducts = $this->product->newQuery()->whereHas('recentProducts', function ($query) {
+            $recentProductsQuery = $this->product->newQuery()->whereHas('recentProducts', function ($query) {
                 $query->where('users_id', auth('web')->id());
-            })->with('primaryImage')->get();
+            });
 
             $view = view('content.user.recent.registered.index');
         } else {
             $uuid = Cookie::get('uuid', Str::uuid());
 
-            $recentProducts = $this->product->newQuery()->whereHas('recentProducts', function ($query) use ($uuid) {
+            $recentProductsQuery = $this->product->newQuery()->whereHas('recentProducts', function ($query) use ($uuid) {
                 $query->where('uuid', $uuid);
-            })->get();
+            });
 
             $view = view('content.user.recent.unregistered.index');
         }
+
+        $recentProducts = $recentProductsQuery->with('primaryImage', 'availableStorageProducts', 'expectingStorageProducts', 'availableVendorProducts', 'expectingVendorProducts')
+            ->get();
 
         $this->addProductsProperties($recentProducts);
 
@@ -89,16 +90,26 @@ class RecentProductController extends Controller
         foreach ($products as $product) {
             // product prices
             $productPrice = $this->productPrice->getUsersProductPrice($product);
-            $product->price = $productPrice ? number_format($productPrice, 2, '.', ',') : null;
-            $product->localPrice = ($productPrice && $exchangeRate) ? number_format($productPrice * $exchangeRate, 0, '.', ',') : null;
+            $product->price = $productPrice ? $this->formatPrice($productPrice) : null;
+            $product->localPrice = ($productPrice && $exchangeRate) ? $this->formatPrice($productPrice * $exchangeRate, 0) : null;
 
-            // product storages
-            $isProductAvailable = $this->productAvailability->getHavingProductStorages($product)->count();
-            $product->isProductAvailable = $isProductAvailable;
-            // product arrival time
-            if (!$isProductAvailable) {
-                $product->isProductExpected = (bool)$this->productAvailability->getProductAvailableTime($product);
-            }
+            // product availability
+            $productExpectedAt = $this->productAvailability->getProductExpectedTime($product);
+            $product->isAvailable = $this->productAvailability->isProductAvailable($product);
+            $product->expectedAt = $productExpectedAt;
+            $product->isExpectedToday = ($productExpectedAt && $productExpectedAt < Carbon::today()->addDay()) ? true : false;
         }
+    }
+
+    /**
+     * Format product price.
+     *
+     * @param float $price
+     * @param int $decimals
+     * @return string
+     */
+    private function formatPrice(float $price, int $decimals = 2)
+    {
+        return number_format($price, $decimals, '.', ',');
     }
 }

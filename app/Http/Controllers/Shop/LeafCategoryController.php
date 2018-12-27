@@ -7,7 +7,7 @@ use App\Models\Attribute;
 use App\Models\Category;
 use App\Support\ExchangeRates\ExchangeRates;
 use App\Support\ProductAvailability\ProductAvailability;
-use App\Support\ProductPrices\ProductPrice;
+use App\Support\ProductPrices\UserProductPrice;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -25,7 +25,7 @@ class LeafCategoryController extends Controller
      */
     private $exchangeRates;
     /**
-     * @var ProductPrice
+     * @var UserProductPrice
      */
     private $productPrice;
     /**
@@ -41,11 +41,11 @@ class LeafCategoryController extends Controller
      * CategoryController constructor.
      * @param Category $category
      * @param ExchangeRates $exchangeRates
-     * @param ProductPrice $productPrice
+     * @param UserProductPrice $productPrice
      * @param ProductAvailability $productAvailability
      * @param Attribute $attribute
      */
-    public function __construct(Category $category, ExchangeRates $exchangeRates, ProductPrice $productPrice, ProductAvailability $productAvailability, Attribute $attribute)
+    public function __construct(Category $category, ExchangeRates $exchangeRates, UserProductPrice $productPrice, ProductAvailability $productAvailability, Attribute $attribute)
     {
         $this->category = $category;
         $this->exchangeRates = $exchangeRates;
@@ -91,7 +91,7 @@ class LeafCategoryController extends Controller
     private function getProducts(Category $category): LengthAwarePaginator
     {
         $products = $category->products()
-            ->with('primaryImage', 'productImages', 'actualBadges')
+            ->with('primaryImage', 'productImages', 'actualBadges', 'availableStorageProducts', 'expectingStorageProducts', 'availableVendorProducts', 'expectingVendorProducts', 'availableProductStorages.city')
             ->paginate(config('shop.show_items_per_page'));
 
         $exchangeRate = $this->exchangeRates->getRate();
@@ -99,23 +99,14 @@ class LeafCategoryController extends Controller
         foreach ($products as $product) {
             // product prices
             $productPrice = $this->productPrice->getUsersProductPrice($product);
-            $product->price = $productPrice ? number_format($productPrice, 2, '.', ',') : null;
-            $product->localPrice = ($productPrice && $exchangeRate) ? number_format($productPrice * $exchangeRate, 0, '.', ',') : null;
+            $product->price = $productPrice ? $this->formatPrice($productPrice) : null;
+            $product->localPrice = ($productPrice && $exchangeRate) ? $this->formatPrice($productPrice * $exchangeRate, 0) : null;
 
-            // product storages
-            $availableProductStorages = $this->productAvailability->getHavingProductStorages($product);
-            $product->productAvailableStorages = $availableProductStorages;
-            // product arrival time
-            if (!$availableProductStorages->count()) {
-                $availableTime = $this->productAvailability->getProductAvailableTime($product);
-                if ($availableTime) {
-                    if ($availableTime > Carbon::today()->addDay()) {
-                        $product->availableTime = $availableTime;
-                    } else {
-                        $product->availableTime = true;
-                    }
-                }
-            }
+            // product availability
+            $productExpectedAt = $this->productAvailability->getProductExpectedTime($product);
+            $product->isAvailable = $this->productAvailability->isProductAvailable($product);
+            $product->expectedAt = $productExpectedAt;
+            $product->isExpectedToday = ($productExpectedAt && $productExpectedAt < Carbon::today()->addDay()) ? true : false;
         }
 
         return $products;
@@ -162,14 +153,26 @@ class LeafCategoryController extends Controller
     {
         $breadcrumbs = $this->category->newQuery()->ancestorsAndSelf($category->id)
             ->each(function (Category $category) {
-                if ($category->isLeaf()){
-                    $category->href = route('shop.category.leaf.index', ['url' =>$category->url]);
-                }else{
-                    $category->href = route('shop.category.index', ['url' =>$category->url]);
+                if ($category->isLeaf()) {
+                    $category->href = route('shop.category.leaf.index', ['url' => $category->url]);
+                } else {
+                    $category->href = route('shop.category.index', ['url' => $category->url]);
                 }
             })
             ->pluck('href', 'name')->toArray();
 
         return $breadcrumbs;
+    }
+
+    /**
+     * Format product price.
+     *
+     * @param float $price
+     * @param int $decimals
+     * @return string
+     */
+    private function formatPrice(float $price, int $decimals = 2)
+    {
+        return number_format($price, $decimals, '.', ',');
     }
 }

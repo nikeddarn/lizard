@@ -7,7 +7,8 @@
             <td class="d-none d-lg-table-cell"><strong>Изображение</strong></td>
             <td class="d-none d-lg-table-cell"><strong>Id</strong></td>
             <td><strong>Название</strong></td>
-            <td><strong>Категории</strong></td>
+            <td><strong>Размещен в категориях</strong></td>
+            <td><strong>Поставщики</strong></td>
             <td></td>
         </tr>
         </thead>
@@ -17,7 +18,7 @@
 
         @foreach($products as $product)
 
-            <tr>
+            <tr class="text-center">
 
                 <td class="d-none d-lg-table-cell">
                     @if($product->primaryImage)
@@ -25,13 +26,19 @@
                     @endif
                 </td>
 
-                <td class="d-none d-lg-table-cell text-center">{{ $product->id }}</td>
+                <td class="d-none d-lg-table-cell">{{ $product->id }}</td>
 
                 <td>{{ $product->name }}</td>
 
                 <td>
                     @foreach($product->categories as $category)
                         <a class="d-block" href="{{ route('admin.categories.show', ['id' => $category->id]) }}">{{ $category->name }}</a>
+                    @endforeach
+                </td>
+
+                <td>
+                    @foreach($product->vendors as $vendor)
+                        <div>{{ $vendor->name_ru }}</div>
                     @endforeach
                 </td>
 

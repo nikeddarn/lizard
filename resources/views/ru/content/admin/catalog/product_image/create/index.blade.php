@@ -30,7 +30,7 @@
     @endif
 
     <div class="row">
-        <div class="col-lg-12">
+        <div class="col-sm-8">
 
             <form id="product-image-form" method="post" action="{{ route('admin.products.image.store') }}" role="form"
                   enctype="multipart/form-data">

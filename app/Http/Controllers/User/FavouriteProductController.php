@@ -7,7 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Support\ExchangeRates\ExchangeRates;
 use App\Support\ProductAvailability\ProductAvailability;
-use App\Support\ProductPrices\ProductPrice;
+use App\Support\ProductPrices\UserProductPrice;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cookie;
@@ -32,7 +33,7 @@ class FavouriteProductController extends Controller
      */
     private $exchangeRates;
     /**
-     * @var ProductPrice
+     * @var UserProductPrice
      */
     private $productPrice;
     /**
@@ -46,10 +47,10 @@ class FavouriteProductController extends Controller
      * @param FavouriteProduct $favouriteProduct
      * @param Product $product
      * @param ExchangeRates $exchangeRates
-     * @param ProductPrice $productPrice
+     * @param UserProductPrice $productPrice
      * @param ProductAvailability $productAvailability
      */
-    public function __construct(Request $request, FavouriteProduct $favouriteProduct, Product $product, ExchangeRates $exchangeRates, ProductPrice $productPrice, ProductAvailability $productAvailability)
+    public function __construct(Request $request, FavouriteProduct $favouriteProduct, Product $product, ExchangeRates $exchangeRates, UserProductPrice $productPrice, ProductAvailability $productAvailability)
     {
         $this->request = $request;
         $this->favouriteProduct = $favouriteProduct;
@@ -66,22 +67,26 @@ class FavouriteProductController extends Controller
      */
     public function index()
     {
-
         if (auth('web')->check()) {
-            $favouriteProducts = $this->product->newQuery()->whereHas('favouriteProducts', function ($query) {
-                $query->where('users_id', auth('web')->id());
-            })->with('primaryImage')->get();
+            $favouriteProductsQuery = $this->product->newQuery()
+                ->whereHas('favouriteProducts', function ($query) {
+                    $query->where('users_id', auth('web')->id());
+                });
 
             $view = view('content.user.favourite.registered.index');
         } else {
             $uuid = Cookie::get('uuid', Str::uuid());
 
-            $favouriteProducts = $this->product->newQuery()->whereHas('favouriteProducts', function ($query) use ($uuid) {
-                $query->where('uuid', $uuid);
-            })->get();
+            $favouriteProductsQuery = $this->product->newQuery()
+                ->whereHas('favouriteProducts', function ($query) use ($uuid) {
+                    $query->where('uuid', $uuid);
+                });
 
             $view = view('content.user.favourite.unregistered.index');
         }
+
+        $favouriteProducts = $favouriteProductsQuery->with('primaryImage', 'availableStorageProducts', 'expectingStorageProducts', 'availableVendorProducts', 'expectingVendorProducts')
+            ->get();
 
         $this->addProductsProperties($favouriteProducts);
 
@@ -173,16 +178,26 @@ class FavouriteProductController extends Controller
         foreach ($products as $product) {
             // product prices
             $productPrice = $this->productPrice->getUsersProductPrice($product);
-            $product->price = $productPrice ? number_format($productPrice, 2, '.', ',') : null;
-            $product->localPrice = ($productPrice && $exchangeRate) ? number_format($productPrice * $exchangeRate, 0, '.', ',') : null;
+            $product->price = $productPrice ? $this->formatPrice($productPrice) : null;
+            $product->localPrice = ($productPrice && $exchangeRate) ? $this->formatPrice($productPrice * $exchangeRate, 0) : null;
 
-            // product storages
-            $isProductAvailable = $this->productAvailability->getHavingProductStorages($product)->count();
-            $product->isProductAvailable = $isProductAvailable;
-            // product arrival time
-            if (!$isProductAvailable) {
-                $product->isProductExpected = (bool)$this->productAvailability->getProductAvailableTime($product);
-            }
+            // product availability
+            $productExpectedAt = $this->productAvailability->getProductExpectedTime($product);
+            $product->isAvailable = $this->productAvailability->isProductAvailable($product);
+            $product->expectedAt = $productExpectedAt;
+            $product->isExpectedToday = ($productExpectedAt && $productExpectedAt < Carbon::today()->addDay()) ? true : false;
         }
+    }
+
+    /**
+     * Format product price.
+     *
+     * @param float $price
+     * @param int $decimals
+     * @return string
+     */
+    private function formatPrice(float $price, int $decimals = 2)
+    {
+        return number_format($price, $decimals, '.', ',');
     }
 }

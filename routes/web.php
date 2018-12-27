@@ -18,7 +18,7 @@ Route::get('/setup/vendors', 'Setup\SetupController@setupVendors');
 
 Route::get('/language/{locale}', 'LocaleController@switchLocale')->name('language');
 
-Route::get('/', 'MainPageController@show');
+Route::get('/', 'MainPageController@show')->name('main');
 
 
 // --------------------------------------------- Auth Routes ---------------------------------------------------------
@@ -138,12 +138,12 @@ Route::middleware('auth.admin')->group(function () {
     Route::delete('/admin/products/category/destroy', 'Admin\ProductCategoryController@destroy')->name('admin.products.category.destroy');
 
     // brands
-    Route::get('/admin/brands', 'Admin\BrandController@index')->name('admin.brands.index');
-    Route::get('/admin/brands/create', 'Admin\BrandController@create')->name('admin.brands.create');
-    Route::post('/admin/brands', 'Admin\BrandController@store')->name('admin.brands.store');
-    Route::get('/admin/brands/{id}/edit', 'Admin\BrandController@edit')->name('admin.brands.edit');
-    Route::put('/admin/brands/{id}', 'Admin\BrandController@update')->name('admin.brands.update');
-    Route::delete('/admin/brands/{id}', 'Admin\BrandController@destroy')->name('admin.brands.destroy');
+//    Route::get('/admin/brands', 'Admin\BrandController@index')->name('admin.brands.index');
+//    Route::get('/admin/brands/create', 'Admin\BrandController@create')->name('admin.brands.create');
+//    Route::post('/admin/brands', 'Admin\BrandController@store')->name('admin.brands.store');
+//    Route::get('/admin/brands/{id}/edit', 'Admin\BrandController@edit')->name('admin.brands.edit');
+//    Route::put('/admin/brands/{id}', 'Admin\BrandController@update')->name('admin.brands.update');
+//    Route::delete('/admin/brands/{id}', 'Admin\BrandController@destroy')->name('admin.brands.destroy');
 
     // attributes
     Route::get('/admin/attributes', 'Admin\AttributeController@index')->name('admin.attributes.index');
@@ -194,6 +194,8 @@ Route::middleware('auth.admin')->group(function () {
     // categories
     Route::get('/admin/vendor/{vendorId}/categories', 'Vendor\VendorCategoryController@index')->name('vendor.categories.index');
 
+    Route::get('/admin/categories/synchronized', 'Vendor\VendorCategoryController@synchronized')->name('vendor.categories.synchronized');
+
     Route::get('/admin/vendor/{vendorId}/category/{vendorOwnCategoryId}/sync', 'Vendor\VendorCategoryController@sync')->name('vendor.category.sync');
     Route::post('/admin/vendor/category/link', 'Vendor\VendorCategoryController@link')->name('vendor.category.link');
     Route::delete('/admin/vendor/category/unlink', 'Vendor\VendorCategoryController@unlink')->name('vendor.category.unlink');
@@ -207,8 +209,18 @@ Route::middleware('auth.admin')->group(function () {
 
     Route::post('/admin/vendor/category/products/upload', 'Vendor\VendorProductController@upload')->name('vendor.category.products.upload');
     Route::post('/admin/vendor/category/products/upload/all', 'Vendor\VendorProductController@uploadAll')->name('vendor.category.products.upload.all');
+    Route::post('/admin/vendor/category/products/uploaded', 'Vendor\VendorProductController@uploaded')->name('vendor.category.products.uploaded');
 });
 
+// ---------------------------------------------- Synchronization Routes -----------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+
+Route::middleware('auth.admin')->group(function () {
+
+    Route::get('/admin/synchronization', 'Vendor\VendorSynchronizationController@index')->name('vendor.synchronization.index');
+    Route::get('/admin/synchronization/sync/{vendorId}', 'Vendor\VendorSynchronizationController@synchronize')->name('vendor.synchronization.synchronize');
+
+});
 
 // --------------------------------------------- Shop Routes -----------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------

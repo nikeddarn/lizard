@@ -16,13 +16,33 @@ use Exception;
 class SetupController extends Controller
 {
     /**
+     * @var User
+     */
+    private $user;
+    /**
+     * @var City
+     */
+    private $city;
+
+    /**
+     * SetupController constructor.
+     * @param User $user
+     * @param City $city
+     */
+    public function __construct(User $user, City $city)
+    {
+        $this->user = $user;
+        $this->city = $city;
+    }
+
+    /**
      * Setup the app.
      */
     public function setup()
     {
         $this->fillLibraries();
         $this->insertRootUser();
-        $this->insertMainStorage();
+        $this->insertLocalStorages();
         $this->insertVendors();
 
         return view('elements.setup.setup_complete');
@@ -33,7 +53,7 @@ class SetupController extends Controller
      *
      * @param Vendor $vendor
      * @param VendorBroker $vendorBroker
-     * @return $this|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return \Illuminate\View\View
      */
     public function setupVendors(Vendor $vendor, VendorBroker $vendorBroker)
     {
@@ -58,15 +78,15 @@ class SetupController extends Controller
     private function fillLibraries()
     {
         foreach (require app_path('Http/Controllers/Setup/Libraries/roles.php') as $role) {
-            Role::firstOrNew($role)->save();
+            Role::query()->firstOrCreate($role);
         }
 
         foreach (require app_path('Http/Controllers/Setup/Libraries/storage_departments.php') as $department) {
-            StorageDepartment::firstOrNew($department)->save();
+            StorageDepartment::query()->firstOrCreate($department);
         }
 
         foreach (require app_path('Http/Controllers/Setup/Libraries/product_badges.php') as $badge) {
-            Badge::firstOrNew($badge)->save();
+            Badge::query()->firstOrCreate($badge);
         }
     }
 
@@ -78,7 +98,7 @@ class SetupController extends Controller
     private function insertRootUser()
     {
         // create root user
-        $user = User::firstOrNew([
+        $user = $this->user->newQuery()->firstOrNew([
             'name' => 'Nikeddarn',
             'email' => 'nikeddarn@gmail.com',
         ]);
@@ -87,7 +107,7 @@ class SetupController extends Controller
         $user->save();
 
         // attach roles to root user
-        $user->roles()->sync([
+        $user->roles()->syncWithoutDetaching([
             RoleInterface::ADMIN,
             RoleInterface::USER_MANAGER,
             RoleInterface::VENDOR_MANAGER,
@@ -96,28 +116,27 @@ class SetupController extends Controller
         ]);
     }
 
-    private function insertMainStorage()
+    /**
+     * Insert local storages.
+     */
+    private function insertLocalStorages()
     {
-        $city = City::firstOrNew([
+        $city = $this->city->newQuery()->firstOrCreate([
             'name_ru' => 'Киев',
             'name_ua' => 'Київ',
         ]);
 
-        $city->save();
-
-        $storage = $city->storages()->firstOrNew([
+        $city->storages()->firstOrCreate([
             'name_ru' => 'Лукьяновка',
             'name_ua' => 'Лук\'янівка',
             'primary' => 1,
         ]);
-
-        $storage->save();
     }
 
     private function insertVendors()
     {
         foreach (require app_path('Http/Controllers/Setup/Libraries/vendors.php') as $vendor) {
-            Vendor::firstOrNew($vendor)->save();
+            Vendor::query()->firstOrCreate($vendor);
         }
     }
 }

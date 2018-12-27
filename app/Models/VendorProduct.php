@@ -21,13 +21,6 @@ class VendorProduct extends Model
     protected $guarded = [];
 
     /**
-     * Indicates if the model should be timestamped.
-     *
-     * @var bool
-     */
-    public $timestamps = false;
-
-    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function vendorCategories()

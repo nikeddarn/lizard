@@ -10,13 +10,11 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Filter;
 use App\Models\Product;
+use App\Support\ImageHandlers\ProductImageHandler;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\File;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Storage;
-use Intervention\Image\Facades\Image;
 
 class ProductController extends Controller
 {
@@ -68,7 +66,7 @@ class ProductController extends Controller
     {
         $this->authorize('view', $this->product);
 
-        $products = $this->product->newQuery()->with('categories', 'primaryImage')->paginate(config('admin.show_items_per_page'));
+        $products = $this->product->newQuery()->with('categories', 'primaryImage', 'vendors')->paginate(config('admin.show_items_per_page'));
 
         return view('content.admin.catalog.product.list.index')->with([
             'products' => $products,
@@ -92,7 +90,7 @@ class ProductController extends Controller
         $attributes = $this->attribute->newQuery()
             ->has('attributeValues')
             ->orderBy("name_$locale")
-            ->with(['attributeValues' => function($query) use ($locale) {
+            ->with(['attributeValues' => function ($query) use ($locale) {
                 $query->orderBy("value_$locale")->select(['id', 'attributes_id', "value_$locale as name"]);
             }])
             ->get()
@@ -114,10 +112,11 @@ class ProductController extends Controller
      * Store a newly created resource in storage.
      *
      * @param CreateProductRequest $request
+     * @param ProductImageHandler $imageHandler
      * @return \Illuminate\Http\Response
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function store(CreateProductRequest $request)
+    public function store(CreateProductRequest $request, ProductImageHandler $imageHandler)
     {
         $this->authorize('create', $this->attribute);
 
@@ -138,7 +137,7 @@ class ProductController extends Controller
 
         // insert images
         if ($request->has('image')) {
-            $this->insertProductImages($request, $product);
+            $this->insertProductImages($imageHandler, $request, $product);
         }
 
         // insert attributes
@@ -185,7 +184,7 @@ class ProductController extends Controller
     {
         $this->authorize('view', $this->product);
 
-        $product = $this->product->newQuery()->with('productImages', 'productAttributes.attributeValue.attribute', 'filters', 'categories', 'brand')->findOrFail($id);
+        $product = $this->product->newQuery()->with('productImages', 'productAttributes.attributeValue.attribute', 'filters', 'categories', 'brand', 'vendors')->findOrFail($id);
 
         return view('content.admin.catalog.product.show.index')->with(compact('product'));
     }
@@ -252,14 +251,23 @@ class ProductController extends Controller
      * Remove the specified resource from storage.
      *
      * @param string $id
+     * @param ProductImageHandler $imageHandler
      * @return \Illuminate\Http\Response
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Exception
      */
-    public function destroy(string $id)
+    public function destroy(string $id, ProductImageHandler $imageHandler)
     {
         $this->authorize('delete', $this->product);
 
-        $this->product->newQuery()->findOrFail($id)->delete();
+        // retrieve product
+        $product = $this->product->newQuery()->findOrFail($id);
+
+        // remove product images from storage
+        $imageHandler->deleteProductImage($id);
+
+        // delete product
+        $product->delete();
 
         return redirect(route('admin.products.index'));
     }
@@ -268,10 +276,11 @@ class ProductController extends Controller
      * Store image on public disk. Return image url.
      *
      * @param Request $request
+     * @param ProductImageHandler $imageHandler
      * @return string
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function uploadImage(Request $request)
+    public function uploadImage(Request $request, ProductImageHandler $imageHandler)
     {
         if (!($request->ajax() && $request->hasFile('image'))) {
             return abort(405);
@@ -279,73 +288,26 @@ class ProductController extends Controller
 
         $this->validate($request, ['image' => 'image']);
 
-        return '/storage/' . $request->image->store('images/products/content', 'public');
+        return '/storage/' . $imageHandler->insertProductDescriptionImage($request->image);
     }
 
     /**
      * Create and store images.
      *
+     * @param ProductImageHandler $imageHandler
      * @param CreateProductRequest $request
      * @param Product|Model $product
      */
-    public function insertProductImages(CreateProductRequest $request, Product $product)
+    public function insertProductImages(ProductImageHandler $imageHandler, CreateProductRequest $request, Product $product)
     {
         $priorityImageIndex = (int)$request->get('priority');
 
         foreach ($request->image as $index => $image) {
-
-            $imagesDirectory = 'images/products/' . $product->id . '/';
-
-            // original image
-            $productImage['image'] = Storage::disk('public')->putFile($imagesDirectory, new File($image->getPathName()));
-
-            // small image
-            $productImage['small'] = $imagesDirectory . uniqid() . '.jpg';
-            Storage::disk('public')->put($productImage['small'], $this->createImage($image, config('shop.images.products.small'))->stream('jpg', 100));
-
-            // medium image
-            $productImage['medium'] = $imagesDirectory . uniqid() . '.jpg';
-            Storage::disk('public')->put($productImage['medium'], $this->createImage($image, config('shop.images.products.medium'))->stream('jpg', 100));
-
-            // large image
-            $productImage['large'] = $imagesDirectory . uniqid() . '.jpg';
-            Storage::disk('public')->put($productImage['large'], $this->createImage($image, config('shop.images.products.large'))->stream('jpg', 100));
-
             // image priority
-            $productImage['priority'] = $index === $priorityImageIndex ? 1 : 0;
+            $priority = $index === $priorityImageIndex ? 1 : 0;
 
-            $product->productImages()->create($productImage);
+            // create product images
+            $imageHandler->insertProductImage($product, $image, $priority);
         }
-    }
-
-    /**
-     * Create image.
-     *
-     * @param $image
-     * @param $imageSizes
-     * @return mixed
-     */
-    private function createImage($image, $imageSizes)
-    {
-        $createdImage = Image::make($image);
-        $createdImage->resize($imageSizes['w'], $imageSizes['h']);
-
-        if (config('shop.images.products.watermark')) {
-
-            $watermarkConfig = config('shop.images.watermark');
-
-            $imageText = config('app.name');
-            $baseX = $imageSizes['w'] * $watermarkConfig['baseX'];
-            $baseY = $imageSizes['h'] * $watermarkConfig['baseY'];
-            $fontSize = ($imageSizes['w'] - $baseX * 2) / strlen($imageText) * 2;
-
-            $createdImage->text($imageText, $baseX, $baseY, function ($font) use ($watermarkConfig, $fontSize) {
-                $font->file(public_path($watermarkConfig['font']));
-                $font->size($fontSize);
-                $font->color($watermarkConfig['color']);
-            });
-        }
-
-        return $createdImage;
     }
 }

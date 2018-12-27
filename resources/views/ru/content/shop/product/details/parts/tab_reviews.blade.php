@@ -2,7 +2,7 @@
 
     @foreach($comments as $comment)
 
-        <div class="product-comment media mb-4">
+        <div class="product-comment media mb-5">
 
             <div class="media-left mr-4">
 
@@ -36,6 +36,7 @@
                     @else
                         <strong>{{ $comment->name }}</strong>
                     @endif
+                    <small class="ml-4">{{ $comment->updated_at->diffForHumans() }}</small>
                 </h5>
 
                 <div>{{ $comment->comment }}</div>

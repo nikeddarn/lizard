@@ -9,31 +9,50 @@
 namespace App\Support\ProductAvailability;
 
 
-use App\Contracts\Shop\StorageDepartmentsInterface;
 use App\Models\Product;
 use Carbon\Carbon;
 
 class ProductAvailability
 {
-    public function getHavingProductStorages(Product $product)
+    /**
+     * Is product available on any local or vendor storages.
+     *
+     * @param Product $product
+     * @return bool
+     */
+    public function isProductAvailable(Product $product): bool
     {
-        return $product->stockStorages()->wherePivot('available_quantity', '>', 0)->with('city')->get();
+        return (bool)$product->availableStorageProducts->count() || (bool)$product->availableVendorProducts->count();
     }
 
     /**
-     * Get get nearest time of planned delivering product to storages.
+     * Get min expected product time (or null)
      *
      * @param Product $product
-     * @return null|Carbon
+     * @return Carbon|null
      */
-    public function getProductAvailableTime(Product $product)
+    public function getProductExpectedTime(Product $product)
     {
-        $storagesAvailableTime = $product->storageProducts()->groupBy('products_id')->min('available_time');
+        $minExpectedTimes = array_filter([
+            $product->expectingStorageProducts->min('available_time'),
+            $product->expectingVendorProducts->min('available_time'),
+        ]);
 
-        if ($storagesAvailableTime){
-            return Carbon::createFromFormat('Y-m-d H:i:s', $storagesAvailableTime);
+        if (empty($minExpectedTimes)) {
+            return null;
+        } else {
+            return Carbon::createFromFormat('Y-m-d H:i:s', min($minExpectedTimes));
         }
+    }
 
-        return null;
+    /**
+     * Is product ending ?
+     *
+     * @param Product $product
+     * @return bool
+     */
+    public function isProductEnding(Product $product): bool
+    {
+        return $product->vendorProducts()->max('available') === 1;
     }
 }

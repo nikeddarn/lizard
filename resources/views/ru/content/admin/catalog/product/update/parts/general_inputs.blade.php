@@ -65,7 +65,7 @@
             <label for="articul">Артикул товара</label>
         </div>
         <div class="col-sm-8">
-            <input id="articul" name="articul" type="text" class="w-100" value="{{ old('articul') }}">
+            <input id="articul" name="articul" type="text" class="w-100" value="{{ old('articul', $product->articul) }}">
         </div>
     </div>
 
@@ -78,7 +78,7 @@
             <label for="code">Код товара</label>
         </div>
         <div class="col-sm-8">
-            <input id="code" name="code" type="text" class="w-100" value="{{ old('code') }}">
+            <input id="code" name="code" type="text" class="w-100" value="{{ old('code', $product->code) }}">
         </div>
     </div>
 

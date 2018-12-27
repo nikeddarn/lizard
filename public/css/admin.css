@@ -9,6 +9,7 @@ select.selectpicker {
 .bootstrap-select {
   width: 220px \0;
   /*IE9 and below*/
+  vertical-align: middle;
 }
 
 .bootstrap-select > .dropdown-toggle {
@@ -450,7 +451,7 @@ select.selectpicker {
 }
 
 #admin-header {
-  background-color: #30A193;
+  background-color: #606ddd;
   color: #ffffff;
   height: 32px;
 }
@@ -464,7 +465,7 @@ select.selectpicker {
 }
 
 #admin-header a:hover:not(.disabled) {
-  background-color: #1e665d;
+  background-color: #2a3bc6;
   text-decoration: none;
 }
 
@@ -473,11 +474,11 @@ select.selectpicker {
 }
 
 #sidebar .nav-link[data-toggle].collapsed:after {
-  content: "\25BE";
+  content: "\A0\A0\25BE";
 }
 
 #sidebar .nav-link[data-toggle]:not(.collapsed):after {
-  content: "\25B4";
+  content: "\A0\A0\25B4";
 }
 
 #sidebar a {
@@ -635,5 +636,9 @@ label.required:after {
 
 #attribute-values-list-table .attribute-value-image img {
   max-height: 100px;
+}
+
+.custom-control-input.queued-product-checkbox:checked ~ .custom-control-label::before {
+  background-color: #f6993f !important;
 }
 

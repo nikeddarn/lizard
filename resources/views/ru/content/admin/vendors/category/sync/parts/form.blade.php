@@ -1,4 +1,4 @@
-<form method="post" action="{{ route('vendor.category.link') }}" role="form">
+<form id="sync-category-form" method="post" action="{{ route('vendor.category.link') }}" role="form">
 
     @csrf
 

@@ -1,4 +1,4 @@
-<ul class="nav nav-tabs my-4" role="tablist">
+<ul class="nav nav-tabs my-5" role="tablist">
     <li class="nav-item">
         <a class="nav-link active text-secondary" data-toggle="tab" href="#product-content" role="tab" aria-controls="product-content"
            aria-selected="true">Описание</a>

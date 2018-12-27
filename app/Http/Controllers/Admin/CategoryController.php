@@ -116,7 +116,7 @@ class CategoryController extends Controller
 
         $category = $this->category->newQuery()->findOrFail($id);
 
-        $products = $category->products()->with('primaryImage', 'filters')->paginate(config('admin.show_items_per_page'));
+        $products = $category->products()->with('primaryImage', 'filters', 'vendors')->paginate(config('admin.show_items_per_page'));
 
         return view('content.admin.catalog.category.show.index')->with([
             'category' => $category,

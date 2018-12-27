@@ -51,7 +51,7 @@
 
                 </div>
 
-                @if($vendorSynchronizedCategories->has($category->id) && $vendorSynchronizedCategories->get($category->id)->categories->count())
+                @if($synchronizedCategories->contains('own_vendor_category_id', $category->id))
 
                     <div class="col-12 px-5 py-4">
                         @include('content.admin.vendors.category.list.parts.sync_categories')
