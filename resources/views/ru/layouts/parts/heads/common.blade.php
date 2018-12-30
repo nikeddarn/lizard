@@ -4,6 +4,10 @@
 
 {{--Page meta data--}}
 
+@if(isset($canonicalUrl))
+    <link rel="canonical" href="{{ $canonicalUrl }}">
+@endif
+
 @if(isset($pageTitle))
     <title>{{ $pageTitle }}</title>
 @endif

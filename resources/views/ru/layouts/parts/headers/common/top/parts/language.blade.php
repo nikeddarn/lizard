@@ -1,4 +1,17 @@
-<nav id="headerTopPanelLanguage" class="nav">
-    <a class="nav-link disabled" href="">RU</a>&#124;
-    <a class="nav-link" href="{{ route('language', ['locale' => 'ua']) }}">UA</a>
-</nav>
+@if(!empty($availableLocalesLinksData))
+
+    <nav id="headerTopPanelLanguage" class="nav">
+
+        @foreach($availableLocalesLinksData as $locale => $localeData)
+
+            @if($localeData['class'] === 'disabled')
+                <a class="nav-link disabled">{{ $locale }}</a>
+            @else
+                <a class="nav-link {{ $localeData['class'] }}" href="{{ $localeData['url'] }}">{{ $locale }}</a>
+            @endif
+
+        @endforeach
+
+    </nav>
+
+@endif
