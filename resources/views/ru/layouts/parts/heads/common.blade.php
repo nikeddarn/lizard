@@ -2,10 +2,31 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-{{--Page meta data--}}
+{{-- link favicon --}}
+<link rel="shortcut icon" href="{{{ url('/images/common/icon.ico') }}}">
 
-@if(isset($canonicalUrl))
-    <link rel="canonical" href="{{ $canonicalUrl }}">
+{{-- Seo alternate locales links--}}
+@if(!empty($alternateLocalesLinks))
+    @foreach($alternateLocalesLinks as $alternateLanguageLink)
+        {!! $alternateLanguageLink !!}
+    @endforeach
+@endif
+
+{{-- Seo pagination links--}}
+@if(!empty($paginationLinks))
+    @foreach($paginationLinks as $paginationLink)
+        {!! $paginationLink !!}
+    @endforeach
+@endif
+
+{{-- Robots meta --}}
+@if(isset($metaRobots) && $metaRobots)
+    <meta name="robots" content="{{ $metaRobots }}">
+@endif
+
+{{-- Canonical meta --}}
+@if(isset($metaCanonical) && $metaCanonical)
+    <link rel="canonical" href="{{ $metaCanonical }}">
 @endif
 
 @if(isset($pageTitle))
@@ -18,10 +39,6 @@
 
 @if(isset($pageKeywords))
     <meta name="keywords" content="{{ $pageKeywords }}">
-@endif
-
-@if(isset($pageRobots))
-    <meta name="robots" content="{{ $pageRobots }}">
 @endif
 
 {{-- Laravel token--}}
@@ -49,12 +66,22 @@
 
 <script type="text/javascript" src="{{ url('/js/isotope.min.js') }}"></script>
 
+<script src="{{ url('/js/feather.min.js') }}"></script>
+
 <script>
+
+    // append csrf to ajax headers
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
+
+    $(document).ready(function () {
+        // replace feather icons with svg
+        feather.replace();
+    });
+
 </script>
 
 {{-- Yield custom page's scripts if exists--}}

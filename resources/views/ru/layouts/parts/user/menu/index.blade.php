@@ -1,102 +1,56 @@
-<nav id="userNavbar" class="navbar bg-light">
+<div class="list-group list-group-flush">
 
-    <ul class="navbar-nav">
+        <a class="list-group-item list-group-item-action{{ request()->route()->getName() === 'user.balance.show' ? ' active' : '' }}" href="{{ route('user.balance.show', ['locale' => request()->route('locale')]) }}">Баланс</a>
 
-        <li class="nav-item @if(strpos(Illuminate\Support\Facades\Route::currentRouteName(), 'balance')) active @endif">
-            <a class="nav-link" href="{{ route('user.balance.show') }}">
-                <span>Баланс</span>
-            </a>
-        </li>
+        <a class="list-group-item list-group-item-action{{ request()->route()->getName() === 'user.notifications.current' ? ' active' : '' }}" href="{{ route('user.notifications.current', ['locale' => request()->route('locale')]) }}">Сообщения
+            @if(isset($userBadges['notifications']))
+                <span class="badge rounded badge-light badge-menu">{{ $userBadges['notifications'] }}</span>
+            @endif
+        </a>
 
-        <li class="nav-item @if(strpos(Illuminate\Support\Facades\Route::currentRouteName(), 'notifications')) active @endif">
-            <a class="nav-link" href="{{ route('user.notifications.current') }}">
-                <span>Сообщения</span>&nbsp;
-                @if(isset($userBadges['notifications']))
-                    <span class="badge badge-info">{{ $userBadges['notifications'] }}</span>
-                @endif
-            </a>
-        </li>
+        <a class="list-group-item list-group-item-action{{ request()->route()->getName() === 'user.shipments.current' ? ' active' : '' }}" href="{{ route('user.shipments.current', ['locale' => request()->route('locale')]) }}">Отгрузки
+            @if(isset($userBadges['shipments']))
+                <span class="badge rounded badge-light badge-menu">{{ $userBadges['shipments'] }}</span>
+            @endif
+        </a>
 
+        <a class="list-group-item list-group-item-action{{ request()->route()->getName() === 'user.orders.current' ? ' active' : '' }}" href="{{ route('user.orders.current', ['locale' => request()->route('locale')]) }}">Заказы
+            @if(isset($userBadges['orders']))
+                <span class="badge rounded badge-light badge-menu">{{ $userBadges['orders'] }}</span>
+            @endif
+        </a>
 
-        <li class="nav-item @if(strpos(Illuminate\Support\Facades\Route::currentRouteName(), 'shipments')) active @endif">
-            <a class="nav-link" href="{{ route('user.shipments.current') }}">
-                <span>Отгрузки</span>&nbsp;
-                @if(isset($userBadges['shipments']))
-                    <span class="badge badge-info">{{ $userBadges['shipments'] }}</span>
-                @endif
-            </a>
-        </li>
+        <a class="list-group-item list-group-item-action{{ request()->route()->getName() === 'user.reclamations.current' ? ' active' : '' }}" href="{{ route('user.reclamations.current', ['locale' => request()->route('locale')]) }}">Гарантия
+            @if(isset($userBadges['reclamations']))
+                <span class="badge rounded badge-light badge-menu">{{ $userBadges['reclamations'] }}</span>
+            @endif
+        </a>
 
-        <li class="nav-item @if(strpos(Illuminate\Support\Facades\Route::currentRouteName(), 'orders')) active @endif">
-            <a class="nav-link" href="{{ route('user.orders.current') }}">
-                <span>Заказы</span>&nbsp;
-                @if(isset($userBadges['orders']))
-                    <span class="badge badge-info">{{ $userBadges['orders'] }}</span>
-                @endif
-            </a>
-        </li>
+        <a class="list-group-item list-group-item-action{{ request()->route()->getName() === 'user.payments.current' ? ' active' : '' }}" href="{{ route('user.payments.current', ['locale' => request()->route('locale')]) }}">Платежи
+            @if(isset($userBadges['payments']))
+                <span class="badge rounded badge-light badge-menu">{{ $userBadges['payments'] }}</span>
+            @endif
+        </a>
 
-        <li class="nav-item @if(strpos(Illuminate\Support\Facades\Route::currentRouteName(), 'reclamations')) active @endif">
-            <a class="nav-link" href="{{ route('user.reclamations.current') }}">
-                <span>Гарантия</span>&nbsp;
-                @if(isset($userBadges['reclamations']))
-                    <span class="badge badge-info">{{ $userBadges['reclamations'] }}</span>
-                @endif
-            </a>
-        </li>
+        <a class="list-group-item list-group-item-action{{ request()->route()->getName() === 'user.favourites.index' ? ' active' : '' }}" href="{{ route('user.favourites.index', ['locale' => request()->route('locale')]) }}">Фаворитные
+            @if(isset($userBadges['favourites']))
+                <span class="badge rounded badge-light badge-menu">{{ $userBadges['favourites'] }}</span>
+            @endif
+        </a>
 
-        <li class="nav-item @if(strpos(Illuminate\Support\Facades\Route::currentRouteName(), 'payments')) active @endif">
-            <a class="nav-link" href="{{ route('user.payments.current') }}">
-                <span>Платежи</span>&nbsp;
-                @if(isset($userBadges['payments']))
-                    <span class="badge badge-info">{{ $userBadges['payments'] }}</span>
-                @endif
-            </a>
-        </li>
+        <a class="list-group-item list-group-item-action{{ request()->route()->getName() === 'user.recent.index' ? ' active' : '' }}" href="{{ route('user.recent.index', ['locale' => request()->route('locale')]) }}">Недавние
+            @if(isset($userBadges['recent']))
+                <span class="badge rounded badge-light badge-menu">{{ $userBadges['recent'] }}</span>
+            @endif
+        </a>
 
-        <li>
-            <hr>
-        </li>
+        <a class="list-group-item list-group-item-action{{ request()->route()->getName() === 'user.profile.show' ? ' active' : '' }}" href="{{ route('user.profile.show', ['locale' => request()->route('locale')]) }}">Профиль</a>
 
-        <li class="nav-item @if(strpos(Illuminate\Support\Facades\Route::currentRouteName(), 'favourites')) active @endif">
-            <a class="nav-link" href="{{ route('user.favourites.index') }}">
-                <span>Фаворитные</span>&nbsp;
-                @if(isset($userBadges['favourites']))
-                    <span class="badge badge-info">{{ $userBadges['favourites'] }}</span>
-                @endif
-            </a>
-        </li>
+        <a class="list-group-item list-group-item-action{{ request()->route()->getName() === 'user.password.show' ? ' active' : '' }}" href="{{ route('user.password.show', ['locale' => request()->route('locale')]) }}">Сменить пароль</a>
 
-        <li class="nav-item @if(strpos(Illuminate\Support\Facades\Route::currentRouteName(), 'recent')) active @endif">
-            <a class="nav-link" href="{{ route('user.recent.index') }}">
-                <span>Недавние</span>&nbsp;
-                @if(isset($userBadges['recent']))
-                    <span class="badge badge-info">{{ $userBadges['recent'] }}</span>
-                @endif
-            </a>
-        </li>
+    <form id="logout-form" action="{{ route('logout') }}" method="POST">
+        @csrf
+        <button class="list-group-item list-group-item-action cursor-pointer">Выйти</button>
+    </form>
 
-        <li>
-            <hr>
-        </li>
-
-        <li class="nav-item @if(strpos(Illuminate\Support\Facades\Route::currentRouteName(), 'profile')) active @endif">
-            <a class="nav-link" href="{{ route('user.profile.show') }}">Профиль</a>
-        </li>
-
-        <li class="nav-item @if(strpos(Illuminate\Support\Facades\Route::currentRouteName(), 'password')) active @endif">
-            <a class="nav-link" href="{{ route('user.password.show') }}">Сменить пароль</a>
-        </li>
-
-        <li>
-            <hr>
-        </li>
-
-        <li>
-            <a class="nav-link" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Выйти</a>
-        </li>
-
-    </ul>
-</nav>
-
-<form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">@csrf</form>
+</div>

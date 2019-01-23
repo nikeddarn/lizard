@@ -42,7 +42,7 @@ class AttributeRepository
          * ToDo Enhance parser. Store attribute in table to merge attributes by manager.
          */
 
-        $searchDoubleKeys = config('shop.search_double_by.attribute');
+        $searchDoubleKeys = config('vendor.search_double_by.attribute');
 
         return Attribute::query()->where(function ($query) use ($searchDoubleKeys, $vendorAttributeData) {
             foreach ($searchDoubleKeys as $field) {
@@ -82,7 +82,7 @@ class AttributeRepository
          * ToDo Enhance parser. Store attribute value in table to merge by manager.
          */
 
-        $searchDoubleKeys = config('shop.search_double_by.attribute_value');
+        $searchDoubleKeys = config('vendor.search_double_by.attribute_value');
 
         return AttributeValue::query()->where(function ($query) use ($searchDoubleKeys, $vendorAttributeValueData) {
             foreach ($searchDoubleKeys as $field) {

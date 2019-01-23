@@ -16,13 +16,13 @@
 
         <div class="container-fluid h-100">
 
-            <div class="row h-100">
+            <div class="row my-4">
 
-                <div class="col-6 col-md-3 col-lg-2 collapse d-md-flex bg-faded pt-2 pb-2 h-100" id="sidebar">
+                <div class="col-lg-2 d-none d-lg-block">
                     @include('layouts.parts.admin.menu.index')
                 </div>
 
-                <div class="col">
+                <div class="col-12 col-lg-10">
                     @yield ('content')
                 </div>
 

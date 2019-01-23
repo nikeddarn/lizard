@@ -12,7 +12,19 @@ class ExchangeRates
     public function getRate()
     {
         return Cache::remember('exchangeRate', config('shop.exchange_rate.ttl'), function () {
-            return $this->defineExchangeRate();
+
+            // get current rate from external sources
+            $currentRate =  $this->defineExchangeRate();
+
+            if ($currentRate) {
+                // store current rate as reserved
+                Cache::forever('reservedExchangeRate', $currentRate);
+
+                return $currentRate;
+            }else{
+                // get reserved exchange rate
+                return Cache::get('reservedExchangeRate');
+            }
         });
     }
 

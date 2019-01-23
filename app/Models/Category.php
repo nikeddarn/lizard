@@ -74,6 +74,22 @@ class Category extends Model
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function virtualCategories()
+    {
+        return $this->hasMany('App\Models\VirtualCategory', 'categories_id', 'id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
+     */
+    public function attributeValues()
+    {
+        return $this->hasManyThrough('App\Models\AttributeValue', 'virtual_categories', 'categories_id', 'attribute_values_id', 'id', 'id');
+    }
+
+    /**
      * @param  string  $value
      * @return void
      */

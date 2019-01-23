@@ -1,5 +1,7 @@
 <?php
 
+use App\Contracts\Shop\LocalesInterface;
+
 return [
 
     /*
@@ -78,10 +80,12 @@ return [
     |
     */
 
-    'locale' => 'ru',
+    'locale' => LocalesInterface::RU,
+
+    'canonical_locale' => LocalesInterface::RU,
 
     // Available locales
-    'available_locales' => ['ru', 'ua'],
+    'available_locales' => [LocalesInterface::RU, LocalesInterface::UK],
 
     /*
     |--------------------------------------------------------------------------
@@ -94,7 +98,7 @@ return [
     |
     */
 
-    'fallback_locale' => 'ru',
+    'fallback_locale' => LocalesInterface::RU,
 
     /*
     |--------------------------------------------------------------------------

@@ -4,9 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Brand;
+use App\Support\ImageHandlers\BrandImageHandler;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Intervention\Image\Facades\Image;
 
 class BrandController extends Controller
 {
@@ -56,31 +55,34 @@ class BrandController extends Controller
      * Store a newly created resource in storage.
      *
      * @param Request $request
+     * @param BrandImageHandler $imageHandler
      * @return \Illuminate\Http\RedirectResponse
      * @throws \Illuminate\Auth\Access\AuthorizationException
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request)
+    public function store(Request $request, BrandImageHandler $imageHandler)
     {
         $this->authorize('create', $this->brand);
 
         $this->validate($request, [
             'name' => 'required|string|max:32',
-            'image' => 'nullable|image',
+            'image' => 'image',
         ]);
 
-        $brandData = [
-            'name' => $request->get('name'),
-        ];
+        $brand = $this->brand->newQuery()->create($request->only('name'));
 
         if ($request->has('image')) {
-            $brandData['image'] = 'images/brands/' . uniqid() . '.jpg';
-            $categoryImageSizes = config('shop.images.brand');
-            $createdImage = Image::make($request->image)->resize($categoryImageSizes['w'], $categoryImageSizes['h']);
-            Storage::disk('public')->put($brandData['image'], $createdImage->stream('jpg', 100));
-        }
+            // uploaded image path
+            $sourceImagePath = $request->image;
+            // stored image path
+            $destinationImagePath = 'images/brands/' . $brand->id . '/' . uniqid() . '.jpg';
+            // create image
+            $imageHandler->createBrandImage($sourceImagePath, $destinationImagePath);
 
-        $this->brand->newQuery()->create($brandData);
+            // save image
+            $brand->image = $destinationImagePath;
+            $brand->save();
+        }
 
         return redirect(route('admin.brands.index'));
     }
@@ -106,31 +108,40 @@ class BrandController extends Controller
      *
      * @param Request $request
      * @param string $id
+     * @param BrandImageHandler $imageHandler
      * @return \Illuminate\Http\Response
      * @throws \Illuminate\Auth\Access\AuthorizationException
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $id, BrandImageHandler $imageHandler)
     {
         $this->authorize('update', $this->brand);
+
+        $brand = $this->brand->newQuery()->findOrFail($id);
 
         $this->validate($request, [
             'name' => 'required|string|max:32',
             'image' => 'nullable|image',
         ]);
 
-        $brandData = [
-            'name' => $request->get('name'),
-        ];
+        $brandData = $request->only('name');
 
         if ($request->has('image')) {
-            $brandData['image'] = 'images/brands/' . uniqid() . '.jpg';
-            $categoryImageSizes = config('shop.images.brand');
-            $createdImage = Image::make($request->image)->resize($categoryImageSizes['w'], $categoryImageSizes['h']);
-            Storage::disk('public')->put($brandData['image'], $createdImage->stream('jpg', 100));
+            // delete previous image
+            $imageHandler->deleteBrandImage($brand->id);
+
+            // uploaded image path
+            $sourceImagePath = $request->image;
+            // stored image path
+            $destinationImagePath = 'images/brands/' . $brand->id . '/' . uniqid() . '.jpg';
+            // create image
+            $imageHandler->createBrandImage($sourceImagePath, $destinationImagePath);
+
+            // save image
+            $brandData['image'] = $destinationImagePath;
         }
 
-        $this->brand->newQuery()->findOrFail($id)->update($brandData);
+        $brand->update($brandData);
 
         return redirect(route('admin.brands.index'));
     }
@@ -139,14 +150,21 @@ class BrandController extends Controller
      * Remove the specified resource from storage.
      *
      * @param string $id
+     * @param BrandImageHandler $imageHandler
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Exception
      */
-    public function destroy(string $id)
+    public function destroy(string $id, BrandImageHandler $imageHandler)
     {
         $this->authorize('delete', $this->brand);
 
-        $this->brand->newQuery()->findOrFail($id)->delete();
+        $brand = $this->brand->newQuery()->findOrFail($id);
+
+        // delete previous image
+        $imageHandler->deleteBrandImage($brand->id);
+
+        $brand->delete();
 
         return redirect(route('admin.brands.index'));
     }

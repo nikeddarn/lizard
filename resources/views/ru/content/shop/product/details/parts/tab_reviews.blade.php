@@ -7,9 +7,9 @@
             <div class="media-left mr-4">
 
             @if($comment->user && $comment->user->avatar)
-                <img src="/storage/{{ $comment->user->avatar }}" class="media-object img-thumbnail">
+                <img src="/storage/{{ $comment->user->avatar }}" class="media-object img-thumbnail" alt="аватар пользователя">
             @else
-                <img src="/images/common/default_user_avatar.png" class="media-object img-thumbnail">
+                <img src="{{ url('/images/common/default_user_avatar.png') }}" class="media-object img-thumbnail" alt="аватар пользователя">
             @endif
 
             @if($comment->rating)
@@ -30,7 +30,7 @@
 
             <div class="media-body">
 
-                <h5 class="media-heading text-gray">
+                <h5 class="media-heading text-gray-hover">
                     @if($comment->user)
                         <strong>{{ $comment->user->name }}</strong>
                     @else
@@ -39,7 +39,7 @@
                     <small class="ml-4">{{ $comment->updated_at->diffForHumans() }}</small>
                 </h5>
 
-                <div>{{ $comment->comment }}</div>
+                <div class="text-gray-hover">{{ $comment->comment }}</div>
             </div>
         </div>
 

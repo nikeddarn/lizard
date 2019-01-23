@@ -3,15 +3,16 @@
 namespace App\Http\Controllers\Shop;
 
 use App\Http\Controllers\Controller;
-use App\Models\Attribute;
 use App\Models\Category;
-use App\Support\ExchangeRates\ExchangeRates;
-use App\Support\ProductAvailability\ProductAvailability;
-use App\Support\ProductPrices\UserProductPrice;
-use Carbon\Carbon;
+use App\Support\Breadcrumbs\CategoryBreadcrumbs;
+use App\Support\Seo\Canonical\CanonicalLinkGenerator;
+use App\Support\Seo\Pagination\PaginationLinksGenerator;
+use App\Support\Shop\Filters\FiltersCreator;
+use App\Support\Shop\Products\CategoryProducts;
+use App\Support\Url\UrlGenerators\ShowProductsUrlGenerator;
+use App\Support\Url\UrlGenerators\SortProductsUrlGenerator;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 class LeafCategoryController extends Controller
@@ -21,158 +22,120 @@ class LeafCategoryController extends Controller
      */
     private $category;
     /**
-     * @var ExchangeRates
+     * @var SortProductsUrlGenerator
      */
-    private $exchangeRates;
+    private $sortProductsUrlGenerator;
     /**
-     * @var UserProductPrice
+     * @var CategoryProducts
      */
-    private $productPrice;
+    private $productsCreator;
     /**
-     * @var ProductAvailability
+     * @var ShowProductsUrlGenerator
      */
-    private $productAvailability;
+    private $showProductsUrlGenerator;
     /**
-     * @var Attribute
+     * @var CategoryBreadcrumbs
      */
-    private $attribute;
+    private $breadcrumbs;
+    /**
+     * @var FiltersCreator
+     */
+    private $filtersCreator;
+    /**
+     * @var PaginationLinksGenerator
+     */
+    private $paginationLinksGenerator;
+    /**
+     * @var CanonicalLinkGenerator
+     */
+    private $canonicalLinkGenerator;
 
     /**
      * CategoryController constructor.
      * @param Category $category
-     * @param ExchangeRates $exchangeRates
-     * @param UserProductPrice $productPrice
-     * @param ProductAvailability $productAvailability
-     * @param Attribute $attribute
+     * @param SortProductsUrlGenerator $sortProductsUrlGenerator
+     * @param CategoryProducts $productsCreator
+     * @param ShowProductsUrlGenerator $showProductsUrlGenerator
+     * @param CategoryBreadcrumbs $breadcrumbs
+     * @param FiltersCreator $filtersCreator
+     * @param PaginationLinksGenerator $paginationLinksGenerator
+     * @param CanonicalLinkGenerator $canonicalLinkGenerator
      */
-    public function __construct(Category $category, ExchangeRates $exchangeRates, UserProductPrice $productPrice, ProductAvailability $productAvailability, Attribute $attribute)
+    public function __construct(Category $category, SortProductsUrlGenerator $sortProductsUrlGenerator, CategoryProducts $productsCreator, ShowProductsUrlGenerator $showProductsUrlGenerator, CategoryBreadcrumbs $breadcrumbs, FiltersCreator $filtersCreator, PaginationLinksGenerator $paginationLinksGenerator, CanonicalLinkGenerator $canonicalLinkGenerator)
     {
         $this->category = $category;
-        $this->exchangeRates = $exchangeRates;
-        $this->productPrice = $productPrice;
-        $this->productAvailability = $productAvailability;
-        $this->attribute = $attribute;
+        $this->sortProductsUrlGenerator = $sortProductsUrlGenerator;
+        $this->productsCreator = $productsCreator;
+        $this->showProductsUrlGenerator = $showProductsUrlGenerator;
+        $this->breadcrumbs = $breadcrumbs;
+        $this->filtersCreator = $filtersCreator;
+        $this->paginationLinksGenerator = $paginationLinksGenerator;
+        $this->canonicalLinkGenerator = $canonicalLinkGenerator;
     }
 
     /**
      * Show products of given leaf category.
      *
-     * @param string $url
+     * @param string $categoryUrl
      * @return View
      */
-    public function index(string $url): View
+    public function index(string $categoryUrl): View
     {
-        $category = $this->category->newQuery()->where('url', $url)->firstOrFail();
-
-        // store category's id in session to create product details breadcrumbs
-        session()->flash('product_category_id', $category->id);
+        $category = $this->category->newQuery()->where('url', $categoryUrl)->with('products')->firstOrFail();
 
         if (!$category->isLeaf()) {
             abort(422);
         }
 
-        $breadcrumbs = $this->getBreadcrumbs($category);
+        // store category's id in session to create product details breadcrumbs
+        session()->flash('product_category_id', $category->id);
 
-        $products = $this->getProducts($category);
+        // define sort products method
+        $sortProductsMethod = $this->sortProductsUrlGenerator->getCurrentQueryStringParameterValue();
 
-        $filters = $this->getFilters($products->pluck('id')->toArray(), $category->url);
+        // create sort products urls
+        $sortProductsUrls = $this->sortProductsUrlGenerator->createAvailableLinksData();
 
-        return view('content.shop.category.leaf_category.index')->with(compact(
-            'category', 'breadcrumbs', 'products', 'filters'));
+        // create show products urls
+        $showProductsUrls = $this->showProductsUrlGenerator->createAvailableLinksData();
+
+        // create breadcrumbs
+        $breadcrumbs = $this->breadcrumbs->getCategoryBreadcrumbs($category->id);
+
+        // get products for current page
+        $products = $this->getProducts($category, $sortProductsMethod);
+
+        // create filters
+        $filters = $this->filtersCreator->getFilters($category, $categoryUrl);
+
+        // category content
+        $categoryContent = $category->content;
+
+        // seo pagination links
+        $paginationLinks = $this->paginationLinksGenerator->createSeoLinks($products);
+
+        // seo canonical url
+        $metaCanonical = $this->canonicalLinkGenerator->createCanonicalLinkUrl();
+
+        return view('content.shop.category.leaf_category.index')->with(compact('categoryContent', 'breadcrumbs', 'products', 'filters', 'sortProductsUrls', 'sortProductsMethod', 'showProductsUrls', 'paginationLinks', 'metaCanonical'));
     }
 
-
     /**
-     * Get products with its properties.
+     * Get products for current page
      *
      * @param Category|Model $category
+     * @param string $sortProductsMethod
      * @return LengthAwarePaginator
      */
-    private function getProducts(Category $category): LengthAwarePaginator
+    private function getProducts(Category $category, string $sortProductsMethod):LengthAwarePaginator
     {
-        $products = $category->products()
-            ->with('primaryImage', 'productImages', 'actualBadges', 'availableStorageProducts', 'expectingStorageProducts', 'availableVendorProducts', 'expectingVendorProducts', 'availableProductStorages.city')
-            ->paginate(config('shop.show_items_per_page'));
+        $products = $this->productsCreator->getProducts($category, $sortProductsMethod);
 
-        $exchangeRate = $this->exchangeRates->getRate();
-
-        foreach ($products as $product) {
-            // product prices
-            $productPrice = $this->productPrice->getUsersProductPrice($product);
-            $product->price = $productPrice ? $this->formatPrice($productPrice) : null;
-            $product->localPrice = ($productPrice && $exchangeRate) ? $this->formatPrice($productPrice * $exchangeRate, 0) : null;
-
-            // product availability
-            $productExpectedAt = $this->productAvailability->getProductExpectedTime($product);
-            $product->isAvailable = $this->productAvailability->isProductAvailable($product);
-            $product->expectedAt = $productExpectedAt;
-            $product->isExpectedToday = ($productExpectedAt && $productExpectedAt < Carbon::today()->addDay()) ? true : false;
+        // redirect 404 for vot existing pages
+        if (request()->has('page') && request()->get('page') > $products->lastPage()){
+            abort(404);
         }
 
         return $products;
-    }
-
-    /**
-     * Get products filters.
-     *
-     * @param array $productsId
-     * @param string $categoryUrl
-     * @return Collection
-     */
-    private function getFilters(array $productsId, string $categoryUrl)
-    {
-        return $this->attribute->newQuery()
-            ->with(['attributeValues' => function ($query) use ($productsId) {
-                $query->whereHas('productAttributes', function ($query) use ($productsId) {
-                    $query->whereIn('products_id', $productsId);
-                });
-            }])
-            ->whereHas('attributeValues', function ($query) use ($productsId) {
-                $query->whereHas('productAttributes', function ($query) use ($productsId) {
-                    $query->whereIn('products_id', $productsId);
-                });
-            }, '>', 1)
-            ->get()
-            ->each(function (Attribute $attribute) use ($categoryUrl) {
-                foreach ($attribute->attributeValues as $attributeValue) {
-                    $attributeValue->href = route('shop.category.filter.single', [
-                        'url' => $categoryUrl,
-                        'filters' => $attributeValue->url,
-                    ]);
-                }
-            });
-    }
-
-    /**
-     * Get breadcrumbs.
-     *
-     * @param Category|Model $category
-     * @return array
-     */
-    private function getBreadcrumbs(Category $category): array
-    {
-        $breadcrumbs = $this->category->newQuery()->ancestorsAndSelf($category->id)
-            ->each(function (Category $category) {
-                if ($category->isLeaf()) {
-                    $category->href = route('shop.category.leaf.index', ['url' => $category->url]);
-                } else {
-                    $category->href = route('shop.category.index', ['url' => $category->url]);
-                }
-            })
-            ->pluck('href', 'name')->toArray();
-
-        return $breadcrumbs;
-    }
-
-    /**
-     * Format product price.
-     *
-     * @param float $price
-     * @param int $decimals
-     * @return string
-     */
-    private function formatPrice(float $price, int $decimals = 2)
-    {
-        return number_format($price, $decimals, '.', ',');
     }
 }

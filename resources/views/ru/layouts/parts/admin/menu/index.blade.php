@@ -1,103 +1,124 @@
-<ul class="nav flex-column">
-    <li class="nav-item"><a class="nav-link" href="{{ route('admin') }}">Обзор</a></li>
+<div id="admin-main-menu">
 
-    <li class="nav-item">
-        <a class="nav-link collapsed" href="#sidebar-catalog" data-toggle="collapse" data-target="#sidebar-catalog">Магазин</a>
-        <div class="collapse" id="sidebar-catalog" aria-expanded="false">
-            <ul class="flex-column pl-3 nav">
-                <li class="nav-item"><a class="nav-link py-1" href="{{ route('admin.categories.index') }}">Категории</a>
-                </li>
-                <li class="nav-item"><a class="nav-link py-1" href="{{ route('admin.products.index') }}">Продукты</a>
-                </li>
-                <li class="nav-item"><a class="nav-link py-1" href="{{ route('admin.attributes.index') }}">Атрибуты
-                        продуктов</a></li>
-                <li class="nav-item"><a class="nav-link py-1" href="{{ route('admin.filters.index') }}">Фильтры</a></li>
-            </ul>
+    {{-- Overview--}}
+    <div class="card">
+        <div class="card-header text-gray text-left m-0 p-0 pr-2">
+            <a href="{{ route('admin') }}" class="btn btn-link nav-link text-gray text-left d-block w-100">Обзор</a>
         </div>
-    </li>
+    </div>
 
-    <li class="nav-item">
-        <a class="nav-link collapsed" href="#sidebar-synchronization" data-toggle="collapse" data-target="#sidebar-synchronization">Синхронизация</a>
-        <div class="collapse" id="sidebar-synchronization" aria-expanded="false">
-            <ul class="flex-column pl-3 nav">
-                <li class="nav-item"><a class="nav-link py-1" href="{{ route('vendor.categories.synchronized') }}">Синхронизированные категории</a>
-                <li class="nav-item"><a class="nav-link py-1" href="{{ route('vendor.synchronization.index') }}">Задания в очереди</a>
-            </ul>
+    {{-- Shop--}}
+    <div class="card">
+        <div class="card-header m-0 p-0">
+            <button class="btn btn-link nav-link text-gray text-left d-block w-100" data-toggle="collapse"
+                    aria-expanded="false"
+                    data-target="#main-menu-shop" type="button"
+                    aria-controls="main-menu-shop">Магазин
+            </button>
         </div>
-    </li>
-
-    <li class="nav-item">
-        <a class="nav-link collapsed" href="#sidebar-vendors" data-toggle="collapse" data-target="#sidebar-vendors">Поставщики</a>
-        <div class="collapse" id="sidebar-vendors" aria-expanded="false">
-            <ul class="flex-column pl-3 nav">
-
-                @foreach($vendors as $vendor)
+        <div id="main-menu-shop" class="collapse">
+            <div class="card-body py-1">
+                <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link collapsed py-0" href="#vendor-{{ $vendor->id }}" data-toggle="collapse"
-                           data-target="#vendor-{{ $vendor->id }}">{{ $vendor->name }}</a>
+                        <a class="nav-link py-1" href="{{ route('admin.categories.index') }}">Категории</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link py-1" href="{{ route('admin.categories.virtual.index') }}">Виртуальные категории</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link py-1" href="{{ route('admin.products.index') }}">Продукты</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link py-1" href="{{ route('admin.attributes.index') }}">Атрибуты
+                            продуктов</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
 
-                        <div class="collapse small" id="vendor-{{ $vendor->id }}" aria-expanded="false">
-                            <ul class="flex-column nav pl-4">
-                                <li class="nav-item">
-                                    <a class="nav-link p-0"
-                                       href="{{ route('vendor.categories.index', ['vendorId' => $vendor->id]) }}">Категории</a>
-                                </li>
-                            </ul>
+    {{-- Vendors --}}
+    <div class="card">
+        <div class="card-header m-0 p-0">
+            <button class="btn btn-link nav-link text-gray text-left d-block w-100" data-toggle="collapse"
+                    aria-expanded="false"
+                    data-target="#main-menu-vendors" type="button"
+                    aria-controls="main-menu-vendors">Поставщики
+            </button>
+        </div>
+        <div id="main-menu-vendors" class="collapse">
+
+                {{-- Vendors List --}}
+                @foreach($vendors as $vendor)
+                    <div class="card">
+                        <div class="card-header m-0 p-0">
+                            <button class="btn btn-link nav-link text-gray text-left d-block w-100 pl-5"
+                                    data-toggle="collapse"
+                                    aria-expanded="false"
+                                    data-target="#main-menu-vendors-{{ $vendor->id }}" type="button"
+                                    aria-controls="main-menu-vendors-{{ $vendor->id }}">{{ $vendor->name }}
+                            </button>
                         </div>
+                        <div id="main-menu-vendors-{{ $vendor->id }}" class="collapse">
+                            <div class="card-body py-1 pl-5">
+                                <ul class="nav flex-column">
+                                    <li class="nav-item">
+                                        <a class="nav-link py-1"
+                                           href="{{ route('vendor.categories.index', ['vendorId' => $vendor->id]) }}">Категории</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 @endforeach
 
-            </ul>
         </div>
-    </li>
+    </div>
 
-    <li class="nav-item">
-        <a class="nav-link collapsed" href="#sidebar-users" data-toggle="collapse" data-target="#sidebar-users">Пользователи</a>
-        <div class="collapse" id="sidebar-users" aria-expanded="false">
-            <ul class="flex-column pl-3 nav">
-                <li class="nav-item"><a class="nav-link py-1" href="{{ route('admin.users.administrators') }}">Сотрудники</a>
-                </li>
-                <li class="nav-item"><a class="nav-link py-1"
-                                        href="{{ route('admin.users.customers') }}">Пользователи</a></li>
-            </ul>
+    {{-- Sync--}}
+    <div class="card">
+        <div class="card-header m-0 p-0">
+            <button class="btn btn-link nav-link text-gray text-left d-block w-100" data-toggle="collapse"
+                    aria-expanded="false"
+                    data-target="#main-menu-sync" type="button"
+                    aria-controls="main-menu-sync">Синхронизация
+            </button>
         </div>
-    </li>
+        <div id="main-menu-sync" class="collapse">
+            <div class="card-body py-1">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link py-1" href="{{ route('vendor.categories.synchronized') }}">Категории</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link py-1" href="{{ route('vendor.synchronization.index') }}">Задания</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
 
-    <li class="nav-item">
-        <a class="nav-link collapsed" href="#submenu1" data-toggle="collapse" data-target="#submenu1">Reports</a>
-        <div class="collapse" id="submenu1" aria-expanded="false">
-            <ul class="flex-column pl-2 nav">
-                <li class="nav-item"><a class="nav-link py-0" href="">Orders</a></li>
-                <li class="nav-item">
-                    <a class="nav-link collapsed py-0" href="#submenu1sub1" data-toggle="collapse"
-                       data-target="#submenu1sub1">Customers</a>
-                    <div class="collapse small" id="submenu1sub1" aria-expanded="false">
-                        <ul class="flex-column nav pl-4">
-                            <li class="nav-item">
-                                <a class="nav-link p-0" href="">
-                                    <i class="fa fa-fw fa-clock-o"></i> Daily
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link p-0" href="">
-                                    <i class="fa fa-fw fa-dashboard"></i> Dashboard
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link p-0" href="">
-                                    <i class="fa fa-fw fa-bar-chart"></i> Charts
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link p-0" href="">
-                                    <i class="fa fa-fw fa-compass"></i> Areas
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
-            </ul>
+    {{-- Users--}}
+    <div class="card">
+        <div class="card-header m-0 p-0">
+            <button class="btn btn-link nav-link text-gray text-left d-block w-100" data-toggle="collapse"
+                    aria-expanded="false"
+                    data-target="#main-menu-users" type="button"
+                    aria-controls="main-menu-users">Пользователи
+            </button>
         </div>
-    </li>
-    <li class="nav-item"><a class="nav-link" href="#">Analytics</a></li>
-    <li class="nav-item"><a class="nav-link" href="#">Export</a></li>
-</ul>
+        <div id="main-menu-users" class="collapse">
+            <div class="card-body py-1">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link py-1" href="{{ route('admin.users.administrators') }}">Сотрудники</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link py-1" href="{{ route('admin.users.customers') }}">Покупатели</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</div>

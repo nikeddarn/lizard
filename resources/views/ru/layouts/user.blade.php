@@ -10,7 +10,6 @@
 <div id="app" class="d-flex flex-column">
 
     <header>
-        {{-- Header--}}
         @include('layouts.parts.headers.common.index')
     </header>
 
@@ -21,23 +20,26 @@
 
             <div class="row">
 
-                <div class="col-sm-4 col-md-3 page-content">
+                <div class="col-sm-4 col-md-3 my-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            @if($user->avatar)
+                            <img src="{{ url('/storage/' . $user->avatar) }}" width="120" alt="Аватар пользователя"
+                                 class="rounded-circle mb-3">
+                            @else
+                                <img src="{{ url('/images/common/no_user_avatar.png') }}" width="120" alt="Нет аватара пользователя"
+                                 class="rounded-circle mb-3">
+                            @endif
+                            <h5 class="bold mb-0">{{ $user->name }}</h5>
+                        </div>
 
-                    <div class="row">
-                        <div class="col-lg-12">
-                            @include('layouts.parts.user.avatar.index')
-                        </div>
-                        <div class="col-lg-12">
-                            @include('layouts.parts.user.menu.index')
-                        </div>
+                        @include('layouts.parts.user.menu.index')
+
                     </div>
-
                 </div>
 
                 <div class="col-sm-8 col-md-9">
-
                     @yield ('content')
-
                 </div>
 
             </div>

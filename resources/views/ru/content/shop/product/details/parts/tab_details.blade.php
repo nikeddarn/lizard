@@ -1,5 +1,5 @@
 @if($product->attributeValues->count())
-    <table id="product-attributes-table" class="table table-bordered">
+    <table id="product-attributes-table" class="table table-bordered text-gray-hover">
         <tbody>
 
         @foreach($productAttributes as $attribute)

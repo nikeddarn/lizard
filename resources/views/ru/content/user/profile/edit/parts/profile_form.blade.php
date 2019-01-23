@@ -1,7 +1,3 @@
-<div class="row justify-content-center">
-
-    <div class="col-md-8">
-
         <form id="change-profile-form" role="form" method="POST" action="{{ route('user.profile.save') }}"
               enctype="multipart/form-data">
 
@@ -72,7 +68,3 @@
             </div>
 
         </form>
-
-    </div>
-
-</div>

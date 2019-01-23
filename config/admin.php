@@ -9,11 +9,11 @@ return [
     // items count per page on admin pages
     'show_items_per_page' => 24,
 
+    // sub items count per page on admin pages
+    'show_item_properties_per_page' => 12,
+
     // vendor products per page limit
     'vendor_products_per_page' => 50,
-
-    // synchronized vendor categories per page limit
-    'synchronized_vendor_categories_per_page' => 20,
 
     // archive products
     'archive_products' => [

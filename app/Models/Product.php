@@ -33,7 +33,7 @@ class Product extends Model
      *
      * @var array
      */
-    public $translatable = ['name', 'title', 'description', 'keywords', 'content', 'manufacturer', 'brief_content'];
+    public $translatable = ['name', 'title', 'description', 'keywords', 'content', 'manufacturer', 'brief_content', 'model'];
 
     /**
      * @return BelongsToMany

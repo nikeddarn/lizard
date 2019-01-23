@@ -217,7 +217,7 @@ abstract class InsertVendorProductManager
     {
         if (!empty($this->commentsData)) {
             // max uploaded comments
-            $maxCommentsCount = config('shop.insert_vendor_product.max_comments');
+            $maxCommentsCount = config('vendor.insert_vendor_product.max_comments');
 
             foreach ($this->commentsData as $index => $comment) {
                 // restrict max comments count

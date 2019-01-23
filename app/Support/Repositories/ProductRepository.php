@@ -88,7 +88,7 @@ class ProductRepository
          * ToDo Enhance parser. Store product in table to merge attributes by manager.
          */
 
-        $searchDoubleKeys = config('shop.search_double_by.product');
+        $searchDoubleKeys = config('vendor.search_double_by.product');
 
         return $this->product->newQuery()
             ->where(function ($query) use ($searchDoubleKeys, $productData) {

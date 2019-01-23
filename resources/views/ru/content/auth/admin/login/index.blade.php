@@ -4,21 +4,15 @@
 
     <div class="row align-items-center justify-content-md-center" style="height: 100vh">
 
-        <div class="col-md-6 col-lg-4 page-content">
+        <div class="col col-md-6 col-lg-4">
 
-            <div class="row">
+            <div class="underlined-title my-5">
+                <h3 class="page-header text-gray-hover"><span class="mr-5">{{ config('app.name') }}</span>Вход
+                    администратора</h3>
+            </div>
 
-                <div class="col-lg-12">
-                    <div class="underlined-title">
-                        <h3 class="page-header text-gray"><span class="mr-5">{{ config('app.name') }}</span>Вход
-                            администратора</h3>
-                    </div>
-                </div>
-
-                <div class="col-lg-12">
-                    @include('content.auth.admin.login.parts.login_form')
-                </div>
-
+            <div>
+                @include('content.auth.admin.login.parts.login_form')
             </div>
 
         </div>

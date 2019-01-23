@@ -61,7 +61,7 @@ class VendorProductPrice
      */
     private function getProcessingVendorProducts(Collection $vendorProducts): Collection
     {
-        if ($vendorProducts->count() === 1 || !config('shop.price.vendor_available_product_only')) {
+        if ($vendorProducts->count() === 1 || !config('vendor.price.vendor_available_product_only')) {
             // use single vendor product
             return $vendorProducts;
         } else {
@@ -89,10 +89,10 @@ class VendorProductPrice
     private function getBaseProductRetailPrice(Collection $processingVendorProducts)
     {
         // possible table columns to retrieve retail price
-        $retailPriceColumns = config('shop.price.use_vendor_retail_price_column');
+        $retailPriceColumns = config('vendor.price.use_vendor_retail_price_column');
 
         // method name to aggregate vendor product prices from multi vendor
-        $usingAggregatePriceMethod = config('shop.price.multi_vendor_aggregate_product_price_method');
+        $usingAggregatePriceMethod = config('vendor.price.multi_vendor_aggregate_product_price_method');
 
         foreach ($retailPriceColumns as $usingPriceColumn) {
             // aggregate 'recommendable_price' or 'retail_price' of vendor products with 'min', 'avg' or 'max' methods
@@ -118,7 +118,7 @@ class VendorProductPrice
         $usingPriceColumn = 'price';
 
         // method name to aggregate vendor product incoming prices from multi vendor
-        $usingAggregatePriceMethod = config('shop.price.multi_vendor_aggregate_product_price_method');
+        $usingAggregatePriceMethod = config('vendor.price.multi_vendor_aggregate_product_price_method');
 
         // aggregate incoming price of vendor products with 'min', 'avg' or 'max' methods
         $baseIncomingPrice = $processingVendorProducts->$usingAggregatePriceMethod($usingPriceColumn);
@@ -138,16 +138,16 @@ class VendorProductPrice
     private function getVendorProductColumnPrice(string $productPriceColumnName, float $baseProductIncomingPrice, float $baseProductRetailPrice, array $vendorsIds): float
     {
         // method name to aggregate vendor product incoming prices from multi vendor
-        $usingAggregateDiscountMethod = config('shop.price.multi_vendor_aggregate_column_price_discount_method');
+        $usingAggregateDiscountMethod = config('vendor.price.multi_vendor_aggregate_column_price_discount_method');
 
         // calculate profit
         $profit = $baseProductRetailPrice - $baseProductIncomingPrice;
 
         // min profit to discount
-        $minProfitToDiscount = $baseProductIncomingPrice * config('shop.price.min_profit_to_price_discount') / 100;
+        $minProfitToDiscount = $baseProductIncomingPrice * config('vendor.price.min_profit_to_price_discount') / 100;
 
         if ($profit > $minProfitToDiscount) {
-            $columnDiscount = collect(config('shop.price.vendor_column_price_discount'))->only($vendorsIds)->$usingAggregateDiscountMethod($productPriceColumnName);
+            $columnDiscount = collect(config('vendor.price.vendor_column_price_discount'))->only($vendorsIds)->$usingAggregateDiscountMethod($productPriceColumnName);
 
             $discountedColumnPrice = $columnDiscount ? $baseProductRetailPrice - $profit * min($columnDiscount, 1) : $baseProductRetailPrice;
 

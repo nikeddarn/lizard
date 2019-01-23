@@ -1,9 +1,6 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: nikeddarn
- * Date: 25.12.18
- * Time: 10:35
+ * Image handler.
  */
 
 namespace App\Support\ImageHandlers;
@@ -29,6 +26,21 @@ class ImageHandler
     }
 
     /**
+     * Create image from file.
+     *
+     * @param string $sourcePath
+     * @return Image
+     */
+    protected function createImageFromFile(string $sourcePath)
+    {
+        $image = $this->imageProvider->make($sourcePath);
+
+        $image->backup();
+
+        return $image;
+    }
+
+    /**
      * Create image.
      *
      * @param Image $image
@@ -41,32 +53,6 @@ class ImageHandler
         $createdImage = $image->widen($width, function ($constraint) {
             $constraint->upsize();
         });
-
-        return $createdImage->stream('jpg', 100);
-    }
-
-    /**
-     * Create image.
-     *
-     * @param Image $image
-     * @param string $type
-     * @return mixed
-     */
-    protected function createProductImageByType(Image $image, string $type)
-    {
-        // resize image without up size
-        $createdImage = $image->widen(config('shop.images.products.' . $type), function ($constraint) {
-            $constraint->upsize();
-        });
-
-        // watermark image excluding original image
-        if (config('shop.images.products.watermark') && $type !== 'image') {
-
-            $watermark = $this->imageProvider->make(public_path('images/common/watermark.png'))
-                ->widen($createdImage->width());
-
-            $createdImage->insert($watermark, 'center');
-        }
 
         return $createdImage->stream('jpg', 100);
     }

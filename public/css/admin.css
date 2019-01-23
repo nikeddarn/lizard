@@ -1,5 +1,3 @@
-@charset "UTF-8";
-
 select.bs-select-hidden,
 .bootstrap-select > select.bs-select-hidden,
 select.selectpicker {
@@ -450,50 +448,74 @@ select.selectpicker {
   float: none;
 }
 
+.max-height-10 {
+  max-height: 10rem;
+}
+
+.table-image {
+  height: 80px;
+}
+
+.mx-negative-3 {
+  margin-left: -1rem;
+  margin-right: -1rem;
+}
+
 #admin-header {
-  background-color: #606ddd;
-  color: #ffffff;
-  height: 32px;
+  background-color: white;
+  border-bottom: 1px solid #dee2e6;
 }
 
-#admin-header a {
-  height: 32px;
-  line-height: 20px;
-  color: #ffffff;
-  padding: 6px 10px;
-  display: inline-block;
+#admin-main-menu .card {
+  border-bottom: 1px solid #dee2e6;
 }
 
-#admin-header a:hover:not(.disabled) {
-  background-color: #2a3bc6;
-  text-decoration: none;
+#admin-main-menu .card .card {
+  border: none;
 }
 
-#sidebar {
-  min-width: 130px;
+#admin-main-menu .card .card-header {
+  background-color: white;
+  border: none;
+  position: relative;
 }
 
-#sidebar .nav-link[data-toggle].collapsed:after {
-  content: "\A0\A0\25BE";
-}
-
-#sidebar .nav-link[data-toggle]:not(.collapsed):after {
-  content: "\A0\A0\25B4";
-}
-
-#sidebar a {
-  color: #555555;
+#admin-main-menu .card .card-header button,
+#admin-main-menu .card .card-header a {
+  border: none;
   font-size: 1.2rem;
-  padding: .5rem 0;
+  font-weight: 500;
 }
 
-#sidebar a:hover {
-  color: black;
+#admin-main-menu .card .card-body a {
+  font-size: 1.05rem;
+  font-weight: 400;
 }
 
-#sidebar ul,
-#sidebar li {
-  display: block;
+#admin-main-menu .card button[aria-expanded=true] {
+  border-bottom: 1px solid #dee2e6;
+}
+
+#admin-main-menu .card button:after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-width: 0 0 1px 1px;
+  border-style: solid;
+  right: .75rem;
+  -webkit-transform: rotate(-45deg);
+  transform: rotate(-45deg);
+  -webkit-transition: all .35s;
+  transition: all .35s;
+  top: 50%;
+  margin-top: -4px;
+}
+
+#admin-main-menu .card button[aria-expanded=true]::after {
+  -webkit-transform: rotate(135deg);
+  transform: rotate(135deg);
+  margin-top: 0;
 }
 
 .admin-content-actions {
@@ -516,10 +538,6 @@ label.required:after {
   color: red;
   content: " *";
   font-size: 1.4rem;
-}
-
-.table-image {
-  width: 100px;
 }
 
 .category-list {

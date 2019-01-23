@@ -1,6 +1,6 @@
 <?php
 /**
- * Composer for all common and user view
+ * Append common data for all views.
  */
 
 namespace App\Http\Composers;
@@ -9,55 +9,229 @@ namespace App\Http\Composers;
 use App\Models\Category;
 use App\Models\FavouriteProduct;
 use App\Models\RecentProduct;
+use App\Support\Seo\Locale\AlternateLinksGenerator;
+use App\Support\Settings\SettingsRepository;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Cookie;
+use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 class CommonDataComposer
 {
     /**
+     * @var Category
+     */
+    private $category;
+    /**
+     * @var FavouriteProduct
+     */
+    private $favouriteProduct;
+    /**
+     * @var RecentProduct
+     */
+    private $recentProduct;
+    /**
+     * @var Request
+     */
+    private $request;
+    /**
+     * @var SettingsRepository
+     */
+    private $settingsRepository;
+    /**
+     * @var AlternateLinksGenerator
+     */
+    private $alternateLinksGenerator;
+
+    /**
+     * CommonDataComposer constructor.
+     * @param Request $request
+     * @param Category $category
+     * @param FavouriteProduct $favouriteProduct
+     * @param RecentProduct $recentProduct
+     * @param SettingsRepository $settingsRepository
+     * @param AlternateLinksGenerator $alternateLinksGenerator
+     */
+    public function __construct(Request $request, Category $category, FavouriteProduct $favouriteProduct, RecentProduct $recentProduct, SettingsRepository $settingsRepository, AlternateLinksGenerator $alternateLinksGenerator)
+    {
+        $this->category = $category;
+        $this->favouriteProduct = $favouriteProduct;
+        $this->recentProduct = $recentProduct;
+        $this->request = $request;
+        $this->settingsRepository = $settingsRepository;
+        $this->alternateLinksGenerator = $alternateLinksGenerator;
+    }
+
+    /**
      * Bind data to the view.
      *
      * @param  View $view
      * @return void
-     * @throws \Exception
      */
     public function compose(View $view)
     {
-        $view->with('megaMenuCategories', Category::defaultOrder()->get()->toTree());
+        // create product categories
+        $productCategories = $this->getCategories();
 
-        $view->with('headerActionBadges', $this->getHeaderActionBadges());
+        // create user badges
+        $userBadges = $this->getUserBadges();
+
+        // retrieve user
+        $user = auth('web')->user();
+
+        // create contacts data
+        $shopContacts = $this->getContactsData();
+
+        // create links to change locale
+        $availableLocalesLinksData = $this->createChangeLocaleLinks();
+
+        // create seo alternate languages links
+        $alternateLocalesLinks = $this->alternateLinksGenerator->createAlternateLinks();
+
+        $view->with(compact('productCategories', 'userBadges', 'user', 'shopContacts', 'availableLocalesLinksData', 'alternateLocalesLinks'));
     }
 
     /**
-     * Get header action's badges.
+     * Get product categories.
+     *
+     * @return Collection
+     */
+    private function getCategories(): Collection
+    {
+        $routeLocale = $this->request->route()->parameter('locale');
+
+        $categories = $this->category->defaultOrder()
+            ->get()
+            ->each(function (Category $category) use ($routeLocale) {
+                if ($category->isLeaf()) {
+                    $routeName = 'shop.category.leaf.index';
+                } else {
+                    $routeName = 'shop.category.index';
+                }
+
+                $category->href = route($routeName, [
+                    'url' => $category->url,
+                    'locale' => $routeLocale,
+                ]);
+            })
+            ->toTree();
+
+        return $categories;
+    }
+
+    /**
+     * Create user badges.
      *
      * @return array
      */
-    private function getHeaderActionBadges()
+    private function getUserBadges(): array
     {
+        if (auth('web')->check()) {
+            return $this->getAuthenticatedUserBadges();
+        } elseif ($this->request->hasCookie('uuid')) {
+            return $this->getGuestUserBadges();
+        } else {
+            return [];
+        }
+    }
+
+    /**
+     * Get badges for authenticated user.
+     *
+     * @return array
+     */
+    private function getAuthenticatedUserBadges(): array
+    {
+        $user = auth('web')->user();
+
         $badges = [];
 
-        if (auth('web')->check()) {
-
-            $user = auth('web')->user();
-
-            $badges['recent'] = $user->timeLimitedRecentProducts()->count();
-
-            $badges['favourite'] = $user->favouriteProducts()->count();
-
-        } elseif (Cookie::has('uuid')) {
-
-            $uuid = Cookie::get('uuid');
-
-            $badges['recent'] = RecentProduct::where([
-                    ['uuid', '=', $uuid],
-                    ['updated_at', '>=', Carbon::now()->subDays(config('shop.recent_product_ttl'))],
-                ])->count();
-
-            $badges['favourite'] = FavouriteProduct::where('uuid', $uuid)->count();
-        }
+        $badges['recent'] = $user->timeLimitedRecentProducts()->count();
+        $badges['favourites'] = $user->favouriteProducts()->count();
 
         return $badges;
+    }
+
+    /**
+     * Get badges for not authenticated user.
+     *
+     * @return array
+     */
+    private function getGuestUserBadges(): array
+    {
+        $uuid = $this->request->cookie('uuid');
+
+        $badges = [];
+
+        $badges['recent'] = $this->recentProduct->where([
+            ['uuid', '=', $uuid],
+            ['updated_at', '>=', Carbon::now()->subDays(config('shop.recent_product_ttl'))],
+        ])
+            ->count();
+
+        $badges['favourites'] = $this->favouriteProduct->where('uuid', $uuid)->count();
+
+        return $badges;
+    }
+
+    /**
+     * Get shop contacts data.
+     *
+     * @return array
+     */
+    private function getContactsData()
+    {
+        $phones = $this->settingsRepository->getProperty('contacts.phones');
+
+        return compact('phones');
+    }
+
+    /**
+     * Create possible locales links.
+     *
+     * @return array
+     */
+    private function createChangeLocaleLinks(): array
+    {
+        $links = [];
+
+        $canonicalLocale = config('app.canonical_locale');
+
+        // get query string
+        $queryStringParameters = $this->request->query();
+
+        foreach (config('app.available_locales') as $possibleLocale) {
+
+            //get route name
+            $routeName = $this->request->route()->getName();
+
+            // get current route parameters
+            $routeParameters = $this->request->route()->parameters();
+
+            // set locale params
+            if ($possibleLocale === $canonicalLocale) {
+                $routeParameters['locale'] = null;
+            } else {
+                $routeParameters['locale'] = $possibleLocale;
+            }
+
+            // url for handling locale
+            $possibleLocaleUrl = route($routeName, $routeParameters) . $this->createQueryString($queryStringParameters);
+
+            $links[$possibleLocale] = $possibleLocaleUrl;
+        }
+
+        return $links;
+    }
+
+    /**
+     * Create query string.
+     *
+     * @param array $parameters
+     * @return string
+     */
+    protected function createQueryString(array $parameters)
+    {
+        return $parameters ? '?' . urldecode(http_build_query($parameters)) : '';
     }
 }

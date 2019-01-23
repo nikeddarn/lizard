@@ -2,49 +2,27 @@
 
 @section('content')
 
-    <div class="row admin-content-header">
-        <div class="col admin-content-title"><h2>Создать категорию</h2></div>
-        <div class="col-auto admin-content-actions">
-            <button type="submit" form="category-form" data-toggle="tooltip" title="Сохранить" class="btn btn-primary">
-                <i class="fa fa-save"></i></button>
-            <a href="{{ route('admin.categories.index') }}" data-toggle="tooltip" title="Отменить"
-               class="btn btn-primary"><i class="fa fa-reply"></i></a>
-        </div>
-    </div>
+    @include('content.admin.catalog.category.create.parts.header')
 
-    @if ($errors->any())
-        <div class="row">
-            <div class="col-sm-8">
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            </div>
-        </div>
-    @endif
+    @include('elements.errors.admin_error.index')
 
-    <div class="row">
-        <div class="col-lg-12">
+    <div class="card card-body">
 
-            <form id="category-form" class="multitab-form" method="post" action="{{ route('admin.categories.store') }}" role="form"
+            <form id="category-form" class="multitab-form" method="post" action="{{ route('admin.categories.store') }}"
+                  role="form"
                   enctype="multipart/form-data">
                 @csrf
 
-            <nav>
-                <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                    <a class="nav-item nav-link active" data-toggle="tab" href="#category-general" role="tab"
-                       aria-controls="category-general" aria-selected="true">Основное</a>
-                    <a class="nav-item nav-link" data-toggle="tab" href="#category-seo" role="tab"
-                       aria-controls="category-seo" aria-selected="false">SEO</a>
-                    <a class="nav-item nav-link" data-toggle="tab" href="#category-content" role="tab"
-                       aria-controls="category-content" aria-selected="false">Описание</a>
-                    <a class="nav-item nav-link" data-toggle="tab" href="#category-filters" role="tab"
-                       aria-controls="category-filters" aria-selected="false">Фильтры</a>
-                </div>
-            </nav>
+                <nav>
+                    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                        <a class="nav-item nav-link active" data-toggle="tab" href="#category-general" role="tab"
+                           aria-controls="category-general" aria-selected="true">Основное</a>
+                        <a class="nav-item nav-link" data-toggle="tab" href="#category-seo" role="tab"
+                           aria-controls="category-seo" aria-selected="false">SEO</a>
+                        <a class="nav-item nav-link" data-toggle="tab" href="#category-content" role="tab"
+                           aria-controls="category-content" aria-selected="false">Описание</a>
+                    </div>
+                </nav>
 
                 <div class="tab-content">
                     <div class="tab-pane fade show active" id="category-general" role="tabpanel"
@@ -58,27 +36,18 @@
                          aria-labelledby="category-content-tab">
                         @include('content.admin.catalog.category.create.parts.content_inputs')
                     </div>
-                    <div class="tab-pane fade" id="category-filters" role="tabpanel"
-                         aria-labelledby="category-filters-tab">
-                        @include('content.admin.catalog.category.create.parts.filters')
-                    </div>
                 </div>
 
                 <button type="submit" class="btn btn-primary">Создать категорию</button>
 
             </form>
-
-            {{-- input filter template (hidden) --}}
-            @include('content.admin.catalog.category.create.parts.filter_input_template')
-
-        </div>
     </div>
 
 @endsection
 
 @section('scripts')
 
-    <script type="text/javascript" src="/js/generate-url.js"></script>
+    <script type="text/javascript" src="{{ url('/js/generate-url.js') }}"></script>
 
     <script>
 

@@ -1,18 +1,18 @@
 <h1 class="text-gray h3">{{ $product->name }}</h1>
 
-@if($product->price)
-    @if($product->localPrice)
-        <h2 class="product-price my-4">{{ $product->localPrice }}&nbsp; грн<small class="ml-4 text-gray-lighter">$&nbsp;{{ $product->price }}</small></h2>
-    @else
-        <h2 class="product-price my-4">$&nbsp;{{ $product->price }}</h2>
-    @endif
+@if($product->localPrice)
+    <h2 class="product-price my-4">{{ $product->localPrice }}&nbsp; грн
+        @if($product->price)
+            <small class="ml-4 text-gray-hover">$&nbsp;{{ $product->price }}</small>
+        @endif
+    </h2>
 @endif
 
 <form action="{{ route('shop.cart.count', ['id' => $product->id]) }}" method="post">
 
     @csrf
 
-    <table class="table product-details">
+    <table class="table product-details text-gray-hover">
         <tbody>
 
         @if($product->brief_content)
@@ -21,10 +21,10 @@
             </tr>
         @endif
 
-        @if($product->model_ru)
+        @if($product->model)
             <tr>
                 <td>Модель товара</td>
-                <td>{{ $product->model_ru }}</td>
+                <td>{{ $product->model }}</td>
             </tr>
         @endif
 
@@ -58,26 +58,40 @@
                 @if($product->availableProductStorages->count())
                     <div>
                         @foreach($product->availableProductStorages as $storage)
-                            <span class="badge badge-success font-weight-normal h6 px-2 my-2 mr-2">{{ $storage->city->name_ru }}
+                            <span
+                                class="badge badge-success font-weight-normal h6 px-2 my-2 mr-2">{{ $storage->city->name_ru }}
                                                             :&emsp;{{ $storage->name_ru }}</span>
                         @endforeach
                     </div>
                 @elseif($product->isAvailable)
-                    <div class="available-product">Готов к отгрузке</div>
+                    <div class="text-gray">
+                        <i class="svg-icon text-success" data-feather="check-circle"></i>
+                        <span class="ml-2">Готов к отгрузке</span>
+                    </div>
                 @elseif($product->isExpectedToday)
-                    <div class="available-product">Ожидается сегодня</div>
+                    <div class="text-gray">
+                        <i class="svg-icon text-warning" data-feather="clock"></i>
+                        <span class="ml-2">Ожидается сегодня</span>
+                    </div>
                 @elseif($product->expectedAt)
-                    <div class="expected-product">Ожидается {{ $product->expectedAt->diffForHumans() }}</div>
+                    <div class="text-gray">
+                        <i class="svg-icon text-warning" data-feather="clock"></i>
+                        <span
+                            class="ml-2">Ожидается {{ $product->expectedAt->diffForHumans() }}</span>
+                    </div>
                 @else
-                    <div class="unavailable-product">Нет в наличии</div>
+                    <div class="text-gray">
+                        <i class="svg-icon text-danger" data-feather="alert-circle"></i>
+                        <span class="ml-2">Нет в наличии</span>
+                    </div>
                 @endif
             </td>
         </tr>
 
-        @if($product->manufacturer_ru)
+        @if($product->manufacturer)
             <tr>
                 <td>Производство</td>
-                <td>{{ $product->manufacturer_ru }}</td>
+                <td>{{ $product->manufacturer }}</td>
             </tr>
         @endif
 
@@ -99,29 +113,28 @@
             </tr>
         @endif
 
-        <tr>
-            <td><label class="m-0" for="productQuantity">Количество</label></td>
-            <td>
-                <input id="productQuantity" name="quantity" type="number" required value="{{ old('quantity', 1) }}"
-                       min="1">
-            </td>
-        </tr>
-
-        <tr>
-            <td></td>
-            <td>
-                <div class="btn-group mt-4" role="group" aria-label="Basic example">
-                    <button type="button" class="btn btn-primary">Добавить в корзину</button>
-                    <a href="{{ route('user.favourites.add', ['id' => $product->id]) }}"
-                       class="btn btn-outline-theme product-favourite-add"
-                       data-toggle="tooltip" data-placement="top" title="В избранное">
-                        <i class="fa fa-heart-o"></i>
-                    </a>
-                </div>
-            </td>
-        </tr>
-
         </tbody>
     </table>
+
+    <div class="row d-sm-flex align-items-end">
+
+        <div class="col col-sm-6 form-group p-sm-5">
+            <label class="mb-1 text-gray main-link h6" for="productQuantity">Количество</label>
+            <input id="productQuantity" name="quantity" required value="{{ old('quantity', 1) }}"
+                   min="1">
+        </div>
+
+        <div class="col col-sm-6 form-group p-sm-5">
+            <div id="product-details-actions" class="btn-group d-flex" role="group">
+                <button type="submit" class="btn btn-primary">Добавить в корзину</button>
+                <a href="{{ route('user.favourites.add', ['id' => $product->id]) }}"
+                   class="btn btn-outline-theme product-favourite-add"
+                   data-toggle="tooltip" data-placement="top" title="В избранное">
+                    <i class="fa fa-heart-o"></i>
+                </a>
+            </div>
+        </div>
+
+    </div>
 
 </form>

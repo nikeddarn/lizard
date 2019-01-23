@@ -1,6 +1,6 @@
 @if($favouriteProducts->count())
 
-    <table class="table table-cart table-wishlist">
+    <table class="table">
         <tbody>
 
         @foreach($favouriteProducts as $product)
@@ -11,42 +11,50 @@
 
                     <div class="media">
 
-                        <a href="{{ route('shop.product.index', ['id' => $product->url]) }}"
-                           class="mr-3 d-none d-md-block">
+                        <a href="{{ $product->href }}" class="mr-3 d-none d-md-block">
                             @if($product->primaryImage)
                                 <img class="img-fluid table-product-image"
-                                     src="/storage/{{ $product->primaryImage->small }}">
+                                     src="{{ url('/storage/' . $product->primaryImage->small) }}"
+                                     alt="Изображение продукта">
                             @else
-                                <img class="img-fluid table-product-image" src="/images/common/no_image.png"/>
+                                <img class="img-fluid table-product-image"
+                                     src="{{ url('/images/common/no_image.png') }}" alt="Нет изображения продукта"/>
                             @endif
                         </a>
 
                         <div class="media-body align-self-center">
-                            <a href="{{ route('shop.product.index', ['id' => $product->url]) }}"
-                               class="h6">{{ $product->name }}</a>
+                            <a href="{{ $product->href }}" class="h6">{{ $product->name }}</a>
                             <div class="mb-1">
 
-                                @if($product->price)
+                                @if($product->localPrice)
                                     <span class="d-inline d-sm-none">Цена:
-                                        @if($product->localPrice)
-                                            <span class="text-lizard">{{ $product->localPrice }}&nbsp;грн</span>
-                                        @else
-                                            <span class="text-lizard">${{ $product->price }}</span>
+                                            <span class="product-price">{{ $product->localPrice }}&nbsp;грн</span>
+                                        @if($product->price)
+                                            <span class="ml-1">${{ $product->price }}</span>
                                         @endif
                                     </span>
                                 @endif
 
-                                <div class="small mt-2 d-none d-sm-block">Наличие:</div>
-
                                 @if($product->isAvailable)
-                                    <span class="badge badge-success font-weight-normal smaller">Готов к отгрузке</span>
+                                    <div class="text-gray">
+                                        <i class="svg-icon text-success" data-feather="check-circle"></i>
+                                        <span class="ml-2">Готов к отгрузке</span>
+                                    </div>
                                 @elseif($product->isExpectedToday)
-                                    <span class="badge badge-success font-weight-normal smaller">Ожидается сегодня</span>
+                                    <div class="text-gray">
+                                        <i class="svg-icon text-warning" data-feather="clock"></i>
+                                        <span class="ml-2">Ожидается сегодня</span>
+                                    </div>
                                 @elseif($product->expectedAt)
-                                    <span
-                                        class="badge badge-success font-weight-normal smaller">Ожидается {{ $product->expectedAt->diffForHumans() }}</span>
+                                    <div class="text-gray">
+                                        <i class="svg-icon text-warning" data-feather="clock"></i>
+                                        <span class="ml-2">Ожидается {{ $product->expectedAt->diffForHumans() }}</span>
+                                    </div>
                                 @else
-                                    <span class="badge badge-danger font-weight-normal smaller">Нет в наличии</span>
+                                    <div class="text-gray">
+                                        <i class="svg-icon text-danger" data-feather="alert-circle"></i>
+                                        <span class="ml-2">Нет в наличии</span>
+                                    </div>
                                 @endif
 
                             </div>
@@ -57,16 +65,16 @@
                 </td>
 
                 <td class="d-none d-sm-table-cell">
-                    @if($product->price)
+                    @if($product->localPrice)
                         <ul class="card-text list-inline">
-                            @if($product->localPrice)
+                            <li class="list-inline-item">
+                                <span class="product-price h5">{{ $product->localPrice }}&nbsp;грн</span>
+                            </li>
+                            @if($product->price)
                                 <li class="list-inline-item">
-                                    <span class="text-lizard h5">{{ $product->localPrice }}&nbsp;грн</span>
+                                    <span>${{ $product->price }}</span>
                                 </li>
                             @endif
-                            <li class="list-inline-item">
-                                <span>${{ $product->price }}</span>
-                            </li>
                         </ul>
                     @endif
                 </td>

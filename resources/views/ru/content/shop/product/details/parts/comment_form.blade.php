@@ -1,4 +1,4 @@
-<h4 class="mb-4 text-gray">Добавьте ваш отзыв</h4>
+<h4 class="mb-4 text-gray-hover">Добавьте ваш отзыв</h4>
 
 <form id="formReview" action="{{ route('product.comments.store') }}" method="post" role="form">
 

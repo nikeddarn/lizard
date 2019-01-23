@@ -2,28 +2,27 @@
 
 @section('content')
 
-    <div class="row admin-content-header">
+    <div class="card card-body">
 
-        <div class="col admin-content-title"><h2>Синхронизированные категории</h2></div>
-    </div>
+        <h1 class="text-gray-hover h3 text-center">Синхронизированные категории</h1>
 
-    <div class="row">
-        <div class="col-lg-12">
-
+        <div class="my-4">
             @if($synchronizedCategories->count())
-
                 @include('content.admin.vendors.category.synchronized.parts.categories')
-
-                @if($synchronizedCategories->links())
-                    <div class="col-lg-12 my-4">{{$synchronizedCategories->links()}}</div>
-                @endif
-
             @else
                 <p>Нет синхронизированных категорий</p>
             @endif
-
         </div>
+
     </div>
+
+    @if($synchronizedCategories->lastPage() !== 1)
+        <div class="row">
+            <div class="col-12 my-4">
+                @include('layouts.parts.pagination.products.index', ['paginator' => $synchronizedCategories])
+            </div>
+        </div>
+    @endif
 
 @endsection
 

@@ -1,6 +1,8 @@
-<nav class="nav">
-    <a class="nav-link" href="{{ route('login') }}">
-        <i class="fa fa-user" aria-hidden="true"></i>
-        &nbsp;Войти
-    </a>
-</nav>
+<ul class="nav">
+    <li class="nav-item">
+        <a class="nav-link py-1 text-gray" href="{{ route('login', ['locale' => request()->route('locale')]) }}">
+            <i class="svg-icon" data-feather="user"></i>
+            <span>Войти</span>
+        </a>
+    </li>
+</ul>

@@ -70,7 +70,7 @@ class ProductImageHandler extends ImageHandler
         $image = $this->createImageFromFile($sourcePath);
 
         // prepare image
-        $resizedImage = $this->resizeImage($image, config('shop.images.description'));
+        $resizedImage = $this->resizeImage($image, config('images.description'));
 
         // create image path
         $destinationPath = self::PRODUCT_DESCRIPTION_IMAGE_DIRECTORY . uniqid() . '.jpg';
@@ -106,21 +106,6 @@ class ProductImageHandler extends ImageHandler
     }
 
     /**
-     * Create image from file.
-     *
-     * @param string $sourcePath
-     * @return Image
-     */
-    private function createImageFromFile(string $sourcePath)
-    {
-        $image = $this->imageProvider->make($sourcePath);
-
-        $image->backup();
-
-        return $image;
-    }
-
-    /**
      * Create product images.
      *
      * @param Image $image
@@ -140,7 +125,7 @@ class ProductImageHandler extends ImageHandler
         foreach (self::PRODUCT_IMAGE_TYPES as $imageType) {
 
             // don't store original image
-            if ($imageType === 'image' && !config('shop.images.store_original_image')) {
+            if ($imageType === 'image' && !config('images.store_original_image')) {
                 continue;
             }
 
@@ -157,9 +142,35 @@ class ProductImageHandler extends ImageHandler
             Storage::disk('public')->put($imagePath, $resizedImage);
 
             // restore source image for next iteration
-            $image->invert();
+            $image->reset();
         }
 
         return $modelImageData;
+    }
+
+    /**
+     * Create image.
+     *
+     * @param Image $image
+     * @param string $type
+     * @return mixed
+     */
+    protected function createProductImageByType(Image $image, string $type)
+    {
+        // resize image without up size
+        $createdImage = $image->widen(config('images.products.' . $type), function ($constraint) {
+            $constraint->upsize();
+        });
+
+        // watermark image excluding original image
+        if (config('images.products.watermark') && $type !== 'image') {
+
+            $watermark = $this->imageProvider->make(public_path('images/common/watermark.png'))
+                ->widen($createdImage->width());
+
+            $createdImage->insert($watermark, 'center');
+        }
+
+        return $createdImage->stream('jpg', 100);
     }
 }

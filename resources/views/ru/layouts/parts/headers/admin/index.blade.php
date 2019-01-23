@@ -1,12 +1,17 @@
 <header id="admin-header" class="container-fluid">
-    <div class="row">
 
-        <div class="col-3 pl-0">
-            @include('layouts.parts.headers.admin.parts.logo')
+    <div class="row py-2">
+
+        <div class="col-12 d-flex align-items-center justify-content-between">
+            <div>
+                @include('layouts.parts.headers.admin.parts.hamburger')
+                @include('layouts.parts.headers.admin.parts.logo')
+            </div>
+            <div>
+                @include('layouts.parts.headers.admin.parts.menu')
+            </div>
         </div>
 
-        <div class="col">
-            @include('layouts.parts.headers.admin.parts.navbar')
-        </div>
     </div>
+
 </header>

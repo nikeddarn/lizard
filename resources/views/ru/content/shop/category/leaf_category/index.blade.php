@@ -5,35 +5,45 @@
     <div id="category-products-list" class="row mb-3">
 
         @if($filters->count())
-            <div class="col-md-4 col-lg-3">
+            <div class="col-md-4 col-lg-3 d-none d-md-block">
                 @include('content.shop.category.leaf_category.parts.filters')
             </div>
         @endif
 
-        <div class="col-md-8 col-lg-9">
+        <div class="{{ $filters->count() ? 'col-md-8 col-lg-9' : 'col-12' }}">
 
-            <div class="shop-section-wrapper my-4">
+            <div class="card my-4 p-3">
 
                 <div class="row align-items-center">
-                    <div class="col">
+
+                    <div class="col-auto d-block d-md-none mr-auto">
+                        @if(isset($usedFilters) && $usedFilters->count())
+                            <button id="modal-filter-toggle" class="btn btn-sm btn-outline-theme rounded-pill"
+                                    data-toggle="modal"
+                                    data-target="#filterModal">
+                                <i class="svg-icon" data-feather="filter"></i>
+                                <span class="pr-1">фильтры</span>
+                                <span class="badge badge-danger">{{ $usedFilters->count() }}</span>
+                            </button>
+                        @else
+                            <button id="modal-filter-toggle" class="btn btn-sm btn-outline-theme rounded-pill"
+                                    data-toggle="modal"
+                                    data-target="#filterModal">
+                                <i class="svg-icon" data-feather="filter"></i>
+                                <span>Фильтровать</span>
+                            </button>
+                        @endif
+                    </div>
+
+                    <div class="col d-none d-md-block">
                         @include('layouts.parts.breadcrumbs.shop.index')
                     </div>
+
                     <div class="col-auto">
-                        <a href="" class="btn btn-icon rounded-pill btn-sm btn-primary ml-3">
-
-                        </a>
-                        <a href="" class="btn btn-icon rounded-pill btn-sm btn-primary ml-1">
-
-                        </a>
+                        @include('content.shop.category.leaf_category.parts.product-control')
                     </div>
 
                 </div>
-
-                {{--<div class="col-lg-12 mt-2 mb-4 my-md-4">--}}
-                    {{--<div class="underlined-title">--}}
-                        {{--<h1 class="h4 text-gray-lighter px-2">{{ $category->name }}</h1>--}}
-                    {{--</div>--}}
-                {{--</div>--}}
 
             </div>
 
@@ -41,21 +51,35 @@
                 @include('content.shop.category.leaf_category.parts.products')
             </div>
 
-            <div class="row">
-                @if($products->links())
-                    <div class="col-lg-12 my-4">{{$products->links()}}</div>
-                @endif
-            </div>
+
+            @if($products->lastPage() !== 1)
+                <div class="row">
+                    <div class="col-12 my-4">
+                        @include('layouts.parts.pagination.products.index', ['paginator' => $products])
+                    </div>
+                </div>
+            @endif
+
+            @if($products->currentPage() === 1 && !empty($categoryContent))
+                <div class="row">
+                    <div class="col-lg-12 my-4">
+                        <div class="card">
+                            <div class="card-body">
+                                {!! $categoryContent !!}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
 
         </div>
 
     </div>
 
-    <div class="row">
-            <div class="col-lg-12 my-5">{!! $category->content !!}</div>
-    </div>
-
     @include('content.shop.category.leaf_category.parts.modal_product_favourite_added')
+
+    {{-- product filters modal--}}
+    @include('content.shop.category.leaf_category.parts.filters_modal')
 
 @endsection
 
@@ -77,33 +101,6 @@
                 min: 1,
                 buttondown_class: "btn btn-primary h-100",
                 buttonup_class: "btn btn-primary h-100"
-            });
-
-            // add to favourite
-            $('.product-favourite-add').click(function (e) {
-                e.preventDefault();
-                e.stopImmediatePropagation();
-
-                $.get(this, null, function (data) {
-
-                    // increase header badge's count
-                    if (data === '1') {
-                        let badgeLink = $('#header-favourite-products');
-                        let badge = $(badgeLink).find('span');
-                        if (badge.length) {
-                            $(badge).text(parseInt($(badge).text()) + 1);
-                        } else {
-                            $(badgeLink).prepend($('<span>1</span>'));
-                        }
-                    }
-
-                    // activate modal
-                    let modal = $('#modal-product-favourite-added');
-                    $(modal).modal('show');
-                    setTimeout(function () {
-                        $(modal).modal('hide');
-                    }, 3000);
-                })
             });
 
         });

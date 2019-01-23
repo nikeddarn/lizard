@@ -41,7 +41,7 @@ class UpdateVendorProduct implements ShouldQueue
     {
         $this->vendorId = $vendorId;
         $this->vendorProductId = $vendorProductId;
-        $this->tries = config('shop.update_vendor_product.tries');
+        $this->tries = config('vendor.update_vendor_product.tries');
     }
 
     /**
@@ -63,7 +63,7 @@ class UpdateVendorProduct implements ShouldQueue
 
                 // reattempt with delay
                 if ($this->attempts() < $this->tries) {
-                    $this->release(config('shop.update_vendor_product.retry') * 60);
+                    $this->release(config('vendor.update_vendor_product.retry') * 60);
                 }
 
                 throw $exception;

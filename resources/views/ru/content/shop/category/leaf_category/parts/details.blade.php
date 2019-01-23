@@ -3,7 +3,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h1 class="modal-title h3 text-center">
-                    <a href="{{ route('shop.product.index', ['id' => $product->url]) }}"
+                    <a href="{{ $product->href }}"
                        class="text-dark">{{ $product->name }}</a>
                 </h1>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -36,11 +36,13 @@
                                         @foreach($product->productImages as $key => $image)
                                             @if ($loop->first)
                                                 <div class="carousel-item active">
-                                                    <img class="d-block w-100" src="/storage/{{ $image->medium }}">
+                                                    <img class="d-block w-100" src="/storage/{{ $image->medium }}"
+                                                         alt="product image">
                                                 </div>
                                             @else
                                                 <div class="carousel-item">
-                                                    <img class="d-block w-100" src="/storage/{{ $image->medium }}">
+                                                    <img class="d-block w-100" src="/storage/{{ $image->medium }}"
+                                                         alt="product image">
                                                 </div>
                                             @endif
                                         @endforeach
@@ -66,12 +68,12 @@
 
                         <div class="col col-sm-6">
 
-                            @if($product->price)
-                                @if($product->localPrice)
-                                    <h2 class="product-price my-2">{{ $product->localPrice }}&nbsp; грн<small class="ml-4 text-gray-lighter">$&nbsp;{{ $product->price }}</small></h2>
-                                @else
-                                    <h2 class="product-price my-2">$&nbsp;{{ $product->price }}</h2>
-                                @endif
+                            @if($product->localPrice)
+                                <h2 class="product-price my-2">{{ $product->localPrice }}&nbsp; грн
+                                    @if($product->price)
+                                        <small class="ml-4 text-gray-hover">$&nbsp;{{ $product->price }}</small>
+                                    @endif
+                                </h2>
                             @endif
 
                             <form action="{{ route('shop.cart.count', ['id' => $product->id]) }}" method="post">
@@ -124,18 +126,32 @@
                                             @if($product->availableProductStorages->count())
                                                 <div>
                                                     @foreach($product->availableProductStorages as $storage)
-                                                        <span class="badge badge-success font-weight-normal h6 px-2 my-2 mr-2">{{ $storage->city->name_ru }}
+                                                        <span
+                                                            class="badge badge-success font-weight-normal h6 px-2 my-2 mr-2">{{ $storage->city->name_ru }}
                                                             :&emsp;{{ $storage->name_ru }}</span>
                                                     @endforeach
                                                 </div>
                                             @elseif($product->isAvailable)
-                                                <div class="available-product">Готов к отгрузке</div>
+                                                <div class="text-gray">
+                                                    <i class="svg-icon text-success" data-feather="check-circle"></i>
+                                                    <span class="ml-2">Готов к отгрузке</span>
+                                                </div>
                                             @elseif($product->isExpectedToday)
-                                                <div class="available-product">Ожидается сегодня</div>
+                                                <div class="text-gray">
+                                                    <i class="svg-icon text-warning" data-feather="clock"></i>
+                                                    <span class="ml-2">Ожидается сегодня</span>
+                                                </div>
                                             @elseif($product->expectedAt)
-                                                <div class="expected-product">Ожидается {{ $product->expectedAt->diffForHumans() }}</div>
+                                                <div class="text-gray">
+                                                    <i class="svg-icon text-warning" data-feather="clock"></i>
+                                                    <span
+                                                        class="ml-2">Ожидается {{ $product->expectedAt->diffForHumans() }}</span>
+                                                </div>
                                             @else
-                                                <div class="unavailable-product">Нет в наличии</div>
+                                                <div class="text-gray">
+                                                    <i class="svg-icon text-danger" data-feather="alert-circle"></i>
+                                                    <span class="ml-2">Нет в наличии</span>
+                                                </div>
                                             @endif
                                         </td>
                                     </tr>

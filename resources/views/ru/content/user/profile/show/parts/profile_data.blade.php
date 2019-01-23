@@ -1,6 +1,6 @@
 <div class="row justify-content-center">
 
-    <div class="col-md-8">
+    <div class="col-12">
 
         <ul class="list-group list-group-flush text-center">
             <li class="list-group-item">
@@ -23,7 +23,7 @@
 
     </div>
 
-    <div class="col-md-8">
+    <div class="col-12">
 
         <a href="{{ route('user.profile.edit') }}" class="btn btn-primary pull-right">
             <i class="fa fa-pencil"></i>&nbsp;Редактировать профиль</a>

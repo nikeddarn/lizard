@@ -5,13 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Requests\Admin\Category\StoreCategoryRequest;
 use App\Http\Requests\Admin\Category\UpdateCategoryRequest;
 use App\Models\Category;
-use App\Models\Filter;
+use App\Support\ImageHandlers\CategoryImageHandler;
 use Exception;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use Intervention\Image\Facades\Image;
 
 class CategoryController extends Controller
 {
@@ -19,20 +17,14 @@ class CategoryController extends Controller
      * @var Category
      */
     private $category;
-    /**
-     * @var Filter
-     */
-    private $filter;
 
     /**
      * CategoryController constructor.
      * @param Category $category
-     * @param Filter $filter
      */
-    public function __construct(Category $category, Filter $filter)
+    public function __construct(Category $category)
     {
         $this->category = $category;
-        $this->filter = $filter;
     }
 
     /**
@@ -45,9 +37,9 @@ class CategoryController extends Controller
     {
         $this->authorize('view', $this->category);
 
-        return view('content.admin.catalog.category.list.index')->with([
-            'categories' => $this->category->defaultOrder()->withCount('products')->get()->toTree(),
-        ]);
+        $categories = $this->category->defaultOrder()->withCount('products')->get()->toTree();
+
+        return view('content.admin.catalog.category.list.index')->with(compact('categories'));
     }
 
     /**
@@ -60,38 +52,39 @@ class CategoryController extends Controller
     {
         $this->authorize('create', $this->category);
 
-        $locale = app()->getLocale();
+        $categories = $this->category->defaultOrder()->withDepth()->get()->toTree();
 
-        $filters = $this->filter->newQuery()->orderBy("name_$locale")->get();
-
-        return view('content.admin.catalog.category.create.index')->with([
-            'categories' => $this->category->defaultOrder()->withDepth()->get()->toTree(),
-            'filters' => $filters,
-        ]);
+        return view('content.admin.catalog.category.create.index')->with(compact('categories'));
     }
 
     /**
      * Store a newly created resource in storage.
      *
      * @param StoreCategoryRequest $request
+     * @param CategoryImageHandler $imageHandler
      * @return \Illuminate\Http\Response
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function store(StoreCategoryRequest $request)
+    public function store(StoreCategoryRequest $request, CategoryImageHandler $imageHandler)
     {
         $this->authorize('create', $this->category);
 
         $attributes = $request->only(['name_ru', 'name_ua', 'url', 'parent_id', 'title_ru', 'title_ua', 'description_ru', 'description_ua', 'keywords_ru', 'keywords_ua', 'content_ru', 'content_ua']);
 
+        $category = $this->category->create($attributes);
+
         // insert image
         if ($request->has('image')) {
-            $attributes['image'] = 'images/categories/intro/' . uniqid() . '.jpg';
-            $categoryImageSizes = config('shop.images.category');
-            $createdImage = Image::make($request->image)->resize($categoryImageSizes['w'], $categoryImageSizes['h']);
-            Storage::disk('public')->put($attributes['image'], $createdImage->stream('jpg', 100));
+            // uploaded image path
+            $sourceImagePath = $request->image;
+            // stored image path
+            $destinationImagePath = 'images/categories/' . $category->id . '/' . uniqid() . '.jpg';
+            // create image
+            $imageHandler->createCategoryIcon($sourceImagePath, $destinationImagePath);
+            // store image path
+            $category->image = $destinationImagePath;
+            $category->save();
         }
-
-        $category = $this->category->create($attributes);
 
         // insert filters
         if ($request->has('filter_id')) {
@@ -116,12 +109,9 @@ class CategoryController extends Controller
 
         $category = $this->category->newQuery()->findOrFail($id);
 
-        $products = $category->products()->with('primaryImage', 'filters', 'vendors')->paginate(config('admin.show_items_per_page'));
+        $products = $category->products()->with('primaryImage', 'filters', 'vendors')->paginate(config('admin.show_item_properties_per_page'));
 
-        return view('content.admin.catalog.category.show.index')->with([
-            'category' => $category,
-            'products' => $products,
-        ]);
+        return view('content.admin.catalog.category.show.index')->with(compact('category', 'products'));
     }
 
     /**
@@ -151,30 +141,39 @@ class CategoryController extends Controller
      *
      * @param UpdateCategoryRequest $request
      * @param string $id
+     * @param CategoryImageHandler $imageHandler
      * @return \Illuminate\Http\Response
-     * @throws Exception
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws Exception
      */
-    public function update(UpdateCategoryRequest $request, string $id)
+    public function update(UpdateCategoryRequest $request, string $id, CategoryImageHandler $imageHandler)
     {
         $this->authorize('update', $this->category);
 
         $category = $this->category->newQuery()->findOrFail($id);
 
+        DB::beginTransaction();
 
         try {
-            DB::beginTransaction();
 
-            $attributes = $request->only(['name_ru', 'name_ua', 'url', 'title_ru', 'title_ua', 'description_ru', 'description_ua', 'keywords_ru', 'keywords_ua', 'content_ru', 'content_ua']);
+            $categoryAttributes = $request->only(['name_ru', 'name_ua', 'url', 'title_ru', 'title_ua', 'description_ru', 'description_ua', 'keywords_ru', 'keywords_ua', 'content_ru', 'content_ua']);
 
             if ($request->has('image')) {
-                $attributes['image'] = 'images/categories/intro/' . uniqid() . '.jpg';
-                $categoryImageSizes = config('shop.images.category');
-                $createdImage = Image::make($request->image)->resize($categoryImageSizes['w'], $categoryImageSizes['h']);
-                Storage::disk('public')->put($attributes['image'], $createdImage->stream('jpg', 100));
+                // delete previous image
+                $imageHandler->deleteCategoryIcon($category->id);
+
+                // uploaded image path
+                $sourceImagePath = $request->image;
+                // stored image path
+                $destinationImagePath = 'images/categories/' . $category->id . '/' . uniqid() . '.jpg';
+                // create image
+                $imageHandler->createCategoryIcon($sourceImagePath, $destinationImagePath);
+
+                // store image path
+                $categoryAttributes['image'] = $destinationImagePath;
             }
 
-            $category->update($attributes);
+            $category->update($categoryAttributes);
 
             // change parent
             $parentId = (int)$request->get('parent_id');
@@ -187,12 +186,12 @@ class CategoryController extends Controller
                 }
             }
 
-            DB::commit();
-
         } catch (Exception $e) {
             DB::rollback();
             throw $e;
         }
+
+        DB::commit();
 
         return redirect(route('admin.categories.show', ['id' => $category->id]));
     }
@@ -201,14 +200,22 @@ class CategoryController extends Controller
      * Remove the specified resource from storage.
      *
      * @param string $id
+     * @param CategoryImageHandler $imageHandler
      * @return \Illuminate\Http\Response
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws Exception
      */
-    public function destroy(string $id)
+    public function destroy(string $id, CategoryImageHandler $imageHandler)
     {
         $this->authorize('delete', $this->category);
 
-        $this->category->newQuery()->findOrFail($id)->delete();
+        // retrieve category
+        $category = $this->category->newQuery()->findOrFail($id);
+
+        // delete previous image
+        $imageHandler->deleteCategoryIcon($category->id);
+
+        $category->delete();
 
         return redirect(route('admin.categories.index'));
     }

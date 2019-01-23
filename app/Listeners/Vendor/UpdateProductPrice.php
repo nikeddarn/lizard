@@ -45,7 +45,7 @@ class UpdateProductPrice
         $product = $event->product;
 
         // allow update product
-        if (config('shop.price.update_own_product_price_on_vendor_sync') || !$this->isProductOwn($product)) {
+        if (config('vendor.price.update_own_product_price_on_vendor_sync') || !$this->isProductOwn($product)) {
             // get recalculated prices
             $newProductPrices = $this->productPrice->getProductPrices($product);
 

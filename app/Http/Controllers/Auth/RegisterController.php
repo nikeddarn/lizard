@@ -7,7 +7,6 @@ use App\Models\RecentProduct;
 use App\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
@@ -33,15 +32,26 @@ class RegisterController extends Controller
      * @var string
      */
     protected $redirectTo = '/';
+    /**
+     * @var FavouriteProduct
+     */
+    private $favouriteProduct;
+    /**
+     * @var RecentProduct
+     */
+    private $recentProduct;
 
     /**
      * Create a new controller instance.
      *
-     * @return void
+     * @param FavouriteProduct $favouriteProduct
+     * @param RecentProduct $recentProduct
      */
-    public function __construct()
+    public function __construct(FavouriteProduct $favouriteProduct, RecentProduct $recentProduct)
     {
         $this->middleware('guest');
+        $this->favouriteProduct = $favouriteProduct;
+        $this->recentProduct = $recentProduct;
     }
 
     /**
@@ -84,18 +94,17 @@ class RegisterController extends Controller
     protected function registered(Request $request, $user)
     {
         // associate created user with unregistered user by it's 'uuid' cookie
-        if (Cookie::has('uuid')) {
+        if ($request->hasCookie('uuid')) {
 
-            $uuid = Cookie::get('uuid');
+            $uuid = $request->cookie('uuid');
 
-            FavouriteProduct::where('uuid', $uuid)->update([
+            $this->favouriteProduct->newQuery()->where('uuid', $uuid)->update([
                 'users_id' => $user->id,
             ]);
 
-            RecentProduct::where('uuid', $uuid)->update([
+            $this->recentProduct->newQuery()->where('uuid', $uuid)->update([
                 'users_id' => $user->id,
             ]);
         }
-
     }
 }

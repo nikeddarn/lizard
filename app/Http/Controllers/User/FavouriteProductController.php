@@ -4,15 +4,11 @@ namespace App\Http\Controllers\User;
 
 use App\Models\FavouriteProduct;
 use App\Http\Controllers\Controller;
-use App\Models\Product;
-use App\Support\ExchangeRates\ExchangeRates;
-use App\Support\ProductAvailability\ProductAvailability;
-use App\Support\ProductPrices\UserProductPrice;
-use Carbon\Carbon;
+use App\Support\Shop\Products\FavouriteProducts;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 
 class FavouriteProductController extends Controller
 {
@@ -25,70 +21,37 @@ class FavouriteProductController extends Controller
      */
     private $favouriteProduct;
     /**
-     * @var Product
+     * @var FavouriteProducts
      */
-    private $product;
-    /**
-     * @var ExchangeRates
-     */
-    private $exchangeRates;
-    /**
-     * @var UserProductPrice
-     */
-    private $productPrice;
-    /**
-     * @var ProductAvailability
-     */
-    private $productAvailability;
+    private $favouriteProducts;
 
     /**
      * FavouriteProductController constructor.
      * @param Request $request
      * @param FavouriteProduct $favouriteProduct
-     * @param Product $product
-     * @param ExchangeRates $exchangeRates
-     * @param UserProductPrice $productPrice
-     * @param ProductAvailability $productAvailability
+     * @param FavouriteProducts $favouriteProducts
      */
-    public function __construct(Request $request, FavouriteProduct $favouriteProduct, Product $product, ExchangeRates $exchangeRates, UserProductPrice $productPrice, ProductAvailability $productAvailability)
+    public function __construct(Request $request, FavouriteProduct $favouriteProduct, FavouriteProducts $favouriteProducts)
     {
         $this->request = $request;
         $this->favouriteProduct = $favouriteProduct;
-        $this->product = $product;
-        $this->exchangeRates = $exchangeRates;
-        $this->productPrice = $productPrice;
-        $this->productAvailability = $productAvailability;
+        $this->favouriteProducts = $favouriteProducts;
     }
 
     /**
+     * Show user'd favourite products.
      *
-     *
-     * @return $this|string
+     * @return View
      */
     public function index()
     {
         if (auth('web')->check()) {
-            $favouriteProductsQuery = $this->product->newQuery()
-                ->whereHas('favouriteProducts', function ($query) {
-                    $query->where('users_id', auth('web')->id());
-                });
-
             $view = view('content.user.favourite.registered.index');
         } else {
-            $uuid = Cookie::get('uuid', Str::uuid());
-
-            $favouriteProductsQuery = $this->product->newQuery()
-                ->whereHas('favouriteProducts', function ($query) use ($uuid) {
-                    $query->where('uuid', $uuid);
-                });
-
             $view = view('content.user.favourite.unregistered.index');
         }
 
-        $favouriteProducts = $favouriteProductsQuery->with('primaryImage', 'availableStorageProducts', 'expectingStorageProducts', 'availableVendorProducts', 'expectingVendorProducts')
-            ->get();
-
-        $this->addProductsProperties($favouriteProducts);
+        $favouriteProducts = $this->favouriteProducts->getProducts();
 
         return $view->with(compact('favouriteProducts'));
     }
@@ -102,46 +65,50 @@ class FavouriteProductController extends Controller
     public function addProductToFavourite(string $id)
     {
         if (auth('web')->check()) {
-
+            // get user's id
             $usersId = auth('web')->id();
 
+            // get product
             $favouriteProduct = $this->favouriteProduct->newQuery()->where([
                 ['products_id', '=', $id],
-                ['users_id', '=', $usersId]
+                ['users_id', '=', $usersId],
             ])->first();
 
             if ($favouriteProduct) {
-                return $this->request->ajax() ? 0 : back();
+                return $this->request->ajax() ? null : back();
             } else {
-                $this->favouriteProduct->newQuery()->create([
+                // add to favourite
+                $this->favouriteProduct->newQuery()->firstOrCreate([
                     'products_id' => $id,
                     'users_id' => $usersId,
                 ]);
 
-                return $this->request->ajax() ? 1 : back();
+                return $this->request->ajax() ? true : back();
             }
         } else {
+            // get user's uuid
+            $uuid = $this->request->cookie('uuid', Str::uuid());
 
-            $uuid = Cookie::get('uuid', Str::uuid());
+            // restore cookie
+            Cookie::queue(Cookie::forever('uuid', $uuid));
 
+            // get product
             $favouriteProduct = $this->favouriteProduct->newQuery()->where([
                 ['products_id', '=', $id],
-                ['uuid', '=', $uuid]
+                ['uuid', '=', $uuid],
             ])->first();
 
             if ($favouriteProduct) {
-                return $this->request->ajax() ? 0 : back();
+                return $this->request->ajax() ? '' : back();
             } else {
-                $this->favouriteProduct->newQuery()->create([
+                // add to favourite
+                $this->favouriteProduct->newQuery()->firstOrCreate([
                     'products_id' => $id,
                     'uuid' => $uuid,
                 ]);
-
-                Cookie::queue(Cookie::forever('uuid', $uuid));
-
-                return $this->request->ajax() ? 1 : back();
             }
 
+            return $this->request->ajax() ? '1' : back();
         }
     }
 
@@ -150,54 +117,28 @@ class FavouriteProductController extends Controller
      *
      * @param string $id
      * @return \Illuminate\Http\Response
+     * @throws \Exception
      */
     public function removeProductFromFavourite(string $id)
     {
-        $product = $this->product->newQuery()->findOrFail($id);
+        $favouriteProductQuery = $this->favouriteProduct->newQuery()->where('products_id', $id);
 
         if (auth('web')->check()) {
-            $product->favouriteProducts()->where('users_id', auth('web')->id())->delete();
-        } else {
-            $uuid = Cookie::get('uuid');
+            // get user's id
+            $usersId = auth('web')->id();
 
-            $product->favouriteProducts()->where('uuid', $uuid)->delete();
+            // constraint query
+            $favouriteProductQuery->where('users_id', $usersId);
+        } else {
+            // get user's uuid
+            $uuid = $this->request->cookie('uuid');
+
+            // constraint query
+            $favouriteProductQuery->where('uuid', $uuid);
         }
+
+        $favouriteProductQuery->delete();
 
         return back();
-    }
-
-    /**
-     * Add properties to products.
-     *
-     * @param Collection $products
-     */
-    private function addProductsProperties(Collection $products)
-    {
-        $exchangeRate = $this->exchangeRates->getRate();
-
-        foreach ($products as $product) {
-            // product prices
-            $productPrice = $this->productPrice->getUsersProductPrice($product);
-            $product->price = $productPrice ? $this->formatPrice($productPrice) : null;
-            $product->localPrice = ($productPrice && $exchangeRate) ? $this->formatPrice($productPrice * $exchangeRate, 0) : null;
-
-            // product availability
-            $productExpectedAt = $this->productAvailability->getProductExpectedTime($product);
-            $product->isAvailable = $this->productAvailability->isProductAvailable($product);
-            $product->expectedAt = $productExpectedAt;
-            $product->isExpectedToday = ($productExpectedAt && $productExpectedAt < Carbon::today()->addDay()) ? true : false;
-        }
-    }
-
-    /**
-     * Format product price.
-     *
-     * @param float $price
-     * @param int $decimals
-     * @return string
-     */
-    private function formatPrice(float $price, int $decimals = 2)
-    {
-        return number_format($price, $decimals, '.', ',');
     }
 }

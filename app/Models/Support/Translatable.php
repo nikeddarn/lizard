@@ -8,6 +8,7 @@
 
 namespace App\Models\Support;
 
+use App\Contracts\Shop\LocalesInterface;
 use Illuminate\Support\Facades\App;
 
 trait Translatable
@@ -38,10 +39,10 @@ trait Translatable
         $primaryLocale = App::getLocale();
         $fallbackLocale = config('app.fallback_locale');
 
-        $value =  $this->getAttributeValue($key . '_' . $primaryLocale);
+        $value =  $this->getAttributeValue($key . '_' . $this->transformLocaleName($primaryLocale));
 
         if(!$value){
-            $value = $this->getAttributeValue($key . '_' . $fallbackLocale);
+            $value = $this->getAttributeValue($key . '_' . $this->transformLocaleName($fallbackLocale));
         }
         return $value ? $value : null;
     }
@@ -55,7 +56,7 @@ trait Translatable
     public function setAttribute($key, $value)
     {
         if (isset($this->translatable) && in_array($key, $this->translatable)) {
-            parent::setAttribute($key . '_' . config('app.locale'), $value);
+            parent::setAttribute($key . '_' . $this->transformLocaleName(config('app.locale')), $value);
         }else{
             parent::setAttribute($key, $value);
         }
@@ -82,10 +83,25 @@ trait Translatable
     protected function transformAttributeName(string $attribute, string $locale)
     {
         if (isset($this->translatable) && in_array($attribute, $this->translatable)) {
-            return $attribute . '_' . $locale;
+            return $attribute . '_' . $this->transformLocaleName($locale);
         }else{
             return $attribute;
         }
+    }
+
+    /**
+     * Adapt locale name for database.
+     *
+     * @param string $locale
+     * @return string
+     */
+    private function transformLocaleName(string $locale)
+    {
+        if ($locale === LocalesInterface::UK){
+            return 'ua';
+        }
+
+        return $locale;
     }
 
 }

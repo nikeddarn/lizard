@@ -2,17 +2,22 @@
 
 @section('content')
 
-    <section class="row page-content">
+    <div class="card my-4">
+        <div class="card-body">
 
-        <div class="col-lg-12">
-            <div class="underlined-title">
-                <h3 class="page-header text-gray">Фаворитные продукты</h3>
+            <h1 class="h4 text-gray-hover">Фаворитные продукты</h1>
+
+            @include('content.user.favourite.registered.parts.list')
+
+        </div>
+    </div>
+
+    @if($favouriteProducts->lastPage() !== 1)
+        <div class="row">
+            <div class="col-12 my-4">
+                @include('layouts.parts.pagination.products.index', ['paginator' => $favouriteProducts])
             </div>
         </div>
-
-        <div class="col-lg-12">
-            @include('content.user.favourite.registered.parts.list')
-        </div>
-    </section>
+    @endif
 
 @endsection

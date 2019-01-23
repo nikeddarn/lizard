@@ -1,4 +1,4 @@
-<form id="login-form" role="form" method="POST" action="/login">
+<form id="login-form" role="form" method="POST" action="{{url('/login')}}">
 
     @csrf
 

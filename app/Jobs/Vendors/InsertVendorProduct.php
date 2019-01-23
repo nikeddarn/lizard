@@ -54,7 +54,7 @@ class InsertVendorProduct implements ShouldQueue
         $this->localCategoriesIds = $localCategoriesIds;
         $this->vendorProductId = $vendorProductId;
 
-        $this->tries = config('shop.insert_vendor_product.tries');
+        $this->tries = config('vendor.insert_vendor_product.tries');
     }
 
     /**
@@ -76,7 +76,7 @@ class InsertVendorProduct implements ShouldQueue
 
                 // reattempt with delay
                 if ($this->attempts() < $this->tries) {
-                    $this->release(config('shop.insert_vendor_product.retry') * 60);
+                    $this->release(config('vendor.insert_vendor_product.retry') * 60);
                 }
 
                 throw $exception;

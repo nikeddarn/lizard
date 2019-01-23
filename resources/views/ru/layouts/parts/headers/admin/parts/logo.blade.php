@@ -1,3 +1,4 @@
-<nav class="nav">
-    <a class="nav-link w-100 text-center" href="{{ route('admin') }}">{{ config('app.name') }}</a>
-</nav>
+<a class="d-inline-block" href="{{ route('main') }}">
+    <img src="{{ url('/images/common/logo_small.png') }}" class="img-responsive"
+         data-text-logo="{{ config('app.name') }}" alt="logotype">
+</a>

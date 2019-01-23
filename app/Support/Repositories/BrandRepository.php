@@ -37,7 +37,7 @@ class BrandRepository
      */
     public function getBrandValueByModelData(array $vendorBrandValueData)
     {
-        $searchDoubleKeys = config('shop.search_double_by.brand_attribute_value');
+        $searchDoubleKeys = config('vendor.search_double_by.brand_attribute_value');
 
         return AttributeValue::query()->where(function ($query) use ($searchDoubleKeys, $vendorBrandValueData) {
             foreach ($searchDoubleKeys as $field) {

@@ -109,7 +109,7 @@ class VendorCategoryController extends Controller
 
         // get synchronized categories with products count
         $synchronizedCategories = $this->getSynchronizedCategoriesWithProductsCountQuery($locale)
-            ->paginate(config('admin.synchronized_vendor_categories_per_page'));
+            ->paginate(config('admin.show_items_per_page'));
 
         return view('content.admin.vendors.category.synchronized.index')->with(compact('synchronizedCategories'));
     }
@@ -197,7 +197,6 @@ class VendorCategoryController extends Controller
      */
     public function unlink()
     {
-        $vendorsId = (int)request()->get('vendors_id');
         $vendorCategoryId = (int)request()->get('vendor_categories_id');
         $localCategoryId = (int)request()->get('categories_id');
 
@@ -282,7 +281,7 @@ class VendorCategoryController extends Controller
     private function getSynchronizedCategoriesWithProductsCountQuery(string $locale): Builder
     {
         return $this->vendorCategory->newQuery()
-            ->selectRaw("vendor_categories.name_$locale AS vendor_category_name, categories.name_$locale AS local_category_name, COUNT(DISTINCT(products2.id)) AS products_count, vendor_local_categories.auto_add_new_products AS auto_add_products, vendors.name_$locale AS vendor_name, vendors.id AS vendor_id, vendor_categories.id AS vendor_category_id, categories.id AS local_category_id, vendor_categories.vendor_category_id AS own_vendor_category_id")
+            ->selectRaw("vendor_categories.name_$locale AS vendor_category_name, categories.name_$locale AS local_category_name, categories.url AS local_category_url, COUNT(DISTINCT(products2.id)) AS products_count, vendor_local_categories.auto_add_new_products AS auto_add_products, vendors.name_$locale AS vendor_name, vendors.id AS vendor_id, vendor_categories.id AS vendor_category_id, categories.id AS local_category_id, vendor_categories.vendor_category_id AS own_vendor_category_id")
             ->join('vendors', 'vendors.id', '=', 'vendor_categories.vendors_id')
             ->leftJoin('vendor_category_product', 'vendor_category_product.vendor_categories_id', '=', 'vendor_categories.id')
             ->leftJoin('vendor_products', 'vendor_category_product.vendor_products_id', '=', 'vendor_products.id')

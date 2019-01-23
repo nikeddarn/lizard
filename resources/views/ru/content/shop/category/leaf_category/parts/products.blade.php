@@ -6,12 +6,14 @@
 
             <div class="card-image">
 
-                <a href="{{ route('shop.product.index', ['url' => $product->url]) }}">
+                <a href="{{ $product->href }}">
 
                     @if($product->primaryImage)
-                        <img class="img-fluid w-100" src="/storage/{{ $product->primaryImage->medium }}" alt="Изображение {{ $product->name }}"/>
+                        <img class="img-fluid w-100" src="/storage/{{ $product->primaryImage->medium }}"
+                             alt="Изображение {{ $product->name }}"/>
                     @else
-                        <img class="img-fluid w-100" src="{{ url('/images/common/no_image.png') }}"  alt="Нет изображения продукта"/>
+                        <img class="img-fluid w-100" src="{{ url('/images/common/no_image.png') }}"
+                             alt="Нет изображения продукта"/>
                     @endif
 
                     @if($product->badges)
@@ -55,27 +57,39 @@
             <div class="card-body">
 
                 <div class="card-title">
-                    <a class="text-gray" href="{{ route('shop.product.index', ['url' => $product->url]) }}"
+                    <a class="text-gray" href="{{ $product->href }}"
                        title="{{ $product->name }}">{{ $product->name }}</a>
                 </div>
 
-                @if($product->price)
+                @if($product->localPrice)
                     <div class="row no-gutters justify-content-between mb-2">
-                        @if($product->localPrice)
-                            <div class="col-auto h5 px-1">{{ $product->localPrice }}&nbsp;грн</div>
+                        <div class="col-auto h5 px-1">{{ $product->localPrice }}&nbsp;грн</div>
+                        @if($product->price)
+                            <div class="col-auto text-gray px-1">${{ $product->price }}</div>
                         @endif
-                        <div class="col-auto text-gray px-1">${{ $product->price }}</div>
                     </div>
                 @endif
 
                 @if($product->isAvailable)
-                    <div class="available-product">Готов к отгрузке</div>
+                    <div class="text-gray">
+                        <i class="svg-icon text-success" data-feather="check-circle"></i>
+                        <span class="ml-2">Готов к отгрузке</span>
+                    </div>
                 @elseif($product->isExpectedToday)
-                    <div class="available-product">Ожидается сегодня</div>
+                    <div class="text-gray">
+                        <i class="svg-icon text-warning" data-feather="clock"></i>
+                        <span class="ml-2">Ожидается сегодня</span>
+                    </div>
                 @elseif($product->expectedAt)
-                    <div class="expected-product">Ожидается {{ $product->expectedAt->diffForHumans() }}</div>
+                    <div class="text-gray">
+                        <i class="svg-icon text-warning" data-feather="clock"></i>
+                        <span class="ml-2">Ожидается {{ $product->expectedAt->diffForHumans() }}</span>
+                    </div>
                 @else
-                    <div class="unavailable-product">Нет в наличии</div>
+                    <div class="text-gray">
+                        <i class="svg-icon text-danger" data-feather="alert-circle"></i>
+                        <span class="ml-2">Нет в наличии</span>
+                    </div>
                 @endif
 
                 <div class="small-action d-inline-block d-md-none">
@@ -97,6 +111,7 @@
 
     </div>
 
+    {{-- product details modal--}}
     @include('content.shop.category.leaf_category.parts.details', ['product' => $product])
 
 @endforeach

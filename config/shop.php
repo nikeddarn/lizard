@@ -1,11 +1,15 @@
 <?php
 
 use App\Contracts\Shop\ProductBadgesInterface;
-use App\Contracts\Vendor\VendorInterface;
+use App\Contracts\Shop\ShowProductsInterface;
+use App\Contracts\Shop\SortProductsInterface;
 use App\Support\ExchangeRates\FinanceExchangeRates;
 use App\Support\ExchangeRates\PrivatBankExchangeRates;
 
 return [
+
+    // redirect to user's preferred locale if referrer is external
+    'redirect_user_to_preferred_locale' => true,
 
     // items count per page on shop pages
     'show_items_per_page' => 24,
@@ -23,7 +27,34 @@ return [
         'ttl' => 180,
     ],
 
-    // min count of operation with product for show rate
+    // sort products method
+    'products_sort' => [
+
+        // available sorts methods
+        'possible_sort_methods' => [
+            SortProductsInterface::POPULAR,
+            SortProductsInterface::LOW_TO_HIGH,
+            SortProductsInterface::HIGH_TO_LOW,
+            SortProductsInterface::RATING,
+        ],
+
+        // seo canonical sort method
+        'canonical_sort_method' => SortProductsInterface::POPULAR,
+    ],
+
+    // show products method
+    'products_show' => [
+        // available show methods
+        'possible_show_methods' => [
+            ShowProductsInterface::GRID,
+            ShowProductsInterface::LIST,
+        ],
+
+        // seo canonical show method
+        'canonical_show_method' => ShowProductsInterface::GRID,
+    ],
+
+    // min count of votes for product for show rate
     'min_quantity_to_show_rate' => [
         // min quantity of reviews to show product rating
         'product' => 5,
@@ -34,8 +65,8 @@ return [
     // badges ttl in days
     'badges' => [
         'ttl' => [
-            ProductBadgesInterface::NEW => 10,
-            ProductBadgesInterface::PRICE_DOWN => 5,
+            ProductBadgesInterface::NEW => 5,
+            ProductBadgesInterface::PRICE_DOWN => 2,
         ],
         'count' => [
             ProductBadgesInterface::ENDING => 5,
@@ -45,102 +76,11 @@ return [
     // ttl in days to show user's recent product
     'recent_product_ttl' => 20,
 
-    // images
-    'images' => [
-
-        // store original full vendor image
-        'store_original_image' => false,
-
-        // sizes for product image by types
-        'products' => [
-            // original image
-            'image' => 2600,
-            // shop images
-            'small' => 100,
-            'medium' => 400,
-            'large' => 1200,
-
-            // use watermark
-            'watermark' => false,
-        ],
-
-        // category image size
-        'category' => 300,
-
-        // brand image size
-        'brand' => 400,
-
-        // description images
-        'description' => 800,
-    ],
-
-    // search double on insert new entity.
-    'search_double_by' => [
-        // fields of product model
-        'product' => [
-            'name_ru', 'name_ua',
-        ],
-        // fields of attribute model
-        'attribute' => [
-            'name_ru', 'name_ua',
-        ],
-        // fields of any attribute value model
-        'attribute_value' => [
-            'value_ru', 'value_ua', 'url',
-        ],
-        // fields of brand attribute value model
-        'brand_attribute_value' => [
-            'value_ru', 'value_ua', 'url',
-        ],
-    ],
-
-    // insert new vendor products
-    'insert_vendor_product' => [
-        // retry after (minutes)
-        'retry' => 60,
-        // count of tries to insert product
-        'tries' => 2,
-        // max product comments count
-        'max_comments' => 30,
-    ],
-
-    // update vendor product price
-    'update_vendor_product' => [
-        // retry after (minutes)
-        'retry' => 30,
-        // count of tries to insert product
-        'tries' => 6,
-    ],
-
-    'price' => [
-        // discount profit from vendor products for columns
-        // use negative value for rise profit
-        'vendor_column_price_discount' => [
-            VendorInterface::BRAIN => [
-                'price1' => 0,
-                'price2' => 0.2,
-                'price3' => 0.5,
-            ],
-        ],
-
-        // min profit to use discount (%)
-        'min_profit_to_price_discount' => 5,
-
-        // update own storage product price on sync this product with vendor
-        'update_own_product_price_on_vendor_sync' => true,
-
-        // define vendor product price aggregate method for multi vendors
-        // possible: 'min', 'avg', 'max'
-        'multi_vendor_aggregate_product_price_method' => 'avg',
-
-        // define aggregate method of product price discount for multi vendors
-        // possible: 'min', 'avg', 'max'
-        'multi_vendor_aggregate_column_price_discount_method' => 'avg',
-
-        // take only prices of vendors that contains given product on storages
-        'vendor_available_product_only' => false,
-
-        // using vendor product retail price column in preferred order
-        'use_vendor_retail_price_column' => ['recommendable_price', 'retail_price'],
+    // show USD price
+    'show_usd_price' => [
+        // is usd price allowed to show
+        'allowed' => true,
+        // min user price group to show Usd price
+        'min_user_price_group' => 3,
     ],
 ];
