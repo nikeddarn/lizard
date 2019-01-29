@@ -2,22 +2,21 @@
 
 @section('content')
 
-    <div class="row admin-content-header">
-        <div class="col admin-content-title"><h2>Атрибуты продуктов</h2></div>
-        <div class="col-auto admin-content-actions">
-            <a class="btn btn-primary" href="{{ route('admin.attributes.create') }}" data-toggle="tooltip"
-               title="Создать атрибут">
-                <i class="fa fa-plus"></i>&nbsp;
-                <span>Создать атрибут</span>
-            </a>
-        </div>
-    </div>
+    @include('content.admin.catalog.attribute.list.parts.header')
 
-    <div class="row">
-        <div class="col-lg-12">
+    @if($attributes->count())
+        <div class="card card-body">
             @include('content.admin.catalog.attribute.list.parts.attributes_list')
         </div>
-    </div>
+    @endif
+
+    @if($attributes->lastPage() !== 1)
+        <div class="row">
+            <div class="col-12 my-4">
+                @include('layouts.parts.pagination.products.index', ['paginator' => $attributes])
+            </div>
+        </div>
+    @endif
 
 @endsection
 
@@ -34,6 +33,15 @@
                     event.preventDefault();
                     return false;
                 }
+            });
+
+            // activate admin menu
+            let currentLink = $('#main-menu-shop-attributes');
+            $(currentLink).addClass('active');
+
+            $(currentLink).parents('.collapse').each(function () {
+                $(this).addClass('show');
+                $(this).siblings('a[aria-expanded]').attr('aria-expanded', 'true');
             });
 
         });

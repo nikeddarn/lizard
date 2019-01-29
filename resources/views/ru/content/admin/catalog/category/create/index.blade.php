@@ -99,21 +99,21 @@
             });
 
             // insert filters
-            $('#category-filter-add-button').click(function () {
-
-                // create new filter item from template and show it
-                let newFilterItem = $('#category-filter-input-template').find('.category-filter-item').clone().removeClass('d-none');
-                // append new image item to images list block
-                $('#category-filters-list').append(newFilterItem);
-                // delete filter item
-                $(newFilterItem).find('.category-filter-item-delete').click(function () {
-                    $(this).closest(newFilterItem).remove();
-                });
-
-                // activate selectpicker
-                $(newFilterItem).find('.filter-id-select').addClass('selectpicker').selectpicker();
-
-            });
+            // $('#category-filter-add-button').click(function () {
+            //
+            //     // create new filter item from template and show it
+            //     let newFilterItem = $('#category-filter-input-template').find('.category-filter-item').clone().removeClass('d-none');
+            //     // append new image item to images list block
+            //     $('#category-filters-list').append(newFilterItem);
+            //     // delete filter item
+            //     $(newFilterItem).find('.category-filter-item-delete').click(function () {
+            //         $(this).closest(newFilterItem).remove();
+            //     });
+            //
+            //     // activate selectpicker
+            //     $(newFilterItem).find('.filter-id-select').addClass('selectpicker').selectpicker();
+            //
+            // });
 
         });
 

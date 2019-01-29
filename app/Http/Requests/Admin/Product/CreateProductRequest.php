@@ -16,23 +16,24 @@ class CreateProductRequest extends FormRequest
      */
     public function rules()
     {
+
         return [
             'name_ru' => ['required', 'string', 'max:64', Rule::unique('products')],
-            'name_ua' => ['required', 'string', 'max:64', Rule::unique('products')],
+            'name_uk' => ['required', 'string', 'max:64', Rule::unique('products')],
             'url' => ['required', 'string', 'max:128', Rule::unique('products')],
             'model_ru' => ['nullable', 'string', 'max:64', Rule::unique('products')],
-            'model_ua' => ['nullable', 'string', 'max:64', Rule::unique('products')],
+            'model_uk' => ['nullable', 'string', 'max:64', Rule::unique('products')],
             'articul' => 'nullable|string',
             'code' => 'nullable|string',
             'categories_id.*' => ['required', 'numeric', 'distinct', new LeafCategory()],
             'title_ru' => ['nullable', 'string', 'max:128', Rule::unique('products')],
-            'title_ua' => ['nullable', 'string', 'max:128', Rule::unique('products')],
+            'title_uk' => ['nullable', 'string', 'max:128', Rule::unique('products')],
             'description_ru' => ['nullable', 'string', 'max:255', Rule::unique('products')],
-            'description_ua' => ['nullable', 'string', 'max:255', Rule::unique('products')],
+            'description_uk' => ['nullable', 'string', 'max:255', Rule::unique('products')],
             'keywords_ru' => 'nullable|string|max:128',
-            'keywords_ua' => 'nullable|string|max:128',
+            'keywords_uk' => 'nullable|string|max:128',
             'content_ru' => 'nullable|string',
-            'content_ua' => 'nullable|string',
+            'content_uk' => 'nullable|string',
             'min_order_quantity' => 'nullable|integer',
             'price1' => 'nullable|numeric',
             'price2' => 'nullable|numeric',
@@ -61,14 +62,16 @@ class CreateProductRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             if (request()->has('attribute_id')) {
-                foreach (array_count_values(request()->get('attribute_id')) as $attributeId => $attributeCount) {
+                foreach (array_count_values(request()->get('attribute_id')) as $attributeId => $attributeArrayIndex) {
 
-                    if ($attributeCount === 1) {
+                    // allow any first attribute value
+                    if ($attributeArrayIndex === 1) {
                         continue;
                     }
 
                     $attribute = Attribute::where('id', $attributeId)->first();
 
+                    // disallow second attribute value if attribute disallow multiply values for same product
                     if (!$attribute->multiply_product_values) {
                         $validator->errors()->add('attribute_id', trans('validation.multiply_product_values', ['attribute' => $attribute->name]));
                     }

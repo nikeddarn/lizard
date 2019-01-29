@@ -17,7 +17,7 @@
                     <strong>Наименование (UA)</strong>
                 </div>
                 <div class="col col-lg-8">
-                    {{ $filter->name_ua }}
+                    {{ $filter->name_uk }}
                 </div>
             </div>
         </li>

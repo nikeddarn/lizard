@@ -16,7 +16,7 @@ class StoreFilterRequest extends FormRequest
     {
         return [
             'name_ru' => 'required|max:32',
-            'name_ua' => 'required|max:32',
+            'name_uk' => 'required|max:32',
         ];
     }
 }

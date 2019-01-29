@@ -448,17 +448,13 @@ select.selectpicker {
   float: none;
 }
 
-.max-height-10 {
-  max-height: 10rem;
-}
-
 .table-image {
   height: 80px;
 }
 
-.mx-negative-3 {
-  margin-left: -1rem;
-  margin-right: -1rem;
+.show-content-property {
+  max-height: 10rem;
+  overflow-y: auto;
 }
 
 #admin-header {
@@ -466,37 +462,26 @@ select.selectpicker {
   border-bottom: 1px solid #dee2e6;
 }
 
-#admin-main-menu .card {
-  border-bottom: 1px solid #dee2e6;
-}
-
-#admin-main-menu .card .card {
-  border: none;
-}
-
-#admin-main-menu .card .card-header {
-  background-color: white;
-  border: none;
-  position: relative;
-}
-
-#admin-main-menu .card .card-header button,
-#admin-main-menu .card .card-header a {
+#admin-main-menu a {
   border: none;
   font-size: 1.2rem;
   font-weight: 500;
-}
-
-#admin-main-menu .card .card-body a {
-  font-size: 1.05rem;
-  font-weight: 400;
-}
-
-#admin-main-menu .card button[aria-expanded=true] {
+  cursor: pointer;
   border-bottom: 1px solid #dee2e6;
 }
 
-#admin-main-menu .card button:after {
+#admin-main-menu a.submenu-link {
+  padding-top: .25rem;
+  padding-bottom: .25rem;
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+#admin-main-menu button[aria-expanded=true] {
+  border-bottom: 1px solid #dee2e6;
+}
+
+#admin-main-menu a[data-toggle="collapse"]:after {
   content: '';
   position: absolute;
   width: 8px;
@@ -512,10 +497,15 @@ select.selectpicker {
   margin-top: -4px;
 }
 
-#admin-main-menu .card button[aria-expanded=true]::after {
+#admin-main-menu a[data-toggle="collapse"][aria-expanded=true]::after {
   -webkit-transform: rotate(135deg);
   transform: rotate(135deg);
   margin-top: 0;
+}
+
+#admin-main-menu a.active {
+  background-color: #606ddd;
+  color: white !important;
 }
 
 .admin-content-actions {

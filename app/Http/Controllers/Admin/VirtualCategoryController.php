@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Requests\Admin\Category\Real\UpdateVirtualCategoryRequest;
+use App\Http\Requests\Admin\Category\Virtual\StoreVirtualCategoryRequest;
 use App\Models\AttributeValue;
 use App\Models\Category;
 use App\Models\VirtualCategory;
@@ -18,16 +20,22 @@ class VirtualCategoryController extends Controller
      * @var AttributeValue
      */
     private $attributeValue;
+    /**
+     * @var VirtualCategory
+     */
+    private $virtualCategory;
 
     /**
      * CategoryController constructor.
      * @param Category $category
      * @param AttributeValue $attributeValue
+     * @param VirtualCategory $virtualCategory
      */
-    public function __construct(Category $category, AttributeValue $attributeValue)
+    public function __construct(Category $category, AttributeValue $attributeValue, VirtualCategory $virtualCategory)
     {
         $this->category = $category;
         $this->attributeValue = $attributeValue;
+        $this->virtualCategory = $virtualCategory;
     }
 
     /**
@@ -61,64 +69,119 @@ class VirtualCategoryController extends Controller
 
         $categories = $this->category->newQuery()->whereIsLeaf()->orderBy('name_' . $locale)->get();
 
-        $attributeValues = $this->attributeValue->newQuery()->orderBy('value_' . $locale)->get();
+        $attributeValues = $this->attributeValue->newQuery()->whereHas('attribute', function ($query) {
+            $query->where('indexable', 1);
+        })->orderBy('value_' . $locale)->get();
 
-        return view('content.admin.catalog.virtual_category.create.index')->with(compact('categories'));
+        return view('content.admin.catalog.virtual_category.create.index')->with(compact('categories', 'attributeValues'));
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param StoreVirtualCategoryRequest $request
      * @return \Illuminate\Http\Response
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function store(Request $request)
+    public function store(StoreVirtualCategoryRequest $request)
     {
-        //
+        $this->authorize('create', $this->category);
+
+        $attributes = $request->only(['categories_id', 'attribute_values_id', 'name_ru', 'name_uk', 'title_ru', 'title_uk', 'description_ru', 'description_uk', 'keywords_ru', 'keywords_uk', 'content_ru', 'content_uk']);
+
+        $this->virtualCategory->newQuery()->create($attributes);
+
+        return redirect(route('admin.categories.virtual.index'));
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\VirtualCategory  $virtualCategory
+     * @param string $id
      * @return \Illuminate\Http\Response
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function show(VirtualCategory $virtualCategory)
+    public function show(string $id)
     {
-        //
+        $this->authorize('view', $this->category);
+
+        $virtualCategory = $this->virtualCategory->newQuery()->with('category', 'attributeValue')->findOrFail($id);
+
+        return view('content.admin.catalog.virtual_category.show.index')->with(compact('virtualCategory'));
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\VirtualCategory  $virtualCategory
+     * @param string $id
      * @return \Illuminate\Http\Response
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function edit(VirtualCategory $virtualCategory)
+    public function edit(string $id)
     {
-        //
+        $this->authorize('update', $this->category);
+
+        $virtualCategory = $this->virtualCategory->newQuery()->findOrFail($id);
+
+        return view('content.admin.catalog.virtual_category.update.index')->with(compact('virtualCategory'));
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\VirtualCategory  $virtualCategory
-     * @return \Illuminate\Http\Response
+     * @param UpdateVirtualCategoryRequest $request
+     * @param string $id
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function update(Request $request, VirtualCategory $virtualCategory)
+    public function update(UpdateVirtualCategoryRequest $request, string $id)
     {
-        //
+        $this->authorize('update', $this->category);
+
+        $virtualCategory = $this->virtualCategory->newQuery()->findOrFail($id);
+
+        $attributes = $request->only(['name_ru', 'name_uk', 'title_ru', 'title_uk', 'description_ru', 'description_uk', 'keywords_ru', 'keywords_uk', 'content_ru', 'content_uk']);
+
+        $virtualCategory->update($attributes);
+
+        return redirect(route('admin.categories.virtual.show', ['id' => $virtualCategory->id]));
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\VirtualCategory  $virtualCategory
+     * @param string $id
      * @return \Illuminate\Http\Response
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Exception
      */
-    public function destroy(VirtualCategory $virtualCategory)
+    public function destroy(string $id)
     {
-        //
+        $this->authorize('delete', $this->category);
+
+        // retrieve category
+        $virtualCategory = $this->category->newQuery()->findOrFail($id);
+
+        $virtualCategory->delete();
+
+        return redirect(route('admin.categories.virtual.index'));
+    }
+
+    /**
+     * Store image on public disk. Return image url.
+     *
+     * @param Request $request
+     * @return string
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function uploadImage(Request $request)
+    {
+        if (!($request->ajax() && $request->hasFile('image'))) {
+            return abort(405);
+        }
+
+        $this->validate($request, ['image' => 'image']);
+
+        return '/storage/' . $request->image->store('images/categories/content', 'public');
     }
 }

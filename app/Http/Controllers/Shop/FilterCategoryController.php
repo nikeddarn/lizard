@@ -7,6 +7,7 @@ use App\Models\AttributeValue;
 use App\Models\Category;
 use App\Support\Breadcrumbs\FilteredCategoryBreadcrumbs;
 use App\Support\Seo\Canonical\CanonicalLinkGenerator;
+use App\Support\Seo\MetaTags\FilterCategoryMetaTags;
 use App\Support\Seo\Pagination\PaginationLinksGenerator;
 use App\Support\Shop\Filters\MultiFiltersCreator;
 use App\Support\Shop\Products\FilteredCategoryProductsCreator;
@@ -55,6 +56,10 @@ class FilterCategoryController extends Controller
      * @var CanonicalLinkGenerator
      */
     private $canonicalLinkGenerator;
+    /**
+     * @var FilterCategoryMetaTags
+     */
+    private $filterCategoryMetaTags;
 
     /**
      * FilterCategoryController constructor.
@@ -67,8 +72,9 @@ class FilterCategoryController extends Controller
      * @param MultiFiltersCreator $filtersCreator
      * @param PaginationLinksGenerator $paginationLinksGenerator
      * @param CanonicalLinkGenerator $canonicalLinkGenerator
+     * @param FilterCategoryMetaTags $filterCategoryMetaTags
      */
-    public function __construct(Category $category, AttributeValue $attributeValue, SortProductsUrlGenerator $sortProductsUrlGenerator, FilteredCategoryProductsCreator $productsCreator, ShowProductsUrlGenerator $showProductsUrlGenerator, FilteredCategoryBreadcrumbs $breadcrumbs, MultiFiltersCreator $filtersCreator, PaginationLinksGenerator $paginationLinksGenerator, CanonicalLinkGenerator $canonicalLinkGenerator)
+    public function __construct(Category $category, AttributeValue $attributeValue, SortProductsUrlGenerator $sortProductsUrlGenerator, FilteredCategoryProductsCreator $productsCreator, ShowProductsUrlGenerator $showProductsUrlGenerator, FilteredCategoryBreadcrumbs $breadcrumbs, MultiFiltersCreator $filtersCreator, PaginationLinksGenerator $paginationLinksGenerator, CanonicalLinkGenerator $canonicalLinkGenerator, FilterCategoryMetaTags $filterCategoryMetaTags)
     {
         $this->category = $category;
         $this->attributeValue = $attributeValue;
@@ -79,6 +85,7 @@ class FilterCategoryController extends Controller
         $this->filtersCreator = $filtersCreator;
         $this->paginationLinksGenerator = $paginationLinksGenerator;
         $this->canonicalLinkGenerator = $canonicalLinkGenerator;
+        $this->filterCategoryMetaTags = $filterCategoryMetaTags;
     }
 
     /**
@@ -90,14 +97,10 @@ class FilterCategoryController extends Controller
      */
     public function index(string $url, string $filterItemUrl): View
     {
-        $category = $this->category->newQuery()->where('url', $url)->with('products')->firstOrFail();
+        // retrieve selected filter attribute value
+        $selectedAttributeValues = $this->getSelectedAttributesValues($filterItemUrl);
 
-        $selectedAttributeValues = $this->attributeValue->newQuery()->where('url', $filterItemUrl)->get();
-
-        // category must be leaf and has one selected filter
-        if (!($category->isLeaf() && $selectedAttributeValues->count() === 1)) {
-            abort(422);
-        }
+        $category = $this->getCategory($url, $selectedAttributeValues->first());
 
         // store category's id in session to create product details breadcrumbs
         session()->flash('product_category_id', $category->id);
@@ -123,13 +126,33 @@ class FilterCategoryController extends Controller
         // get used filters
         $usedFilters = $this->filtersCreator->createUsedFilters($category, $filters, $selectedAttributeValues);
 
+        // category content
+        $categoryContent = $category->virtualCategories->count() ? $category->virtualCategories->first()->content : null;
+
         // seo pagination links
         $paginationLinks = $this->paginationLinksGenerator->createSeoLinks($products);
 
-        // seo canonical url
-        $metaCanonical = $this->canonicalLinkGenerator->createCanonicalLinkUrl();
+        if ($this->isPageIndexable($selectedAttributeValues->first())){
+            // allow index this page for robots
+            $noindexPage = false;
+            // seo canonical url
+            $metaCanonical = $this->canonicalLinkGenerator->createCanonicalLinkUrl();
+        }else{
+            // disallow index this page for robots
+            $noindexPage = true;
+            // without seo canonical
+            $metaCanonical = null;
+        }
 
-        return view('content.shop.category.leaf_category.index')->with(compact('breadcrumbs', 'products', 'filters', 'usedFilters', 'sortProductsUrls', 'sortProductsMethod', 'showProductsUrls', 'paginationLinks', 'metaCanonical'));
+        // category name
+        $categoryName = $this->filterCategoryMetaTags->getCategoryName($category, $selectedAttributeValues);
+
+        // title, description, keywords
+        $pageTitle = $this->filterCategoryMetaTags->getCategoryTitle($category, $selectedAttributeValues);
+        $pageDescription = $this->filterCategoryMetaTags->getCategoryDescription($category, $selectedAttributeValues);
+        $pageKeywords = $this->filterCategoryMetaTags->getCategoryKeywords($category, $selectedAttributeValues);
+
+        return view('content.shop.category.leaf_category.index')->with(compact('categoryContent', 'categoryName', 'breadcrumbs', 'products', 'filters', 'usedFilters', 'sortProductsUrls', 'sortProductsMethod', 'showProductsUrls', 'paginationLinks', 'metaCanonical', 'noindexPage', 'pageTitle', 'pageDescription', 'pageKeywords'));
     }
 
     /**
@@ -140,15 +163,67 @@ class FilterCategoryController extends Controller
      * @param Collection $selectedAttributeValues
      * @return LengthAwarePaginator
      */
-    private function getProducts(Category $category, string $sortProductsMethod, Collection $selectedAttributeValues):LengthAwarePaginator
+    private function getProducts(Category $category, string $sortProductsMethod, Collection $selectedAttributeValues): LengthAwarePaginator
     {
         $products = $this->productsCreator->getFilteredProducts($category, $sortProductsMethod, $selectedAttributeValues);
 
-        // redirect 404 for vot existing pages
-        if (request()->has('page') && request()->get('page') > $products->lastPage()){
+        // redirect 404 for not existing pages
+        if (request()->has('page') && request()->get('page') > $products->lastPage()) {
             abort(404);
         }
 
         return $products;
+    }
+
+    /**
+     * Get attribute value of selected filter.
+     *
+     * @param string $filterItemUrl
+     * @return Collection
+     */
+    private function getSelectedAttributesValues(string $filterItemUrl): Collection
+    {
+        $attributeValues = $this->attributeValue->newQuery()->where('url', $filterItemUrl)->with('attribute')->get();
+
+        if ($attributeValues->count() !== 1) {
+            abort(422);
+        }
+
+        return $attributeValues;
+    }
+
+    /**
+     * Get category by url with relations.
+     *
+     * @param string $url
+     * @param AttributeValue $attributeValue
+     * @return Category|Model
+     */
+    private function getCategory(string $url, AttributeValue $attributeValue): Category
+    {
+        $category = $this->category->newQuery()
+            ->where('url', $url)
+            ->with(['products'])
+            ->with(['virtualCategories' => function ($query) use ($attributeValue) {
+                $query->where('attribute_values_id', $attributeValue->id);
+            }])
+            ->firstOrFail();
+
+        if (!$category->isLeaf()) {
+            abort(422);
+        }
+
+        return $category;
+    }
+
+    /**
+     * Is page indexable for robots ?
+     *
+     * @param AttributeValue $attributeValue
+     * @return bool
+     */
+    private function isPageIndexable(AttributeValue $attributeValue): bool
+    {
+        return (bool)$attributeValue->attribute->indexable;
     }
 }

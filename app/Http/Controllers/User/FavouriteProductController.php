@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Models\FavouriteProduct;
 use App\Http\Controllers\Controller;
+use App\Models\Product;
 use App\Support\Shop\Products\FavouriteProducts;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
@@ -24,18 +25,24 @@ class FavouriteProductController extends Controller
      * @var FavouriteProducts
      */
     private $favouriteProducts;
+    /**
+     * @var Product
+     */
+    private $product;
 
     /**
      * FavouriteProductController constructor.
      * @param Request $request
      * @param FavouriteProduct $favouriteProduct
      * @param FavouriteProducts $favouriteProducts
+     * @param Product $product
      */
-    public function __construct(Request $request, FavouriteProduct $favouriteProduct, FavouriteProducts $favouriteProducts)
+    public function __construct(Request $request, FavouriteProduct $favouriteProduct, FavouriteProducts $favouriteProducts, Product $product)
     {
         $this->request = $request;
         $this->favouriteProduct = $favouriteProduct;
         $this->favouriteProducts = $favouriteProducts;
+        $this->product = $product;
     }
 
     /**
@@ -60,63 +67,41 @@ class FavouriteProductController extends Controller
      * Store a newly created resource in storage.
      *
      * @param string $id
-     * @return \Illuminate\Http\Response|bool
+     * @return bool|\Illuminate\Http\RedirectResponse
      */
     public function addProductToFavourite(string $id)
     {
+        $product = $this->product->newQuery()->findOrFail($id);
+
         if (auth('web')->check()) {
-            // get user's id
-            $usersId = auth('web')->id();
-
-            // get product
-            $favouriteProduct = $this->favouriteProduct->newQuery()->where([
-                ['products_id', '=', $id],
-                ['users_id', '=', $usersId],
-            ])->first();
-
-            if ($favouriteProduct) {
-                return $this->request->ajax() ? null : back();
-            } else {
-                // add to favourite
-                $this->favouriteProduct->newQuery()->firstOrCreate([
-                    'products_id' => $id,
-                    'users_id' => $usersId,
-                ]);
-
-                return $this->request->ajax() ? true : back();
-            }
+            $product->favouriteProducts()->create([
+                'users_id' => auth('web')->id(),
+            ]);
         } else {
-            // get user's uuid
-            $uuid = $this->request->cookie('uuid', Str::uuid());
+            if ($this->request->hasCookie('uuid')) {
+                // get user's uuid
+                $uuid = $this->request->cookie('uuid', Str::uuid());
+            } else {
+                $uuid = Str::uuid();
+            }
 
             // restore cookie
             Cookie::queue(Cookie::forever('uuid', $uuid));
 
-            // get product
-            $favouriteProduct = $this->favouriteProduct->newQuery()->where([
-                ['products_id', '=', $id],
-                ['uuid', '=', $uuid],
-            ])->first();
-
-            if ($favouriteProduct) {
-                return $this->request->ajax() ? '' : back();
-            } else {
-                // add to favourite
-                $this->favouriteProduct->newQuery()->firstOrCreate([
-                    'products_id' => $id,
-                    'uuid' => $uuid,
-                ]);
-            }
-
-            return $this->request->ajax() ? '1' : back();
+            $product->favouriteProducts()->create([
+                'uuid' => $uuid,
+            ]);
         }
+
+        // return link for remove product from favourite for ajax
+        return $this->request->ajax() ? route('user.favourites.remove', ['id' => $id]) : back();
     }
 
     /**
      * Remove the specified resource from storage.
      *
      * @param string $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse|string
      * @throws \Exception
      */
     public function removeProductFromFavourite(string $id)
@@ -124,21 +109,12 @@ class FavouriteProductController extends Controller
         $favouriteProductQuery = $this->favouriteProduct->newQuery()->where('products_id', $id);
 
         if (auth('web')->check()) {
-            // get user's id
-            $usersId = auth('web')->id();
-
-            // constraint query
-            $favouriteProductQuery->where('users_id', $usersId);
-        } else {
-            // get user's uuid
-            $uuid = $this->request->cookie('uuid');
-
-            // constraint query
-            $favouriteProductQuery->where('uuid', $uuid);
+            $favouriteProductQuery->where('users_id', auth('web')->id())->delete();
+        } elseif ($this->request->hasCookie('uuid')) {
+            $favouriteProductQuery->where('uuid', $this->request->cookie('uuid'))->delete();
         }
 
-        $favouriteProductQuery->delete();
-
-        return back();
+        // return link for add product to favourite for ajax
+        return $this->request->ajax() ? route('user.favourites.add', ['id' => $id]) : back();
     }
 }

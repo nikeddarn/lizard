@@ -2,17 +2,21 @@
 
 @section('content')
 
-    <div id="category-products-list" class="row mb-3">
+    <div class="row my-4">
 
         @if($filters->count())
             <div class="col-md-4 col-lg-3 d-none d-md-block">
-                @include('content.shop.category.leaf_category.parts.filters')
+                @include('content.shop.category.leaf.grid.parts.filters')
             </div>
         @endif
 
         <div class="{{ $filters->count() ? 'col-md-8 col-lg-9' : 'col-12' }}">
 
-            <div class="card my-4 p-3">
+            <div class="card p-2 mb-4 d-lg-none">
+                <h1 class="h5 text-gray-hover m-0">{{ $categoryName }}</h1>
+            </div>
+
+            <div class="card p-2 mb-4">
 
                 <div class="row align-items-center">
 
@@ -35,20 +39,20 @@
                         @endif
                     </div>
 
-                    <div class="col d-none d-md-block">
-                        @include('layouts.parts.breadcrumbs.shop.index')
-                    </div>
+                        <div class="col d-none d-lg-block">
+                            <h1 class="h5 text-gray-hover m-0">{{ $categoryName }}</h1>
+                        </div>
 
-                    <div class="col-auto">
-                        @include('content.shop.category.leaf_category.parts.product-control')
-                    </div>
+                        <div class="col-auto col-md-12 col-lg-auto ml-auto">
+                            @include('content.shop.category.leaf.grid.parts.product-control')
+                        </div>
 
                 </div>
 
             </div>
 
             <div class="row">
-                @include('content.shop.category.leaf_category.parts.products')
+                @include('content.shop.category.leaf.grid.parts.products')
             </div>
 
 
@@ -76,10 +80,8 @@
 
     </div>
 
-    @include('content.shop.category.leaf_category.parts.modal_product_favourite_added')
-
     {{-- product filters modal--}}
-    @include('content.shop.category.leaf_category.parts.filters_modal')
+    @include('content.shop.category.leaf.grid.parts.filters_modal')
 
 @endsection
 

@@ -112,7 +112,7 @@ class BrainProductStocksDataAdapter
             'vendors_id' => self::VENDOR_ID,
             'vendor_stock_id' => $vendorStockId,
             'name_ru' => $vendorStockData->name,
-            'name_ua' => $vendorStockData->name,
+            'name_uk' => $vendorStockData->name,
         ]);
 
         return $stock;

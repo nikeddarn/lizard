@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Shop;
 
+use App\Contracts\Shop\UrlParametersInterface;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Support\Breadcrumbs\CategoryBreadcrumbs;
 use App\Support\Seo\Canonical\CanonicalLinkGenerator;
+use App\Support\Seo\MetaTags\CategoryMetaTags;
 use App\Support\Seo\Pagination\PaginationLinksGenerator;
 use App\Support\Shop\Filters\FiltersCreator;
 use App\Support\Shop\Products\CategoryProducts;
@@ -49,6 +51,10 @@ class LeafCategoryController extends Controller
      * @var CanonicalLinkGenerator
      */
     private $canonicalLinkGenerator;
+    /**
+     * @var CategoryMetaTags
+     */
+    private $categoryMetaTags;
 
     /**
      * CategoryController constructor.
@@ -60,8 +66,9 @@ class LeafCategoryController extends Controller
      * @param FiltersCreator $filtersCreator
      * @param PaginationLinksGenerator $paginationLinksGenerator
      * @param CanonicalLinkGenerator $canonicalLinkGenerator
+     * @param CategoryMetaTags $categoryMetaTags
      */
-    public function __construct(Category $category, SortProductsUrlGenerator $sortProductsUrlGenerator, CategoryProducts $productsCreator, ShowProductsUrlGenerator $showProductsUrlGenerator, CategoryBreadcrumbs $breadcrumbs, FiltersCreator $filtersCreator, PaginationLinksGenerator $paginationLinksGenerator, CanonicalLinkGenerator $canonicalLinkGenerator)
+    public function __construct(Category $category, SortProductsUrlGenerator $sortProductsUrlGenerator, CategoryProducts $productsCreator, ShowProductsUrlGenerator $showProductsUrlGenerator, CategoryBreadcrumbs $breadcrumbs, FiltersCreator $filtersCreator, PaginationLinksGenerator $paginationLinksGenerator, CanonicalLinkGenerator $canonicalLinkGenerator, CategoryMetaTags $categoryMetaTags)
     {
         $this->category = $category;
         $this->sortProductsUrlGenerator = $sortProductsUrlGenerator;
@@ -71,6 +78,7 @@ class LeafCategoryController extends Controller
         $this->filtersCreator = $filtersCreator;
         $this->paginationLinksGenerator = $paginationLinksGenerator;
         $this->canonicalLinkGenerator = $canonicalLinkGenerator;
+        $this->categoryMetaTags = $categoryMetaTags;
     }
 
     /**
@@ -81,14 +89,7 @@ class LeafCategoryController extends Controller
      */
     public function index(string $categoryUrl): View
     {
-        $category = $this->category->newQuery()->where('url', $categoryUrl)->with('products')->firstOrFail();
-
-        if (!$category->isLeaf()) {
-            abort(422);
-        }
-
-        // store category's id in session to create product details breadcrumbs
-        session()->flash('product_category_id', $category->id);
+        $category = $this->getCategory($categoryUrl);
 
         // define sort products method
         $sortProductsMethod = $this->sortProductsUrlGenerator->getCurrentQueryStringParameterValue();
@@ -117,7 +118,15 @@ class LeafCategoryController extends Controller
         // seo canonical url
         $metaCanonical = $this->canonicalLinkGenerator->createCanonicalLinkUrl();
 
-        return view('content.shop.category.leaf_category.index')->with(compact('categoryContent', 'breadcrumbs', 'products', 'filters', 'sortProductsUrls', 'sortProductsMethod', 'showProductsUrls', 'paginationLinks', 'metaCanonical'));
+        // category name
+        $categoryName = $category->name;
+
+        // title, description, keywords
+        $pageTitle = $this->categoryMetaTags->getCategoryTitle($category);
+        $pageDescription = $this->categoryMetaTags->getCategoryDescription($category);
+        $pageKeywords = $this->categoryMetaTags->getCategoryKeywords($category);
+
+        return view($this->getViewPath())->with(compact('categoryContent', 'categoryName', 'breadcrumbs', 'products', 'filters', 'sortProductsUrls', 'sortProductsMethod', 'showProductsUrls', 'paginationLinks', 'metaCanonical', 'pageTitle', 'pageDescription', 'pageKeywords'));
     }
 
     /**
@@ -127,15 +136,56 @@ class LeafCategoryController extends Controller
      * @param string $sortProductsMethod
      * @return LengthAwarePaginator
      */
-    private function getProducts(Category $category, string $sortProductsMethod):LengthAwarePaginator
+    private function getProducts(Category $category, string $sortProductsMethod): LengthAwarePaginator
     {
         $products = $this->productsCreator->getProducts($category, $sortProductsMethod);
 
         // redirect 404 for vot existing pages
-        if (request()->has('page') && request()->get('page') > $products->lastPage()){
+        if (request()->has('page') && request()->get('page') > $products->lastPage()) {
             abort(404);
         }
 
         return $products;
+    }
+
+    /**
+     * Get category by url with relations.
+     *
+     * @param string $categoryUrl
+     * @return Category|Model
+     */
+    private function getCategory(string $categoryUrl): Category
+    {
+        $category = $this->category->newQuery()
+            ->where('url', $categoryUrl)
+            ->with('products')
+            ->firstOrFail();
+
+        if (!$category->isLeaf()) {
+            abort(422);
+        }
+
+        // store category's id in session to create product details breadcrumbs
+        session()->flash('product_category_id', $category->id);
+
+        return $category;
+    }
+
+    /**
+     * Get view path.
+     *
+     * @return string
+     */
+    private function getViewPath(): string
+    {
+        $viewFolder = 'content.shop.category.leaf.';
+
+        if (request()->has(UrlParametersInterface::SHOW_PRODUCTS)) {
+            $viewSubfolder = request()->get(UrlParametersInterface::SHOW_PRODUCTS);
+        } else {
+            $viewSubfolder = config('shop.products_show.canonical_show_method');
+        }
+
+        return $viewFolder . $viewSubfolder . '.index';
     }
 }

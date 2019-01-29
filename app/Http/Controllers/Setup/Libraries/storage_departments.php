@@ -11,12 +11,12 @@ return [
     [
         'id' => StorageDepartmentsInterface::STOCK,
         'name_ru' => 'Склад',
-        'name_ua' => 'Склад',
+        'name_uk' => 'Склад',
     ],
 
     [
         'id' => StorageDepartmentsInterface::SERVICE,
         'name_ru' => 'Сервис',
-        'name_ua' => 'Сервіс',
+        'name_uk' => 'Сервіс',
     ],
 ];

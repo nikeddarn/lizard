@@ -63,7 +63,7 @@ class FilterController extends Controller
     {
         $this->authorize('create', $this->filter);
 
-        $this->filter->newQuery()->create($request->only(['name_ru', 'name_ua']));
+        $this->filter->newQuery()->create($request->only(['name_ru', 'name_uk']));
 
         return redirect(route('admin.filters.index'));
     }
@@ -117,7 +117,7 @@ class FilterController extends Controller
     {
         $this->authorize('update', $this->filter);
 
-        $this->filter->newQuery()->findOrFail($id)->update($request->only(['name_ru', 'name_ua']));
+        $this->filter->newQuery()->findOrFail($id)->update($request->only(['name_ru', 'name_uk']));
 
         return redirect(route('admin.filters.index'));
     }

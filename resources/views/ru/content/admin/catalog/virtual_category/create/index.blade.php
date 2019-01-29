@@ -8,7 +8,7 @@
 
     <div class="card card-body">
 
-            <form id="category-form" class="multitab-form" method="post" action="{{ route('admin.categories.store') }}"
+            <form id="category-form" class="multitab-form" method="post" action="{{ route('admin.categories.virtual.store') }}"
                   role="form"
                   enctype="multipart/form-data">
                 @csrf
@@ -27,18 +27,18 @@
                 <div class="tab-content">
                     <div class="tab-pane fade show active" id="category-general" role="tabpanel"
                          aria-labelledby="category-general-tab">
-                        @include('content.admin.catalog.category.create.parts.general_inputs')
+                        @include('content.admin.catalog.virtual_category.create.parts.general_inputs')
                     </div>
                     <div class="tab-pane fade" id="category-seo" role="tabpanel" aria-labelledby="category-seo-tab">
-                        @include('content.admin.catalog.category.create.parts.seo_inputs')
+                        @include('content.admin.catalog.virtual_category.create.parts.seo_inputs')
                     </div>
                     <div class="tab-pane fade" id="category-content" role="tabpanel"
                          aria-labelledby="category-content-tab">
-                        @include('content.admin.catalog.category.create.parts.content_inputs')
+                        @include('content.admin.catalog.virtual_category.create.parts.content_inputs')
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary">Создать категорию</button>
+                <button type="submit" class="btn btn-primary">Создать виртуальную категорию</button>
 
             </form>
     </div>
@@ -52,12 +52,6 @@
     <script>
 
         $(document).ready(function () {
-
-            // auto generate url
-            $('#name_ru').generateUrl({
-                urlField: '#url',
-                emptyOnly: false
-            });
 
             // activate text editor
             $('.summernote').summernote({
@@ -96,23 +90,6 @@
             });
             $(categoryForm).find('button[type="submit"]').click(function () {
                 checkMultiTabForm(categoryForm);
-            });
-
-            // insert filters
-            $('#category-filter-add-button').click(function () {
-
-                // create new filter item from template and show it
-                let newFilterItem = $('#category-filter-input-template').find('.category-filter-item').clone().removeClass('d-none');
-                // append new image item to images list block
-                $('#category-filters-list').append(newFilterItem);
-                // delete filter item
-                $(newFilterItem).find('.category-filter-item-delete').click(function () {
-                    $(this).closest(newFilterItem).remove();
-                });
-
-                // activate selectpicker
-                $(newFilterItem).find('.filter-id-select').addClass('selectpicker').selectpicker();
-
             });
 
         });

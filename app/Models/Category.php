@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Support\Translatable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 use Kalnoy\Nestedset\NodeTrait;
 use Mews\Purifier\Facades\Purifier;
 
@@ -90,6 +91,14 @@ class Category extends Model
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function synchronizingProducts()
+    {
+        return$this->hasMany('App\Models\SynchronizingProduct', 'categories_id', 'id');
+    }
+
+    /**
      * @param  string  $value
      * @return void
      */
@@ -102,16 +111,73 @@ class Category extends Model
      * @param  string  $value
      * @return void
      */
-    public function setContentUaAttribute($value)
+    public function setContentUkAttribute($value)
     {
-        $this->attributes['content_ua'] = Purifier::clean($value);
+        $this->attributes['content_uk'] = Purifier::clean($value);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @param  string  $value
+     * @return void
      */
-    public function synchronizingProducts()
+    public function setNameRuAttribute($value)
     {
-        return$this->hasMany('App\Models\SynchronizingProduct', 'categories_id', 'id');
+        $this->attributes['name_ru'] = Str::ucfirst($value);
+    }
+
+    /**
+     * @param  string  $value
+     * @return void
+     */
+    public function setNameUkAttribute($value)
+    {
+        $this->attributes['name_uk'] = Str::ucfirst($value);
+    }
+
+    /**
+     * @param  string  $value
+     * @return void
+     */
+    public function setTitleRuAttribute($value)
+    {
+        $this->attributes['title_ru'] = Str::ucfirst($value);
+    }
+
+    /**
+     * @param  string  $value
+     * @return void
+     */
+    public function setTitleUkAttribute($value)
+    {
+        $this->attributes['title_uk'] = Str::ucfirst($value);
+    }
+
+    /**
+     * @param  string  $value
+     * @return void
+     */
+    public function setDescriptionRuAttribute($value)
+    {
+        $this->attributes['description_ru'] = Str::ucfirst($value);
+    }
+
+    /**
+     * @param  string  $value
+     * @return void
+     */
+    public function setDescriptionUkAttribute($value)
+    {
+        $this->attributes['description_uk'] = Str::ucfirst($value);
+    }
+
+    /**
+     * Set attribute's name_uk.
+     *
+     * @param  string  $value
+     * @return void
+     */
+    public function setUrlAttribute($value)
+    {
+        $this->attributes['url'] = Str::lower($value);
     }
 }

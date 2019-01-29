@@ -21,7 +21,7 @@
                     <strong>Наименование (UA)</strong>
                 </div>
                 <div class="col col-lg-8">
-                    {{ $product->name_ua }}
+                    {{ $product->name_uk }}
                 </div>
             </div>
         </li>
@@ -43,7 +43,7 @@
                     <strong>Модель (UA)</strong>
                 </div>
                 <div class="col col-lg-8">
-                    {{ $product->model_ua }}
+                    {{ $product->model_uk }}
                 </div>
             </div>
         </li>
@@ -76,7 +76,7 @@
                     <strong>Страна производитель (UA)</strong>
                 </div>
                 <div class="col col-lg-8">
-                    {{ $product->manufacturer_ua }}
+                    {{ $product->manufacturer_uk }}
                 </div>
             </div>
         </li>
@@ -98,7 +98,7 @@
                     <strong>SEO Title (UA)</strong>
                 </div>
                 <div class="col col-lg-8">
-                    {{ $product->title_ua }}
+                    {{ $product->title_uk }}
                 </div>
             </div>
         </li>
@@ -120,7 +120,7 @@
                     <strong>SEO Description (UA)</strong>
                 </div>
                 <div class="col col-lg-8">
-                    {{ $product->description_ua }}
+                    {{ $product->description_uk }}
                 </div>
             </div>
         </li>
@@ -142,7 +142,7 @@
                     <strong>SEO Keywords (UA)</strong>
                 </div>
                 <div class="col col-lg-8">
-                    {{ $product->keywords_ua }}
+                    {{ $product->keywords_uk }}
                 </div>
             </div>
         </li>
@@ -173,14 +173,14 @@
                     <strong>Короткое описание (UA)</strong>
                 </div>
                 <div class="col col-lg-8">
-                    @if($product->brief_content_ua)
-                        <a data-toggle="collapse" href="#brief_content_ua" role="button" aria-expanded="false"
-                           aria-controls="brief_content_ua">
+                    @if($product->brief_content_uk)
+                        <a data-toggle="collapse" href="#brief_content_uk" role="button" aria-expanded="false"
+                           aria-controls="brief_content_uk">
                             <i class="fa fa-eye"></i>&nbsp;
                             <span>Смотреть короткое описание</span>
                         </a>
-                        <div class="collapse" id="brief_content_ua">
-                            <div class="card card-body">{!! $product->brief_content_ua !!}</div>
+                        <div class="collapse" id="brief_content_uk">
+                            <div class="card card-body">{!! $product->brief_content_uk !!}</div>
                         </div>
                     @endif
                 </div>
@@ -213,14 +213,14 @@
                     <strong>Описание (UA)</strong>
                 </div>
                 <div class="col col-lg-8">
-                    @if($product->content_ua)
-                        <a data-toggle="collapse" href="#content_ua" role="button" aria-expanded="false"
-                           aria-controls="content_ua">
+                    @if($product->content_uk)
+                        <a data-toggle="collapse" href="#content_uk" role="button" aria-expanded="false"
+                           aria-controls="content_uk">
                             <i class="fa fa-eye"></i>&nbsp;
                             <span>Смотреть описание</span>
                         </a>
-                        <div class="collapse" id="content_ua">
-                            <div class="card card-body">{!! $product->content_ua !!}</div>
+                        <div class="collapse" id="content_uk">
+                            <div class="card card-body">{!! $product->content_uk !!}</div>
                         </div>
                     @endif
                 </div>

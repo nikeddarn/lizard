@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Requests\Admin\Category\StoreCategoryRequest;
-use App\Http\Requests\Admin\Category\UpdateCategoryRequest;
+use App\Http\Requests\Admin\Category\Real\StoreCategoryRequest;
+use App\Http\Requests\Admin\Category\Real\UpdateCategoryRequest;
 use App\Models\Category;
 use App\Support\ImageHandlers\CategoryImageHandler;
 use Exception;
@@ -69,7 +69,7 @@ class CategoryController extends Controller
     {
         $this->authorize('create', $this->category);
 
-        $attributes = $request->only(['name_ru', 'name_ua', 'url', 'parent_id', 'title_ru', 'title_ua', 'description_ru', 'description_ua', 'keywords_ru', 'keywords_ua', 'content_ru', 'content_ua']);
+        $attributes = $request->only(['name_ru', 'name_uk', 'url', 'parent_id', 'title_ru', 'title_uk', 'description_ru', 'description_uk', 'keywords_ru', 'keywords_uk', 'content_ru', 'content_uk']);
 
         $category = $this->category->create($attributes);
 
@@ -129,10 +129,7 @@ class CategoryController extends Controller
 
         $categories = $this->category->defaultOrder()->withDepth()->get()->toTree();
 
-        return view('content.admin.catalog.category.update.index')->with([
-            'category' => $category,
-            'categories' => $categories,
-        ]);
+        return view('content.admin.catalog.category.update.index')->with(compact('category', 'categories'));
 
     }
 
@@ -156,7 +153,7 @@ class CategoryController extends Controller
 
         try {
 
-            $categoryAttributes = $request->only(['name_ru', 'name_ua', 'url', 'title_ru', 'title_ua', 'description_ru', 'description_ua', 'keywords_ru', 'keywords_ua', 'content_ru', 'content_ua']);
+            $categoryAttributes = $request->only(['name_ru', 'name_uk', 'url', 'title_ru', 'title_uk', 'description_ru', 'description_uk', 'keywords_ru', 'keywords_uk', 'content_ru', 'content_uk']);
 
             if ($request->has('image')) {
                 // delete previous image
@@ -272,7 +269,6 @@ class CategoryController extends Controller
 
         return redirect(route('admin.categories.index'));
     }
-
 
     /**
      * Store image on public disk. Return image url.

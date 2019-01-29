@@ -2,73 +2,50 @@
 
 @section('content')
 
-    <div class="row admin-content-header">
-        <div class="col admin-content-title"><h2>Создать атрибут</h2></div>
-        <div class="col-auto admin-content-actions">
-            <button type="submit" form="attribute-form" data-toggle="tooltip" title="Сохранить" class="btn btn-primary">
-                <i class="fa fa-save"></i></button>
-            <a href="{{ route('admin.attributes.index') }}" data-toggle="tooltip" title="Отменить"
-               class="btn btn-primary"><i class="fa fa-reply"></i></a>
-        </div>
-    </div>
+    @include('content.admin.catalog.attribute.create.parts.header')
 
-    @if ($errors->any())
-        <div class="row">
-            <div class="col-sm-8">
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
+    @include('elements.errors.admin_error.index')
+
+    <div class="card card-body">
+        <form id="attribute-form" class="multitab-form" method="post" action="{{ route('admin.attributes.store') }}"
+              role="form"
+              enctype="multipart/form-data">
+            @csrf
+
+            <nav>
+                <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                    <a class="nav-item nav-link active" data-toggle="tab" href="#attribute-general" role="tab"
+                       aria-controls="attribute-general" aria-selected="true">Основное</a>
+                    <a class="nav-item nav-link" data-toggle="tab" href="#attribute-values" role="tab"
+                       aria-controls="attribute-values" aria-selected="false">Значения</a>
+                </div>
+            </nav>
+
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="attribute-general" role="tabpanel"
+                     aria-labelledby="attribute-general-tab">
+                    @include('content.admin.catalog.attribute.create.parts.general_inputs')
+                </div>
+                <div class="tab-pane fade" id="attribute-values" role="tabpanel"
+                     aria-labelledby="attribute-values-tab">
+                    @include('content.admin.catalog.attribute.create.parts.values')
                 </div>
             </div>
-        </div>
-    @endif
 
-    <div class="row">
-        <div class="col-lg-12">
+            <button type="submit" class="btn btn-primary">Создать атрибут</button>
 
-            <form id="attribute-form" class="multitab-form" method="post" action="{{ route('admin.attributes.store') }}"
-                  role="form"
-                  enctype="multipart/form-data">
-                @csrf
+        </form>
 
-                <nav>
-                    <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                        <a class="nav-item nav-link active" data-toggle="tab" href="#attribute-general" role="tab"
-                           aria-controls="attribute-general" aria-selected="true">Основное</a>
-                        <a class="nav-item nav-link" data-toggle="tab" href="#attribute-values" role="tab"
-                           aria-controls="attribute-values" aria-selected="false">Значения</a>
-                    </div>
-                </nav>
+        {{-- add attribute value template (hidden)--}}
+        @include('content.admin.catalog.attribute.create.parts.value_template')
 
-                <div class="tab-content">
-                    <div class="tab-pane fade show active" id="attribute-general" role="tabpanel"
-                         aria-labelledby="attribute-general-tab">
-                        @include('content.admin.catalog.attribute.create.parts.general_inputs')
-                    </div>
-                    <div class="tab-pane fade" id="attribute-values" role="tabpanel"
-                         aria-labelledby="attribute-values-tab">
-                        @include('content.admin.catalog.attribute.create.parts.values')
-                    </div>
-                </div>
-
-                <button type="submit" class="btn btn-primary">Создать атрибут</button>
-
-            </form>
-
-            {{-- add attribute value template (hidden)--}}
-            @include('content.admin.catalog.attribute.create.parts.value_template')
-
-        </div>
     </div>
 
 @endsection
 
 @section('scripts')
 
-    <script type="text/javascript" src="/js/generate-url.js"></script>
+    <script type="text/javascript" src="{{ url('/js/generate-url.js') }}"></script>
 
     <script>
 
@@ -89,7 +66,7 @@
             // add new attribute value
             $('.attribute-value-add-item').click(function () {
 
-                attributeValueCounter ++;
+                attributeValueCounter++;
 
                 // create new attribute value input
                 let newItem = $('#attribute-value-template').find('.attribute-value-item').clone();

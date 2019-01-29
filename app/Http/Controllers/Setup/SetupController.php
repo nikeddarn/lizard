@@ -123,12 +123,12 @@ class SetupController extends Controller
     {
         $city = $this->city->newQuery()->firstOrCreate([
             'name_ru' => 'Киев',
-            'name_ua' => 'Київ',
+            'name_uk' => 'Київ',
         ]);
 
         $city->storages()->firstOrCreate([
             'name_ru' => 'Лукьяновка',
-            'name_ua' => 'Лук\'янівка',
+            'name_uk' => 'Лук\'янівка',
             'primary' => 1,
         ]);
     }

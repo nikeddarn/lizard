@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 // ---------------------------------------------------------------------------------------------------------------------
 
 // overview page
-Route::get('/admin/overview', 'Admin\OverviewController@index')->name('admin');
+Route::get('/admin/overview', 'Admin\OverviewController@index')->name('admin.overview');
 
 // categories
 Route::get('/admin/categories', 'Admin\CategoryController@index')->name('admin.categories.index');
@@ -30,7 +30,7 @@ Route::post('/admin/categories/upload/image', 'Admin\CategoryController@uploadIm
 Route::get('/admin/categories/virtual', 'Admin\VirtualCategoryController@index')->name('admin.categories.virtual.index');
 Route::get('/admin/categories/virtual/create', 'Admin\VirtualCategoryController@create')->name('admin.categories.virtual.create');
 Route::post('/admin/categories/virtual', 'Admin\VirtualCategoryController@store')->name('admin.categories.virtual.store');
-Route::get('/admin/categories/virtual/show/{id}', 'Admin\VirtualCategoryController@show')->name('admin.categories.virtual.show');
+Route::get('/admin/categories/virtual/{id}/show', 'Admin\VirtualCategoryController@show')->name('admin.categories.virtual.show');
 Route::get('/admin/categories/virtual/{id}/edit', 'Admin\VirtualCategoryController@edit')->name('admin.categories.virtual.edit');
 Route::put('/admin/categories/virtual/{id}', 'Admin\VirtualCategoryController@update')->name('admin.categories.virtual.update');
 Route::delete('/admin/categories/virtual/{id}', 'Admin\VirtualCategoryController@destroy')->name('admin.categories.virtual.destroy');
@@ -145,3 +145,13 @@ Route::post('/admin/vendor/category/products/uploaded', 'Vendor\VendorProductCon
 
 Route::get('/admin/synchronization', 'Vendor\VendorSynchronizationController@index')->name('vendor.synchronization.index');
 Route::get('/admin/synchronization/sync/{vendorId}', 'Vendor\VendorSynchronizationController@synchronize')->name('vendor.synchronization.synchronize');
+
+
+// ---------------------------------------------- Settings Routes ------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+
+// seo
+Route::get('/admin/settings/seo/edit', 'Admin\SeoSettingsController@edit')->name('admin.settings.seo.edit');
+Route::post('/admin/settings/seo/update', 'Admin\SeoSettingsController@update')->name('admin.settings.seo.update');
+
+

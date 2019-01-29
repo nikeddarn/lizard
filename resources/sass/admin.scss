@@ -10,17 +10,13 @@
 // -------------------------------------------------- Common styles ----------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
 
-.max-height-10{
-    max-height: 10rem;
-}
-
 .table-image {
     height: 80px;
 }
 
-.mx-negative-3{
-    margin-left: -1rem;
-    margin-right: -1rem;
+.show-content-property{
+    max-height: 10rem;
+    overflow-y: auto;
 }
 
 // -------------------------------------------------- header styles ---------------------------------------------------
@@ -35,28 +31,20 @@
 // ---------------------------------------------------------------------------------------------------------------------
 
 
-#admin-main-menu .card {
+#admin-main-menu{
 
-    .card{
+    a {
         border: none;
+        font-size: 1.2rem;
+        font-weight: 500;
+        cursor: pointer;
+        border-bottom: 1px solid $lizard-gray-delimiter-color;
     }
 
-    border-bottom: 1px solid $lizard-gray-delimiter-color;
-
-    .card-header {
-        background-color: white;
-        border: none;
-        position: relative;
-
-        button, a {
-            border: none;
-            font-size: 1.2rem;
-            font-weight: 500;
-        }
-    }
-
-    .card-body a{
-        font-size: 1.05rem;
+    a.submenu-link{
+        padding-top: .25rem;
+        padding-bottom: .25rem;
+        font-size: 1rem;
         font-weight: 400;
     }
 
@@ -64,7 +52,7 @@
         border-bottom: 1px solid $lizard-gray-delimiter-color;
     }
 
-    button:after {
+    a[data-toggle="collapse"]:after {
         content: '';
         position: absolute;
         width: 8px;
@@ -80,10 +68,15 @@
         margin-top: -4px;
     }
 
-    button[aria-expanded=true]::after {
+    a[data-toggle="collapse"][aria-expanded=true]::after {
         -webkit-transform: rotate(135deg);
         transform: rotate(135deg);
         margin-top: 0;
+    }
+
+    a.active{
+        background-color: $lizard-primary-color;
+        color: white!important;
     }
 }
 

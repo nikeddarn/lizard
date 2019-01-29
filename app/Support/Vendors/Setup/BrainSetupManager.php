@@ -62,7 +62,7 @@ class BrainSetupManager
         $brandAttribute = Attribute::query()->firstOrCreate([
             'defined_attribute_id' => AttributesInterface::BRAND,
             'name_ru' => 'Бренд',
-            'name_ua' => 'Бренд',
+            'name_uk' => 'Бренд',
         ]);
 
         // get vendor brands
@@ -111,7 +111,7 @@ class BrainSetupManager
         foreach ($vendorBrands as $vendorBrand) {
             $attributeValuesData[$vendorBrand->vendorID] = [
                 'value_ru' => $vendorBrand->name,
-                'value_ua' => $vendorBrand->name,
+                'value_uk' => $vendorBrand->name,
                 'url' => Str::slug($vendorBrand->name),
             ];
         }
@@ -133,7 +133,7 @@ class BrainSetupManager
                 'vendors_id' => self::VENDOR_ID,
                 'vendor_stock_id' => $stock->stockID,
                 'name_ru' => $stock->name,
-                'name_ua' => $stock->name,
+                'name_uk' => $stock->name,
             ]);
         }
     }

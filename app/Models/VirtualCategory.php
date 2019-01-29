@@ -4,12 +4,11 @@ namespace App\Models;
 
 use App\Models\Support\Translatable;
 use Illuminate\Database\Eloquent\Model;
-use Kalnoy\Nestedset\NodeTrait;
+use Illuminate\Support\Str;
 use Mews\Purifier\Facades\Purifier;
 
 class VirtualCategory extends Model
 {
-    use NodeTrait;
     use Translatable;
 
     /**
@@ -70,8 +69,62 @@ class VirtualCategory extends Model
      * @param  string  $value
      * @return void
      */
-    public function setContentUaAttribute($value)
+    public function setContentUkAttribute($value)
     {
-        $this->attributes['content_ua'] = Purifier::clean($value);
+        $this->attributes['content_uk'] = Purifier::clean($value);
+    }
+
+    /**
+     * @param  string  $value
+     * @return void
+     */
+    public function setNameRuAttribute($value)
+    {
+        $this->attributes['name_ru'] = Str::ucfirst($value);
+    }
+
+    /**
+     * @param  string  $value
+     * @return void
+     */
+    public function setNameUkAttribute($value)
+    {
+        $this->attributes['name_uk'] = Str::ucfirst($value);
+    }
+
+    /**
+     * @param  string  $value
+     * @return void
+     */
+    public function setTitleRuAttribute($value)
+    {
+        $this->attributes['title_ru'] = Str::ucfirst($value);
+    }
+
+    /**
+     * @param  string  $value
+     * @return void
+     */
+    public function setTitleUkAttribute($value)
+    {
+        $this->attributes['title_uk'] = Str::ucfirst($value);
+    }
+
+    /**
+     * @param  string  $value
+     * @return void
+     */
+    public function setDescriptionRuAttribute($value)
+    {
+        $this->attributes['description_ru'] = Str::ucfirst($value);
+    }
+
+    /**
+     * @param  string  $value
+     * @return void
+     */
+    public function setDescriptionUkAttribute($value)
+    {
+        $this->attributes['description_uk'] = Str::ucfirst($value);
     }
 }

@@ -12,11 +12,18 @@
     <header>
         {{-- Header--}}
         @include('layouts.parts.headers.common.index')
+
+
     </header>
 
-    <main class="flex-fill">
+    <main class="flex-fill mb-4">
 
         <div class="container">
+
+            {{-- Breadcrumbs--}}
+            <div class="card card-body my-2 py-2">
+                @include('layouts.parts.breadcrumbs.shop.index')
+            </div>
 
             @yield('content')
 

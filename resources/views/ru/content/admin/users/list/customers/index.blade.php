@@ -38,6 +38,15 @@
                 }
             });
 
+            // activate admin menu
+            let currentLink = $('#main-menu-users-customers');
+            $(currentLink).addClass('active');
+
+            $(currentLink).parents('.collapse').each(function () {
+                $(this).addClass('show');
+                $(this).siblings('a[aria-expanded]').attr('aria-expanded', 'true');
+            });
+
         });
 
     </script>

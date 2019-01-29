@@ -42,19 +42,19 @@ class BrainProductDataAdapter extends BrainProductPriceAdapter
             'url' => Str::slug($productDataRu->name),
 
             'name_ru' => $productContentDataRu->name,
-            'name_ua' => $productContentDataUa->name,
+            'name_uk' => $productContentDataUa->name,
 
             'brief_content_ru' => $productContentDataRu->brief_description,
-            'brief_content_ua' => $productContentDataUa->brief_description,
+            'brief_content_uk' => $productContentDataUa->brief_description,
 
             'content_ru' => $productContentDataRu->description,
-            'content_ua' => $productContentDataUa->description,
+            'content_uk' => $productContentDataUa->description,
 
             'manufacturer_ru' => $productContentDataRu->country,
-            'manufacturer_ua' => $productContentDataUa->country,
+            'manufacturer_uk' => $productContentDataUa->country,
 
             'model_ru' => $productContentDataRu->model,
-            'model_ua' => $productContentDataUa->model,
+            'model_uk' => $productContentDataUa->model,
 
             'volume' => (float)$productContentDataRu->volume,
             'weight' => (float)$productContentDataRu->weight,

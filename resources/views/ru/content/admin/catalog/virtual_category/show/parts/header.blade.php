@@ -2,23 +2,17 @@
 
     <div class="d-flex justify-content-between">
 
-        <div class="d-inline-flex">
-            <div>
-                <img class="table-image img-fluid img-thumbnail" src="{{ url('/storage/' . $category->image) }}"
-                     alt="category icon">
-            </div>
-            <h1 class="h4 text-gray-hover ml-5">{{ $category->name }}</h1>
-        </div>
+            <h1 class="h4 text-gray-hover ml-5">{{ $virtualCategory->name_ru }}</h1>
 
         <div class="d-inline-flex justify-content-around align-items-start">
 
-            <a href="{{ route('admin.categories.edit', ['id' => $category->id]) }}" data-toggle="tooltip"
+            <a href="{{ route('admin.categories.virtual.edit', ['id' => $virtualCategory->id]) }}" data-toggle="tooltip"
                title="Редактировать" class="btn btn-primary">
                 <i class="svg-icon-larger" data-feather="edit"></i>
             </a>
 
             <form class="product-delete-form d-inline-block mx-1"
-                  action="{{ route('admin.categories.destroy', ['id' => $category->id]) }}" method="post">
+                  action="{{ route('admin.categories.virtual.destroy', ['id' => $virtualCategory->id]) }}" method="post">
                 @csrf
                 @method('DELETE')
 
@@ -27,7 +21,7 @@
                 </button>
             </form>
 
-            <a href="{{ route('admin.categories.index') }}" data-toggle="tooltip" title="К списку категорий"
+            <a href="{{ route('admin.categories.virtual.index') }}" data-toggle="tooltip" title="К списку категорий"
                class="btn btn-primary">
                 <i class="svg-icon-larger" data-feather="corner-up-left"></i>
             </a>

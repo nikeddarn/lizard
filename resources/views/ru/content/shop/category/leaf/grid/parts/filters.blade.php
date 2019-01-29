@@ -1,4 +1,4 @@
-<div id="product-filters" class="my-4">
+<div id="product-filters">
 
     @if(isset($usedFilters))
         <div class="card pb-4">

@@ -55,14 +55,14 @@ class BrainCatalogProvider extends BrainProvider
         $results = $this->getPoolResponses(function ($sessionId){
             return [
                 'categories_ru' => new Request('GET', "categories/$sessionId?lang=ru"),
-                'categories_ua' => new Request('GET', "categories/$sessionId?lang=ua"),
+                'categories_uk' => new Request('GET', "categories/$sessionId?lang=ua"),
             ];
     });
 
         // retrieve 'ru' and 'ua' categories with given vendor category id
         $categoryData = [
             'category_data_ru' => collect($results['categories_ru'])->keyBy('categoryID')->get($categoryId),
-            'category_data_ua' => collect($results['categories_ua'])->keyBy('categoryID')->get($categoryId),
+            'category_data_uk' => collect($results['categories_uk'])->keyBy('categoryID')->get($categoryId),
         ];
 
         return $categoryData;

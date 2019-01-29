@@ -91,7 +91,7 @@ class BrainInsertVendorProductManager extends InsertVendorProductManager
         $vendorUsdCourse = $this->getCashUsdCourse($productData['course']);
         $productDataRu = $productData['product_data_ru'];
         $productContentDataRu = $productData['product_content_data_ru']->list[0];
-        $productContentDataUa = $productData['product_content_data_ua']->list[0];
+        $productContentDataUa = $productData['product_content_data_uk']->list[0];
         $comments = $productData['comments']->list;
 
         // set product model data

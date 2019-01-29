@@ -90,18 +90,18 @@ class AttributeValue extends Model
     }
 
     /**
-     * Set attribute's name_ua.
+     * Set attribute's name_uk.
      *
      * @param  string  $value
      * @return void
      */
-    public function setValueUaAttribute($value)
+    public function setValueUkAttribute($value)
     {
-        $this->attributes['value_ua'] = Str::ucfirst(Str::lower($value));
+        $this->attributes['value_uk'] = Str::ucfirst(Str::lower($value));
     }
 
     /**
-     * Set attribute's name_ua.
+     * Set attribute's name_uk.
      *
      * @param  string  $value
      * @return void

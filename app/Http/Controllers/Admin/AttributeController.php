@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Requests\Admin\StoreAttributeRequest;
+use App\Http\Requests\Admin\Attribute\StoreAttributeRequest;
+use App\Http\Requests\Admin\Attribute\UpdateAttributeRequest;
 use App\Models\Attribute;
 use App\Http\Controllers\Controller;
 use App\Models\AttributeValue;
-use Illuminate\View\View;
 
 class AttributeController extends Controller
 {
@@ -69,8 +69,9 @@ class AttributeController extends Controller
     {
         $this->authorize('create', $this->attribute);
 
-        $attributeData = $request->only(['name_ru', 'name_ua']);
+        $attributeData = $request->only(['name_ru', 'name_uk']);
         $attributeData['multiply_product_values'] = (int)$request->has('multiply_product_values');
+        $attributeData['indexable'] = (int)$request->has('indexable');
 
 
         $attribute = $this->attribute->newQuery()->create($attributeData);
@@ -78,13 +79,13 @@ class AttributeController extends Controller
         if ($request->has('value_ru')) {
 
             $valuesRu = $request->get('value_ru');
-            $valuesUa = $request->get('value_ua');
+            $valuesUa = $request->get('value_uk');
             $url = $request->get('url');
 
             for ($i = 0; $i < count($valuesRu); $i++) {
                 $attributeValue = [
                     'value_ru' => $valuesRu[$i],
-                    'value_ua' => $valuesUa[$i],
+                    'value_uk' => $valuesUa[$i],
                     'url' => $url[$i],
                 ];
 
@@ -142,17 +143,18 @@ class AttributeController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param StoreAttributeRequest $request
+     * @param UpdateAttributeRequest $request
      * @param string $id
      * @return \Illuminate\Http\Response
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function update(StoreAttributeRequest $request, string $id)
+    public function update(UpdateAttributeRequest $request, string $id)
     {
         $this->authorize('update', $this->attribute);
 
-        $attributeData = $request->only(['name_ru', 'name_ua']);
+        $attributeData = $request->only(['name_ru', 'name_uk']);
         $attributeData['multiply_product_values'] = (int)$request->has('multiply_product_values');
+        $attributeData['indexable'] = (int)$request->has('indexable');
 
         $this->attribute->newQuery()->findOrFail($id)->update($attributeData);
 
@@ -165,6 +167,7 @@ class AttributeController extends Controller
      * @param string $id
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Exception
      */
     public function destroy(string $id)
     {

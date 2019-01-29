@@ -11,6 +11,6 @@ return [
     [
         'id' => VendorInterface::BRAIN,
         'name_ru' => 'Brain',
-        'name_ua' => 'Brain',
+        'name_uk' => 'Brain',
     ],
 ];

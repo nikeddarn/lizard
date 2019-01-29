@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Requests\Admin\ProductAttribute\StoreProductAttributeRequest;
 use App\Models\Attribute;
 use App\Models\AttributeValue;
 use App\Models\Product;
 use App\Models\ProductAttribute;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 
 class ProductAttributeController extends Controller
 {
@@ -75,25 +74,15 @@ class ProductAttributeController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param StoreProductAttributeRequest $request
      * @return \Illuminate\Http\Response
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function store(Request $request)
+    public function store(StoreProductAttributeRequest $request)
     {
         $this->authorize('create', $this->productAttribute);
 
         $productsId = $request->get('products_id');
-
-        $validator = Validator::make(request()->all(), [
-            'attributes_id' => 'integer',
-            'attribute_values_id' => ['integer', Rule::unique('product_attribute', 'attribute_values_id')->where('products_id', $productsId)],
-            'products_id' => 'integer',
-        ])->sometimes('attributes_id', Rule::unique('product_attribute', 'attributes_id')->where('products_id', $productsId), function ($input) {
-            return !Attribute::where('id', $input->attributes_id)->first()->multiply_product_values;
-        });
-
-        $validator->validate();
 
         $this->productAttribute->newQuery()->create($request->only(['products_id', 'attributes_id', 'attribute_values_id']));
 

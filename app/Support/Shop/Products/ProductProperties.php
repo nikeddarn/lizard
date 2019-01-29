@@ -88,6 +88,9 @@ abstract class ProductProperties
             if ($product->rating_quantity >= config('shop.min_quantity_to_show_rate.product')) {
                 $product->productRate = $product->rating;
             }
+
+            // is product favourite
+            $product->isFavourite = $product->favouriteProducts->count();
         }
     }
 
@@ -124,9 +127,9 @@ abstract class ProductProperties
      * @param int $decimals
      * @return string
      */
-    private function formatProductPrice(float $price, int $decimals = 2)
+    private function formatProductPrice(float $price, int $decimals = 0)
     {
-        return number_format($price, $decimals, '.', ',');
+        return number_format($price, $decimals, '.', ' ');
     }
 
     /**

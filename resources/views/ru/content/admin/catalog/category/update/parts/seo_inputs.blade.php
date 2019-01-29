@@ -11,10 +11,10 @@
 
     <div class="row form-group">
         <div class="col-sm-2">
-            <label for="title_ua">Seo Title (ua)</label>
+            <label for="title_uk">Seo Title (ua)</label>
         </div>
         <div class="col-sm-8">
-            <input id="title_ua" name="title_ua" type="text" class="w-100" value="{{ old('title_ua', $category->title_ua) }}">
+            <input id="title_uk" name="title_uk" type="text" class="w-100" value="{{ old('title_uk', $category->title_uk) }}">
         </div>
     </div>
 
@@ -33,10 +33,10 @@
 
     <div class="row form-group">
         <div class="col-sm-2">
-            <label for="description_ua">Seo Description (ua)</label>
+            <label for="description_uk">Seo Description (ua)</label>
         </div>
         <div class="col-sm-8">
-            <textarea id="description_ua" name="description_ua" type="text" class="w-100" rows="3">{{ old('description_ua', $category->description_ua) }}</textarea>
+            <textarea id="description_uk" name="description_uk" type="text" class="w-100" rows="3">{{ old('description_uk', $category->description_uk) }}</textarea>
         </div>
     </div>
 
@@ -55,10 +55,10 @@
 
     <div class="row form-group">
         <div class="col-sm-2">
-            <label for="keywords_ua">Seo Keywords (ua)</label>
+            <label for="keywords_uk">Seo Keywords (ua)</label>
         </div>
         <div class="col-sm-8">
-            <input id="keywords_ua" name="keywords_ua" type="text" class="w-100" placeholder="comma separated keywords (,)" value="{{ old('keywords_ua', $category->keywords_ua) }}">
+            <input id="keywords_uk" name="keywords_uk" type="text" class="w-100" placeholder="comma separated keywords (,)" value="{{ old('keywords_uk', $category->keywords_uk) }}">
         </div>
     </div>
 

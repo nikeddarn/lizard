@@ -55,7 +55,7 @@ a {
 
 a:hover {
     color: $lizard-primary-darken-color;
-    text-decoration: underline;
+    text-decoration: none;
     outline: 0;
     box-shadow: none;
 }
@@ -201,11 +201,20 @@ table tr td {
     height: 1.2rem;
 }
 
-.overflow-y-scroll{
+.overflow-y-scroll {
     overflow-y: scroll;
 }
 
-// -------------------------------------------------- Modal left -------------------------------------------------------
+.btn-outline-primary {
+    color: $lizard-primary-color;
+    border-color: $lizard-primary-color;
+}
+
+.btn-outline-primary:hover {
+    background-color: $lizard-primary-color;
+}
+
+// -------------------------------------------------- Modal -------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
 
 .modal.left .modal-dialog {
@@ -352,23 +361,6 @@ input:active:not([type="radio"]):not([type="checkbox"]) {
 
 .empty-checkbox-label {
     min-height: 1rem;
-}
-
-.btn,
-button {
-    border-radius: 0;
-    outline: none !important;
-    -webkit-box-shadow: none !important;
-    box-shadow: none !important;
-}
-
-.btn:active,
-.btn:focus,
-button:active,
-button:focus {
-    outline: none !important;
-    -webkit-box-shadow: none !important;
-    box-shadow: none !important;
 }
 
 select {
@@ -690,120 +682,77 @@ textarea:active {
 // ---------------------------------- product card actions ---------------------------------------
 .card-product {
 
+    .product-favourite, .product-quickview {
+        color: #ced4da;
+        position: absolute;
+        top: .5rem;
+        background-color: white;
+        -webkit-box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, .075);
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, .075);
+        padding: .3rem 0;
+        border-radius: 50%;
+        -webkit-transition: color .2s;
+        transition: color .2s;
+        cursor: pointer;
+        width: 30px;
+        height: 30px;
+        z-index: 1;
+    }
+
+    .product-favourite {
+        left: .5rem;
+    }
+
+    .product-quickview {
+        right: .5rem;
+    }
+
+    .product-favourite.active {
+        color: $lizard-price-color;
+    }
+
+    .product-favourite:not(.active):hover {
+        color: $lizard-price-color;
+    }
+
+    .product-quickview:hover {
+        color: $lizard-text-gray;
+    }
+
     .card-image {
         position: relative;
     }
 
-    .action {
-        position: absolute;
-        bottom: 5%;
-        left: 0;
-        display: none;
-        width: 100%;
-        text-align: center;
-
-        .btn > .fa {
-            font-size: 145%;
-            vertical-align: top;
-        }
-
-        .btn-outline-theme {
-            background-color: #fff;
-            color: $lizard-primary-color;
-            border-color: $lizard-primary-color;
-        }
-
-        .btn-theme {
-            font-size: .9rem;
-            color: #fff;
-            background-color: $lizard-primary-color;
-            border-color: $lizard-primary-color;
-        }
-
+    .card-footer {
+        border: none;
+        background-color: white;
+        padding: 0 1rem 1rem;
     }
-
-    .small-action {
-        position: absolute;
-        bottom: 10px;
-        right: 10px;
-    }
-
-    span[data-toggle=dropdown] {
-        font-size: 1.5rem;
-        width: 8px;
-        cursor: pointer;
-    }
-
 }
 
-@media (min-width: 768px) {
+.card-product-list {
+    display: flex;
+    flex-direction: row;
 
-    .card-product:hover .action {
+    .card-image {
+        width: 35%;
+        padding: 1rem;
+    }
+
+    .card-body {
+        width: 65%;
+    }
+
+    .card-title {
+        font-weight: 700;
         display: block;
-
-        .btn-theme, .btn-outline-theme {
-            -webkit-animation-duration: .2s;
-            animation-duration: .2s;
-            -webkit-animation-fill-mode: both;
-            animation-fill-mode: both;
-        }
-
-        .btn-outline-theme {
-            -webkit-animation-name: fadeDown;
-            animation-name: fadeDown;
-        }
-
-        .btn-theme {
-            -webkit-animation-name: fadeUp;
-            animation-name: fadeUp;
-        }
-
-        .btn-outline-theme:hover {
-            background-color: #e6e6e6;
-        }
-
-        .btn-theme:hover {
-            color: white;
-            background-color: $lizard-primary-darken-color;
-            border-color: $lizard-primary-darken-color;
-        }
+        font-size: 1.1rem;
+        color: $lizard-text-gray;
     }
 
-    @keyframes fadeDown {
-        0% {
-            -webkit-transform: translate3d(0, -100%, 0);
-            transform: translate3d(0, -100%, 0);
-            opacity: 0;
-        }
-
-        100% {
-            -webkit-transform: translate3d(0, 0, 0);
-            transform: translate3d(0, 0, 0);
-            opacity: 1;
-        }
+    .card-title:hover {
+        color: $lizard-primary-darken-color;
     }
-
-    @keyframes fadeUp {
-        0% {
-            -webkit-transform: translate3d(0, 100%, 0);
-            transform: translate3d(0, 100%, 0);
-            opacity: 0;
-        }
-        100% {
-            -webkit-transform: translate3d(0, 0, 0);
-            transform: translate3d(0, 0, 0);
-            opacity: 1;
-        }
-    }
-}
-
-// ------------------------------------------- Product badges ----------------------------------------------------------
-
-.product-card-badges {
-    position: absolute;
-    left: auto;
-    right: 5px;
-    top: 5px;
 }
 
 // -------------------------------------------------- Products details -------------------------------------------------
@@ -879,16 +828,16 @@ textarea:active {
     }
 }
 
-#product-details-actions{
+#product-details-actions {
     border: 1px solid $lizard-primary-color;
     border-radius: 2rem;
     overflow: hidden;
 
-    button{
+    button {
         flex: 1;
     }
 
-    a{
+    a {
         border: none;
     }
 }
@@ -963,7 +912,6 @@ textarea:active {
 
 .filter-sidebar-checkbox label {
     min-height: 20px;
-    //padding-left: 20px;
     margin-bottom: 0;
     font-weight: normal;
     cursor: pointer;
@@ -983,8 +931,8 @@ textarea:active {
 }
 
 .filter-sidebar-checkbox label.filter-sidebar-checkbox-checked:before {
-    background: #fff;
-    color: $lizard-primary-color;
+    background: $lizard-primary-color;
+    color: white;
     content: "\2714";
     text-align: center;
 }

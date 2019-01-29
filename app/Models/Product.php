@@ -252,9 +252,9 @@ class Product extends Model
      * @param  string $value
      * @return void
      */
-    public function setBriefContentUaAttribute($value)
+    public function setBriefContentUkAttribute($value)
     {
-        $this->attributes['brief_content_ua'] = Purifier::clean($value);
+        $this->attributes['brief_content_uk'] = Purifier::clean($value);
     }
 
     /**
@@ -270,9 +270,9 @@ class Product extends Model
      * @param  string $value
      * @return void
      */
-    public function setContentUaAttribute($value)
+    public function setContentUkAttribute($value)
     {
-        $this->attributes['content_ua'] = Purifier::clean($value);
+        $this->attributes['content_uk'] = Purifier::clean($value);
     }
 
     /**
@@ -288,8 +288,73 @@ class Product extends Model
      * @param  string $value
      * @return void
      */
-    public function setManufacturerUaAttribute($value)
+    public function setManufacturerUkAttribute($value)
     {
-        $this->attributes['manufacturer_ua'] = Str::ucfirst($value);
+        $this->attributes['manufacturer_uk'] = Str::ucfirst($value);
+    }
+
+    /**
+     * @param  string  $value
+     * @return void
+     */
+    public function setNameRuAttribute($value)
+    {
+        $this->attributes['name_ru'] = Str::ucfirst($value);
+    }
+
+    /**
+     * @param  string  $value
+     * @return void
+     */
+    public function setNameUkAttribute($value)
+    {
+        $this->attributes['name_uk'] = Str::ucfirst($value);
+    }
+
+    /**
+     * @param  string  $value
+     * @return void
+     */
+    public function setTitleRuAttribute($value)
+    {
+        $this->attributes['title_ru'] = Str::ucfirst($value);
+    }
+
+    /**
+     * @param  string  $value
+     * @return void
+     */
+    public function setTitleUkAttribute($value)
+    {
+        $this->attributes['title_uk'] = Str::ucfirst($value);
+    }
+
+    /**
+     * @param  string  $value
+     * @return void
+     */
+    public function setDescriptionRuAttribute($value)
+    {
+        $this->attributes['description_ru'] = Str::ucfirst($value);
+    }
+
+    /**
+     * @param  string  $value
+     * @return void
+     */
+    public function setDescriptionUkAttribute($value)
+    {
+        $this->attributes['description_uk'] = Str::ucfirst($value);
+    }
+
+    /**
+     * Set attribute's name_uk.
+     *
+     * @param  string  $value
+     * @return void
+     */
+    public function setUrlAttribute($value)
+    {
+        $this->attributes['url'] = Str::lower($value);
     }
 }

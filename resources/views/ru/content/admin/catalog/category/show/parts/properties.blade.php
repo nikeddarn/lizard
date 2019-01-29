@@ -32,7 +32,7 @@
                 <strong>Наименование (UA)</strong>
             </div>
             <div class="col col-lg-8">
-                {{ $category->name_ua }}
+                {{ $category->name_uk }}
             </div>
         </div>
     </li>
@@ -65,7 +65,7 @@
                 <strong>SEO Title (UA)</strong>
             </div>
             <div class="col col-lg-8">
-                {{ $category->title_ua }}
+                {{ $category->title_uk }}
             </div>
         </div>
     </li>
@@ -87,7 +87,7 @@
                 <strong>SEO Description (UA)</strong>
             </div>
             <div class="col col-lg-8">
-                {{ $category->description_ua }}
+                {{ $category->description_uk }}
             </div>
         </div>
     </li>
@@ -109,7 +109,7 @@
                 <strong>SEO Keywords (UA)</strong>
             </div>
             <div class="col col-lg-8">
-                {{ $category->keywords_ua }}
+                {{ $category->keywords_uk }}
             </div>
         </div>
     </li>
@@ -121,7 +121,7 @@
             </div>
             <div class="col col-lg-8">
                 @if($category->content_ru)
-                    <div class="overflow-y-scroll max-height-10">
+                    <div class="show-content-property">
                         {!! $category->content_ru !!}
                     </div>
                 @endif
@@ -135,14 +135,9 @@
                 <strong>Описание (UA)</strong>
             </div>
             <div class="col col-lg-8">
-                @if($category->content_ua)
-                    <a data-toggle="collapse" href="#content_ua" role="button" aria-expanded="false"
-                       aria-controls="content_ua">
-                        <i class="fa fa-eye"></i>&nbsp;
-                        <span>Смотреть описание</span>
-                    </a>
-                    <div class="collapse" id="content_ua">
-                        <div class="card card-body">{!! $category->content_ua !!}</div>
+                @if($category->content_uk)
+                    <div class="show-content-property">
+                        {!! $category->content_uk !!}
                     </div>
                 @endif
             </div>

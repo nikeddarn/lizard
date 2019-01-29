@@ -103,6 +103,15 @@
                 return false;
             });
 
+            // activate admin menu
+            let currentLink = $('#main-menu-vendors-{{ $vendor->id }}-categories');
+            $(currentLink).addClass('active');
+
+            $(currentLink).parents('.collapse').each(function () {
+                $(this).addClass('show');
+                $(this).siblings('a[aria-expanded]').attr('aria-expanded', 'true');
+            });
+
         });
 
     </script>

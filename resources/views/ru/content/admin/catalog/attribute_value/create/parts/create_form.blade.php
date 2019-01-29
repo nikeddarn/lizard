@@ -1,4 +1,4 @@
-<form method="post" action="{{ route('admin.attributes.value.store') }}" role="form" enctype="multipart/form-data">
+<form id="attribute-value-form" method="post" action="{{ route('admin.attributes.value.store') }}" role="form" enctype="multipart/form-data">
 
     @csrf
 
@@ -17,10 +17,10 @@
 
         <div class="row form-group">
             <div class="col-sm-2">
-                <label class="required" for="value_ua">Значение (ua)</label>
+                <label class="required" for="value_uk">Значение (ua)</label>
             </div>
             <div class="col-sm-8">
-                <input id="value_ua" name="value_ua" type="text" required class="w-100" value="{{ old('value_ua') }}">
+                <input id="value_uk" name="value_uk" type="text" required class="w-100" value="{{ old('value_uk') }}">
             </div>
         </div>
 

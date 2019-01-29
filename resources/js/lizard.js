@@ -111,30 +111,64 @@ $(document).ready(function () {
         $('#header-search').removeClass('d-flex').addClass('d-none');
     });
 
-    // ----------------------------------------------------- Add to favourite ------------------------------------------
+    // ----------------------------------------------------- Add and remove to favourite ------------------------------------------
 
     // add to favourite
-    $('.product-favourite-add').click(function (e) {
+    $('.product-favourite:not(.active)').click(function (e) {
+        addProductToFavourite(e, this);
+    });
+
+
+    // remove to favourite
+    $('.product-favourite.active').click(function (e) {
+        removeProductFromFavourite(e, this);
+    });
+
+    let addProductToFavourite = function (e, favouriteButtonUrl) {
         e.preventDefault();
         e.stopImmediatePropagation();
 
         $.ajax({
-            url: this,
+            url: favouriteButtonUrl,
             success: function (data) {
-                if (data) {
-                    // increase header badge's count
-                    let badge = $('#header-favourite-products').find('span');
-                    $(badge).text($(badge).text().length ? parseInt($(badge).text()) + 1 : 1);
-                }
+                // increase header badge's count
+                let badge = $('#header-favourite-products').find('span');
+                let badgeText = parseInt($(badge).text());
+                $(badge).text(badgeText ? badgeText + 1 : 1);
 
-                // activate modal
-                let modal = $('#modal-product-favourite-added');
-                $(modal).modal('show');
-                setTimeout(function () {
-                    $(modal).modal('hide');
-                }, 3500);
+                // highlight favourite button and replace attributes
+                $(favouriteButtonUrl).addClass('active').attr('href', data).attr('title', $(favouriteButtonUrl).data('remove-title'));
+
+                // rebind 'onclick'
+                $(favouriteButtonUrl).off('click').click(function (e) {
+                    removeProductFromFavourite(e, this);
+                });
+
             }
         });
-    });
+    };
+
+    let removeProductFromFavourite = function (e, favouriteButtonUrl) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+
+        $.ajax({
+            url: favouriteButtonUrl,
+            success: function (data) {
+                // decrease header badge's count
+                let badge = $('#header-favourite-products').find('span');
+                let badgeText = parseInt($(badge).text());
+                $(badge).text(badgeText && badgeText > 1 ? badgeText - 1 : '');
+
+                // remove highlight from favourite button and replace attributes
+                $(favouriteButtonUrl).removeClass('active').attr('href', data).attr('title', $(favouriteButtonUrl).data('add-title'));
+
+                // rebind 'onclick'
+                $(favouriteButtonUrl).off('click').click(function (e) {
+                    addProductToFavourite(e, this);
+                });
+            }
+        });
+    };
 
 });

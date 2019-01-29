@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Admin\Category;
+namespace App\Http\Requests\Admin\Category\Real;
 
 use App\Rules\ParentCategoryHasNotProducts;
 use Illuminate\Foundation\Http\FormRequest;
@@ -19,18 +19,18 @@ class UpdateCategoryRequest extends FormRequest
         $uniqueRule = Rule::unique('categories')->ignore(request()->route('id'), 'id');
 
         return [
-            'name_ru' => ['required', 'string', 'max:64', $uniqueRule],
-            'name_ua' => ['required', 'string', 'max:64', $uniqueRule],
             'url' => ['required', 'string', 'max:64', $uniqueRule],
             'parent_id' => ['required', 'numeric', new ParentCategoryHasNotProducts()],
-            'title_ru' => ['nullable', 'string', 'max:128', $uniqueRule],
-            'title_ua' => ['nullable', 'string', 'max:128', $uniqueRule],
-            'description_ru' => ['nullable', 'string', 'max:255', $uniqueRule],
-            'description_ua' => ['nullable', 'string', 'max:255', $uniqueRule],
-            'keywords_ru' => 'nullable|string|max:128',
-            'keywords_ua' => 'nullable|string|max:128',
+            'name_ru' => ['required', 'string', 'max:128', $uniqueRule],
+            'name_uk' => ['required', 'string', 'max:128', $uniqueRule],
+            'title_ru' => ['nullable', 'string', 'max:256', $uniqueRule],
+            'title_uk' => ['nullable', 'string', 'max:256', $uniqueRule],
+            'description_ru' => ['nullable', 'string', 'max:512', $uniqueRule],
+            'description_uk' => ['nullable', 'string', 'max:512', $uniqueRule],
+            'keywords_ru' => 'nullable|string|max:512',
+            'keywords_uk' => 'nullable|string|max:512',
             'content_ru' => 'nullable|string',
-            'content_ua' => 'nullable|string',
+            'content_uk' => 'nullable|string',
             'image' => 'nullable|image',
         ];
     }

@@ -89,7 +89,7 @@ class BrainProductAttributesDataAdapter
             // prepare attribute data
             $attributeData = [
                 'name_ru' => $attributeDataRu->OptionName,
-                'name_ua' => $attributeDataUa->OptionName,
+                'name_uk' => $attributeDataUa->OptionName,
                 'multiply_product_values' => 1,
             ];
 
@@ -132,7 +132,7 @@ class BrainProductAttributesDataAdapter
             $attributeValueData = [
                 'attributes_id' => $attributeId,
                 'value_ru' => $attributeDataRu->ValueName,
-                'value_ua' => $attributeDataUa->ValueName,
+                'value_uk' => $attributeDataUa->ValueName,
                 'url' => Str::slug($attributeDataRu->ValueName),
             ];
 

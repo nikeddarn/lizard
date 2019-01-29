@@ -120,7 +120,7 @@ class ProductController extends Controller
     {
         $this->authorize('create', $this->attribute);
 
-        $productData = $request->only(['name_ru', 'name_ua', 'model_ru', 'model_ua', 'articul', 'code', 'url', 'title_ru', 'title_ua', 'description_ru', 'description_ua', 'keywords_ru', 'keywords_ua', 'brief_content_ru', 'brief_content_ua', 'content_ru', 'content_ua', 'manufacturer_ru', 'manufacturer_ua', 'min_order_quantity', 'price1', 'price2', 'price3', 'is_new', 'warranty', 'weight', 'length', 'width', 'height', 'volume']);
+        $productData = $request->only(['name_ru', 'name_uk', 'model_ru', 'model_uk', 'articul', 'code', 'url', 'title_ru', 'title_uk', 'description_ru', 'description_uk', 'keywords_ru', 'keywords_uk', 'brief_content_ru', 'brief_content_uk', 'content_ru', 'content_uk', 'manufacturer_ru', 'manufacturer_uk', 'min_order_quantity', 'price1', 'price2', 'price3', 'is_new', 'warranty', 'weight', 'length', 'width', 'height', 'volume']);
 
         // calculate product volume
         if (!$request->get('volume') && $request->has(['length', 'width', 'height'])) {
@@ -219,7 +219,7 @@ class ProductController extends Controller
     {
         $this->authorize('update', $this->product);
 
-        $productData = $request->only(['name_ru', 'name_ua', 'model_ru', 'model_ua', 'articul', 'code', 'url', 'title_ru', 'title_ua', 'description_ru', 'description_ua', 'keywords_ru', 'keywords_ua', 'brief_content_ru', 'brief_content_ua', 'content_ru', 'content_ua', 'manufacturer_ru', 'manufacturer_ua', 'min_order_quantity', 'price1', 'price2', 'price3', 'is_new', 'warranty', 'weight', 'length', 'width', 'height', 'volume']);
+        $productData = $request->only(['name_ru', 'name_uk', 'model_ru', 'model_uk', 'articul', 'code', 'url', 'title_ru', 'title_uk', 'description_ru', 'description_uk', 'keywords_ru', 'keywords_uk', 'brief_content_ru', 'brief_content_uk', 'content_ru', 'content_uk', 'manufacturer_ru', 'manufacturer_uk', 'min_order_quantity', 'price1', 'price2', 'price3', 'is_new', 'warranty', 'weight', 'length', 'width', 'height', 'volume']);
 
         // calculate product volume
         if (!$request->get('volume') && $request->has(['length', 'width', 'height'])) {

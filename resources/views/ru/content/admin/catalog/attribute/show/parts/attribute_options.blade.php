@@ -1,7 +1,5 @@
-<div class="card  py-2 px-1 p-lg-5 mb-5">
-    <h4 class="mb-5 text-center">Варианты значения атрибута</h4>
 
-    @if($attributeValues->count())
+
 
         <table class="table">
 
@@ -11,7 +9,14 @@
 
                 <tr>
 
-                    <td>{{ $value->value_ru }}</td>
+                    <td>
+                        <div class="d-flex">
+                            @if($value->image)
+                                <img src="/storage/{{ $value->image }}" class="table-image">
+                            @endif
+                            <span>{{ $value->value_ru }}</span>
+                        </div>
+                    </td>
 
                     <td class="text-right">
                         <a href="{{ route('admin.attributes.value.edit', ['id' => $value->id]) }}" data-toggle="tooltip"
@@ -39,11 +44,11 @@
 
         </table>
 
-    @endif
-
-    @if($attributeValues->links())
-        <div class="col-lg-12 my-4 items-pagination">{{$attributeValues->links()}}</div>
-    @endif
+        @if($attributeValues->lastPage() !== 1)
+            <div class="my-4 mx-negative-3">
+                @include('layouts.parts.pagination.products.index', ['paginator' => $attributeValues])
+            </div>
+        @endif
 
     <div class="col-lg-12 my-4 text-right">
         <a href="{{route('admin.attributes.value.create', ['attributeId' => $attribute->id])}}" class="btn btn-primary">
@@ -51,5 +56,3 @@
             <span>Добавить вариант значения</span>
         </a>
     </div>
-
-</div>

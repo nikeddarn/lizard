@@ -2,46 +2,37 @@
 
 @section('content')
 
-    <div class="row admin-content-header">
+    @include('content.admin.catalog.attribute.show.parts.header')
 
-        <div class="col admin-content-title">
-            <h2>Атрибут:<i class="ml-5 admin-content-sub-header">{{ $attribute->name }}</i></h2>
-        </div>
+    <div class="card card-body my-4">
 
-        <div class="col-auto admin-content-actions">
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
 
-            <a href="{{ route('admin.attributes.edit', ['id' => $attribute->id]) }}" data-toggle="tooltip"
-               title="Редактировать" class="btn btn-primary"><i class="fa fa-pencil"></i></a>
+            <li class="nav-item">
+                <a class="nav-link active" id="properties-tab" data-toggle="tab" href="#properties" role="tab"
+                   aria-controls="properties"
+                   aria-selected="true">Свойства</a>
+            </li>
 
-            <form class="d-inline-block attribute-form"
-                  action="{{ route('admin.attributes.destroy', ['id' => $attribute->id]) }}" method="post">
-                @csrf
-                <input type="hidden" name="_method" value="delete"/>
-                <input type="hidden" name="id" value="{{ $attribute->id }}">
-                <button type="submit" class="btn btn-danger" data-toggle="tooltip" title="Удалить">
-                    <i class="fa fa-trash-o"></i>
-                </button>
-            </form>
+            <li class="nav-item">
+                <a class="nav-link" id="values-tab" data-toggle="tab" href="#values" role="tab"
+                   aria-controls="values" aria-selected="false">Значения атрибута</a>
+            </li>
 
-            <a href="{{ route('admin.attributes.index') }}" data-toggle="tooltip" title="К списку атрибутов"
-               class="btn btn-primary ml-lg-2"><i class="fa fa-reply"></i></a>
+        </ul>
 
-        </div>
+        <div class="tab-content">
 
-    </div>
+            <div class="tab-pane fade show active" id="properties" role="tabpanel" aria-labelledby="properties-tab">
+                @include('content.admin.catalog.attribute.show.parts.properties')
+            </div>
 
-    <div class="row">
+            <div class="tab-pane fade" id="values" role="tabpanel" aria-labelledby="values-tab">
+                @if($attributeValues->count())
+                    @include('content.admin.catalog.attribute.show.parts.attribute_options')
+                @endif
+            </div>
 
-        <div class="col-lg-12">
-            @include('content.admin.catalog.attribute.show.parts.properties')
-        </div>
-
-        <div class="col-lg-12">
-            @if($haveValuesImages)
-                @include('content.admin.catalog.attribute.show.parts.imaged_attribute_options')
-            @else
-                @include('content.admin.catalog.attribute.show.parts.attribute_options')
-            @endif
         </div>
 
     </div>

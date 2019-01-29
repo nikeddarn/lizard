@@ -55,7 +55,14 @@ class CategoryProducts extends ProductProperties
      */
     protected function addRelations(Builder $query): Builder
     {
-        return $query->with('primaryImage', 'productImages', 'actualBadges', 'availableStorageProducts', 'expectingStorageProducts', 'availableVendorProducts', 'expectingVendorProducts', 'availableProductStorages.city');
+        return $query->with('primaryImage', 'productImages', 'actualBadges', 'availableStorageProducts', 'expectingStorageProducts', 'availableVendorProducts', 'expectingVendorProducts', 'availableProductStorages.city')
+            ->with(['favouriteProducts' => function($query){
+                if (auth('web')->check()){
+                    $query->where('users_id', auth('web')->id());
+                }elseif (request()->hasCookie('uuid')){
+                    $query->where('users_id', request()->cookie('uuid'));
+                }
+            }]);
     }
 
     /**

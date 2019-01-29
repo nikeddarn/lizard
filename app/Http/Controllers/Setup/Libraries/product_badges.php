@@ -10,28 +10,28 @@ return [
     [
         'id' => ProductBadgesInterface::NEW,
         'name_ru' => 'Новинка',
-        'name_ua' => 'Новинка',
+        'name_uk' => 'Новинка',
         'class' => 'primary',
     ],
 
     [
         'id' => ProductBadgesInterface::PRICE_DOWN,
         'name_ru' => 'Скидка',
-        'name_ua' => 'Знижка',
+        'name_uk' => 'Знижка',
         'class' => 'success',
     ],
 
     [
         'id' => ProductBadgesInterface::ACTION,
         'name_ru' => 'Акция',
-        'name_ua' => 'Акція',
+        'name_uk' => 'Акція',
         'class' => 'warning',
     ],
 
     [
         'id' => ProductBadgesInterface::ENDING,
         'name_ru' => 'Заканчивается',
-        'name_ua' => 'Закінчується',
+        'name_uk' => 'Закінчується',
         'class' => 'danger',
     ],
 

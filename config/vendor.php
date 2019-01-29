@@ -10,19 +10,19 @@ return [
     'search_double_by' => [
         // fields of product model
         'product' => [
-            'name_ru', 'name_ua',
+            'name_ru', 'name_uk',
         ],
         // fields of attribute model
         'attribute' => [
-            'name_ru', 'name_ua',
+            'name_ru', 'name_uk',
         ],
         // fields of any attribute value model
         'attribute_value' => [
-            'value_ru', 'value_ua', 'url',
+            'value_ru', 'value_uk', 'url',
         ],
         // fields of brand attribute value model
         'brand_attribute_value' => [
-            'value_ru', 'value_ua', 'url',
+            'value_ru', 'value_uk', 'url',
         ],
     ],
 

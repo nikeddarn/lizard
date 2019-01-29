@@ -1,4 +1,4 @@
-<div class="table-responsive">
+<div class="table-responsive my-4">
     <table class="table table-striped m-0">
 
         <thead>
@@ -16,7 +16,7 @@
             <tr class="text-center">
 
                 <td>
-                    <a href="{{ url('shop.category.filter.single', ['url' => $category->url, 'filter' => $virtualCategory->attributeValue->url]) }}">{{ $virtualCategory->name_ru }}</a>
+                    <a href="{{ route('shop.category.filter.single', ['url' => $category->url, 'filter' => $virtualCategory->attributeValue->url]) }}">{{ $virtualCategory->name_ru }}</a>
                 </td>
 
                 <td>{{ $virtualCategory->attributeValue->value_ru }}</td>

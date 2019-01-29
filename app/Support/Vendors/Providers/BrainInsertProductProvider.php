@@ -27,7 +27,7 @@ class BrainInsertProductProvider extends BrainProvider
                 'product_content_data_ru' => new Request('POST', "products/content/$sessionId?lang=ru", [],
                     "lang=ru&productIDs=$productId"),
 
-                'product_content_data_ua' => new Request('POST', "products/content/$sessionId?lang=ua", [], "lang=ua&productIDs=$productId"),
+                'product_content_data_uk' => new Request('POST', "products/content/$sessionId?lang=ua", [], "lang=ua&productIDs=$productId"),
 
                 'course' => new Request('GET', "currencies/$sessionId"),
 

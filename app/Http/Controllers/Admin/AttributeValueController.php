@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Requests\Admin\StoreAttributeValueRequest;
-use App\Http\Requests\Admin\UpdateAttributeValueRequest;
+use App\Http\Requests\Admin\AttributeValue\StoreAttributeValueRequest;
+use App\Http\Requests\Admin\AttributeValue\UpdateAttributeValueRequest;
 use App\Models\Attribute;
 use App\Models\AttributeValue;
 use App\Http\Controllers\Controller;
@@ -61,7 +61,7 @@ class AttributeValueController extends Controller
 
         $attributeId = $request->get('attributeId');
 
-        $attributeValueData = $request->only(['value_ru', 'value_ua', 'url']);
+        $attributeValueData = $request->only(['value_ru', 'value_uk', 'url']);
 
         $attributeValueData['attributes_id'] = $attributeId;
 
@@ -104,7 +104,7 @@ class AttributeValueController extends Controller
 
         $attributeValue = $this->attributeValue->newQuery()->findOrFail($id);
 
-        $attributeValueData = $request->only('value_ru', 'value_ua', 'url');
+        $attributeValueData = $request->only('value_ru', 'value_uk', 'url');
 
         if ($request->has('image')){
             $attributeValueData['image'] = $request->image->store('images/attributes/values', 'public');
@@ -124,6 +124,7 @@ class AttributeValueController extends Controller
      * @param string $id
      * @return \Illuminate\Http\Response
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Exception
      */
     public function destroy(string $id)
     {

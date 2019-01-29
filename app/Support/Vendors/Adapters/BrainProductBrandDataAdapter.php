@@ -70,7 +70,7 @@ class BrainProductBrandDataAdapter
             // prepare product attribute value data
             $vendorBrandValueData = [
                 'value_ru' => $vendorBrand->name,
-                'value_ua' => $vendorBrand->name,
+                'value_uk' => $vendorBrand->name,
                 'url' => Str::slug($vendorBrand->name),
             ];
 

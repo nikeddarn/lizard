@@ -18,11 +18,11 @@
 
             <div class="row my-4">
 
-                <div class="col-lg-2 d-none d-lg-block">
+                <div class="col-lg-3 col-xl-2 d-none d-lg-block">
                     @include('layouts.parts.admin.menu.index')
                 </div>
 
-                <div class="col-12 col-lg-10">
+                <div class="col-12 col-lg-9 col-xl-10">
                     @yield ('content')
                 </div>
 

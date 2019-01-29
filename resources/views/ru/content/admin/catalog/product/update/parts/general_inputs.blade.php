@@ -12,11 +12,11 @@
 
     <div class="row form-group">
         <div class="col-sm-2">
-            <label class="required" for="name_ua">Название (ua)</label>
+            <label class="required" for="name_uk">Название (ua)</label>
         </div>
         <div class="col-sm-8">
-            <input id="name_ua" name="name_ua" type="text" required class="w-100"
-                   value="{{ old('name_ua', $product->name_ua) }}">
+            <input id="name_uk" name="name_uk" type="text" required class="w-100"
+                   value="{{ old('name_uk', $product->name_uk) }}">
         </div>
     </div>
 
@@ -49,10 +49,10 @@
 
     <div class="row form-group">
         <div class="col-sm-2">
-            <label for="model_ua">Модель (ua)</label>
+            <label for="model_uk">Модель (ua)</label>
         </div>
         <div class="col-sm-8">
-            <input id="model_ua" name="model_ua" type="text" class="w-100" value="{{ old('model_ua', $product->model_ua) }}">
+            <input id="model_uk" name="model_uk" type="text" class="w-100" value="{{ old('model_uk', $product->model_uk) }}">
         </div>
     </div>
 
@@ -98,11 +98,11 @@
 
     <div class="row form-group">
         <div class="col-sm-2">
-            <label for="manufacturer_ua">Страна производитель (ua)</label>
+            <label for="manufacturer_uk">Страна производитель (ua)</label>
         </div>
         <div class="col-sm-8">
-            <input id="manufacturer_ua" name="manufacturer_ua" type="text" class="w-100"
-                   value="{{ old('manufacturer_ua', $product->manufacturer_ua) }}">
+            <input id="manufacturer_uk" name="manufacturer_uk" type="text" class="w-100"
+                   value="{{ old('manufacturer_uk', $product->manufacturer_uk) }}">
         </div>
     </div>
 

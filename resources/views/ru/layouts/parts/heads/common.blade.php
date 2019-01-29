@@ -6,38 +6,38 @@
 <link rel="shortcut icon" href="{{{ url('/images/common/icon.ico') }}}">
 
 {{-- Seo alternate locales links--}}
-@if(!empty($alternateLocalesLinks))
+@if(empty($noindexPage) && !empty($alternateLocalesLinks))
     @foreach($alternateLocalesLinks as $alternateLanguageLink)
         {!! $alternateLanguageLink !!}
     @endforeach
 @endif
 
 {{-- Seo pagination links--}}
-@if(!empty($paginationLinks))
+@if(empty($noindexPage) && !empty($paginationLinks))
     @foreach($paginationLinks as $paginationLink)
         {!! $paginationLink !!}
     @endforeach
 @endif
 
 {{-- Robots meta --}}
-@if(isset($metaRobots) && $metaRobots)
-    <meta name="robots" content="{{ $metaRobots }}">
+@if(!empty($noindexPage))
+    <meta name="robots" content="noindex,nofollow">
 @endif
 
 {{-- Canonical meta --}}
-@if(isset($metaCanonical) && $metaCanonical)
+@if(empty($noindexPage) && !empty($metaCanonical))
     <link rel="canonical" href="{{ $metaCanonical }}">
 @endif
 
-@if(isset($pageTitle))
+@if(!empty($pageTitle))
     <title>{{ $pageTitle }}</title>
 @endif
 
-@if(isset($pageDescription))
+@if(!empty($pageDescription))
     <meta name="description" content="{{ $pageDescription }}">
 @endif
 
-@if(isset($pageKeywords))
+@if(!empty($pageKeywords))
     <meta name="keywords" content="{{ $pageKeywords }}">
 @endif
 

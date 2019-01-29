@@ -20,7 +20,7 @@
                 <label class="required">Значение (ua)</label>
             </div>
             <div class="col-sm-8">
-                <input name="value_ua[]" type="text" required class="value_ua w-100">
+                <input name="value_uk[]" type="text" required class="value_uk w-100">
             </div>
         </div>
 

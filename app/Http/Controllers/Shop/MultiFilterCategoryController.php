@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AttributeValue;
 use App\Models\Category;
 use App\Support\Breadcrumbs\FilteredCategoryBreadcrumbs;
+use App\Support\Seo\MetaTags\MultiFilterCategoryMetaTags;
 use App\Support\Seo\Pagination\PaginationLinksGenerator;
 use App\Support\Shop\Filters\MultiFiltersCreator;
 use App\Support\Shop\Products\FilteredCategoryProductsCreator;
@@ -51,6 +52,10 @@ class MultiFilterCategoryController extends Controller
      * @var PaginationLinksGenerator
      */
     private $paginationLinksGenerator;
+    /**
+     * @var MultiFilterCategoryMetaTags
+     */
+    private $multiFilterCategoryMetaTags;
 
     /**
      * FilterCategoryController constructor.
@@ -62,8 +67,9 @@ class MultiFilterCategoryController extends Controller
      * @param FilteredCategoryBreadcrumbs $breadcrumbs
      * @param MultiFiltersCreator $filtersCreator
      * @param PaginationLinksGenerator $paginationLinksGenerator
+     * @param MultiFilterCategoryMetaTags $multiFilterCategoryMetaTags
      */
-    public function __construct(Category $category, AttributeValue $attributeValue, SortProductsUrlGenerator $sortProductsUrlGenerator, FilteredCategoryProductsCreator $productsCreator, ShowProductsUrlGenerator $showProductsUrlGenerator, FilteredCategoryBreadcrumbs $breadcrumbs, MultiFiltersCreator $filtersCreator, PaginationLinksGenerator $paginationLinksGenerator)
+    public function __construct(Category $category, AttributeValue $attributeValue, SortProductsUrlGenerator $sortProductsUrlGenerator, FilteredCategoryProductsCreator $productsCreator, ShowProductsUrlGenerator $showProductsUrlGenerator, FilteredCategoryBreadcrumbs $breadcrumbs, MultiFiltersCreator $filtersCreator, PaginationLinksGenerator $paginationLinksGenerator, MultiFilterCategoryMetaTags $multiFilterCategoryMetaTags)
     {
         $this->category = $category;
         $this->attributeValue = $attributeValue;
@@ -73,6 +79,7 @@ class MultiFilterCategoryController extends Controller
         $this->breadcrumbs = $breadcrumbs;
         $this->filtersCreator = $filtersCreator;
         $this->paginationLinksGenerator = $paginationLinksGenerator;
+        $this->multiFilterCategoryMetaTags = $multiFilterCategoryMetaTags;
     }
 
     /**
@@ -83,16 +90,9 @@ class MultiFilterCategoryController extends Controller
      */
     public function index(string $url): View
     {
-        $category = $this->category->newQuery()->where('url', $url)->with('products')->firstOrFail();
+        $category = $this->getCategory($url);
 
-        $selectedValuesUrls = explode(',', request()->get(UrlParametersInterface::FILTERED_PRODUCTS));
-
-        $selectedAttributeValues = $this->attributeValue->newQuery()->whereIn('url', $selectedValuesUrls)->get();
-
-        // category must be leaf and has more than one selected filter
-        if (!($category->isLeaf() && $selectedAttributeValues->count() > 1)) {
-            abort(422);
-        }
+        $selectedAttributeValues = $this->getSelectedAttributesValues();
 
         // store category's id in session to create product details breadcrumbs
         session()->flash('product_category_id', $category->id);
@@ -118,13 +118,18 @@ class MultiFilterCategoryController extends Controller
         // get used filters
         $usedFilters = $this->filtersCreator->createUsedFilters($category, $filters, $selectedAttributeValues);
 
-        // seo pagination links
-        $paginationLinks = $this->paginationLinksGenerator->createSeoLinks($products);
+        // disable index this page for robots
+        $noindexPage = true;
 
-        // disable index this route
-        $metaRobots = 'noindex,nofollow';
+        // category name
+        $categoryName = $this->multiFilterCategoryMetaTags->getCategoryName($category, $selectedAttributeValues);
 
-        return view('content.shop.category.leaf_category.index')->with(compact('breadcrumbs', 'products', 'filters', 'usedFilters', 'sortProductsUrls', 'sortProductsMethod', 'showProductsUrls', 'paginationLinks', 'metaRobots'));
+        // title, description, keywords
+        $pageTitle = $this->multiFilterCategoryMetaTags->getCategoryTitle($category, $selectedAttributeValues);
+        $pageDescription = $this->multiFilterCategoryMetaTags->getCategoryDescription($category, $selectedAttributeValues);
+        $pageKeywords = $this->multiFilterCategoryMetaTags->getCategoryKeywords($category, $selectedAttributeValues);
+
+        return view('content.shop.category.leaf_category.index')->with(compact('breadcrumbs', 'products', 'filters', 'usedFilters', 'sortProductsUrls', 'sortProductsMethod', 'showProductsUrls', 'noindexPage', 'categoryName', 'pageTitle', 'pageDescription', 'pageKeywords'));
     }
 
     /**
@@ -145,5 +150,44 @@ class MultiFilterCategoryController extends Controller
         }
 
         return $products;
+    }
+
+    /**
+     * Get category by url with relations.
+     *
+     * @param string $url
+     * @return Category|Model
+     */
+    private function getCategory(string $url): Category
+    {
+        $category = $this->category->newQuery()
+            ->where('url', $url)
+            ->with('products')->firstOrFail();
+
+        if (!$category->isLeaf()) {
+            abort(422);
+        }
+
+        return $category;
+    }
+
+    /**
+     * Get attribute value of selected filter.
+     *
+     * @return Collection
+     */
+    private function getSelectedAttributesValues(): Collection
+    {
+        $selectedValuesUrls = explode(',', request()->get(UrlParametersInterface::FILTERED_PRODUCTS));
+
+        $selectedAttributeValues = $this->attributeValue->newQuery()
+            ->whereIn('url', $selectedValuesUrls)
+            ->get();
+
+        if ($selectedAttributeValues->count() < 2) {
+            abort(422);
+        }
+
+        return $selectedAttributeValues;
     }
 }

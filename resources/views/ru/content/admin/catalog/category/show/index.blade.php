@@ -4,7 +4,7 @@
 
     @include('content.admin.catalog.category.show.parts.header')
 
-    <div class="card card-body">
+    <div class="card card-body my-4">
 
         <ul class="nav nav-tabs" id="myTab" role="tablist">
 
@@ -21,7 +21,7 @@
 
         </ul>
 
-        <div class="tab-content" id="myTabContent">
+        <div class="tab-content">
 
             <div class="tab-pane fade show active" id="properties" role="tabpanel" aria-labelledby="properties-tab">
                 @include('content.admin.catalog.category.show.parts.properties')

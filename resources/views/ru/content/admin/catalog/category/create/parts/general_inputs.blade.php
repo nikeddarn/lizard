@@ -11,10 +11,10 @@
 
     <div class="row form-group">
         <div class="col-sm-2">
-            <label class="required" for="name_ua">Название (ua)</label>
+            <label class="required" for="name_uk">Название (ua)</label>
         </div>
         <div class="col-sm-8">
-            <input id="name_ua" name="name_ua" type="text" required class="w-100" value="{{ old('name_ua') }}">
+            <input id="name_uk" name="name_uk" type="text" required class="w-100" value="{{ old('name_uk') }}">
         </div>
     </div>
 

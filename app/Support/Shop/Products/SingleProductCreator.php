@@ -66,6 +66,6 @@ class SingleProductCreator extends ProductProperties
      */
     protected function addRelations(Builder $query): Builder
     {
-        return $query->with('productImages', 'availableStorageProducts', 'expectingStorageProducts', 'availableVendorProducts', 'expectingVendorProducts', 'availableProductStorages.city');
+        return $query->with('productImages', 'availableStorageProducts', 'expectingStorageProducts', 'availableVendorProducts', 'expectingVendorProducts', 'availableProductStorages.city', 'attributeValues.attribute');
     }
 }

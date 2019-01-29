@@ -2,39 +2,19 @@
 
 @section('content')
 
-    <div class="row admin-content-header">
-        <div class="col admin-content-title"><h2>Редактировать категорию:<i class="ml-5 admin-content-sub-header">{{ $category->name }}</i></h2></div>
-        <div class="col-auto admin-content-actions">
-            <button type="submit" form="category-form" data-toggle="tooltip" title="Сохранить изменения" class="btn btn-primary">
-                <i class="fa fa-save"></i></button>
-            <a href="{{ route('admin.categories.index') }}" data-toggle="tooltip" title="Отменить"
-               class="btn btn-primary"><i class="fa fa-reply"></i></a>
-        </div>
-    </div>
+    @include('content.admin.catalog.virtual_category.update.parts.header')
 
-    @if ($errors->any())
-        <div class="row">
-            <div class="col-sm-8">
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            </div>
-        </div>
-    @endif
+    @include('elements.errors.admin_error.index')
 
-    <div class="row">
-        <div class="col-lg-12">
+    <div class="card card-body">
 
-            <form id="category-form" class="multitab-form" method="post" action="{{ route('admin.categories.update', ['id' => $category->id]) }}" role="form"
-                  enctype="multipart/form-data">
+        <form id="category-form" class="multitab-form" method="post" action="{{ route('admin.categories.virtual.update', ['id' => $virtualCategory->id]) }}"
+              role="form"
+              enctype="multipart/form-data">
+            @method('PUT')
+            @csrf
 
-                @method('PUT')
-
-                @csrf
+            <input type="hidden" name="id" value="{{ $virtualCategory->id }}">
 
             <nav>
                 <div class="nav nav-tabs" id="nav-tab" role="tablist">
@@ -47,25 +27,23 @@
                 </div>
             </nav>
 
-                <div class="tab-content">
-                    <div class="tab-pane fade show active" id="category-general" role="tabpanel"
-                         aria-labelledby="category-general-tab">
-                        @include('content.admin.catalog.category.update.parts.general_inputs')
-                    </div>
-                    <div class="tab-pane fade" id="category-seo" role="tabpanel" aria-labelledby="category-seo-tab">
-                        @include('content.admin.catalog.category.update.parts.seo_inputs')
-                    </div>
-                    <div class="tab-pane fade" id="category-content" role="tabpanel"
-                         aria-labelledby="category-content-tab">
-                        @include('content.admin.catalog.category.update.parts.content_inputs')
-                    </div>
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="category-general" role="tabpanel"
+                     aria-labelledby="category-general-tab">
+                    @include('content.admin.catalog.virtual_category.update.parts.general_inputs')
                 </div>
+                <div class="tab-pane fade" id="category-seo" role="tabpanel" aria-labelledby="category-seo-tab">
+                    @include('content.admin.catalog.virtual_category.update.parts.seo_inputs')
+                </div>
+                <div class="tab-pane fade" id="category-content" role="tabpanel"
+                     aria-labelledby="category-content-tab">
+                    @include('content.admin.catalog.virtual_category.update.parts.content_inputs')
+                </div>
+            </div>
 
-                <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+            <button type="submit" class="btn btn-primary">Сохранить изменения</button>
 
-            </form>
-
-        </div>
+        </form>
     </div>
 
 @endsection

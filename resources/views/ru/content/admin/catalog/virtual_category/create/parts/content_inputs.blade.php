@@ -11,10 +11,10 @@
 
     <div class="row form-group">
         <div class="col-sm-2">
-            <label for="content_ua">Описание (ua)</label>
+            <label for="content_uk">Описание (ua)</label>
         </div>
         <div class="col-sm-8">
-            <textarea id="content_ua" name="content_ua" type="text" class="w-100 summernote" rows="10">{{ old('content_ua') }}</textarea>
+            <textarea id="content_uk" name="content_uk" type="text" class="w-100 summernote" rows="10">{{ old('content_uk') }}</textarea>
         </div>
     </div>
 

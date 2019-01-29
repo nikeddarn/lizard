@@ -1,4 +1,4 @@
-@foreach($categories as $category)
+@foreach($virtualCategories as $category)
 
     <li class="card my-1">
 
@@ -22,7 +22,7 @@
     <li class="my-1">
         <div id="category-{{ $category->id }}" class="collapse">
             <ul class="category-list">
-                @include('content.admin.catalog.category.list.parts.attribute_list')
+                @include('content.admin.catalog.virtual_category.list.parts.attribute_list')
             </ul>
         </div>
     </li>

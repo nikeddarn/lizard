@@ -90,7 +90,7 @@ class BrainVendorCatalogManager extends VendorCatalogManager
         $categoryData = $this->provider->getCategoryMultiLanguageData($vendorCategoryId);
 
         $nameRu = $categoryData['category_data_ru']->name;
-        $nameUa = $categoryData['category_data_ua']->name;
+        $nameUa = $categoryData['category_data_uk']->name;
 
         if (!($nameRu && $nameUa)) {
             throw new Exception('Missing category name');
@@ -100,7 +100,7 @@ class BrainVendorCatalogManager extends VendorCatalogManager
             'vendors_id' => VendorInterface::BRAIN,
             'vendor_category_id' => $vendorCategoryId,
             'name_ru' => $nameRu,
-            'name_ua' => $nameUa,
+            'name_uk' => $nameUa,
         ];
     }
 
@@ -157,7 +157,7 @@ class BrainVendorCatalogManager extends VendorCatalogManager
             $incomingProductPrice = $vendorProduct->price;
 
             // retail product price
-            $productRetailPrice = (!empty($vendorProduct->retail_price_uah) ? $vendorProduct->retail_price_uah : $vendorProduct->recommendable_price) / $course;
+            $productRetailPrice = (!empty($vendorProduct->retail_price_ukh) ? $vendorProduct->retail_price_ukh : $vendorProduct->recommendable_price) / $course;
 
             // product profit
             $productProfit = $productRetailPrice - $incomingProductPrice;
