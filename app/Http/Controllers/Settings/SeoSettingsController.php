@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Settings;
 
 use App\Contracts\Shop\LocalesInterface;
-use App\Http\Requests\Admin\Settings\Seo\UpdateSeoSettingsRequest;
+use App\Http\Requests\Admin\Settings\UpdateSeoSettingsRequest;
 use App\Support\Settings\SettingsRepository;
 use App\Http\Controllers\Controller;
 
@@ -51,7 +51,7 @@ class SeoSettingsController extends Controller
         $filteredCategorySeoData = $this->settingsRepository->getProperty(self::FILTERED_CATEGORY_METADATA_KEY);
         $productSeoData = $this->settingsRepository->getProperty(self::PRODUCT_METADATA_KEY);
 
-        return view('ru.content.admin.settings.seo.index')->with(compact('categorySeoData', 'virtualCategorySeoData', 'filteredCategorySeoData', 'productSeoData'));
+        return view('content.admin.settings.seo.index')->with(compact('categorySeoData', 'virtualCategorySeoData', 'filteredCategorySeoData', 'productSeoData'));
     }
 
     /**

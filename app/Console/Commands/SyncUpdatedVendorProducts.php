@@ -47,6 +47,7 @@ class SyncUpdatedVendorProducts extends Command
     /**
      * Execute the console command.
      *
+     * @throws \Exception
      */
     public function handle()
     {
@@ -59,11 +60,7 @@ class SyncUpdatedVendorProducts extends Command
             $syncUpdatedProductManager = $this->broker->getSyncUpdatedProductManager($vendor->id);
 
             // sync product prices
-            $vendorSyncAt = $syncUpdatedProductManager->synchronizeUpdatedProducts($vendor->sync_prices_at);
-
-            // update vendor's synchronized_at
-            $vendor->sync_prices_at = $vendorSyncAt;
-            $vendor->save();
+            $syncUpdatedProductManager->synchronizeUpdatedProducts($vendor);
         }
     }
 }

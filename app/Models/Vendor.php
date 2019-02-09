@@ -56,6 +56,14 @@ class Vendor extends Model
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
+     */
+    public function vendorLocalCategories()
+    {
+        return $this->hasManyThrough('App\Models\VendorLocalCategory', 'App\Models\VendorCategory', 'vendors_id', 'vendor_categories_id', 'id', 'id');
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function vendorProducts()

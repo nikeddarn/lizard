@@ -2,55 +2,46 @@
 
 @section('content')
 
-    <div class="row justify-content-between admin-content-header">
-        <div class="col admin-content-title"><h2>Продукт:<i
-                        class="ml-5 admin-content-sub-header">{{ $product->name }}</i></h2></div>
-        <div class="col-auto admin-content-actions">
+    @include('content.admin.catalog.product.show.parts.header')
 
-            <a href="{{ route('admin.products.edit', ['id' => $product->id]) }}" data-toggle="tooltip"
-               title="Редактировать" class="btn btn-primary"><i class="fa fa-pencil"></i></a>
+    <div class="card card-body my-4">
 
-            <form class="product-delete-form d-inline-block"
-                  action="{{ route('admin.products.destroy', ['id' => $product->id]) }}" method="post">
-                @csrf
-                @method('DELETE')
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
 
-                <button type="submit" class="btn btn-danger" data-toggle="tooltip" title="Удалить">
-                    <i class="fa fa-trash-o"></i>
-                </button>
-            </form>
+            <li class="nav-item">
+                <a class="nav-link active" id="properties-tab" data-toggle="tab" href="#properties" role="tab"
+                   aria-controls="properties"
+                   aria-selected="true">Свойства</a>
+            </li>
 
-            <a href="{{ route('admin.products.index') }}" data-toggle="tooltip" title="К списку продуктов"
-               class="btn btn-primary ml-lg-2"><i class="fa fa-reply"></i></a>
+            <li class="nav-item">
+                <a class="nav-link" id="images-tab" data-toggle="tab" href="#images" role="tab"
+                   aria-controls="images" aria-selected="false">Изображения</a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" id="attributes-tab" data-toggle="tab" href="#attributes" role="tab"
+                   aria-controls="attributes" aria-selected="false">Атрибуты</a>
+            </li>
+
+        </ul>
+
+        <div class="tab-content">
+
+            <div class="tab-pane fade show active" id="properties" role="tabpanel" aria-labelledby="properties-tab">
+                @include('content.admin.catalog.product.show.parts.properties')
+            </div>
+
+            <div class="tab-pane fade" id="images" role="tabpanel" aria-labelledby="images-tab">
+                @include('content.admin.catalog.product.show.parts.images')
+            </div>
+
+            <div class="tab-pane fade" id="attributes" role="tabpanel" aria-labelledby="attributes-tab">
+                @include('content.admin.catalog.product.show.parts.attributes')
+            </div>
 
         </div>
-    </div>
 
-    <div class="row">
-
-        <div class="col-lg-12">
-            @include('content.admin.catalog.product.show.parts.properties')
-        </div>
-
-        <div class="col-lg-12">
-            @include('content.admin.catalog.product.show.parts.categories')
-        </div>
-
-        <div class="col-lg-12">
-            @include('content.admin.catalog.product.show.parts.vendors')
-        </div>
-
-        <div class="col-lg-12">
-            @include('content.admin.catalog.product.show.parts.images')
-        </div>
-
-        <div class="col-lg-12">
-            @include('content.admin.catalog.product.show.parts.attributes')
-        </div>
-
-        <div class="col-lg-12">
-            @include('content.admin.catalog.product.show.parts.filters')
-        </div>
     </div>
 
 @endsection
@@ -81,15 +72,6 @@
 
             $(".product-attribute-delete-form").submit(function (event) {
                 if (confirm('Удалить атрибут продукта ?')) {
-                    return true;
-                } else {
-                    event.preventDefault();
-                    return false;
-                }
-            });
-
-            $(".product-filter-delete-form").submit(function (event) {
-                if (confirm('Удалить фильтр продукта ?')) {
                     return true;
                 } else {
                     event.preventDefault();

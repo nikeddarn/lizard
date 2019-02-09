@@ -1,1 +1,0 @@
-<span>{{ $category->name }}</span>

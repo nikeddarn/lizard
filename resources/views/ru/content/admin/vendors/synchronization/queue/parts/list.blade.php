@@ -1,4 +1,4 @@
-<table class="table table-bordered table-striped m-0">
+<table class="table table-striped">
 
     <thead>
     <tr class="text-center">
@@ -33,7 +33,7 @@
                 <a href="{{ route('vendor.synchronization.synchronize', ['vendorId' => $vendor->id]) }}"
                    data-toggle="tooltip"
                    title="Синхронизировать поставщика {{ $vendor->name_ru }}" class="btn btn-primary">
-                    <i class="fa fa-refresh"></i>
+                    <i class="svg-icon-larger" data-feather="repeat"></i>
                 </a>
 
             </td>

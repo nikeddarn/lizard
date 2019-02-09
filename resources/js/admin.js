@@ -3,6 +3,11 @@
 // bootstrap-select
 require('../../vendor/snapappointments/bootstrap-select/js/bootstrap-select.js');
 
+require('../../public/js/jquery.bootstrap-touchspin.js');
+//
+// <!-- bootstrap-touchspin -->
+// <script src="{{ url('/js/jquery.bootstrap-touchspin.js') }}"></script>
+
 window.checkMultiTabForm = function (form) {
 
     $(form).find('input:invalid').each(function () {

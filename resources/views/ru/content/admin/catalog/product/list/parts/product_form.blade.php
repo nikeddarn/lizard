@@ -1,4 +1,4 @@
-@if($products->count())
+<div class="table-responsive">
 
     <table class="table">
 
@@ -32,7 +32,8 @@
 
                 <td>
                     @foreach($product->categories as $category)
-                        <a class="d-block" href="{{ route('admin.categories.show', ['id' => $category->id]) }}">{{ $category->name }}</a>
+                        <a class="d-block"
+                           href="{{ route('admin.categories.show', ['id' => $category->id]) }}">{{ $category->name }}</a>
                     @endforeach
                 </td>
 
@@ -42,23 +43,29 @@
                     @endforeach
                 </td>
 
-                <td class="text-center">
+                <td>
 
-                    <a href="{{ route('admin.products.show', ['id' => $product->id]) }}" data-toggle="tooltip"
-                       title="Просмотреть" class="btn btn-primary"><i class="fa fa-eye" aria-hidden="true"></i></a>
+                    <div class="d-flex justify-content-around">
+                        <a href="{{ route('admin.products.show', ['id' => $product->id]) }}" data-toggle="tooltip"
+                           title="Просмотреть" class="btn btn-primary">
+                            <i class="svg-icon-larger" data-feather="eye"></i>
+                        </a>
 
-                    <a href="{{ route('admin.products.edit', ['id' => $product->id]) }}" data-toggle="tooltip"
-                       title="Редактировать" class="btn btn-primary"><i class="fa fa-pencil"></i></a>
+                        <a href="{{ route('admin.products.edit', ['id' => $product->id]) }}" data-toggle="tooltip"
+                           title="Редактировать" class="btn btn-primary mx-1">
+                            <i class="svg-icon-larger" data-feather="edit"></i>
+                        </a>
 
-                    <form class="product-delete-form d-inline-block ml-lg-2"
-                          action="{{ route('admin.products.destroy', ['id' => $product->id]) }}" method="post">
-                        @csrf
-                        @method('DELETE')
+                        <form class="product-delete-form d-inline-block"
+                              action="{{ route('admin.products.destroy', ['id' => $product->id]) }}" method="post">
+                            @csrf
+                            @method('DELETE')
 
-                        <button type="submit" class="btn btn-danger" data-toggle="tooltip" title="Удалить">
-                            <i class="fa fa-trash-o"></i>
-                        </button>
-                    </form>
+                            <button type="submit" class="btn btn-danger" data-toggle="tooltip" title="Удалить">
+                                <i class="svg-icon-larger" data-feather="trash-2"></i>
+                            </button>
+                        </form>
+                    </div>
 
                 </td>
 
@@ -69,12 +76,4 @@
         </tbody>
     </table>
 
-@else
-
-    <p>Нет ни одного продукта</p>
-
-@endif
-
-@if($products->links())
-    <div class="col-lg-12 my-4">{{$products->links()}}</div>
-@endif
+</div>

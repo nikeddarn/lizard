@@ -2,22 +2,21 @@
 
 @section('content')
 
-    <div class="row admin-content-header">
-        <div class="col admin-content-title"><h2>Продукты</h2></div>
-        <div class="col-auto admin-content-actions">
-            <a class="btn btn-primary" href="{{ route('admin.products.create') }}" data-toggle="tooltip"
-               title="Создать продукт">
-                <i class="fa fa-plus"></i>&nbsp;
-                <span>Создать продукт</span>
-            </a>
-        </div>
-    </div>
+    @include('content.admin.catalog.product.list.parts.header')
 
-    <div class="row">
-        <div class="col-lg-12">
+    @if($products->count())
+        <div class="card card-body">
             @include('content.admin.catalog.product.list.parts.product_form')
         </div>
-    </div>
+    @endif
+
+    @if($products->lastPage() !== 1)
+        <div class="row">
+            <div class="col-12 my-4">
+                @include('layouts.parts.pagination.products.index', ['paginator' => $products])
+            </div>
+        </div>
+    @endif
 
 @endsection
 

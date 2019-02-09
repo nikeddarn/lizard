@@ -156,4 +156,15 @@ abstract class VendorCatalogManager
     {
         return number_format($price, 2);
     }
+
+    /**
+     * Format profit percents.
+     *
+     * @param float $percents
+     * @return string
+     */
+    protected function formatProfitPercents(float $percents)
+    {
+        return number_format($percents, 1);
+    }
 }

@@ -2,24 +2,15 @@
 
 @section('content')
 
-    <div class="row admin-content-header">
+    @include('content.admin.vendors.synchronization.queue.parts.header')
 
-        <div class="col admin-content-title"><h2>Задачи в очереди синхронизации</h2></div>
-    </div>
+    @include('elements.errors.admin_error.index')
 
-    <div class="row">
-        <div id="vendor-synchronization-list" class="col-lg-12">
-
-            @if($vendors->count())
-
-                @include('content.admin.vendors.synchronization.queue.parts.list')
-
-            @else
-                <p>Нет синхронизированных поставщиков</p>
-            @endif
-
+    @if($vendors->count())
+        <div id="vendor-synchronization-list" class="card card-body">
+            @include('content.admin.vendors.synchronization.queue.parts.list')
         </div>
-    </div>
+    @endif
 
 @endsection
 
@@ -33,8 +24,9 @@
             setInterval(function () {
                 $.ajax({
                     url: '{{ route('vendor.synchronization.index') }}',
-                    success: function(html){
+                    success: function (html) {
                         $('#vendor-synchronization-list').html(html);
+                        feather.replace();
                     }
                 });
             }, 10000);

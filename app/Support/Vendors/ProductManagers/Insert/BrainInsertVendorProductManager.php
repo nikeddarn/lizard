@@ -18,9 +18,16 @@ use App\Support\Vendors\Adapters\BrainProductImagesDataAdapter;
 use App\Support\Vendors\Adapters\BrainProductStocksDataAdapter;
 use App\Support\Vendors\Providers\BrainInsertProductProvider;
 use Exception;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 class BrainInsertVendorProductManager extends InsertVendorProductManager
 {
+    /**
+     * @var string
+     */
+    const USD_COURSE_CACHE_KEY = 'vendor_' . VendorInterface::BRAIN . '_session_id';
+
     /**
      * @var BrainInsertProductProvider
      */
@@ -73,8 +80,17 @@ class BrainInsertVendorProductManager extends InsertVendorProductManager
         $this->imagesDataAdapter = $imagesDataAdapter;
         $this->commentsDataAdapter = $commentsDataAdapter;
         $this->brandDataAdapter = $brandDataAdapter;
+    }
 
-        $this->vendorId = VendorInterface::BRAIN;
+    /**
+     * Get already existing product.
+     *
+     * @param int $vendorProductId
+     * @return Model|null
+     */
+    protected function getExistingProduct(int $vendorProductId)
+    {
+        return $this->productRepository->getProductByVendorProductId(VendorInterface::BRAIN, $vendorProductId);
     }
 
     /**
@@ -87,12 +103,23 @@ class BrainInsertVendorProductManager extends InsertVendorProductManager
         // receive whole product data
         $productData = $this->productProvider->getProductData($vendorProductId);
 
-        // get get product data entities
-        $vendorUsdCourse = $this->getCashUsdCourse($productData['course']);
+        // get product data entities
         $productDataRu = $productData['product_data_ru'];
         $productContentDataRu = $productData['product_content_data_ru']->list[0];
         $productContentDataUa = $productData['product_content_data_uk']->list[0];
         $comments = $productData['comments']->list;
+
+        // get usd course
+        if (Cache::has(self::USD_COURSE_CACHE_KEY)){
+            $vendorUsdCourse = (float)Cache::get(self::USD_COURSE_CACHE_KEY);
+        }else{
+            $vendorUsdCourse = $this->getCashUsdCourse($this->productProvider->getCoursesData());
+            if ($vendorUsdCourse > 0) {
+                Cache::put(self::USD_COURSE_CACHE_KEY, $vendorUsdCourse, config('vendor.vendor_exchange_rate_ttl.' . VendorInterface::BRAIN));
+            }else{
+                throw new Exception('Can not get exchange rate from vendor');
+            }
+        }
 
         // set product model data
         $this->productData = $this->productDataAdapter->prepareProductData($productDataRu, $productContentDataRu, $productContentDataUa);
@@ -130,7 +157,7 @@ class BrainInsertVendorProductManager extends InsertVendorProductManager
         $cashCourse = collect($vendorCourses)->where('currencyID', '=', 2)->first();
 
         if ($cashCourse){
-            return $cashCourse->value;
+            return (float)$cashCourse->value;
         }else{
             throw new Exception('Currency course is missing');
         }

@@ -15,9 +15,7 @@
                 </div>
 
                 {{-- Category data with synchronized categories list --}}
-                <div class="col">
-                    @include('content.admin.vendors.category.list.parts.vendor_category')
-                </div>
+                <div class="col">{{ $category->name }}</div>
 
             </div>
 
@@ -44,7 +42,9 @@
                         <div class="col-auto">
                             <a href="{{ route('vendor.category.sync', ['id' => $vendor->id, 'vendorOwnCategoryId' => $category->id]) }}"
                                data-toggle="tooltip"
-                               title="Синхронизировать" class="btn btn-primary"><i class="fa fa-link"></i></a>
+                               title="Синхронизировать" class="btn btn-primary">
+                                <i class="svg-icon-larger" data-feather="link"></i>
+                            </a>
                         </div>
 
                     </div>

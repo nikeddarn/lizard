@@ -5,27 +5,56 @@
 
 namespace App\Support\ExchangeRates;
 
+use App\Support\Settings\SettingsRepository;
 use Illuminate\Support\Facades\Cache;
 
 class ExchangeRates
 {
+    /**
+     * @var SettingsRepository
+     */
+    private $settingsRepository;
+
+    /**
+     * ExchangeRates constructor.
+     * @param SettingsRepository $settingsRepository
+     */
+    public function __construct(SettingsRepository $settingsRepository)
+    {
+        $this->settingsRepository = $settingsRepository;
+    }
+
+    /**
+     * Get rate from storage or external sources.
+     *
+     * @return mixed
+     */
     public function getRate()
     {
-        return Cache::remember('exchangeRate', config('shop.exchange_rate.ttl'), function () {
+        $exchangeRateSettings = $this->settingsRepository->getProperty('currencies.exchange_rate');
 
-            // get current rate from external sources
-            $currentRate =  $this->defineExchangeRate();
+        if ($exchangeRateSettings['get_exchange_rate'] === 'manual' && !empty($exchangeRateSettings['usd_rate'])) {
+            // get manual set of rate
+            return $exchangeRateSettings['usd_rate'];
+        }else{
+            // get rate ttl
+            $exchangeRateTtl = $exchangeRateSettings['ttl'];
 
-            if ($currentRate) {
-                // store current rate as reserved
-                Cache::forever('reservedExchangeRate', $currentRate);
+            return Cache::remember('exchangeRate', $exchangeRateTtl, function () {
+                // get current rate from external sources
+                $currentRate = $this->defineExchangeRate();
 
-                return $currentRate;
-            }else{
-                // get reserved exchange rate
-                return Cache::get('reservedExchangeRate');
-            }
-        });
+                if ($currentRate) {
+                    // store current rate as reserved
+                    Cache::forever('reservedExchangeRate', $currentRate);
+
+                    return $currentRate;
+                } else {
+                    // get reserved exchange rate
+                    return Cache::get('reservedExchangeRate');
+                }
+            });
+        }
     }
 
     /**
@@ -35,7 +64,7 @@ class ExchangeRates
      */
     private function defineExchangeRate()
     {
-        foreach (config('shop.exchange_rate.sources') as $source) {
+        foreach (config('currencies.exchange_rate_sources') as $source) {
             $rate = (new $source)->getRate();
             if ($rate) {
                 return $rate;

@@ -1,2 +1,9 @@
 User-agent: *
-Disallow: /filter/
+Disallow: /setup/
+Disallow: /admin/
+Disallow: /user/
+Disallow: /login/
+Disallow: /logout/
+Disallow: /register/
+Disallow: /password/
+Disallow: /search/

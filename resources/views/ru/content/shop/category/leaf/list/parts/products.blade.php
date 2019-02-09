@@ -46,7 +46,7 @@
                 <a class="card-title" href="{{ $product->href }}"
                    title="{{ $product->name }}">{{ $product->name }}</a>
 
-                <div class="d-flex align-items-center mb-2">
+                <div class="d-flex align-items-start mb-2">
 
                     @if($product->localPrice)
                         <div class="d-inline-block">

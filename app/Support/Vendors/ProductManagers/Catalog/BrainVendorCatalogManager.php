@@ -157,10 +157,11 @@ class BrainVendorCatalogManager extends VendorCatalogManager
             $incomingProductPrice = $vendorProduct->price;
 
             // retail product price
-            $productRetailPrice = (!empty($vendorProduct->retail_price_ukh) ? $vendorProduct->retail_price_ukh : $vendorProduct->recommendable_price) / $course;
+            $productRetailPrice = (!empty($vendorProduct->retail_price_uah) ? $vendorProduct->retail_price_uah : $vendorProduct->recommendable_price) / $course;
 
             // product profit
             $productProfit = $productRetailPrice - $incomingProductPrice;
+            $productProfitPercents = $productProfit/$incomingProductPrice*100;
 
             $preparedVendorProduct = new stdClass();
 
@@ -172,6 +173,7 @@ class BrainVendorCatalogManager extends VendorCatalogManager
             $preparedVendorProduct->warranty = $vendorProduct->warranty;
             $preparedVendorProduct->price = $this->formatPrice($incomingProductPrice);
             $preparedVendorProduct->profit = $this->formatPrice($productProfit);
+            $preparedVendorProduct->profitPercents = $this->formatProfitPercents($productProfitPercents);
 
             $preparedProducts[] = $preparedVendorProduct;
         }

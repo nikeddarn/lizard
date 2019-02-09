@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Contracts\Shop\StorageDepartmentsInterface;
+use App\Events\Shop\ProductDeleted;
+use App\Events\Shop\ProductSaved;
 use App\Models\Support\Translatable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
@@ -34,6 +36,16 @@ class Product extends Model
      * @var array
      */
     public $translatable = ['name', 'title', 'description', 'keywords', 'content', 'manufacturer', 'brief_content', 'model'];
+
+    /**
+     * The event map for the model.
+     *
+     * @var array
+     */
+    protected $dispatchesEvents = [
+        'saved' => ProductSaved::class,
+        'deleted' => ProductDeleted::class,
+    ];
 
     /**
      * @return BelongsToMany

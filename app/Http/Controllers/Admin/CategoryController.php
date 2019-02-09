@@ -209,6 +209,11 @@ class CategoryController extends Controller
         // retrieve category
         $category = $this->category->newQuery()->findOrFail($id);
 
+        // update parent timestamp
+        if ($category->parent_id){
+            $category->parent()->touch();
+        }
+
         // delete previous image
         $imageHandler->deleteCategoryIcon($category->id);
 

@@ -27,13 +27,9 @@ abstract class UpdateVendorProductManager
      */
     protected $vendorProductStocksData;
     /**
-     * @var int
-     */
-    protected $vendorId;
-    /**
      * @var VendorProduct
      */
-    private $vendorProduct;
+    protected $vendorProduct;
     /**
      * @var VendorProductPrice
      */
@@ -73,27 +69,25 @@ abstract class UpdateVendorProductManager
     {
         $vendorProduct = $this->getVendorProduct($vendorProductId);
 
-        if ($vendorProduct) {
-            // retrieve product data from vendor and prepare it for update
-            $this->prepareVendorProductData($vendorProductId);
+        // retrieve product data from vendor and prepare it for update
+        $this->prepareVendorProductData($vendorProductId);
 
-            DB::beginTransaction();
+        DB::beginTransaction();
 
-            try {
-                // update product
-                $this->updateProductProperties($vendorProduct);
+        try {
+            // update product
+            $this->updateProductProperties($vendorProduct);
 
-                DB::commit();
+            DB::commit();
 
-            } catch (Throwable $exception) {
-                DB::rollBack();
+        } catch (Throwable $exception) {
+            DB::rollBack();
 
-                throw new  Exception($exception->getMessage());
-            }
-
-            // fire event
-            event(new VendorProductUpdated($vendorProduct->product));
+            throw new  Exception($exception->getMessage());
         }
+
+        // fire event
+        event(new VendorProductUpdated($vendorProduct->product));
     }
 
     /**
@@ -103,23 +97,6 @@ abstract class UpdateVendorProductManager
      * @return void
      */
     abstract protected function prepareVendorProductData(int $vendorProductId);
-
-    /**
-     * Get vendor product.
-     *
-     * @param int $vendorProductId
-     * @return VendorProduct|Model|null
-     */
-    private function getVendorProduct(int $vendorProductId)
-    {
-        return $this->vendorProduct->newQuery()
-            ->where([
-                ['vendors_id', '=', $this->vendorId],
-                ['vendor_product_id', '=', $vendorProductId],
-            ])
-            ->with('product')
-            ->first();
-    }
 
     /**
      * Update vendor product and product data.

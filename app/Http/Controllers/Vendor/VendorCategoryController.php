@@ -91,10 +91,12 @@ class VendorCategoryController extends Controller
             $vendorCategories = $this->vendorBroker->getVendorCatalogManager($vendorId)->getVendorCategoriesTree();
 
         } catch (Exception $exception) {
-            return view('content.admin.vendors.category.list.index')->with(compact('vendor'))->withErrors(['message' => $exception->getMessage()]);
+            return view('content.admin.vendors.category.list.index')
+                ->with(compact('vendor'))->withErrors([$exception->getMessage()]);
         }
 
-        return view('content.admin.vendors.category.list.index')->with(compact('vendor', 'synchronizedCategories', 'vendorCategories'));
+        return view('content.admin.vendors.category.list.index')
+            ->with(compact('vendor', 'synchronizedCategories', 'vendorCategories'));
     }
 
     /**

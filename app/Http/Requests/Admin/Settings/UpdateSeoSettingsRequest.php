@@ -3,7 +3,7 @@
  * Update SEO settings request.
  */
 
-namespace App\Http\Requests\Admin\Settings\Seo;
+namespace App\Http\Requests\Admin\Settings;
 
 
 use Illuminate\Foundation\Http\FormRequest;

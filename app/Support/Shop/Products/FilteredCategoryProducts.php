@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
-class FilteredCategoryProductsCreator extends CategoryProducts
+class FilteredCategoryProducts extends CategoryProducts
 {
     /**
      * Get products with its properties.
@@ -32,7 +32,7 @@ class FilteredCategoryProductsCreator extends CategoryProducts
 
         $query = $this->sortProductsBy($query, $sortMethod);
 
-        $products = $query->paginate(config('shop.show_items_per_page'))->appends(request()->query());
+        $products = $query->paginate($this->productsPerPage)->appends(request()->query());
 
         $this->addProductsProperties($products);
 

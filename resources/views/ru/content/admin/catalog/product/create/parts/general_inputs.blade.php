@@ -27,7 +27,7 @@
             <label class="required" for="url">URL</label>
         </div>
         <div class="col-sm-8">
-            <input id="url" name="url" type="text" required class="w-100" placeholder="site.name/products/your-entering-url" value="{{ old('url') }}">
+            <input id="url" name="url" type="text" required class="w-100" placeholder="site.name/product/your-entering-url" value="{{ old('url') }}">
         </div>
     </div>
 

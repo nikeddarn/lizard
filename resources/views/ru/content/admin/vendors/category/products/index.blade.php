@@ -2,112 +2,31 @@
 
 @section('content')
 
-    @if ($errors->any())
+    @include('content.admin.vendors.category.products.parts.header')
 
-        <div class="row admin-content-header">
+    @include('elements.errors.admin_error.index')
 
-            <div class="col admin-content-title">
 
-                <h3 class="mb-4">Поставщик:<i
-                        class="ml-5 admin-content-sub-header">{{ $vendorCategory->vendor->name }}</i>
-                </h3>
 
-                <div class="row justify-content-around mb-2 text-gray-lighter">
-                    <div class="col-12 col-md-auto">
-                        <h5>Категория поставщика: {{ $vendorCategory->name }}</h5>
-                    </div>
-                    <div class="col-12 col-md-auto">
-                        <h5>Локальная категория: {{ $localCategory->name }}</h5>
-                    </div>
-                </div>
 
+
+    @if(!empty($vendorProcessingProducts))
+        <div class="card card-body">
+
+            <div>
+                @include('content.admin.vendors.category.products.parts.product_form')
             </div>
 
-            <div class="col-auto admin-content-actions">
-                <a href="{{ route('vendor.categories.index', ['vendorId' => $vendorCategory->vendor->id]) }}"
-                   data-toggle="tooltip" title="Отменить"
-                   class="btn btn-primary"><i class="fa fa-reply"></i></a>
-            </div>
         </div>
 
-        <div class="row">
-            <div class="col-12">
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
+        @if($vendorProcessingProducts->lastPage() !== 1)
+            <div class="my-4">
+                @include('layouts.parts.pagination.products.index', ['paginator' => $vendorProcessingProducts])
             </div>
-        </div>
-
-    @else
-
-        <div class="row admin-content-header">
-
-            <div class="col admin-content-title">
-
-                <h3 class="mb-4">Поставщик:<i
-                        class="ml-5 admin-content-sub-header">{{ $vendorCategory->vendor->name }}</i>
-                </h3>
-
-                <div class="row justify-content-around mb-2 text-gray-lighter">
-                    <div class="col-12 col-md-auto">
-                        <h5>Категория поставщика: {{ $vendorCategory->name }} ({{$vendorProcessingProducts->total()}}
-                            )</h5>
-                    </div>
-                    <div class="col-12 col-md-auto">
-                        <h5>Локальная категория: {{ $localCategory->name }} ({{ $totalSynchronizedProductsCount }})</h5>
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="col-auto admin-content-actions">
-                <a href="{{ route('vendor.categories.index', ['vendorId' => $vendorCategory->vendor->id]) }}"
-                   data-toggle="tooltip" title="Отменить"
-                   class="btn btn-primary"><i class="fa fa-reply"></i></a>
-            </div>
-        </div>
-
-
-        <div class="row">
-
-            @if($vendorProcessingProducts->count())
-                <div class="col-lg-12 my-4">
-
-                    <div class="d-inline-block">
-                        @if($vendorProcessingProducts->links())
-                            {{$vendorProcessingProducts->links()}}
-                        @endif
-                    </div>
-
-                    <div class="float-right text-right">
-                        <button class="btn btn-primary mb-2 mb-sm-0" type="submit" form="sync-products-form"
-                                formaction="{{ route('vendor.category.products.upload') }}">Синхронизировать
-                            выбранное
-                        </button>
-                        <button class="btn btn-primary ml-0 ml-sm-2" type="submit" form="sync-products-form"
-                                formaction="{{ route('vendor.category.products.upload.all') }}">Синхронизировать все
-                            продукты
-                        </button>
-                    </div>
-                </div>
-
-                <div class="col-lg-12 my-4">
-                    @include('content.admin.vendors.category.products.parts.product_form')
-                </div>
-
-                @if($vendorProcessingProducts->links())
-                    <div class="col-lg-12 my-4">{{$vendorProcessingProducts->links()}}</div>
-                @endif
-
-            @endif
-
-        </div>
+        @endif
 
     @endif
+
 
 @endsection
 

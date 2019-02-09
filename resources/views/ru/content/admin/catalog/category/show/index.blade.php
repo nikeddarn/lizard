@@ -53,17 +53,8 @@
                 }
             });
 
-            $(".product-delete-form").submit(function (event) {
+            $(".category-delete-form").submit(function (event) {
                 if (confirm('Удалить продукт ?')) {
-                    return true;
-                } else {
-                    event.preventDefault();
-                    return false;
-                }
-            });
-
-            $(".category-filter-delete-form").submit(function (event) {
-                if (confirm('Удалить фильтр категории ?')) {
                     return true;
                 } else {
                     event.preventDefault();

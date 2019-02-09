@@ -1,7 +1,6 @@
-<div class="card py-2 px-1 p-lg-5 mb-5">
-    <h4 class="mb-5 text-center">Атрибуты продукта</h4>
+@if($product->productAttributes->count())
 
-    @if($product->productAttributes->count())
+    <div class="table-responsive">
 
         <table class="table">
 
@@ -25,10 +24,11 @@
                             @csrf
                             @method('DELETE')
                             <input type="hidden" name="products_id" value="{{ $product->id }}">
-                            <input type="hidden" name="attribute_values_id" value="{{ $productAttribute->attribute_values_id }}">
+                            <input type="hidden" name="attribute_values_id"
+                                   value="{{ $productAttribute->attribute_values_id }}">
                             <button type="submit" class="btn btn-danger" data-toggle="tooltip"
                                     title="Удалить атрибут продукта">
-                                <i class="fa fa-trash-o"></i>
+                                <i class="svg-icon-larger" data-feather="trash-2"></i>
                             </button>
                         </form>
 
@@ -43,13 +43,13 @@
 
         </table>
 
-    @endif
-
-    <div class="col-lg-12 my-4 text-right">
-        <a href="{{route('admin.products.attribute.create', ['id' => $product->id])}}" class="btn btn-primary">
-            <i class="fa fa-plus"></i>&nbsp;
-            <span>Добавить атрибут продукта</span>
-        </a>
     </div>
 
+@endif
+
+<div class="col-lg-12 my-4 text-right">
+    <a href="{{route('admin.products.attribute.create', ['id' => $product->id])}}" class="btn btn-primary">
+        <i class="fa fa-plus"></i>&nbsp;
+        <span>Добавить атрибут продукта</span>
+    </a>
 </div>

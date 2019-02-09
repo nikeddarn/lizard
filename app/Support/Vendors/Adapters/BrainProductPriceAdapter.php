@@ -24,7 +24,7 @@ class BrainProductPriceAdapter
 
         $recommendablePrice = $vendorProductData->recommendable_price > 0 ? round($vendorProductData->recommendable_price / $vendorUsdCourse, 2) : null;
 
-        $retailPrice = $vendorProductData->retail_price_ukh > 0 ? round($vendorProductData->retail_price_ukh / $vendorUsdCourse, 2) : null;
+        $retailPrice = $vendorProductData->retail_price_uah > 0 ? round($vendorProductData->retail_price_uah / $vendorUsdCourse, 2) : null;
 
         return [
             'price' => $incomingPrice,

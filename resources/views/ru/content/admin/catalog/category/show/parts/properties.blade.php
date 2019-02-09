@@ -1,4 +1,4 @@
-<ul class="list-group list-group-flush">
+<ul class="list-group-flush">
 
     <li class="list-group-item">
         <div class="row w-100">

@@ -8,12 +8,13 @@ namespace App\Support\Vendors\ProductManagers\Synchronization\NewProduct;
 
 use App\Contracts\Vendor\SyncTypeInterface;
 use App\Contracts\Vendor\VendorInterface;
+use App\Jobs\Vendors\InsertVendorProduct;
 use App\Models\SynchronizingProduct;
 use App\Models\VendorCategory;
 use App\Support\Vendors\Providers\BrainSyncNewProductProvider;
+use Illuminate\Bus\Dispatcher;
 use Exception;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 
 class BrainSyncNewProductManager extends SyncNewProductManager
 {
@@ -37,8 +38,6 @@ class BrainSyncNewProductManager extends SyncNewProductManager
         parent::__construct($synchronizingProduct);
 
         $this->provider = $provider;
-
-        $this->vendorId = VendorInterface::BRAIN;
         $this->vendorCategory = $vendorCategory;
     }
 
@@ -46,10 +45,11 @@ class BrainSyncNewProductManager extends SyncNewProductManager
      * Retrieve price modified products data from vendor.
      *
      * @param string|null $lastSynchronizedAt
+     * @return string
+     * @throws Exception
      */
-    protected function getSyncProductsData(string $lastSynchronizedAt = null)
+    protected function getSyncProductsData(string $lastSynchronizedAt):string
     {
-        try {
             // retrieve new products ids from vendor
             $vendorNewProductsIds = $this->provider->getNewProductsIds($lastSynchronizedAt);
 
@@ -64,10 +64,55 @@ class BrainSyncNewProductManager extends SyncNewProductManager
                 $this->syncProductsData = $this->createProductsDataToSync($processingVendorProductsIds);
             }
 
-            $this->synchronizedAt = $this->provider->getVendorSynchronizedAt();
+            return $this->provider->getVendorSynchronizedAt();
+    }
 
-        } catch (Exception $exception) {
-            Log::channel('schedule')->info($exception->getMessage());
+    /**
+     * Create and dispatch jos
+     *
+     * @param array $vendorCategories
+     * @param array $localCategories
+     * @param int $vendorProductId
+     * @return int
+     */
+    protected function dispatchJob(array $vendorCategories, array $localCategories, int $vendorProductId): int
+    {
+        // create job
+        $job = new InsertVendorProduct(VendorInterface::BRAIN, $vendorCategories, $localCategories, $vendorProductId);
+
+        $job->onConnection('database')
+            ->onQueue(SyncTypeInterface::INSERT_PRODUCT);
+
+        // dispatch job
+        $jobId = app(Dispatcher::class)->dispatch($job);
+
+        return $jobId;
+    }
+
+    /**
+     * Insert product in synchronizing products
+     *
+     * @param int $jobId
+     * @param array $vendorCategories
+     * @param array $localCategories
+     * @param int $vendorProductId
+     */
+    protected function insertSynchronizingProducts(int $jobId, array $vendorCategories, array $localCategories, int $vendorProductId)
+    {
+        // insert for each vendor category
+        foreach ($vendorCategories as $vendorCategory) {
+            // insert for each local category
+            foreach ($localCategories as $localCategory) {
+                // create model
+                $this->synchronizingProduct->newQuery()->create([
+                    'jobs_id' => $jobId,
+                    'vendor_product_id' => $vendorProductId,
+                    'vendors_id' => VendorInterface::BRAIN,
+                    'sync_type' => SyncTypeInterface::INSERT_PRODUCT,
+                    'vendor_categories_id' => $vendorCategory,
+                    'categories_id' => $localCategory,
+                ]);
+            }
         }
     }
 
@@ -81,7 +126,7 @@ class BrainSyncNewProductManager extends SyncNewProductManager
     {
         return $this->synchronizingProduct->newQuery()
             ->where([
-                ['vendors_id', '=', $this->vendorId],
+                ['vendors_id', '=', VendorInterface::BRAIN],
                 ['sync_type', '=', SyncTypeInterface::INSERT_PRODUCT],
             ])
             ->whereIn('vendor_product_id', $vendorNewProductsIds)
@@ -158,7 +203,7 @@ class BrainSyncNewProductManager extends SyncNewProductManager
     private function getAvailableSynchronizedVendorCategories(array $processingVendorCategoriesId): Collection
     {
         return $this->vendorCategory->newQuery()
-            ->where('vendors_id', $this->vendorId)
+            ->where('vendors_id', VendorInterface::BRAIN)
             ->whereIn('vendor_category_id', $processingVendorCategoriesId)
             ->has('autoAddNewProductsCategories')
             ->with('autoAddNewProductsCategories')

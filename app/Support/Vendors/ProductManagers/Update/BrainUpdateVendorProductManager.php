@@ -15,9 +15,15 @@ use App\Support\Vendors\Adapters\BrainProductPriceAdapter;
 use App\Support\Vendors\Adapters\BrainProductStocksDataAdapter;
 use App\Support\Vendors\Providers\BrainUpdateProductProvider;
 use Exception;
+use Illuminate\Support\Facades\Cache;
 
 class BrainUpdateVendorProductManager extends UpdateVendorProductManager
 {
+    /**
+     * @var string
+     */
+    const USD_COURSE_CACHE_KEY = 'vendor_' . VendorInterface::BRAIN . '_session_id';
+
     /**
      * @var BrainUpdateProductProvider
      */
@@ -41,14 +47,30 @@ class BrainUpdateVendorProductManager extends UpdateVendorProductManager
      * @param ProductAvailability $productAvailability
      * @param ProductBadges $productBadges
      */
-    public function __construct(VendorProduct $vendorProduct, BrainUpdateProductProvider $provider, VendorProductPrice $productPrice, BrainProductPriceAdapter $productPriceAdapter, BrainProductStocksDataAdapter $stocksDataAdapter,  ProductAvailability $productAvailability, ProductBadges $productBadges)
+    public function __construct(VendorProduct $vendorProduct, BrainUpdateProductProvider $provider, VendorProductPrice $productPrice, BrainProductPriceAdapter $productPriceAdapter, BrainProductStocksDataAdapter $stocksDataAdapter, ProductAvailability $productAvailability, ProductBadges $productBadges)
     {
         parent::__construct($vendorProduct, $productPrice, $productAvailability, $productBadges);
 
-        $this->vendorId = VendorInterface::BRAIN;
         $this->provider = $provider;
         $this->productPriceAdapter = $productPriceAdapter;
         $this->stocksDataAdapter = $stocksDataAdapter;
+    }
+
+    /**
+     * Get vendor product.
+     *
+     * @param int $vendorProductId
+     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model
+     */
+    protected function getVendorProduct(int $vendorProductId)
+    {
+        return $this->vendorProduct->newQuery()
+            ->where([
+                ['vendors_id', '=', VendorInterface::BRAIN],
+                ['vendor_product_id', '=', $vendorProductId],
+            ])
+            ->with('product')
+            ->firstOrFail();
     }
 
     /**
@@ -60,16 +82,22 @@ class BrainUpdateVendorProductManager extends UpdateVendorProductManager
     protected function prepareVendorProductData(int $vendorProductId)
     {
         // retrieve product data from vendor
-        $vendorData = $this->provider->getProductData($vendorProductId);
+        $vendorProductData = $this->provider->getProductData($vendorProductId);
 
-        // get product data
-        $vendorProductData = $vendorData['product'];
-
-        // get course
-        $course = $this->getCashUsdCourse($vendorData['course']);
+        // get usd course
+        if (Cache::has(self::USD_COURSE_CACHE_KEY)){
+            $vendorUsdCourse = (float)Cache::get(self::USD_COURSE_CACHE_KEY);
+        }else{
+            $vendorUsdCourse = $this->getCashUsdCourse($this->provider->getCoursesData());
+            if ($vendorUsdCourse > 0) {
+                Cache::put(self::USD_COURSE_CACHE_KEY, $vendorUsdCourse, config('vendor.vendor_exchange_rate_ttl.' . VendorInterface::BRAIN));
+            }else{
+                throw new Exception('Can not get exchange rate from vendor');
+            }
+        }
 
         // prepare vendor product prices
-        $this->vendorProductPricesData = $this->productPriceAdapter->prepareVendorProductPrices($vendorProductData, $course);
+        $this->vendorProductPricesData = $this->productPriceAdapter->prepareVendorProductPrices($vendorProductData, $vendorUsdCourse);
 
         // prepare vendor product stocks data
         $this->vendorProductStocksData = $this->stocksDataAdapter->prepareVendorProductStocksData($vendorProductData);
@@ -86,9 +114,9 @@ class BrainUpdateVendorProductManager extends UpdateVendorProductManager
     {
         $cashCourse = collect($vendorCourses)->where('currencyID', '=', 2)->first();
 
-        if ($cashCourse){
+        if ($cashCourse) {
             return $cashCourse->value;
-        }else{
+        } else {
             throw new Exception('Currency course is missing');
         }
     }

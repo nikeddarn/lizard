@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Events\Shop\CategoryDeleted;
+use App\Events\Shop\CategorySaved;
 use App\Models\Support\Translatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
@@ -35,11 +37,14 @@ class Category extends Model
     public $translatable = ['name', 'title', 'description', 'keywords', 'content'];
 
     /**
-     * Indicates if the model should be timestamped.
+     * The event map for the model.
      *
-     * @var bool
+     * @var array
      */
-    public $timestamps = false;
+    protected $dispatchesEvents = [
+        'created' => CategorySaved::class,
+        'deleted' => CategoryDeleted::class,
+    ];
 
 
     /**

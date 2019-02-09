@@ -10,7 +10,7 @@ use App\Support\Breadcrumbs\FilteredCategoryBreadcrumbs;
 use App\Support\Seo\MetaTags\MultiFilterCategoryMetaTags;
 use App\Support\Seo\Pagination\PaginationLinksGenerator;
 use App\Support\Shop\Filters\MultiFiltersCreator;
-use App\Support\Shop\Products\FilteredCategoryProductsCreator;
+use App\Support\Shop\Products\FilteredCategoryProducts;
 use App\Support\Url\UrlGenerators\ShowProductsUrlGenerator;
 use App\Support\Url\UrlGenerators\SortProductsUrlGenerator;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -29,7 +29,7 @@ class MultiFilterCategoryController extends Controller
      */
     private $attributeValue;
     /**
-     * @var FilteredCategoryProductsCreator
+     * @var FilteredCategoryProducts
      */
     private $productsCreator;
     /**
@@ -62,14 +62,14 @@ class MultiFilterCategoryController extends Controller
      * @param Category $category
      * @param AttributeValue $attributeValue
      * @param SortProductsUrlGenerator $sortProductsUrlGenerator
-     * @param FilteredCategoryProductsCreator $productsCreator
+     * @param FilteredCategoryProducts $productsCreator
      * @param ShowProductsUrlGenerator $showProductsUrlGenerator
      * @param FilteredCategoryBreadcrumbs $breadcrumbs
      * @param MultiFiltersCreator $filtersCreator
      * @param PaginationLinksGenerator $paginationLinksGenerator
      * @param MultiFilterCategoryMetaTags $multiFilterCategoryMetaTags
      */
-    public function __construct(Category $category, AttributeValue $attributeValue, SortProductsUrlGenerator $sortProductsUrlGenerator, FilteredCategoryProductsCreator $productsCreator, ShowProductsUrlGenerator $showProductsUrlGenerator, FilteredCategoryBreadcrumbs $breadcrumbs, MultiFiltersCreator $filtersCreator, PaginationLinksGenerator $paginationLinksGenerator, MultiFilterCategoryMetaTags $multiFilterCategoryMetaTags)
+    public function __construct(Category $category, AttributeValue $attributeValue, SortProductsUrlGenerator $sortProductsUrlGenerator, FilteredCategoryProducts $productsCreator, ShowProductsUrlGenerator $showProductsUrlGenerator, FilteredCategoryBreadcrumbs $breadcrumbs, MultiFiltersCreator $filtersCreator, PaginationLinksGenerator $paginationLinksGenerator, MultiFilterCategoryMetaTags $multiFilterCategoryMetaTags)
     {
         $this->category = $category;
         $this->attributeValue = $attributeValue;
@@ -129,7 +129,7 @@ class MultiFilterCategoryController extends Controller
         $pageDescription = $this->multiFilterCategoryMetaTags->getCategoryDescription($category, $selectedAttributeValues);
         $pageKeywords = $this->multiFilterCategoryMetaTags->getCategoryKeywords($category, $selectedAttributeValues);
 
-        return view('content.shop.category.leaf_category.index')->with(compact('breadcrumbs', 'products', 'filters', 'usedFilters', 'sortProductsUrls', 'sortProductsMethod', 'showProductsUrls', 'noindexPage', 'categoryName', 'pageTitle', 'pageDescription', 'pageKeywords'));
+        return view($this->getViewPath())->with(compact('breadcrumbs', 'products', 'filters', 'usedFilters', 'sortProductsUrls', 'sortProductsMethod', 'showProductsUrls', 'noindexPage', 'categoryName', 'pageTitle', 'pageDescription', 'pageKeywords'));
     }
 
     /**
@@ -189,5 +189,23 @@ class MultiFilterCategoryController extends Controller
         }
 
         return $selectedAttributeValues;
+    }
+
+    /**
+     * Get view path.
+     *
+     * @return string
+     */
+    private function getViewPath(): string
+    {
+        $viewFolder = 'content.shop.category.leaf.';
+
+        if (request()->has(UrlParametersInterface::SHOW_PRODUCTS)) {
+            $viewSubfolder = request()->get(UrlParametersInterface::SHOW_PRODUCTS);
+        } else {
+            $viewSubfolder = config('shop.products_show.canonical_show_method');
+        }
+
+        return $viewFolder . $viewSubfolder . '.index';
     }
 }

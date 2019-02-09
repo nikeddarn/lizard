@@ -15,7 +15,6 @@ use Illuminate\Bus\Dispatcher;
 use App\Support\Vendors\Providers\BrainSyncUpdatedProductProvider;
 use Exception;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 
 class BrainSyncUpdatedProductManager extends SyncUpdatedProductManager
 {
@@ -40,42 +39,36 @@ class BrainSyncUpdatedProductManager extends SyncUpdatedProductManager
 
         $this->provider = $provider;
         $this->vendorProduct = $vendorProduct;
-
-        $this->vendorId = VendorInterface::BRAIN;
     }
 
     /**
      * Retrieve price modified products data from vendor.
      *
      * @param string|null $lastSynchronizedAt
+     * @return string
+     * @throws Exception
      */
     protected function getSyncProductsData(string $lastSynchronizedAt = null)
     {
-        try {
-            $vendorModifiedProductsIds = $this->provider->getUpdatedProductsIds($lastSynchronizedAt);
+        $vendorModifiedProductsIds = $this->provider->getUpdatedProductsIds($lastSynchronizedAt);
 
-            if ($vendorModifiedProductsIds) {
-                $this->vendorProductsToSync = $this->getVendorProductsToSync($vendorModifiedProductsIds);
-            }
-
-            $this->synchronizedAt = $this->provider->getVendorSynchronizedAt();
-
-        } catch (Exception $exception) {
-            Log::channel('schedule')->info($exception->getMessage());
+        if ($vendorModifiedProductsIds) {
+            $this->vendorProductsToSync = $this->getVendorProductsToSync($vendorModifiedProductsIds);
         }
+
+        return $this->provider->getVendorSynchronizedAt();
     }
 
     /**
      * Create and dispatch jos
      *
-     * @param int $vendorId
      * @param int $vendorProductId
      * @return int
      */
-    protected function dispatchJob(int $vendorId, int $vendorProductId): int
+    protected function dispatchJob(int $vendorProductId): int
     {
         // create job
-        $job = new UpdateVendorProduct($vendorId, $vendorProductId);
+        $job = new UpdateVendorProduct(VendorInterface::BRAIN, $vendorProductId);
 
         $job->onConnection('database')
             ->onQueue(SyncTypeInterface::UPDATE_PRODUCT);
@@ -111,7 +104,7 @@ class BrainSyncUpdatedProductManager extends SyncUpdatedProductManager
     private function getSynchronizedVendorProductsIds(array $vendorModifiedProductsIds, array $queuedVendorProductsIds): Collection
     {
         return $this->vendorProduct->newQuery()
-            ->where('vendors_id', $this->vendorId)
+            ->where('vendors_id', VendorInterface::BRAIN)
             ->whereIn('vendor_product_id', $vendorModifiedProductsIds)
             ->whereNotIn('vendor_product_id', $queuedVendorProductsIds)
             ->with('vendorCategories', 'product.categories')
@@ -129,7 +122,7 @@ class BrainSyncUpdatedProductManager extends SyncUpdatedProductManager
     {
         return $this->synchronizingProduct->newQuery()
             ->where([
-                ['vendors_id', '=', $this->vendorId],
+                ['vendors_id', '=', VendorInterface::BRAIN],
                 ['sync_type', '=', SyncTypeInterface::UPDATE_PRODUCT],
             ])
             ->whereIn('vendor_product_id', $vendorNewProductsIds)
@@ -138,5 +131,32 @@ class BrainSyncUpdatedProductManager extends SyncUpdatedProductManager
             ->get()
             ->pluck('vendor_product_id')
             ->toArray();
+    }
+
+    /**
+     * Insert product in synchronizing products
+     *
+     * @param int $jobId
+     * @param array $vendorCategoriesIds
+     * @param array $localCategoriesIds
+     * @param int $vendorProductId
+     */
+    protected function insertSynchronizingProducts(int $jobId, array $vendorCategoriesIds, array $localCategoriesIds, int $vendorProductId)
+    {
+        // insert for each vendor category
+        foreach ($vendorCategoriesIds as $vendorCategory) {
+            // insert for each local category
+            foreach ($localCategoriesIds as $localCategory) {
+                // create model
+                $this->synchronizingProduct->newQuery()->create([
+                    'jobs_id' => $jobId,
+                    'vendor_product_id' => $vendorProductId,
+                    'vendors_id' => VendorInterface::BRAIN,
+                    'sync_type' => SyncTypeInterface::UPDATE_PRODUCT,
+                    'vendor_categories_id' => $vendorCategory,
+                    'categories_id' => $localCategory,
+                ]);
+            }
+        }
     }
 }

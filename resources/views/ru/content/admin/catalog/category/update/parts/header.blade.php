@@ -12,7 +12,7 @@
                     class="btn btn-primary">
                 <i class="svg-icon-larger" data-feather="save"></i>
             </button>
-            <a href="{{ url()->previous() }}" data-toggle="tooltip" title="Отменить"
+            <a href="{{ route('admin.categories.index') }}" data-toggle="tooltip" title="Отменить"
                class="btn btn-primary ml-1">
                 <i class="svg-icon-larger" data-feather="corner-up-left"></i>
             </a>

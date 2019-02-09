@@ -22,7 +22,7 @@
                         <i class="svg-icon-larger" data-feather="edit"></i>
                     </a>
 
-                    <form class="product-delete-form d-inline-block mx-1"
+                    <form class="category-delete-form d-inline-block mx-1"
                           action="{{ route('admin.categories.destroy', ['id' => $category->id]) }}" method="post">
                         @csrf
                         @method('DELETE')

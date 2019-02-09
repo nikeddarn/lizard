@@ -6,36 +6,12 @@
 namespace App\Support\Shop\Products;
 
 
-use App\Models\Product;
-use App\Support\ExchangeRates\ExchangeRates;
-use App\Support\ProductAvailability\ProductAvailability;
-use App\Support\ProductPrices\UserProductPrice;
-use App\Support\Settings\SettingsRepository;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Str;
 
-class RecentProducts extends ProductProperties
+class RecentProducts extends AbstractProduct
 {
-    /**
-     * @var Product
-     */
-    private $product;
-
-    /**
-     * FavouriteProducts constructor.
-     * @param ExchangeRates $exchangeRates
-     * @param UserProductPrice $productPrice
-     * @param ProductAvailability $productAvailability
-     * @param Product $product
-     * @param SettingsRepository $settingsRepository
-     */
-    public function __construct(ExchangeRates $exchangeRates, UserProductPrice $productPrice, ProductAvailability $productAvailability, Product $product, SettingsRepository $settingsRepository)
-    {
-        parent::__construct($exchangeRates, $productPrice, $productAvailability, $settingsRepository);
-        $this->product = $product;
-    }
-
     /**
      * Get users' recent products.
      *
@@ -50,7 +26,7 @@ class RecentProducts extends ProductProperties
         }
 
         $products = $recentProductsQuery->with('primaryImage', 'availableStorageProducts', 'expectingStorageProducts', 'availableVendorProducts', 'expectingVendorProducts')
-            ->paginate(config('shop.show_items_per_page'))->appends(request()->query());
+            ->paginate($this->productsPerPage)->appends(request()->query());
 
         $this->addProductsProperties($products);
 
@@ -66,7 +42,7 @@ class RecentProducts extends ProductProperties
     {
         $usersId = auth('web')->id();
 
-        return $this->product->newQuery()
+        return $this->getRetrieveProductQuery()
             ->whereHas('recentProducts', function ($query) use ($usersId) {
                 $query->where('users_id', $usersId);
             });
@@ -81,7 +57,7 @@ class RecentProducts extends ProductProperties
     {
         $uuid = Cookie::get('uuid', Str::uuid());
 
-        return $this->product->newQuery()
+        return $this->getRetrieveProductQuery()
             ->whereHas('recentProducts', function ($query) use ($uuid) {
                 $query->where('uuid', $uuid);
             });

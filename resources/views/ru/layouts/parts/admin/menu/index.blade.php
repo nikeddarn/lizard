@@ -28,6 +28,12 @@
                        class="nav-link text-gray pl-4 submenu-link">Виртуальные категории</a>
                 </li>
 
+                {{-- Products --}}
+                <li class="nav-item w-100">
+                    <a id="main-menu-shop-virtual-categories" href="{{ route('admin.products.index') }}"
+                       class="nav-link text-gray pl-4 submenu-link">Продукты</a>
+                </li>
+
                 {{-- Attributes --}}
                 <li class="nav-item w-100">
                     <a id="main-menu-shop-attributes" href="{{ route('admin.attributes.index') }}"
@@ -134,11 +140,17 @@
                        class="nav-link text-gray pl-4 submenu-link">Seo</a>
                 </li>
 
-                {{-- Customers --}}
-                {{--<li class="nav-item w-100">--}}
-                {{--<a href="{{ route('admin.users.customers') }}"--}}
-                {{--class="nav-link text-gray pl-4">Покупатели</a>--}}
-                {{--</li>--}}
+                {{-- Shop --}}
+                <li class="nav-item w-100">
+                    <a id="main-menu-settings-shop" href="{{ route('admin.settings.shop.edit') }}"
+                       class="nav-link text-gray pl-4 submenu-link">Магазин</a>
+                </li>
+
+                {{-- Vendor --}}
+                <li class="nav-item w-100">
+                    <a id="main-menu-settings-vendors" href="{{ route('admin.settings.vendor.edit') }}"
+                       class="nav-link text-gray pl-4 submenu-link">Поставщики</a>
+                </li>
 
             </ul>
 

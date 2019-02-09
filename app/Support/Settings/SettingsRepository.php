@@ -10,8 +10,14 @@ use Illuminate\Cache\CacheManager;
 
 class SettingsRepository
 {
-    // using cache storage
+    /**
+     * @var string
+     */
     const CACHE_STORAGE = 'file';
+    /**
+     * @var string
+     */
+    const KEY_PREFIX = 'settings.';
 
     /**
      * @var CacheManager
@@ -35,7 +41,10 @@ class SettingsRepository
      */
     public function getProperty(string $key)
     {
-        return $this->cacheManager->store(self::CACHE_STORAGE)->get($key, config($key));
+        // add prefix for all settings keys
+        $storageKey = self::KEY_PREFIX . $key;
+
+        return $this->cacheManager->store(self::CACHE_STORAGE)->get($storageKey, config($key));
     }
 
     /**
@@ -46,6 +55,9 @@ class SettingsRepository
      */
     public function setProperty(string $key, $value)
     {
-        $this->cacheManager->store(self::CACHE_STORAGE)->forever($key, $value);
+        // add prefix for all settings keys
+        $storageKey = self::KEY_PREFIX . $key;
+
+        $this->cacheManager->store(self::CACHE_STORAGE)->forever($storageKey, $value);
     }
 }

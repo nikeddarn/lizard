@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Shop;
 
+use App\Contracts\Shop\UrlParametersInterface;
 use App\Http\Controllers\Controller;
 use App\Models\AttributeValue;
 use App\Models\Category;
@@ -10,7 +11,7 @@ use App\Support\Seo\Canonical\CanonicalLinkGenerator;
 use App\Support\Seo\MetaTags\FilterCategoryMetaTags;
 use App\Support\Seo\Pagination\PaginationLinksGenerator;
 use App\Support\Shop\Filters\MultiFiltersCreator;
-use App\Support\Shop\Products\FilteredCategoryProductsCreator;
+use App\Support\Shop\Products\FilteredCategoryProducts;
 use App\Support\Url\UrlGenerators\ShowProductsUrlGenerator;
 use App\Support\Url\UrlGenerators\SortProductsUrlGenerator;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -29,7 +30,7 @@ class FilterCategoryController extends Controller
      */
     private $attributeValue;
     /**
-     * @var FilteredCategoryProductsCreator
+     * @var FilteredCategoryProducts
      */
     private $productsCreator;
     /**
@@ -66,7 +67,7 @@ class FilterCategoryController extends Controller
      * @param Category $category
      * @param AttributeValue $attributeValue
      * @param SortProductsUrlGenerator $sortProductsUrlGenerator
-     * @param FilteredCategoryProductsCreator $productsCreator
+     * @param FilteredCategoryProducts $productsCreator
      * @param ShowProductsUrlGenerator $showProductsUrlGenerator
      * @param FilteredCategoryBreadcrumbs $breadcrumbs
      * @param MultiFiltersCreator $filtersCreator
@@ -74,7 +75,7 @@ class FilterCategoryController extends Controller
      * @param CanonicalLinkGenerator $canonicalLinkGenerator
      * @param FilterCategoryMetaTags $filterCategoryMetaTags
      */
-    public function __construct(Category $category, AttributeValue $attributeValue, SortProductsUrlGenerator $sortProductsUrlGenerator, FilteredCategoryProductsCreator $productsCreator, ShowProductsUrlGenerator $showProductsUrlGenerator, FilteredCategoryBreadcrumbs $breadcrumbs, MultiFiltersCreator $filtersCreator, PaginationLinksGenerator $paginationLinksGenerator, CanonicalLinkGenerator $canonicalLinkGenerator, FilterCategoryMetaTags $filterCategoryMetaTags)
+    public function __construct(Category $category, AttributeValue $attributeValue, SortProductsUrlGenerator $sortProductsUrlGenerator, FilteredCategoryProducts $productsCreator, ShowProductsUrlGenerator $showProductsUrlGenerator, FilteredCategoryBreadcrumbs $breadcrumbs, MultiFiltersCreator $filtersCreator, PaginationLinksGenerator $paginationLinksGenerator, CanonicalLinkGenerator $canonicalLinkGenerator, FilterCategoryMetaTags $filterCategoryMetaTags)
     {
         $this->category = $category;
         $this->attributeValue = $attributeValue;
@@ -152,7 +153,7 @@ class FilterCategoryController extends Controller
         $pageDescription = $this->filterCategoryMetaTags->getCategoryDescription($category, $selectedAttributeValues);
         $pageKeywords = $this->filterCategoryMetaTags->getCategoryKeywords($category, $selectedAttributeValues);
 
-        return view('content.shop.category.leaf_category.index')->with(compact('categoryContent', 'categoryName', 'breadcrumbs', 'products', 'filters', 'usedFilters', 'sortProductsUrls', 'sortProductsMethod', 'showProductsUrls', 'paginationLinks', 'metaCanonical', 'noindexPage', 'pageTitle', 'pageDescription', 'pageKeywords'));
+        return view($this->getViewPath())->with(compact('categoryContent', 'categoryName', 'breadcrumbs', 'products', 'filters', 'usedFilters', 'sortProductsUrls', 'sortProductsMethod', 'showProductsUrls', 'paginationLinks', 'metaCanonical', 'noindexPage', 'pageTitle', 'pageDescription', 'pageKeywords'));
     }
 
     /**
@@ -225,5 +226,23 @@ class FilterCategoryController extends Controller
     private function isPageIndexable(AttributeValue $attributeValue): bool
     {
         return (bool)$attributeValue->attribute->indexable;
+    }
+
+    /**
+     * Get view path.
+     *
+     * @return string
+     */
+    private function getViewPath(): string
+    {
+        $viewFolder = 'content.shop.category.leaf.';
+
+        if (request()->has(UrlParametersInterface::SHOW_PRODUCTS)) {
+            $viewSubfolder = request()->get(UrlParametersInterface::SHOW_PRODUCTS);
+        } else {
+            $viewSubfolder = config('shop.products_show.canonical_show_method');
+        }
+
+        return $viewFolder . $viewSubfolder . '.index';
     }
 }

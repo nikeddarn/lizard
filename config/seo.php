@@ -61,4 +61,11 @@ return [
             ],
         ],
     ],
+
+    'changefreq' => [
+        'static' => 'monthly',
+        'category' => 'weekly',
+        'leaf_category' => 'daily',
+        'product' => 'daily',
+    ]
 ];

@@ -7,26 +7,34 @@ namespace App\Support\Vendors\Providers;
 
 
 use Exception;
-use GuzzleHttp\Psr7\Request;
+use stdClass;
 
 class BrainUpdateProductProvider extends BrainProvider
 {
-
     /**
      * Get product data.
      *
      * @param int $vendorProductId
-     * @return array
+     * @return stdClass
      * @throws Exception
      */
-    public function getProductData(int $vendorProductId): array
+    public function getProductData(int $vendorProductId): stdClass
     {
-        return $this->getPoolResponses(function ($sessionId) use ($vendorProductId) {
-            return [
-                'product' => new Request('GET', "product/$vendorProductId/$sessionId?lang=ru"),
+        return $this->getSingleResponse('GET', function ($sessionId) use ($vendorProductId) {
+            return "product/$vendorProductId/$sessionId?lang=ru";
+        });
+    }
 
-                'course' => new Request('GET', "currencies/$sessionId"),
-            ];
+    /**
+     * Get Brain currencies courses.
+     *
+     * @return mixed
+     * @throws Exception
+     */
+    public function getCoursesData()
+    {
+        return $this->getSingleResponse('GET', function ($sessionId) {
+            return "currencies/$sessionId";
         });
     }
 }

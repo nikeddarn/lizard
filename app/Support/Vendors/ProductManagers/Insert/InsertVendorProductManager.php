@@ -22,10 +22,6 @@ use Throwable;
 abstract class InsertVendorProductManager
 {
     /**
-     * @var int
-     */
-    protected $vendorId;
-    /**
      * @var array
      */
     protected $productData;
@@ -84,7 +80,7 @@ abstract class InsertVendorProductManager
     public function insertVendorProduct(array $vendorCategoryIds, array $localCategoryIds, int $vendorProductId)
     {
         // try to retrieve existing vendor product by vendor product
-        $product = $this->productRepository->getProductByVendorProductId($this->vendorId, $vendorProductId);
+        $product = $this->getExistingProduct($vendorProductId);
 
         if ($product) {
             // get vendor product
@@ -120,6 +116,14 @@ abstract class InsertVendorProductManager
         // fire event
         event(new VendorProductInserted($product));
     }
+
+    /**
+     * Get already existing product.
+     *
+     * @param int $vendorProductId
+     * @return Model|null
+     */
+    abstract protected function getExistingProduct(int $vendorProductId);
 
     /**
      * Retrieve and prepare product data.

@@ -90,7 +90,7 @@
             <label for="volume">Объем (м<sup>3</sup>)</label>
         </div>
         <div class="col-sm-8">
-            <input id="volume" name="volume" type="text" class="w-100" value="{{ old('volume', number_format($product->volume, 8)) }}">
+            <input id="volume" name="volume" type="text" class="w-100" value="{{ old('volume', $product->volume) }}">
         </div>
     </div>
 

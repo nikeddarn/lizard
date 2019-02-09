@@ -2,37 +2,17 @@
 
 @section('content')
 
-    <div class="row admin-content-header">
+    @include('content.admin.vendors.category.list.parts.header')
 
-        <div class="col admin-content-title"><h2>Категории поставщика:<i
-                        class="ml-5 admin-content-sub-header">{{ $vendor->name }}</i></h2></div>
-    </div>
+    @include('elements.errors.admin_error.index')
 
-    @if ($errors->any())
-        <div class="row">
-            <div class="col-sm-8">
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            </div>
+    @if(isset($vendorCategories))
+        <div class="card card-body">
+            <ul class="category-list p-0">
+                @include('content.admin.vendors.category.list.parts.categories', ['categories' => $vendorCategories])
+            </ul>
         </div>
     @endif
-
-    <div class="row">
-        <div class="col-lg-12">
-
-            @if(isset($vendorCategories))
-                <ul class="category-list p-0">
-                    @include('content.admin.vendors.category.list.parts.categories', ['categories' => $vendorCategories])
-                </ul>
-            @endif
-
-        </div>
-    </div>
 
 @endsection
 

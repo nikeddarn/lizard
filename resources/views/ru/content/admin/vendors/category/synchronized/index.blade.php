@@ -2,26 +2,14 @@
 
 @section('content')
 
-    <div class="card card-body">
+    @include('content.admin.vendors.category.synchronized.parts.header')
 
-        <h1 class="text-gray-hover h3 text-center">Синхронизированные категории</h1>
-
-        <div class="my-4">
-            @if($synchronizedCategories->count())
-                @include('content.admin.vendors.category.synchronized.parts.categories')
-            @else
-                <p>Нет синхронизированных категорий</p>
-            @endif
-        </div>
-
+    <div class="card card-body my-4">
+        @include('content.admin.vendors.category.synchronized.parts.categories')
     </div>
 
     @if($synchronizedCategories->lastPage() !== 1)
-        <div class="row">
-            <div class="col-12 my-4">
-                @include('layouts.parts.pagination.products.index', ['paginator' => $synchronizedCategories])
-            </div>
-        </div>
+        @include('layouts.parts.pagination.products.index', ['paginator' => $synchronizedCategories])
     @endif
 
 @endsection

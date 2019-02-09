@@ -94,7 +94,7 @@ class LoginController extends Controller
 
         // set intended for redirect to admin
         if ($user->isEmployee()) {
-            session(['url.intended' => route('admin')]);
+            session(['url.intended' => route('admin.overview')]);
         }
     }
 }

@@ -8,11 +8,26 @@ namespace App\Support\ProductPrices;
 
 use App\Models\Product;
 use App\Models\VendorProduct;
+use App\Support\Settings\SettingsRepository;
 use Exception;
 use Illuminate\Support\Collection;
 
 class VendorProductPrice
 {
+    /**
+     * @var SettingsRepository
+     */
+    private $settingsRepository;
+
+    /**
+     * VendorProductPrice constructor.
+     * @param SettingsRepository $settingsRepository
+     */
+    public function __construct(SettingsRepository $settingsRepository)
+    {
+        $this->settingsRepository = $settingsRepository;
+    }
+
     /**
      * Define product column prices.
      *
@@ -32,9 +47,6 @@ class VendorProductPrice
         // get processing products
         $processingVendorProducts = $this->getProcessingVendorProducts($vendorProducts);
 
-        // vendors ids
-        $vendorsIds = $processingVendorProducts->pluck('vendors_id')->toArray();
-
         // base retail price
         $baseProductRetailPrice = $this->getBaseProductRetailPrice($processingVendorProducts);
 
@@ -43,9 +55,25 @@ class VendorProductPrice
 
         // create product prices
         if ($baseProductIncomingPrice && $baseProductRetailPrice) {
-            $price1 = $this->getVendorProductColumnPrice('price1', $baseProductIncomingPrice, $baseProductRetailPrice, $vendorsIds);
-            $price2 = $this->getVendorProductColumnPrice('price2', $baseProductIncomingPrice, $baseProductRetailPrice, $vendorsIds);
-            $price3 = $this->getVendorProductColumnPrice('price3', $baseProductIncomingPrice, $baseProductRetailPrice, $vendorsIds);
+
+            // calculate profit
+            $profitSum = $baseProductRetailPrice - $baseProductIncomingPrice;
+            $profitPercentages = $profitSum / $baseProductIncomingPrice * 100;
+
+            // min profit to discount
+            $minProfitSumToDiscount = $this->settingsRepository->getProperty('vendor.min_profit_sum_to_price_discount');
+            $minProfitPercentagesToDiscount = $this->settingsRepository->getProperty('vendor.min_profit_percents_to_price_discount');
+
+            if ($profitSum > $minProfitSumToDiscount || $profitPercentages > $minProfitPercentagesToDiscount) {
+                // get columns discounts
+                $columnDiscounts = $this->settingsRepository->getProperty('vendor.column_discounts');
+
+                $price1 = $this->getVendorProductColumnPrice($baseProductIncomingPrice, $baseProductRetailPrice, $columnDiscounts['price1']);
+                $price2 = $this->getVendorProductColumnPrice($baseProductIncomingPrice, $baseProductRetailPrice, $columnDiscounts['price2']);
+                $price3 = $this->getVendorProductColumnPrice($baseProductIncomingPrice, $baseProductRetailPrice, $columnDiscounts['price3']);
+            }else{
+                $price1 = $price2 = $price3 = $baseProductRetailPrice;
+            }
         } else {
             $price1 = $price2 = $price3 = null;
         }
@@ -61,7 +89,9 @@ class VendorProductPrice
      */
     private function getProcessingVendorProducts(Collection $vendorProducts): Collection
     {
-        if ($vendorProducts->count() === 1 || !config('vendor.price.vendor_available_product_only')) {
+        $isOnlyAvailableVendorProductAllowed = $this->settingsRepository->getProperty('vendor.use_vendor_available_product_to_calculate_price');
+
+        if ($vendorProducts->count() === 1 || !$isOnlyAvailableVendorProductAllowed) {
             // use single vendor product
             return $vendorProducts;
         } else {
@@ -129,30 +159,19 @@ class VendorProductPrice
     /**
      * Get price for vendor product column by column name.
      *
-     * @param string $productPriceColumnName
      * @param float $baseProductIncomingPrice
      * @param float $baseProductRetailPrice
-     * @param array $vendorsIds
+     * @param int $productPriceColumnDiscount
      * @return float
      */
-    private function getVendorProductColumnPrice(string $productPriceColumnName, float $baseProductIncomingPrice, float $baseProductRetailPrice, array $vendorsIds): float
+    private function getVendorProductColumnPrice(float $baseProductIncomingPrice, float $baseProductRetailPrice, int $productPriceColumnDiscount): float
     {
-        // method name to aggregate vendor product incoming prices from multi vendor
-        $usingAggregateDiscountMethod = config('vendor.price.multi_vendor_aggregate_column_price_discount_method');
-
         // calculate profit
-        $profit = $baseProductRetailPrice - $baseProductIncomingPrice;
+        $profitSum = $baseProductRetailPrice - $baseProductIncomingPrice;
 
-        // min profit to discount
-        $minProfitToDiscount = $baseProductIncomingPrice * config('vendor.price.min_profit_to_price_discount') / 100;
-
-        if ($profit > $minProfitToDiscount) {
-            $columnDiscount = collect(config('vendor.price.vendor_column_price_discount'))->only($vendorsIds)->$usingAggregateDiscountMethod($productPriceColumnName);
-
-            $discountedColumnPrice = $columnDiscount ? $baseProductRetailPrice - $profit * min($columnDiscount, 1) : $baseProductRetailPrice;
-
-            return $discountedColumnPrice;
-        } else {
+        if ($productPriceColumnDiscount){
+            return $baseProductRetailPrice - $profitSum * min($productPriceColumnDiscount / 100, 1);
+        }else{
             return $baseProductRetailPrice;
         }
     }

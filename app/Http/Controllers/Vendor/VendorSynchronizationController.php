@@ -6,8 +6,10 @@ use App\Contracts\Vendor\SyncTypeInterface;
 use App\Http\Controllers\Controller;
 use App\Models\Vendor;
 use App\Support\Vendors\VendorBroker;
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class VendorSynchronizationController extends Controller
 {
@@ -78,11 +80,16 @@ class VendorSynchronizationController extends Controller
         // retrieve vendor
         $vendor = $this->vendor->newQuery()->findOrFail($vendorId);
 
-        // sync new vendor products
-        $this->syncNewVendorProducts($vendor);
+        try {
+            // sync new vendor products
+            $this->syncNewVendorProducts($vendor);
 
-        // sync updated vendor products
-        $this->syncUpdatedVendorProducts($vendor);
+            // sync updated vendor products
+            $this->syncUpdatedVendorProducts($vendor);
+        }catch (Exception $exception){
+            Log::channel('schedule')->info($exception->getMessage());
+            return back()->withErrors([$exception->getMessage()]);
+        }
 
         return back();
     }
@@ -91,6 +98,7 @@ class VendorSynchronizationController extends Controller
      * Sync new vendor products.
      *
      * @param Vendor|Model $vendor
+     * @throws Exception
      */
     private function syncNewVendorProducts(Vendor $vendor)
     {
@@ -98,17 +106,14 @@ class VendorSynchronizationController extends Controller
         $syncNewProductManager = $this->broker->getSyncNewProductManager($vendor->id);
 
         // sync product prices
-        $vendorSyncAt = $syncNewProductManager->synchronizeNewProducts($vendor->sync_new_products_at);
-
-        // update vendor's synchronized_at
-        $vendor->sync_new_products_at = $vendorSyncAt;
-        $vendor->save();
+        $syncNewProductManager->synchronizeNewProducts($vendor);
     }
 
     /**
      * Sync updated vendor products.
      *
      * @param Vendor|Model $vendor
+     * @throws Exception
      */
     private function syncUpdatedVendorProducts(Vendor $vendor)
     {
@@ -116,10 +121,6 @@ class VendorSynchronizationController extends Controller
         $syncUpdatedProductManager = $this->broker->getSyncUpdatedProductManager($vendor->id);
 
         // sync product prices
-        $vendorSyncAt = $syncUpdatedProductManager->synchronizeUpdatedProducts($vendor->sync_prices_at);
-
-        // update vendor's synchronized_at
-        $vendor->sync_prices_at = $vendorSyncAt;
-        $vendor->save();
+        $syncUpdatedProductManager->synchronizeUpdatedProducts($vendor);
     }
 }

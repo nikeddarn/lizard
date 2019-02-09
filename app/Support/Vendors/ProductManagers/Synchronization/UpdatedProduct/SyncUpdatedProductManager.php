@@ -7,26 +7,19 @@
 namespace App\Support\Vendors\ProductManagers\Synchronization\UpdatedProduct;
 
 
-use App\Contracts\Vendor\SyncTypeInterface;
 use App\Models\SynchronizingProduct;
-use App\Models\VendorProduct;
+use App\Models\Vendor;
+use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 abstract class SyncUpdatedProductManager
 {
     /**
-     * @var int
-     */
-    protected $vendorId;
-    /**
      * @var Collection
      */
     protected $vendorProductsToSync;
-    /**
-     * @var string
-     */
-    protected $synchronizedAt = null;
     /**
      * @var SynchronizingProduct
      */
@@ -44,45 +37,52 @@ abstract class SyncUpdatedProductManager
     /**
      * Create jobs of price modified products.
      *
-     * @param string|null $lastSynchronizedAt
-     * @return string|null
+     * @param Vendor $vendor
+     * @throws Exception
      */
-    public function synchronizeUpdatedProducts(string $lastSynchronizedAt = null)
+    public function synchronizeUpdatedProducts(Vendor $vendor)
     {
         // define last sync time
-        $syncFromTime = $lastSynchronizedAt ? $lastSynchronizedAt : $this->defineSyncFromTime();
-
-        // nothing to sync
-        if (!$syncFromTime) {
-            return null;
-        }
+        $syncFromTime = $this->defineSyncFromTime($vendor);
 
         // retrieve sync data
-        $this->getSyncProductsData($syncFromTime);
+        $newSyncAt = $this->getSyncProductsData($syncFromTime);
 
-        // create and dispatch jobs
-        if (isset($this->vendorProductsToSync)) {
-            $this->dispatchProductsToUpdatingJobs();
+        // save new synchronized time
+        if ($newSyncAt){
+            $vendor->sync_prices_at = $newSyncAt;
+            $vendor->save();
         }
 
-        return $this->synchronizedAt;
+        // create and dispatch jobs
+        if (!empty($this->vendorProductsToSync)) {
+            $this->dispatchProductsToUpdatingJobs();
+        }
     }
 
     /**
      * Retrieve price modified products data from vendor.
      *
      * @param string|null $lastSynchronizedAt
+     * @throws Exception
      */
     abstract protected function getSyncProductsData(string $lastSynchronizedAt = null);
 
     /**
      * Define synchronization from time.
      *
+     * @param Vendor $vendor
      * @return string|null
      */
-    private function defineSyncFromTime()
+    private function defineSyncFromTime(Vendor $vendor)
     {
-        return VendorProduct::query()->where('vendors_id', $this->vendorId)->min('updated_at');
+        if ($vendor->sync_prices_at){
+            return $vendor->sync_prices_at;
+        }else{
+            $synchronizedProductsMinUpdatedTime = $vendor->vendorProducts()->min('updated_at');
+
+            return $synchronizedProductsMinUpdatedTime ? $synchronizedProductsMinUpdatedTime : Carbon::now()->subDay();
+        }
     }
 
     /**
@@ -99,10 +99,10 @@ abstract class SyncUpdatedProductManager
 
             DB::beginTransaction();
             // dispatch product to modifying queue
-            $jobId = $this->dispatchJob($this->vendorId, $vendorProduct->vendor_product_id);
+            $jobId = $this->dispatchJob($vendorProduct->vendor_product_id);
 
             // insert in synchronized products
-            $this->insertSynchronizingProducts($jobId, $this->vendorId, $productVendorCategoriesIds, $productLocalCategoriesIds, $vendorProduct->vendor_product_id);
+            $this->insertSynchronizingProducts($jobId, $productVendorCategoriesIds, $productLocalCategoriesIds, $vendorProduct->vendor_product_id);
             DB::commit();
         }
     }
@@ -110,37 +110,10 @@ abstract class SyncUpdatedProductManager
     /**
      * Create and dispatch jos
      *
-     * @param int $vendorId
      * @param int $vendorProductId
      * @return int
      */
-    abstract protected function dispatchJob(int $vendorId, int $vendorProductId): int;
+    abstract protected function dispatchJob(int $vendorProductId): int;
 
-    /**
-     * Insert product in synchronizing products
-     *
-     * @param int $jobId
-     * @param int $vendorId
-     * @param array $vendorCategoriesIds
-     * @param array $localCategoriesIds
-     * @param int $vendorProductId
-     */
-    private function insertSynchronizingProducts(int $jobId, int $vendorId, array $vendorCategoriesIds, array $localCategoriesIds, int $vendorProductId)
-    {
-        // insert for each vendor category
-        foreach ($vendorCategoriesIds as $vendorCategory) {
-            // insert for each local category
-            foreach ($localCategoriesIds as $localCategory) {
-                // create model
-                $this->synchronizingProduct->newQuery()->create([
-                    'jobs_id' => $jobId,
-                    'vendor_product_id' => $vendorProductId,
-                    'vendors_id' => $vendorId,
-                    'sync_type' => SyncTypeInterface::UPDATE_PRODUCT,
-                    'vendor_categories_id' => $vendorCategory,
-                    'categories_id' => $localCategory,
-                ]);
-            }
-        }
-    }
+
 }

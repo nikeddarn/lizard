@@ -3,8 +3,6 @@
  * Admin settings.
  */
 
-use App\Contracts\Vendor\VendorInterface;
-
 return [
     // items count per page on admin pages
     'show_items_per_page' => 24,
@@ -21,10 +19,5 @@ return [
         'sync' => false,
         // show archive products to user ?
         'show' => false,
-    ],
-
-    // session id ttl (minutes)
-    'vendor_session_id_ttl' => [
-        VendorInterface::BRAIN => 30,
     ],
 ];

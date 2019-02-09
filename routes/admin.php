@@ -2,11 +2,21 @@
 
 use Illuminate\Support\Facades\Route;
 
+Route::get('/sitemap.xml', 'SitemapController@index');
+
+/**
+ * ****************************************************************
+ * ToDo this routes must be removed after setup completed !!!!!!!!!!!
+ * ****************************************************************
+ */
+Route::get('/setup', 'Setup\SetupController@setup');
+Route::get('/setup/vendors', 'Setup\SetupController@setupVendors');
+
 // --------------------------------------------- Admin Routes ----------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
 
 // overview page
-Route::get('/admin/overview', 'Admin\OverviewController@index')->name('admin.overview');
+Route::get('/admin', 'Admin\OverviewController@index')->name('admin.overview');
 
 // categories
 Route::get('/admin/categories', 'Admin\CategoryController@index')->name('admin.categories.index');
@@ -59,9 +69,9 @@ Route::post('/admin/products/attribute', 'Admin\ProductAttributeController@store
 Route::delete('/admin/products/attribute/destroy', 'Admin\ProductAttributeController@destroy')->name('admin.products.attribute.destroy');
 
 // product filters
-Route::get('/admin/products/{id}/filter/create', 'Admin\ProductFilterController@create')->name('admin.products.filter.create');
-Route::post('/admin/products/filter', 'Admin\ProductFilterController@store')->name('admin.products.filter.store');
-Route::delete('/admin/products/filter/destroy', 'Admin\ProductFilterController@destroy')->name('admin.products.filter.destroy');
+//Route::get('/admin/products/{id}/filter/create', 'Admin\ProductFilterController@create')->name('admin.products.filter.create');
+//Route::post('/admin/products/filter', 'Admin\ProductFilterController@store')->name('admin.products.filter.store');
+//Route::delete('/admin/products/filter/destroy', 'Admin\ProductFilterController@destroy')->name('admin.products.filter.destroy');
 
 // product categories
 Route::get('/admin/products/{id}/category/create', 'Admin\ProductCategoryController@create')->name('admin.products.category.create');
@@ -93,13 +103,13 @@ Route::put('/admin/attributes/value/{id}', 'Admin\AttributeValueController@updat
 Route::delete('/admin/attributes/values/{id}', 'Admin\AttributeValueController@destroy')->name('admin.attribute.values.destroy');
 
 // filters
-Route::get('/admin/filters', 'Admin\FilterController@index')->name('admin.filters.index');
-Route::get('/admin/filters/create', 'Admin\FilterController@create')->name('admin.filters.create');
-Route::post('/admin/filters', 'Admin\FilterController@store')->name('admin.filters.store');
-Route::get('/admin/filters/show/{id}', 'Admin\FilterController@show')->name('admin.filters.show');
-Route::get('/admin/filters/{id}/edit', 'Admin\FilterController@edit')->name('admin.filters.edit');
-Route::put('/admin/filters/{id}', 'Admin\FilterController@update')->name('admin.filters.update');
-Route::delete('/admin/filters/{id}', 'Admin\FilterController@destroy')->name('admin.filters.destroy');
+//Route::get('/admin/filters', 'Admin\FilterController@index')->name('admin.filters.index');
+//Route::get('/admin/filters/create', 'Admin\FilterController@create')->name('admin.filters.create');
+//Route::post('/admin/filters', 'Admin\FilterController@store')->name('admin.filters.store');
+//Route::get('/admin/filters/show/{id}', 'Admin\FilterController@show')->name('admin.filters.show');
+//Route::get('/admin/filters/{id}/edit', 'Admin\FilterController@edit')->name('admin.filters.edit');
+//Route::put('/admin/filters/{id}', 'Admin\FilterController@update')->name('admin.filters.update');
+//Route::delete('/admin/filters/{id}', 'Admin\FilterController@destroy')->name('admin.filters.destroy');
 
 // users
 Route::get('/admin/users/customers', 'Admin\UserController@customers')->name('admin.users.customers');
@@ -151,7 +161,19 @@ Route::get('/admin/synchronization/sync/{vendorId}', 'Vendor\VendorSynchronizati
 // ---------------------------------------------------------------------------------------------------------------------
 
 // seo
-Route::get('/admin/settings/seo/edit', 'Admin\SeoSettingsController@edit')->name('admin.settings.seo.edit');
-Route::post('/admin/settings/seo/update', 'Admin\SeoSettingsController@update')->name('admin.settings.seo.update');
+Route::get('/admin/settings/seo/edit', 'Settings\SeoSettingsController@edit')->name('admin.settings.seo.edit');
+Route::post('/admin/settings/seo/update', 'Settings\SeoSettingsController@update')->name('admin.settings.seo.update');
+
+// shop
+Route::get('/admin/settings/shop/edit', 'Settings\ShopSettingsController@edit')->name('admin.settings.shop.edit');
+Route::post('/admin/settings/shop/update', 'Settings\ShopSettingsController@update')->name('admin.settings.shop.update');
+
+// shop
+Route::get('/admin/settings/shop/edit', 'Settings\ShopSettingsController@edit')->name('admin.settings.shop.edit');
+Route::post('/admin/settings/shop/update', 'Settings\ShopSettingsController@update')->name('admin.settings.shop.update');
+
+// vendor
+Route::get('/admin/settings/vendor/edit', 'Settings\VendorSettingsController@edit')->name('admin.settings.vendor.edit');
+Route::post('/admin/settings/vendor/update', 'Settings\VendorSettingsController@update')->name('admin.settings.vendor.update');
 
 

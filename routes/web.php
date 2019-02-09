@@ -2,25 +2,16 @@
 
 use Illuminate\Support\Facades\Route;
 
-/**
- * ****************************************************************
- * ToDo this routes must be removed after setup completed !!!!!!!!!!!
- * ****************************************************************
- */
-Route::get('/setup', 'Setup\SetupController@setup');
-Route::get('/setup/vendors', 'Setup\SetupController@setupVendors');
-
-
 // --------------------------------------------- Common Routes ---------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
 
-Route::get('/{locale?}', 'MainPageController@show')->name('main');
-
+Route::get('/{locale?}', 'MainPageController@show')->name('main')
+    ->where('locale', '(' . implode('|', config('app.available_locales')) . ')');
 
 // --------------------------------------------- Auth Routes ---------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
 
-Route::get('/user/login/{locale?}', 'Auth\LoginController@showLoginForm')->name('login');
+Route::get('/login/{locale?}', 'Auth\LoginController@showLoginForm')->name('login');
 Route::post('login', 'Auth\LoginController@login');
 Route::post('logout', 'Auth\LoginController@logout')->name('logout');
 
@@ -90,17 +81,16 @@ Route::get('/user/recent/{locale?}', 'User\RecentProductController@index')->name
 // ---------------------------------------------------------------------------------------------------------------------
 
 // subcategories
-Route::get('/categories/{url}/{locale?}', 'Shop\CategoryController@index')->name('shop.category.index');
+Route::get('/category/{url}/{locale?}', 'Shop\CategoryController@index')->name('shop.category.index');
 
 // multi filter category
-Route::get('/category/{url}/filtered/{locale?}', 'Shop\MultiFilterCategoryController@index')->name('shop.category.filter.multi');
-
-// leaf category
-Route::get('/category/{url}/{locale?}', 'Shop\LeafCategoryController@index')->name('shop.category.leaf.index');
+Route::get('/products/{url}/filtered/{locale?}', 'Shop\MultiFilterCategoryController@index')->name('shop.category.filter.multi');
 
 // single filter category
-Route::get('/subcategory/{url}/{filter}/{locale?}', 'Shop\FilterCategoryController@index')->name('shop.category.filter.single');
+Route::get('/products/{url}/filter/{filter}/{locale?}', 'Shop\FilterCategoryController@index')->name('shop.category.filter.single');
 
+// leaf category
+Route::get('/products/{url}/{locale?}', 'Shop\LeafCategoryController@index')->name('shop.category.leaf.index');
 
 // product details and comments
 Route::get('/product/{url}/{locale?}', 'Shop\ProductDetailsController@index')->name('shop.product.index');

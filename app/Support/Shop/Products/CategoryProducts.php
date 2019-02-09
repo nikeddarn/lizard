@@ -12,7 +12,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
-class CategoryProducts extends ProductProperties
+class CategoryProducts extends AbstractProduct
 {
     /**
      * Get products with its properties.
@@ -29,7 +29,7 @@ class CategoryProducts extends ProductProperties
 
         $query = $this->sortProductsBy($query, $sortMethod);
 
-        $products = $query->paginate(config('shop.show_items_per_page'))->appends(request()->query());
+        $products = $query->paginate($this->productsPerPage)->appends(request()->query());
 
         $this->addProductsProperties($products);
 

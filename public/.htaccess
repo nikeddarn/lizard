@@ -16,6 +16,7 @@
 
     # SEO Redirect (remove 'ru' from route)
     RewriteRule ^(.*)/ru$ $1 [R=301,L]
+    RewriteRule ^ru$ $1 [R=301,L]
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .

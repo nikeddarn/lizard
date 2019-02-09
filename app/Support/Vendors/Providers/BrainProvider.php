@@ -26,8 +26,7 @@ class BrainProvider extends VendorProvider
 
     const MODIFIED_PRODUCTS_LIMIT = 10000;
 
-    const SESSION_ID_CACHE_KEY = VendorInterface::BRAIN . '_session_id';
-    const SESSION_ID_FAIL_MESSAGE = '';
+    const SESSION_ID_CACHE_KEY = 'vendor_' . VendorInterface::BRAIN . '_session_id';
 
     /**
      * @var string|null
@@ -68,7 +67,7 @@ class BrainProvider extends VendorProvider
 
             // store valid session id
             if (!Cache::has(self::SESSION_ID_CACHE_KEY)) {
-                Cache::put(self::SESSION_ID_CACHE_KEY, $this->sessionId, config('admin.vendor_session_id_ttl.' . VendorInterface::BRAIN));
+                Cache::put(self::SESSION_ID_CACHE_KEY, $this->sessionId, config('vendor.vendor_session_id_ttl.' . VendorInterface::BRAIN));
             }
 
             return $result;
@@ -106,7 +105,7 @@ class BrainProvider extends VendorProvider
 
             // store valid session id
             if (!Cache::has(self::SESSION_ID_CACHE_KEY)) {
-                Cache::put(self::SESSION_ID_CACHE_KEY, $this->sessionId, config('admin.vendor_session_id_ttl.' . VendorInterface::BRAIN));
+                Cache::put(self::SESSION_ID_CACHE_KEY, $this->sessionId, config('vendor.vendor_session_id_ttl.' . VendorInterface::BRAIN));
             }
 
             return $results;

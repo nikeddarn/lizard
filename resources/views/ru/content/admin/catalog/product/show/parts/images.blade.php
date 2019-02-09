@@ -1,7 +1,6 @@
-<div class="card py-2 px-1 p-lg-5 mb-5">
-    <h4 class="mb-5 text-center">Изображения продукта</h4>
+@if($product->productImages->count())
 
-    @if($product->productImages->count())
+    <div class="table-responsive">
 
         <table class="table">
 
@@ -12,33 +11,35 @@
                 <tr>
 
                     <td>
-                        <img src="/storage/{{ $image->small }}" class="img-fluid img-thumbnail table-image">
+                        <img src="/storage/{{ $image->medium }}" class="img-fluid">
                     </td>
 
-                    <td class="text-right">
+                    <td class="d-flex align-items-start justify-content-end">
 
                         @if($image->priority)
-                            <span class="badge badge-primary mr-md-4">Основное изображение</span>
+                            <span class="btn btn-success" data-toggle="tooltip"
+                                    title="Основное изображение">
+                                <i class="svg-icon-larger" data-feather="anchor"></i>
+                            </span>
                         @else
-
-                            <form class="d-inline-block product-image-priority-form"
+                            <form class="product-image-priority-form"
                                   action="{{ route('admin.products.image.priority', ['id' => $image->id]) }}"
                                   method="post">
                                 @csrf
-                                <button type="submit" class="btn btn-primary mr-md-4" data-toggle="tooltip"
-                                        title="Сделать изображение продукта основным">Сделать основным
+                                <button type="submit" class="btn btn-primary" data-toggle="tooltip"
+                                        title="Сделать основным">
+                                    <i class="svg-icon-larger" data-feather="anchor"></i>
                                 </button>
                             </form>
-
                         @endif
 
-                        <form class="d-inline-block product-image-delete-form"
+                        <form class="product-image-delete-form"
                               action="{{ route('admin.products.image.destroy', ['id' => $image->id]) }}" method="post">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-danger" data-toggle="tooltip"
+                            <button type="submit" class="btn btn-danger ml-1" data-toggle="tooltip"
                                     title="Удалить изображение продукта">
-                                <i class="fa fa-trash-o"></i>
+                                <i class="svg-icon-larger" data-feather="trash-2"></i>
                             </button>
                         </form>
 
@@ -53,13 +54,13 @@
 
         </table>
 
-    @endif
-
-    <div class="col-lg-12 my-4 text-right">
-        <a href="{{route('admin.products.image.create', ['id' => $product->id])}}" class="btn btn-primary">
-            <i class="fa fa-plus"></i>&nbsp;
-            <span>Добавить изображение продукта</span>
-        </a>
     </div>
 
+@endif
+
+<div class="col-lg-12 my-4 text-right">
+    <a href="{{route('admin.products.image.create', ['id' => $product->id])}}" class="btn btn-primary">
+        <i class="fa fa-plus"></i>&nbsp;
+        <span>Добавить изображение продукта</span>
+    </a>
 </div>
