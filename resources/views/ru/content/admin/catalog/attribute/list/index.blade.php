@@ -44,6 +44,29 @@
                 $(this).siblings('a[aria-expanded]').attr('aria-expanded', 'true');
             });
 
+            // toggle attribute checkbox properties
+            $('.attribute-property-change').click(function (event) {
+                event.stopImmediatePropagation();
+                event.preventDefault();
+
+                let changePropertyBlock = $(event.target).closest('.attribute-property-change').parent();
+                let propertyOffButton = $(changePropertyBlock).find('.attribute-property-off');
+                let propertyOnButton = $(changePropertyBlock).find('.attribute-property-on');
+
+                $.ajax({
+                    url: this,
+                    success: function (data) {
+                        if (data === '0') {
+                            $(propertyOffButton).removeClass('d-inline-block').addClass('d-none');
+                            $(propertyOnButton).removeClass('d-none').addClass('d-inline-block');
+                        } else if (data === '1') {
+                            $(propertyOnButton).removeClass('d-inline-block').addClass('d-none');
+                            $(propertyOffButton).removeClass('d-none').addClass('d-inline-block');
+                        }
+                    }
+                });
+            });
+
         });
     </script>
 

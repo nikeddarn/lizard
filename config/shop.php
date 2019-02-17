@@ -28,9 +28,12 @@ return [
         'count' => 20,
     ],
 
-    // redirect to user's preferred locale if referrer is external
-    'redirect_user_to_preferred_locale' => true,
-
+    // count of opened filters on page
+    'products_filters_show' => [
+        'min' => 6,
+        'max' => 10,
+        'max_values_count' => 20,
+    ],
 
     // sort products method
     'products_sort' => [

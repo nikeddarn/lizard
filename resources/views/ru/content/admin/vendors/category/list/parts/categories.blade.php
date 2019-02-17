@@ -39,10 +39,16 @@
                             <span class="pl-5">{{ $category->name }}</span>
                         </div>
 
-                        <div class="col-auto">
+                        <div class="col-auto d-flex justify-content-center">
+                            <a href="{{ route('vendor.category.products.show', ['id' => $vendor->id, 'vendorOwnCategoryId' => $category->id]) }}"
+                               data-toggle="tooltip"
+                               title="Смотреть" class="btn btn-primary">
+                                <i class="svg-icon-larger" data-feather="eye"></i>
+                            </a>
+
                             <a href="{{ route('vendor.category.sync', ['id' => $vendor->id, 'vendorOwnCategoryId' => $category->id]) }}"
                                data-toggle="tooltip"
-                               title="Синхронизировать" class="btn btn-primary">
+                               title="Синхронизировать" class="btn btn-primary ml-1">
                                 <i class="svg-icon-larger" data-feather="link"></i>
                             </a>
                         </div>

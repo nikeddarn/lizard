@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Support\Translatable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Storage extends Model
 {
@@ -51,5 +52,31 @@ class Storage extends Model
     public function city()
     {
         return $this->belongsTo('App\Models\City', 'cities_id', 'id');
+    }
+
+    /**
+     * @param  string $value
+     * @return void
+     */
+    public function setNameRuAttribute($value)
+    {
+        if ($value) {
+            $this->attributes['name_ru'] = Str::ucfirst($value);
+        } else {
+            $this->attributes['name_ru'] = $value;
+        }
+    }
+
+    /**
+     * @param  string $value
+     * @return void
+     */
+    public function setNameUkAttribute($value)
+    {
+        if ($value) {
+            $this->attributes['name_uk'] = Str::ucfirst($value);
+        } else {
+            $this->attributes['name_uk'] = $value;
+        }
     }
 }

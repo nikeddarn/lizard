@@ -2,6 +2,15 @@
 
 use Illuminate\Support\Facades\Route;
 
+/**
+ * ****************************************************************
+ * ToDo this routes must be removed after setup completed !!!!!!!!!!!
+ * ****************************************************************
+ */
+Route::get('/setup', 'Setup\SetupController@setup');
+//Route::get('/setup/users', 'Setup\SetupController@setupUsers');
+Route::get('/setup/vendors', 'Setup\SetupController@setupVendors');
+
 // --------------------------------------------- Common Routes ---------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -56,8 +65,9 @@ Route::middleware(['auth:web'])->group(function () {
     Route::get('/user/payments/all/{locale?}', 'User\PaymentController@show')->name('user.payments.all');
 
     // profile
-    Route::get('/user/profile/{locale?}', 'User\ProfileController@index')->name('user.profile.show');
     Route::get('/user/profile/edit/{locale?}', 'User\ProfileController@edit')->name('user.profile.edit');
+    Route::get('/user/profile/{locale?}', 'User\ProfileController@index')->name('user.profile.show');
+
     Route::post('/user/profile/update', 'User\ProfileController@update')->name('user.profile.save');
 
     // password
@@ -100,4 +110,7 @@ Route::post('/product/comments', 'Shop\ProductCommentController@store')->name('p
 Route::get('/shop/cart/{locale?}', 'Shop\CartController@index')->name('shop.cart.index');
 Route::get('/shop/cart/add/{id}', 'Shop\CartController@addProduct')->name('shop.cart.add');
 Route::post('/shop/cart/count/{id}', 'Shop\CartController@addProduct')->name('shop.cart.count');
+
+//  Search Routes
+Route::post('/search', 'Shop\SearchController@index')->name('shop.search.index');
 

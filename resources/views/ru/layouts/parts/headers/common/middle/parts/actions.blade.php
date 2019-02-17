@@ -14,7 +14,7 @@
             </a>
         </li>
 
-        <li class="nav-item dropdown dropdown-hover ml-sm-2">
+        <li class="nav-item dropdown dropdown-hover ml-2">
             <a id="header-favourite-products" class="nav-link nav-icon dropdown-toggle"
                href="{{ route('user.favourites.index', ['locale' => request()->route('locale')]) }}" title="Фаворитные товары">
                 <i class="svg-icon-larger" data-feather="heart"></i>
@@ -26,7 +26,7 @@
             </a>
         </li>
 
-        <li class="nav-item dropdown dropdown-hover ml-sm-2">
+        <li class="nav-item dropdown dropdown-hover ml-2">
             <a id="header-recent-products" class="nav-link nav-icon dropdown-toggle"
                href="{{ route('user.recent.index', ['locale' => request()->route('locale')]) }}" title="Недавно просмотренные товары">
                 <i class="svg-icon-larger" data-feather="clock"></i>

@@ -2,17 +2,12 @@
 
 @section('content')
 
-    <section class="row page-content">
+    <div class="card p-2 my-4">
+        <h1 class="h4 text-gray-hover m-0">Личные данные пользователя</h1>
+    </div>
 
-        <div class="col-lg-12">
-            <div class="underlined-title">
-                <h3 class="page-header text-gray">Личные данные пользователя</h3>
-            </div>
-        </div>
-
-        <div class="col-lg-12">
-            @include('content.user.profile.show.parts.profile_data')
-        </div>
-    </section>
+    <div class="card card-body my-4">
+        @include('content.user.profile.show.parts.profile_data')
+    </div>
 
 @endsection

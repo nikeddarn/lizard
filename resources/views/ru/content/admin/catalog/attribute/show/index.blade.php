@@ -29,7 +29,7 @@
 
             <div class="tab-pane fade" id="values" role="tabpanel" aria-labelledby="values-tab">
                 @if($attributeValues->count())
-                    @include('content.admin.catalog.attribute.show.parts.attribute_options')
+                    @include('content.admin.catalog.attribute.show.parts.attribute_values')
                 @endif
             </div>
 

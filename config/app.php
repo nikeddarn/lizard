@@ -87,6 +87,9 @@ return [
     // Available locales
     'available_locales' => [LocalesInterface::RU, LocalesInterface::UK],
 
+    // redirect to user's preferred locale if referrer is external
+    'redirect_user_to_preferred_locale' => false,
+
     /*
     |--------------------------------------------------------------------------
     | Application Fallback Locale
@@ -168,6 +171,11 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         App\Providers\ComposerServiceProvider::class,
+
+        // search engines
+        Laravel\Scout\ScoutServiceProvider::class,
+        TeamTNT\Scout\TNTSearchScoutServiceProvider::class,
+
 
     ],
 

@@ -53,11 +53,15 @@ class Brand extends Model
     }
 
     /**
-     * @param  string  $value
+     * @param  string $value
      * @return void
      */
     public function setNameAttribute($value)
     {
-        $this->attributes['name'] = Str::ucfirst($value);
+        if ($value) {
+            $this->attributes['name'] = Str::ucfirst($value);
+        } else {
+            $this->attributes['name'] = $value;
+        }
     }
 }

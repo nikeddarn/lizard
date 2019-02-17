@@ -81,33 +81,45 @@ class AttributeValue extends Model
     /**
      * Set attribute's name_ru.
      *
-     * @param  string  $value
+     * @param  string $value
      * @return void
      */
     public function setValueRuAttribute($value)
     {
-        $this->attributes['value_ru'] = Str::ucfirst(Str::lower($value));
+        if ($value) {
+            $this->attributes['value_ru'] = Str::ucfirst(Str::lower($value));
+        } else {
+            $this->attributes['value_ru'] = $value;
+        }
     }
 
     /**
      * Set attribute's name_uk.
      *
-     * @param  string  $value
+     * @param  string $value
      * @return void
      */
     public function setValueUkAttribute($value)
     {
+        if ($value) {
         $this->attributes['value_uk'] = Str::ucfirst(Str::lower($value));
+        } else {
+            $this->attributes['value_uk'] = $value;
+        }
     }
 
     /**
      * Set attribute's name_uk.
      *
-     * @param  string  $value
+     * @param  string $value
      * @return void
      */
     public function setUrlAttribute($value)
     {
-        $this->attributes['url'] = Str::lower($value);
+        if ($value) {
+            $this->attributes['url'] = Str::lower($value);
+        } else {
+            $this->attributes['url'] = $value;
+        }
     }
 }

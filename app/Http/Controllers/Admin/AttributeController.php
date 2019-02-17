@@ -40,9 +40,11 @@ class AttributeController extends Controller
     {
         $this->authorize('view', $this->attribute);
 
-        return view('content.admin.catalog.attribute.list.index')->with([
-            'attributes' => $this->attribute->newQuery()->paginate(config('admin.show_items_per_page')),
-        ]);
+        $locale = app()->getLocale();
+
+        $attributes = $this->attribute->newQuery()->orderBy('name_' . $locale)->paginate(config('admin.show_items_per_page'));
+
+        return view('content.admin.catalog.attribute.list.index')->with(compact('attributes'));
     }
 
     /**
@@ -72,6 +74,7 @@ class AttributeController extends Controller
         $attributeData = $request->only(['name_ru', 'name_uk']);
         $attributeData['multiply_product_values'] = (int)$request->has('multiply_product_values');
         $attributeData['indexable'] = (int)$request->has('indexable');
+        $attributeData['showable'] = (int)$request->has('showable');
 
 
         $attribute = $this->attribute->newQuery()->create($attributeData);
@@ -155,6 +158,7 @@ class AttributeController extends Controller
         $attributeData = $request->only(['name_ru', 'name_uk']);
         $attributeData['multiply_product_values'] = (int)$request->has('multiply_product_values');
         $attributeData['indexable'] = (int)$request->has('indexable');
+        $attributeData['showable'] = (int)$request->has('showable');
 
         $this->attribute->newQuery()->findOrFail($id)->update($attributeData);
 
@@ -176,5 +180,81 @@ class AttributeController extends Controller
         $this->attribute->newQuery()->findOrFail($id)->delete();
 
         return redirect(route('admin.attributes.index'));
+    }
+
+    /**
+     * Set attribute as showable in product filters.
+     *
+     * @param string $id
+     * @return \Illuminate\Http\RedirectResponse|string
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function makeAttributeFilterVisible(string $id)
+    {
+        $this->authorize('update', $this->attribute);
+
+        $attribute = $this->attribute->newQuery()->findOrFail($id);
+
+        $attribute->showable = 1;
+        $attribute->save();
+
+        return request()->ajax() ? '1' : back();
+    }
+
+    /**
+     * Set attribute as hidden in product filters.
+     *
+     * @param string $id
+     * @return \Illuminate\Http\RedirectResponse|string
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function makeAttributeFilterHidden(string $id)
+    {
+        $this->authorize('update', $this->attribute);
+
+        $attribute = $this->attribute->newQuery()->findOrFail($id);
+
+        $attribute->showable = 0;
+        $attribute->save();
+
+        return request()->ajax() ? '0' : back();
+    }
+
+    /**
+     * Allow robots to index filter of this attribute values.
+     *
+     * @param string $id
+     * @return \Illuminate\Http\RedirectResponse|string
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function allowRobotsIndex(string $id)
+    {
+        $this->authorize('update', $this->attribute);
+
+        $attribute = $this->attribute->newQuery()->findOrFail($id);
+
+        $attribute->indexable = 1;
+        $attribute->save();
+
+        return request()->ajax() ? '1' : back();
+    }
+
+    /**
+     * Disallow robots to index filter of this attribute values.
+     *
+     * @param string $id
+     * @return \Illuminate\Http\RedirectResponse|string
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function disallowRobotsIndex(string $id)
+    {
+        $this->authorize('update', $this->attribute);
+
+        $attribute = $this->attribute->newQuery()->findOrFail($id);
+
+        $attribute->indexable = 0;
+        $attribute->save();
+
+        return request()->ajax() ? '0' : back();
     }
 }

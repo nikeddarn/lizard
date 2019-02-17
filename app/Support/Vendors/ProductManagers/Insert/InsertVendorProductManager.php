@@ -76,6 +76,7 @@ abstract class InsertVendorProductManager
      * @param array $localCategoryIds
      * @param int $vendorProductId
      * @throws Exception
+     * @throws Throwable
      */
     public function insertVendorProduct(array $vendorCategoryIds, array $localCategoryIds, int $vendorProductId)
     {
@@ -103,7 +104,7 @@ abstract class InsertVendorProductManager
             } catch (Throwable $exception) {
                 DB::rollBack();
 
-                throw new  Exception($exception->getMessage());
+                throw $exception;
             }
         }
 

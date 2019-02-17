@@ -465,6 +465,11 @@ textarea:active {
   color: white !important;
 }
 
+#mobile-logotype-text {
+  font-size: 1.8rem;
+  color: black;
+}
+
 .nav-icon {
   position: relative;
   width: 35px;

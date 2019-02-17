@@ -6,28 +6,31 @@
 use App\Contracts\Vendor\VendorInterface;
 
 return [
-        // min profit to offer product to user ($)
-        'min_profit_sum_to_offer_product' => 5,
+    // min profit to offer product to user ($)
+    'min_profit_sum_to_offer_product' => 5,
 
-        // update own storage product price on sync this product with vendor
-        'update_own_product_price_on_vendor_sync' => true,
+    // min profit to offer product to user (%)
+    'min_profit_percents_to_offer_product' => 10,
 
-        // use only price of products that present on vendor storage
-        'use_vendor_available_product_to_calculate_price' => false,
+    // update own storage product price on sync this product with vendor
+    'update_own_product_price_on_vendor_sync' => true,
 
-        // min profit sum to use discount for columns ($)
-        'min_profit_sum_to_price_discount' => 10,
+    // use only price of products that present on vendor storage
+    'use_vendor_available_product_to_calculate_price' => false,
 
-        // min profit percents to use discount for columns (%)
-        'min_profit_percents_to_price_discount' => 3,
+    // min profit sum to use discount for columns ($)
+    'min_profit_sum_to_price_discount' => 10,
 
-        // discount profit from vendor products for columns
-        // use negative value for rise profit
-        'column_discounts' => [
-            'price1' => 0,
-            'price2' => 20,
-            'price3' => 50,
-        ],
+    // min profit percents to use discount for columns (%)
+    'min_profit_percents_to_price_discount' => 3,
+
+    // discount profit from vendor products for columns
+    // use negative value for rise profit
+    'column_discounts' => [
+        'price1' => 0,
+        'price2' => 20,
+        'price3' => 50,
+    ],
 
     // search double on insert new entity.
     'search_double_by' => [

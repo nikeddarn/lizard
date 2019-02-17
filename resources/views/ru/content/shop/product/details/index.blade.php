@@ -93,11 +93,13 @@
             // product main image zoom
             let zoomImage = $('#zoom-image');
             let activateZoom = function activateZoom(zoomImage) {
-                zoomImage.ezPlus({
-                    zoomWindowOffsetX: 30,
-                    zoomWindowWidth: $('#product-description').width(),
-                    zoomWindowHeight: zoomImage.height(),
-                });
+                if (!('ontouchstart' in window)) {
+                    zoomImage.ezPlus({
+                        zoomWindowOffsetX: 30,
+                        zoomWindowWidth: $('#product-description').width(),
+                        zoomWindowHeight: zoomImage.height(),
+                    });
+                }
             };
 
             activateZoom(zoomImage);

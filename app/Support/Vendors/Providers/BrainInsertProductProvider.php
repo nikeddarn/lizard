@@ -30,20 +30,9 @@ class BrainInsertProductProvider extends BrainProvider
                 'product_content_data_uk' => new Request('POST', "products/content/$sessionId?lang=ua", [], "lang=ua&productIDs=$productId"),
 
                 'comments' => new Request('POST', "comments/$productId/$sessionId"),
-            ];
-        });
-    }
 
-    /**
-     * Get Brain currencies courses.
-     *
-     * @return mixed
-     * @throws Exception
-     */
-    public function getCoursesData()
-    {
-        return $this->getSingleResponse('GET', function ($sessionId){
-            return "currencies/$sessionId";
+                'courses' => new Request('GET', "currencies/$sessionId"),
+            ];
         });
     }
 }

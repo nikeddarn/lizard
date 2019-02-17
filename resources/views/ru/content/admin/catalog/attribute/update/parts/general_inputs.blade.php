@@ -47,6 +47,19 @@
 
         <div class="row form-group align-items-start align-items-lg-center">
             <div class="col-5 col-xl-2">
+                <label class="required" for="showable">Основной фильтр</label>
+            </div>
+            <div class="col-7 col-xl-10">
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="showable"
+                           name="showable" {{ (old('showable', $attribute->showable) ? 'checked' : '') }}>
+                    <label class="custom-control-label" for="indexable">Показывать фильтр с значениями данного атрибута как основной</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row form-group align-items-start align-items-lg-center">
+            <div class="col-5 col-xl-2">
                 <label class="required" for="indexable">Индексация</label>
             </div>
             <div class="col-7 col-xl-10">

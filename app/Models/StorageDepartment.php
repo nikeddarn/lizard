@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Support\Translatable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class StorageDepartment extends Model
 {
@@ -43,5 +44,31 @@ class StorageDepartment extends Model
     public function storageProducts()
     {
         return $this->hasMany('App\Models\StorageProduct', 'storage_departments_id', 'id');
+    }
+
+    /**
+     * @param  string $value
+     * @return void
+     */
+    public function setNameRuAttribute($value)
+    {
+        if ($value) {
+            $this->attributes['name_ru'] = Str::ucfirst($value);
+        } else {
+            $this->attributes['name_ru'] = $value;
+        }
+    }
+
+    /**
+     * @param  string $value
+     * @return void
+     */
+    public function setNameUkAttribute($value)
+    {
+        if ($value) {
+            $this->attributes['name_uk'] = Str::ucfirst($value);
+        } else {
+            $this->attributes['name_uk'] = $value;
+        }
     }
 }

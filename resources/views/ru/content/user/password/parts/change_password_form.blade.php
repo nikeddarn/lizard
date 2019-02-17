@@ -40,15 +40,14 @@
             </div>
         </div>
 
-        <div class="col-sm-8 form-group">
+        <div class="col-sm-8 form-group my-4">
             <div class="pull-right">
                 <button type="submit" class="btn btn-primary">
-                    <i class="fa fa-long-arrow-right"></i>
-                    Изменить пароль
+                    <i class="svg-icon-larger" data-feather="save"></i>
+                    <span class="ml-2">Изменить пароль</span>
                 </button>
             </div>
         </div>
-
 
     </div>
 </form>

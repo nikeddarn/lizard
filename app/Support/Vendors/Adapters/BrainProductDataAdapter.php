@@ -11,12 +11,25 @@ use Exception;
 use Illuminate\Support\Str;
 use stdClass;
 
-class BrainProductDataAdapter extends BrainProductPriceAdapter
+class BrainProductDataAdapter
 {
     /**
      * @var int
      */
     const VENDOR_ID = VendorInterface::BRAIN;
+    /**
+     * @var BrainProductPriceAdapter
+     */
+    private $productPriceAdapter;
+
+    /**
+     * BrainProductDataAdapter constructor.
+     * @param BrainProductPriceAdapter $productPriceAdapter
+     */
+    public function __construct(BrainProductPriceAdapter $productPriceAdapter)
+    {
+        $this->productPriceAdapter = $productPriceAdapter;
+    }
 
     /**
      * Prepare product data.
@@ -30,7 +43,7 @@ class BrainProductDataAdapter extends BrainProductPriceAdapter
     public function prepareProductData(stdClass $productDataRu, stdClass $productContentDataRu, stdClass $productContentDataUa)
     {
         if (!($productDataRu->name && $productContentDataUa->name)){
-            throw new Exception('Missing necessary product names');
+            throw new Exception('Can not insert vendor product. Missing necessary product data');
         }
 
         return [
@@ -74,12 +87,12 @@ class BrainProductDataAdapter extends BrainProductPriceAdapter
      */
     public function prepareVendorProductData(stdClass $productDataRu, float $vendorUsdCourse)
     {
-        if (!$productDataRu->productID){
-            throw new Exception('Missing vendor product id');
+        if (!($productDataRu->productID && $vendorUsdCourse > 0)){
+            throw new Exception('Can not insert vendor product. Missing necessary vendor product data');
         }
 
         // prepare vendor product prices
-        $vendorProductPrices = $this->prepareVendorProductPrices($productDataRu, $vendorUsdCourse);
+        $vendorProductPrices = $this->productPriceAdapter->prepareVendorProductPrices($productDataRu, $vendorUsdCourse);
 
         //get available data
         $availableData = (array)$productDataRu->available;

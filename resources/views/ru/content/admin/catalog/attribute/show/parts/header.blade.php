@@ -25,7 +25,7 @@
                 </button>
             </form>
 
-            <a href="{{ route('admin.attributes.index') }}" data-toggle="tooltip" title="К списку атрибутов"
+            <a href="{{ url()->previous() }}" data-toggle="tooltip" title="К списку атрибутов"
                class="btn btn-primary">
                 <i class="svg-icon-larger" data-feather="corner-up-left"></i>
             </a>

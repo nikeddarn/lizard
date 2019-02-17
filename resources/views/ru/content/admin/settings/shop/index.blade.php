@@ -26,6 +26,8 @@
                        aria-controls="settings-shop-product" aria-selected="false">Продукты</a>
                     <a class="nav-item nav-link" data-toggle="tab" href="#settings-shop-badges" role="tab"
                        aria-controls="multi_filter_category" aria-selected="false">Стикеры</a>
+                    <a class="nav-item nav-link" data-toggle="tab" href="#settings-shop-filters" role="tab"
+                       aria-controls="multi_filter_category" aria-selected="false">Фильтры</a>
                 </div>
             </nav>
 
@@ -41,6 +43,10 @@
                 <div class="tab-pane fade" id="settings-shop-badges" role="tabpanel"
                      aria-labelledby="settings-shop-badges-tab">
                     @include('content.admin.settings.shop.parts.badge')
+                </div>
+                <div class="tab-pane fade" id="settings-shop-filters" role="tabpanel"
+                     aria-labelledby="settings-shop-filters-tab">
+                    @include('content.admin.settings.shop.parts.filter')
                 </div>
             </div>
 

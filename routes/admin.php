@@ -4,14 +4,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/sitemap.xml', 'SitemapController@index');
 
-/**
- * ****************************************************************
- * ToDo this routes must be removed after setup completed !!!!!!!!!!!
- * ****************************************************************
- */
-Route::get('/setup', 'Setup\SetupController@setup');
-Route::get('/setup/vendors', 'Setup\SetupController@setupVendors');
-
 // --------------------------------------------- Admin Routes ----------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -95,6 +87,14 @@ Route::get('/admin/attributes/{id}/edit', 'Admin\AttributeController@edit')->nam
 Route::put('/admin/attributes/{id}', 'Admin\AttributeController@update')->name('admin.attributes.update');
 Route::delete('/admin/attributes/{id}', 'Admin\AttributeController@destroy')->name('admin.attributes.destroy');
 
+// show and hide in product filters
+Route::get('/admin/attributes/{id}/filter/show', 'Admin\AttributeController@makeAttributeFilterVisible')->name('admin.attributes.filter.show');
+Route::get('/admin/attributes/{id}/filter/hide', 'Admin\AttributeController@makeAttributeFilterHidden')->name('admin.attributes.filter.hide');
+
+// allow and disallow index categories with values of this filter
+Route::get('/admin/attributes/{id}/index/allow', 'Admin\AttributeController@allowRobotsIndex')->name('admin.attributes.index.allow');
+Route::get('/admin/attributes/{id}/index/disallow', 'Admin\AttributeController@disallowRobotsIndex')->name('admin.attributes.index.disallow');
+
 // attribute values
 Route::get('/admin/attributes/{id}/value/create', 'Admin\AttributeValueController@create')->name('admin.attributes.value.create');
 Route::post('/admin/attributes/value', 'Admin\AttributeValueController@store')->name('admin.attributes.value.store');
@@ -131,6 +131,10 @@ Route::delete('/admin/users/role/destroy', 'Admin\UserRoleController@destroy')->
 // categories
 Route::get('/admin/vendor/{vendorId}/categories', 'Vendor\VendorCategoryController@index')->name('vendor.categories.index');
 
+// products of category
+Route::get('/admin/vendor/{vendorId}/category/{vendorCategoryId}/products', 'Vendor\VendorCategoryController@categoryProducts')->name('vendor.category.products.show');
+
+
 Route::get('/admin/categories/synchronized', 'Vendor\VendorCategoryController@synchronized')->name('vendor.categories.synchronized');
 
 Route::get('/admin/vendor/{vendorId}/category/{vendorOwnCategoryId}/sync', 'Vendor\VendorCategoryController@sync')->name('vendor.category.sync');
@@ -142,6 +146,8 @@ Route::post('/admin/vendor/category/products/auto/off', 'Vendor\VendorCategoryCo
 
 
 //products
+
+// synchronized products
 Route::get('/admin/vendor/{vendorId}/category/{vendorCategoryId}/local/{localCategoryId}/products', 'Vendor\VendorProductController@index')->name('vendor.category.products.index');
 
 Route::post('/admin/vendor/category/products/upload', 'Vendor\VendorProductController@upload')->name('vendor.category.products.upload');

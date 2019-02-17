@@ -40,8 +40,22 @@
     <li class="list-group-item">
         <div class="row w-100">
             <div class="col col-lg-4">
-                <strong>Индексировать категорию при применении фильтра с значением этого
-                    атрибута</strong>
+                <strong>Показывать фильтр с значениями данного атрибута как основной</strong>
+            </div>
+            <div class="col col-lg-8">
+                @if($attribute->showable)
+                    Разрешено
+                @else
+                    Запрещено
+                @endif
+            </div>
+        </div>
+    </li>
+
+    <li class="list-group-item">
+        <div class="row w-100">
+            <div class="col col-lg-4">
+                <strong>Индексировать категорию при применении фильтра с значением этого атрибута</strong>
             </div>
             <div class="col col-lg-8">
                 @if($attribute->indexable)

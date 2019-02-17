@@ -4,7 +4,8 @@ namespace App\Http\Controllers\Shop;
 
 use App\Models\Category;
 use App\Http\Controllers\Controller;
-use Illuminate\Database\Eloquent\Model;
+use App\Support\Breadcrumbs\CategoryBreadcrumbs;
+use App\Support\Seo\MetaTags\CategoryMetaTags;
 
 class CategoryController extends Controller
 {
@@ -12,14 +13,26 @@ class CategoryController extends Controller
      * @var Category
      */
     private $category;
+    /**
+     * @var CategoryBreadcrumbs
+     */
+    private $breadcrumbs;
+    /**
+     * @var CategoryMetaTags
+     */
+    private $categoryMetaTags;
 
     /**
      * CategoryController constructor.
      * @param Category $category
+     * @param CategoryBreadcrumbs $breadcrumbs
+     * @param CategoryMetaTags $categoryMetaTags
      */
-    public function __construct(Category $category)
+    public function __construct(Category $category, CategoryBreadcrumbs $breadcrumbs, CategoryMetaTags $categoryMetaTags)
     {
         $this->category = $category;
+        $this->breadcrumbs = $breadcrumbs;
+        $this->categoryMetaTags = $categoryMetaTags;
     }
 
     /**
@@ -36,43 +49,16 @@ class CategoryController extends Controller
             abort(422);
         }
 
-        $breadcrumbs = $this->getBreadcrumbs($category);
+        // create breadcrumbs
+        $breadcrumbs = $this->breadcrumbs->getCategoryBreadcrumbs($category->id);
 
-        $groupedChildren = $category->children()->with('filters')->get()->sortByDesc(function ($category) {
-            if ($category->filters->count()) {
-                return $category->filters->first()->name;
-            } else {
-                return null;
-            }
-        })->groupBy(function ($category) {
-            if ($category->filters->count()) {
-                return $category->filters->first()->name;
-            } else {
-                return null;
-            }
-        });
+        $children = $category->children()->get();
 
-        return view('content.shop.category.categories_list.index')->with(compact('category', 'breadcrumbs', 'groupedChildren'));
-    }
+        // title, description, keywords
+        $pageTitle = $this->categoryMetaTags->getCategoryTitle($category);
+        $pageDescription = $this->categoryMetaTags->getCategoryDescription($category);
+        $pageKeywords = $this->categoryMetaTags->getCategoryKeywords($category);
 
-    /**
-     * Get breadcrumbs.
-     *
-     * @param Category|Model $category
-     * @return array
-     */
-    private function getBreadcrumbs(Category $category): array
-    {
-        $breadcrumbs = $this->category->newQuery()->ancestorsAndSelf($category->id)
-            ->each(function (Category $category) {
-                if ($category->isLeaf()){
-                    $category->href = route('shop.category.leaf.index', ['url' =>$category->url]);
-                }else{
-                    $category->href = route('shop.category.index', ['url' =>$category->url]);
-                }
-            })
-            ->pluck('href', 'name')->toArray();
-
-        return $breadcrumbs;
+        return view('content.shop.category.categories_list.index')->with(compact('category', 'breadcrumbs', 'children', 'pageTitle', 'pageDescription', 'pageKeywords'));
     }
 }

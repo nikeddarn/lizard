@@ -10,11 +10,16 @@ use App\Contracts\Shop\UrlParametersInterface;
 use App\Models\Attribute;
 use App\Models\AttributeValue;
 use App\Models\Category;
+use App\Support\Settings\SettingsRepository;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
 class FiltersCreator
 {
+    /**
+     * @var array
+     */
+    protected $filtersCount;
     /**
      * @var Attribute
      */
@@ -23,28 +28,56 @@ class FiltersCreator
     /**
      * FiltersCreator constructor.
      * @param Attribute $attribute
+     * @param SettingsRepository $settingsRepository
      */
-    public function __construct(Attribute $attribute)
+    public function __construct(Attribute $attribute, SettingsRepository $settingsRepository)
     {
         $this->attribute = $attribute;
+
+        $this->filtersCount = $settingsRepository->getProperty('shop.products_filters_show');
     }
 
     /**
      * Get products filters.
      *
      * @param Category|Model $category
-     * @param string $categoryUrl
      * @return Collection
      */
-    public function getFilters(Category $category, string $categoryUrl)
+    public function getFilters(Category $category)
     {
         // get category products' ids
         $categoryProductsIds = $category->products->pluck('id')->toArray();
 
-        $filters = $this->retrieveFilters($categoryProductsIds);
+        $filters = $this->retrieveFilters($categoryProductsIds)
+            ->sortByDesc(function (Attribute $attribute) use ($category) {
+                // create attribute values urls
+                $this->createSingleFilterItemsUrls($attribute, $category->url);
+
+                // sort by opened desc
+                return $attribute->showable;
+            });
+
+        // set is filter opened
+        $openedFiltersCount = 0;
 
         foreach ($filters as $filter) {
-            $this->createSingleFilterItemsUrls($filter, $categoryUrl);
+            if ($openedFiltersCount < $this->filtersCount['min']){
+                if ($filter->attribute_values_count <= $this->filtersCount['max_values_count'] || $filter->defined_attribute_id){
+                    $filter->opened = true;
+                    $openedFiltersCount++;
+                }else{
+                    $filter->opened = false;
+                }
+            }elseif($openedFiltersCount >= $this->filtersCount['max']){
+                $filter->opened = false;
+            }else{
+                if ($filter->showable && ($filter->attribute_values_count <= $this->filtersCount['max_values_count'] || $filter->defined_attribute_id)){
+                    $filter->opened = true;
+                    $openedFiltersCount++;
+                }else{
+                    $filter->opened = false;
+                }
+            }
         }
 
         return $filters;
@@ -59,11 +92,13 @@ class FiltersCreator
     protected function retrieveFilters(array $productsId): Collection
     {
         return $this->attribute->newQuery()
+            ->orderBy('defined_attribute_id')
             ->with(['attributeValues' => function ($query) use ($productsId) {
                 $query->whereHas('productAttributes', function ($query) use ($productsId) {
                     $query->whereIn('products_id', $productsId);
                 });
             }])
+            ->withCount('attributeValues')
             ->whereHas('attributeValues', function ($query) use ($productsId) {
                 $query->whereHas('productAttributes', function ($query) use ($productsId) {
                     $query->whereIn('products_id', $productsId);

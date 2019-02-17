@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Support\Translatable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Role extends Model
 {
@@ -43,4 +44,30 @@ class Role extends Model
      * @var bool
      */
     public $timestamps = false;
+
+    /**
+     * @param  string $value
+     * @return void
+     */
+    public function setTitleRuAttribute($value)
+    {
+        if ($value) {
+            $this->attributes['title_ru'] = Str::ucfirst($value);
+        } else {
+            $this->attributes['title_ru'] = $value;
+        }
+    }
+
+    /**
+     * @param  string $value
+     * @return void
+     */
+    public function setTitleUkAttribute($value)
+    {
+        if ($value) {
+            $this->attributes['title_uk'] = Str::ucfirst($value);
+        } else {
+            $this->attributes['title_uk'] = $value;
+        }
+    }
 }

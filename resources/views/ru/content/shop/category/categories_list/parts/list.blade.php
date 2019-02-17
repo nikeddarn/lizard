@@ -1,28 +1,24 @@
-@foreach($groupedChildren as $filter => $group)
+<div class="row">
 
-    <div class="row mb-4">
+    @foreach($children as $child)
 
-        <div class="col-lg-12 my-4">
-            <h2>{{ $filter }}</h2>
+        <div class="col-6 col-sm-6 col-md-4 col-lg-2 mb-4">
+
+            <a href="{{ $child->isLeaf() ? route('shop.category.leaf.index', ['url' => $child->url]) : route('shop.category.index', ['url' => $child->url])}}">
+
+                <div class="card h-100">
+                    <div class="card-body">
+                        <img class="card-image w-100" src="/storage/{{ $child->image }}">
+                    </div>
+                    <div class="card-footer bg-white">
+                        <h2 class="h5 text-gray-hover">{{ $child->name }}</h2>
+                    </div>
+                </div>
+
+            </a>
+
         </div>
 
-        @foreach($group as $subcategory)
+    @endforeach
 
-            <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 my-2">
-                <div class="card h-100">
-                    <a class="text-decoration-none" href="{{ $subcategory->isLeaf() ? route('shop.category.leaf.index', ['url' => $subcategory->url]) : route('shop.category.index', ['url' => $subcategory->url])}}">
-                        <img class="card-img-top" src="/storage/{{ $subcategory->image }}">
-                        <div class="card-body">
-                            <h4 class="card-title text-gray text-center">{{ $subcategory->name }}</h4>
-                        </div>
-                    </a>
-                </div>
-            </div>
-
-        @endforeach
-
-    </div>
-
-    <hr>
-
-@endforeach
+</div>

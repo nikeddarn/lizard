@@ -41,7 +41,7 @@ class UserLocale
         }
 
         // redirect to user's preferred locale
-        if (config('shop.redirect_user_to_preferred_locale')) {
+        if (config('app.redirect_user_to_preferred_locale')) {
 
             // define user locale
             $userLocale = $this->defineUserLocale($request);
@@ -130,7 +130,10 @@ class UserLocale
      */
     private function isRefererSelfHost()
     {
-        return parse_url(config('app.url'), PHP_URL_HOST) === parse_url(request()->server('HTTP_REFERER'), PHP_URL_HOST);
+        $appHost = parse_url(config('app.url'), PHP_URL_HOST);
+        $referrerHost = parse_url(request()->server('HTTP_REFERER'), PHP_URL_HOST);
+
+        return $appHost === $referrerHost;
     }
 
     /**

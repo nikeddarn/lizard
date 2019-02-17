@@ -23,7 +23,7 @@ class CategoryProducts extends AbstractProduct
      */
     public function getProducts(Category $category, string $sortMethod): LengthAwarePaginator
     {
-        $query = $this->makeRetrieveProductsQuery($category);
+        $query = $this->getRetrieveCategoryProductsQuery($category);
 
         $query = $this->addRelations($query);
 
@@ -34,17 +34,6 @@ class CategoryProducts extends AbstractProduct
         $this->addProductsProperties($products);
 
         return $products;
-    }
-
-    /**
-     * Make query.
-     *
-     * @param Category $category
-     * @return Builder
-     */
-    protected function makeRetrieveProductsQuery(Category $category): Builder
-    {
-        return $category->products()->getQuery();
     }
 
     /**

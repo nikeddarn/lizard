@@ -93,7 +93,7 @@ class CategoryMetaTags
     /**
      * Get category's keywords.
      *
-     * @param Category $category
+     * @param Category|Model $category
      * @return string
      */
     public function getCategoryKeywords(Category $category):string

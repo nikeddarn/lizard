@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Setup;
 
 use App\Contracts\Auth\RoleInterface;
+use App\Models\Attribute;
 use App\Models\Badge;
 use App\Models\City;
 use App\Models\Role;
@@ -41,9 +42,21 @@ class SetupController extends Controller
     public function setup()
     {
         $this->fillLibraries();
-        $this->insertRootUser();
+        $this->insertRootUsers();
         $this->insertLocalStorages();
         $this->insertVendors();
+
+        return view('elements.setup.setup_complete');
+    }
+
+    /**
+     * Insert default users.
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function setupUsers()
+    {
+        $this->insertRootUsers();
 
         return view('elements.setup.setup_complete');
     }
@@ -64,9 +77,7 @@ class SetupController extends Controller
             });
 
         } catch (Exception $exception) {
-            return view('elements.setup.setup_complete')->withErrors([
-                'message' => $exception->getMessage(),
-            ]);
+            return view('elements.setup.setup_complete')->withErrors([$exception->getMessage()]);
         }
 
         return view('elements.setup.setup_complete');
@@ -77,16 +88,24 @@ class SetupController extends Controller
      */
     private function fillLibraries()
     {
+        // fill storages
         foreach (require app_path('Http/Controllers/Setup/Libraries/roles.php') as $role) {
             Role::query()->firstOrCreate($role);
         }
 
+        // fill storages departments
         foreach (require app_path('Http/Controllers/Setup/Libraries/storage_departments.php') as $department) {
             StorageDepartment::query()->firstOrCreate($department);
         }
 
+        // fill badges
         foreach (require app_path('Http/Controllers/Setup/Libraries/product_badges.php') as $badge) {
             Badge::query()->firstOrCreate($badge);
+        }
+
+        // fill attributes
+        foreach (require app_path('Http/Controllers/Setup/Libraries/attributes.php') as $attribute) {
+            Attribute::query()->firstOrCreate($attribute);
         }
     }
 
@@ -95,7 +114,7 @@ class SetupController extends Controller
      *
      * @return void
      */
-    private function insertRootUser()
+    private function insertRootUsers()
     {
         // create root user
         $user = $this->user->newQuery()->firstOrNew([
@@ -103,7 +122,25 @@ class SetupController extends Controller
             'email' => 'nikeddarn@gmail.com',
         ]);
 
-        $user->password = bcrypt('assodance');
+        $user->password = bcrypt('assodance3791');
+        $user->save();
+
+        // attach roles to root user
+        $user->roles()->syncWithoutDetaching([
+            RoleInterface::ADMIN,
+            RoleInterface::USER_MANAGER,
+            RoleInterface::VENDOR_MANAGER,
+            RoleInterface::SERVICEMAN,
+            RoleInterface::STOREKEEPER,
+        ]);
+
+        // create demo user
+        $user = $this->user->newQuery()->firstOrNew([
+            'name' => 'demo',
+            'email' => 'demo@gmail.com',
+        ]);
+
+        $user->password = bcrypt('demo');
         $user->save();
 
         // attach roles to root user

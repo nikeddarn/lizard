@@ -17,35 +17,35 @@
 
             <a class="dropdown-item d-flex align-items-center px-3" href="{{ route('user.notifications.current', ['locale' => request()->route('locale')]) }}">
                 <span>Сообщения</span>&nbsp;
-                @if(isset($userBadges['notifications']))
+                @if(!empty($userBadges['notifications']))
                     <span class="badge rounded badge-primary badge-menu">{{ $userBadges['notifications'] }}</span>
                 @endif
             </a>
 
             <a class="dropdown-item d-flex align-items-center px-3" href="{{ route('user.shipments.current', ['locale' => request()->route('locale')]) }}">
                 <span>Отгрузки</span>&nbsp;
-                @if(isset($userBadges['shipments']))
+                @if(!empty($userBadges['shipments']))
                     <span class="badge rounded badge-primary badge-menu">{{ $userBadges['shipments'] }}</span>
                 @endif
             </a>
 
             <a class="dropdown-item d-flex align-items-center px-3" href="{{ route('user.orders.current', ['locale' => request()->route('locale')]) }}">
                 <span>Заказы</span>&nbsp;
-                @if(isset($userBadges['orders']))
+                @if(!empty($userBadges['orders']))
                     <span class="badge rounded badge-primary badge-menu">{{ $userBadges['orders'] }}</span>
                 @endif
             </a>
 
             <a class="dropdown-item d-flex align-items-center px-3" href="{{ route('user.reclamations.current', ['locale' => request()->route('locale')]) }}">
                 <span>Гарантия</span>&nbsp;
-                @if(isset($userBadges['reclamations']))
+                @if(!empty($userBadges['reclamations']))
                     <span class="badge rounded badge-primary badge-menu">{{ $userBadges['reclamations'] }}</span>
                 @endif
             </a>
 
             <a class="dropdown-item d-flex align-items-center px-3" href="{{ route('user.payments.current', ['locale' => request()->route('locale')]) }}">
                 <span>Платежи</span>&nbsp;
-                @if(isset($userBadges['payments']))
+                @if(!empty($userBadges['payments']))
                     <span class="badge rounded badge-primary badge-menu">{{ $userBadges['payments'] }}</span>
                 @endif
             </a>
@@ -53,14 +53,14 @@
             <hr>
 
             <a class="dropdown-item d-flex align-items-center px-3" href="{{ route('user.favourites.index', ['locale' => request()->route('locale')]) }}">Фаворитные
-                @if(isset($userBadges['favourites']))
+                @if(!empty($userBadges['favourites']))
                     <span class="badge rounded badge-primary badge-menu">{{ $userBadges['favourites'] }}</span>
                 @endif
             </a>
 
             <a class="dropdown-item d-flex align-items-center px-3" href="{{ route('user.recent.index', ['locale' => request()->route('locale')]) }}">
                 <span>Недавние</span>&nbsp;
-                @if(isset($userBadges['recent']))
+                @if(!empty($userBadges['recent']))
                     <span class="badge rounded badge-primary badge-menu">{{ $userBadges['recent'] }}</span>
                 @endif
             </a>
@@ -73,7 +73,7 @@
 
             <hr>
 
-            <form id="logout-form" action="{{ route('logout') }}" method="POST">
+            <form action="{{ route('logout') }}" method="POST">
                 @csrf
                 <button class="dropdown-item cursor-pointer d-flex align-items-center px-3">Выйти</button>
             </form>

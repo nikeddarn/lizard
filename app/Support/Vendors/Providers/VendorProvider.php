@@ -17,7 +17,7 @@ class VendorProvider
     /**
      * @var int
      */
-    const CONCURRENCY_REQUESTS_COUNT = 4;
+    const CONCURRENCY_REQUESTS_COUNT = 1;
 
     /**
      * @var Client Guzzle client

@@ -10,20 +10,19 @@
                     </button>
                 </div>
                 <div class="col">
-                    <span class="d-none d-lg-inline-block float-right px-1">Продуктов:&nbsp;{{ $category->products_count }}</span>
                     <span>{{ $category->name }}</span>
                 </div>
                 <div class="col-auto">
 
-                        <a href="{{ route('admin.categories.up', ['id' => $category->id]) }}" data-toggle="tooltip"
-                           title="Переместить выше" class="btn btn-primary">
-                            <i class="svg-icon-larger" data-feather="arrow-up"></i>
-                        </a>
+                    <a href="{{ route('admin.categories.up', ['id' => $category->id]) }}" data-toggle="tooltip"
+                       title="Переместить выше" class="btn btn-primary">
+                        <i class="svg-icon-larger" data-feather="arrow-up"></i>
+                    </a>
 
-                        <a href="{{ route('admin.categories.down', ['id' => $category->id]) }}" data-toggle="tooltip"
-                           title="Переместить ниже" class="btn btn-primary">
-                            <i class="svg-icon-larger" data-feather="arrow-down"></i>
-                        </a>
+                    <a href="{{ route('admin.categories.down', ['id' => $category->id]) }}" data-toggle="tooltip"
+                       title="Переместить ниже" class="btn btn-primary">
+                        <i class="svg-icon-larger" data-feather="arrow-down"></i>
+                    </a>
 
                     <a href="{{ route('admin.categories.show', ['id' => $category->id]) }}" data-toggle="tooltip"
                        title="Просмотреть" class="btn btn-primary">
@@ -54,20 +53,21 @@
         <li class="card my-1 pl-1">
             <div class="row">
                 <div class="col">
-                    <span class="d-none d-lg-inline-block float-right px-1">Продуктов:&nbsp;{{ $category->products_count }}</span>
+                    <span
+                        class="d-none d-lg-inline-block float-right px-1">Продуктов:&nbsp;{{ $category->products_count }}</span>
                     <span>{{ $category->name }}</span>
                 </div>
                 <div class="col-auto">
 
-                        <a href="{{ route('admin.categories.up', ['id' => $category->id]) }}" data-toggle="tooltip"
-                           title="Переместить выше" class="btn btn-primary">
-                            <i class="svg-icon-larger" data-feather="arrow-up"></i>
-                        </a>
+                    <a href="{{ route('admin.categories.up', ['id' => $category->id]) }}" data-toggle="tooltip"
+                       title="Переместить выше" class="btn btn-primary">
+                        <i class="svg-icon-larger" data-feather="arrow-up"></i>
+                    </a>
 
-                        <a href="{{ route('admin.categories.down', ['id' => $category->id]) }}" data-toggle="tooltip"
-                           title="Переместить ниже" class="btn btn-primary">
-                            <i class="svg-icon-larger" data-feather="arrow-down"></i>
-                        </a>
+                    <a href="{{ route('admin.categories.down', ['id' => $category->id]) }}" data-toggle="tooltip"
+                       title="Переместить ниже" class="btn btn-primary">
+                        <i class="svg-icon-larger" data-feather="arrow-down"></i>
+                    </a>
 
                     <a href="{{ route('admin.categories.show', ['id' => $category->id]) }}" data-toggle="tooltip"
                        title="Просмотреть" class="btn btn-primary">

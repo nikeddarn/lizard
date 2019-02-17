@@ -1,33 +1,39 @@
-<div class="row justify-content-center">
+<div class="table-responsive">
 
-    <div class="col-12">
+    <table class="table">
 
-        <ul class="list-group list-group-flush text-center">
-            <li class="list-group-item">
-                <strong class="float-left">Имя</strong>
-                <span>{{ $userProfile->name }}</span>
-            </li>
-            <li class="list-group-item">
-                <strong class="float-left">E-mail</strong>
-                <span>{{ $userProfile->email }}</span>
-            </li>
-            <li class="list-group-item">
-                <strong class="float-left">Телефон</strong>
+        <tbody>
+
+        <tr>
+            <td><strong>Имя</strong></td>
+            <td  class="text-center">{{ $userProfile->name }}</td>
+        </tr>
+
+        <tr>
+            <td><strong>E-mail</strong></td>
+            <td class="text-center">{{ $userProfile->email }}</td>
+        </tr>
+
+        <tr>
+            <td><strong>Телефон</strong></td>
+            <td class="text-center">
                 @if(!empty($userProfile->phone))
-                    <span>{{ $userProfile->phone }}</span>
+                    {{ $userProfile->phone }}
                 @else
-                    <span>Не указан</span>
+                    Не указан
                 @endif
-            </li>
-        </ul>
+            </td>
+        </tr>
 
-    </div>
+        </tbody>
 
-    <div class="col-12">
+    </table>
 
-        <a href="{{ route('user.profile.edit') }}" class="btn btn-primary pull-right">
-            <i class="fa fa-pencil"></i>&nbsp;Редактировать профиль</a>
+</div>
 
-    </div>
-
+<div class="my-4">
+    <a href="{{ route('user.profile.edit') }}" class="btn btn-primary pull-right">
+        <i class="svg-icon-larger" data-feather="edit"></i>
+        <span class="ml-2">Редактировать профиль</span>
+    </a>
 </div>

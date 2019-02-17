@@ -32,7 +32,7 @@
                             <div class="list-group">
                                 @foreach($productCategories as $category)
                                     <a class="list-group-item list-group-item-action"
-                                       href="{{ route('shop.category.index', ['url' => $category->url]) }}">{{ $category->name }}</a>
+                                       href="{{ $category->href }}">{{ $category->name }}</a>
                                 @endforeach
                             </div>
                         </div>

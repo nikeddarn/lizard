@@ -15,7 +15,6 @@ use App\Support\Vendors\Adapters\BrainProductPriceAdapter;
 use App\Support\Vendors\Adapters\BrainProductStocksDataAdapter;
 use App\Support\Vendors\Providers\BrainUpdateProductProvider;
 use Exception;
-use Illuminate\Support\Facades\Cache;
 
 class BrainUpdateVendorProductManager extends UpdateVendorProductManager
 {
@@ -84,17 +83,7 @@ class BrainUpdateVendorProductManager extends UpdateVendorProductManager
         // retrieve product data from vendor
         $vendorProductData = $this->provider->getProductData($vendorProductId);
 
-        // get usd course
-        if (Cache::has(self::USD_COURSE_CACHE_KEY)){
-            $vendorUsdCourse = (float)Cache::get(self::USD_COURSE_CACHE_KEY);
-        }else{
-            $vendorUsdCourse = $this->getCashUsdCourse($this->provider->getCoursesData());
-            if ($vendorUsdCourse > 0) {
-                Cache::put(self::USD_COURSE_CACHE_KEY, $vendorUsdCourse, config('vendor.vendor_exchange_rate_ttl.' . VendorInterface::BRAIN));
-            }else{
-                throw new Exception('Can not get exchange rate from vendor');
-            }
-        }
+        $vendorUsdCourse = $this->getCashUsdCourse($this->provider->getCoursesData());
 
         // prepare vendor product prices
         $this->vendorProductPricesData = $this->productPriceAdapter->prepareVendorProductPrices($vendorProductData, $vendorUsdCourse);
@@ -106,18 +95,22 @@ class BrainUpdateVendorProductManager extends UpdateVendorProductManager
     /**
      * Get cash usd course.
      *
-     * @param $vendorCourses
+     * @param array $vendorCoursesData
      * @return float
      * @throws Exception
      */
-    private function getCashUsdCourse(array $vendorCourses): float
+    private function getCashUsdCourse(array $vendorCoursesData): float
     {
-        $cashCourse = collect($vendorCourses)->where('currencyID', '=', 2)->first();
+        if (empty($vendorCoursesData)){
+            throw new Exception('Can not update vendor product. Exchange rate is missing');
+        }
 
-        if ($cashCourse) {
-            return $cashCourse->value;
-        } else {
-            throw new Exception('Currency course is missing');
+        $cashCourseItem = collect($vendorCoursesData)->where('currencyID', '=', 2)->first();
+
+        if ($cashCourseItem){
+            return $cashCourseItem->value;
+        }else{
+            return null;
         }
     }
 }

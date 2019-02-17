@@ -27,12 +27,43 @@ class MultiFiltersCreator extends FiltersCreator
         // get category products' ids
         $categoryProductsIds = $category->products->pluck('id')->toArray();
 
+        // selected attributes ids
+        $selectedFiltersIds = $selectedAttributeValues->pluck('attributes_id')->toArray();
+
         // retrieve possible filters
-        $filters = $this->retrieveFilters($categoryProductsIds);
+        $filters = $this->retrieveFilters($categoryProductsIds)
+            ->sortByDesc(function (Attribute $attribute) use ($category, $selectedAttributeValues) {
+                // create attribute values urls
+                $this->createMultiFilterItemsUrls($attribute, $category->url, $selectedAttributeValues);
+
+                // sort by opened desc
+                return $attribute->showable;
+            });
+
+        // set is filter opened
+        $openedFiltersCount = 0;
 
         foreach ($filters as $filter) {
-            // create url for each filters' items
-            $this->createMultiFilterItemsUrls($filter, $category->url, $selectedAttributeValues);
+            if (in_array($filter->id, $selectedFiltersIds)) {
+                $filter->opened = true;
+                $openedFiltersCount++;
+            } elseif ($openedFiltersCount < $this->filtersCount['min']) {
+                if ($filter->attribute_values_count <= $this->filtersCount['max_values_count'] || $filter->defined_attribute_id) {
+                    $filter->opened = true;
+                    $openedFiltersCount++;
+                } else {
+                    $filter->opened = false;
+                }
+            } elseif ($openedFiltersCount >= $this->filtersCount['max']) {
+                $filter->opened = false;
+            } else {
+                if ($filter->showable && ($filter->attribute_values_count <= $this->filtersCount['max_values_count'] || $filter->defined_attribute_id)) {
+                    $filter->opened = true;
+                    $openedFiltersCount++;
+                } else {
+                    $filter->opened = false;
+                }
+            }
         }
 
         return $filters;

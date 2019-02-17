@@ -2,15 +2,15 @@
 
 @section('content')
 
-    <div class="card my-4">
-        <div class="card-body">
-
-            <h1 class="h4 text-gray-hover">Недавние продукты</h1>
-
-            @include('content.user.recent.registered.parts.list')
-
-        </div>
+    <div class="card p-2 my-4">
+        <h1 class="h4 text-gray-hover m-0">Недавно просмотренные товары</h1>
     </div>
+
+    @if($recentProducts->count())
+        <div class="card card-body my-4">
+            @include('content.user.recent.registered.parts.list')
+        </div>
+    @endif
 
     @if($recentProducts->lastPage() !== 1)
         <div class="row">

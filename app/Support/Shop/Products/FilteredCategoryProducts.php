@@ -24,7 +24,7 @@ class FilteredCategoryProducts extends CategoryProducts
      */
     public function getFilteredProducts(Category $category, string $sortMethod, Collection $selectedAttributeValues): LengthAwarePaginator
     {
-        $query = $this->makeRetrieveProductsQuery($category);
+        $query = $this->getRetrieveCategoryProductsQuery($category);
 
         $query = $this->constraintQueryWithFilters($query, $selectedAttributeValues);
 

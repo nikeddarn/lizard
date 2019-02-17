@@ -5,7 +5,6 @@
 
 namespace App\Support\Vendors\Adapters;
 
-
 use stdClass;
 
 class BrainProductPriceAdapter

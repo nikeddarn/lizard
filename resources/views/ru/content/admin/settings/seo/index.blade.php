@@ -21,11 +21,13 @@
             <nav>
                 <div class="nav nav-tabs" id="nav-tab" role="tablist">
                     <a class="nav-item nav-link active" data-toggle="tab" href="#category" role="tab"
-                       aria-controls="category" aria-selected="true">Категория</a>
+                       aria-controls="category" aria-selected="true">Категории</a>
+                    <a class="nav-item nav-link" data-toggle="tab" href="#leaf-category" role="tab"
+                       aria-controls="leaf-category" aria-selected="false">Продукты</a>
                     <a class="nav-item nav-link" data-toggle="tab" href="#virtual-category" role="tab"
-                       aria-controls="virtual-category" aria-selected="false">Виртуальная категория</a>
+                       aria-controls="virtual-category" aria-selected="false">Продукты (одиночный фильтр)</a>
                     <a class="nav-item nav-link" data-toggle="tab" href="#multi_filter_category" role="tab"
-                       aria-controls="multi_filter_category" aria-selected="false">Мульти фильтр категория</a>
+                       aria-controls="multi_filter_category" aria-selected="false">Продукты (мульти фильтр)</a>
                     <a class="nav-item nav-link" data-toggle="tab" href="#product" role="tab"
                        aria-controls="product" aria-selected="false">Продукт</a>
                 </div>
@@ -35,6 +37,10 @@
                 <div class="tab-pane fade show active" id="category" role="tabpanel"
                      aria-labelledby="category-tab">
                     @include('content.admin.settings.seo.parts.category')
+                </div>
+                <div class="tab-pane fade" id="leaf-category" role="tabpanel"
+                     aria-labelledby="leaf-category-tab">
+                    @include('content.admin.settings.seo.parts.leaf_category')
                 </div>
                 <div class="tab-pane fade" id="virtual-category" role="tabpanel" aria-labelledby="virtual-category-tab">
                     @include('content.admin.settings.seo.parts.virtual_category')

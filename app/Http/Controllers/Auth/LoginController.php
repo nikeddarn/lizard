@@ -75,6 +75,7 @@ class LoginController extends Controller
      *
      * @param  \Illuminate\Http\Request $request
      * @param  mixed $user
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     protected function authenticated(Request $request, $user)
     {
@@ -94,7 +95,19 @@ class LoginController extends Controller
 
         // set intended for redirect to admin
         if ($user->isEmployee()) {
-            session(['url.intended' => route('admin.overview')]);
+            return redirect(route('admin.overview'));
+        }else{
+            return back();
         }
+    }
+
+    /**
+     * The user has logged out of the application.
+     *
+     * @return mixed
+     */
+    protected function loggedOut()
+    {
+        return back();
     }
 }

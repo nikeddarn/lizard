@@ -18,6 +18,19 @@ return [
             ],
         ],
 
+        'leaf_category' => [
+            LocalesInterface::RU => [
+                'title' => 'CATEGORY_NAME - Магазин ' . config('app.name') . ' - Купить в Киеве и Украине',
+                'description' => 'CATEGORY_NAME - Широкий ассортимент в каталоге. Доставка, гарантия, сервисное обслуживание. &phone; +380-67-123-45-67',
+                'keywords' => 'CATEGORY_NAME',
+            ],
+            LocalesInterface::UK => [
+                'title' => 'CATEGORY_NAME - Магазин '. config ( 'app.name'). ' - Купити в Києві та Україні',
+                'description' => 'CATEGORY_NAME - Широкий асортимент в каталозі. Доставка, гарантія, сервісне обслуговування. &phone; +380-67-123-45-67',
+                'keywords' => 'CATEGORY_NAME',
+            ],
+        ],
+
         'virtual_category' => [
             LocalesInterface::RU => [
                 'name' => 'CATEGORY_NAME - FILTER_NAME: FILTER_VALUE',

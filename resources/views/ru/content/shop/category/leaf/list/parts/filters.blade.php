@@ -26,11 +26,11 @@
         <div class="card">
             <div class="card-header m-0 p-0 pr-2">
                 <button class="btn btn-link nav-link text-gray text-left d-block w-100" data-toggle="collapse"
-                        aria-expanded="true"
+                        aria-expanded="{{ $filter->opened ? 'true' : 'false' }}"
                         data-target="#filter-{{ $filter->id }}" type="button"
                         aria-controls="filter-{{ $filter->id }}">{{ $filter->name }}</button>
             </div>
-            <div id="filter-{{ $filter->id }}" class="collapse show">
+            <div id="filter-{{ $filter->id }}" class="collapse{{ $filter->opened ? ' show' : '' }}">
                 <div class="card-body py-0">
                     @foreach($filter->attributeValues as $attributeValue)
                         <a href="{{ $attributeValue->href }}" class="filter-sidebar-checkbox">

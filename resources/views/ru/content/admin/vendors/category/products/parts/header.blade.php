@@ -3,26 +3,22 @@
     <div class="d-flex justify-content-between align-items-start">
 
         <h1 class="h4 text-gray-hover">
-            <span class="d-inline-block">
-                <span>Категория {{ $vendorCategory->vendor->name }}:</span>
-                <span class="ml-2">{{ $vendorCategory->name }}</span>
-                @if(!empty($vendorProcessingProducts))
-                    <span class="ml-2">({{ $vendorProcessingProducts->total() }})</span>
-                @endif
-            </span>
-            <span class="d-inline-block ml-5">
-                <span>Локальная категория:</span>
-                <span class="ml-2">{{ $localCategory->name }}</span>
-                @if(!empty($totalSynchronizedProductsCount))
-                    <span class="ml-2">({{ $totalSynchronizedProductsCount }})</span>
-                @endif
-                </span>
+            <span>Поставщик: {{ $vendor->name_ru }}</span>
+            <span class="ml-2">Категория: {{ $vendorCategory->name }}</span>
         </h1>
 
-        <a href="{{ route('vendor.categories.index', ['vendorId' => $vendorCategory->vendor->id]) }}"
-           data-toggle="tooltip" title="Отменить" class="btn btn-primary">
-            <i class="svg-icon-larger" data-feather="corner-up-left"></i>
-        </a>
+        <div>
+            <a href="{{ route('vendor.category.sync', ['id' => $vendor->id, 'vendorOwnCategoryId' => $vendorCategory->id]) }}"
+               data-toggle="tooltip"
+               title="Синхронизировать" class="btn btn-primary ml-1">
+                <i class="svg-icon-larger" data-feather="link"></i>
+            </a>
+
+            <a href="{{ url()->previous() }}"
+               data-toggle="tooltip" title="Отменить" class="btn btn-primary">
+                <i class="svg-icon-larger" data-feather="corner-up-left"></i>
+            </a>
+        </div>
 
     </div>
 

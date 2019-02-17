@@ -58,6 +58,10 @@ class ProductDetailsController extends Controller
         // retrieve product
         $product = $this->productCreator->getProduct($url);
 
+        if (!$product){
+            abort(404);
+        }
+
         // get product's id
         $productId = $product->id;
 

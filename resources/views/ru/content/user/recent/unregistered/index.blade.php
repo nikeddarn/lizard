@@ -1,23 +1,27 @@
-@extends('layouts.shop')
+@extends('layouts.common')
 
 @section('content')
 
-    <div class="card my-4">
-        <div class="card-body">
+    <div class="container">
 
-            <h1 class="h4 text-gray-hover">Недавние продукты</h1>
-
-            @include('content.user.recent.unregistered.parts.list')
-
+        <div class="card p-2 my-4">
+            <h1 class="h4 text-gray-hover m-0">Недавно просмотренные товары</h1>
         </div>
-    </div>
 
-    @if($recentProducts->lastPage() !== 1)
-        <div class="row">
-            <div class="col-12 my-4">
-                @include('layouts.parts.pagination.products.index', ['paginator' => $recentProducts])
+        @if($recentProducts->count())
+            <div class="card card-body my-4">
+                @include('content.user.recent.unregistered.parts.list')
             </div>
-        </div>
-    @endif
+        @endif
+
+        @if($recentProducts->lastPage() !== 1)
+            <div class="row">
+                <div class="col-12 my-4">
+                    @include('layouts.parts.pagination.products.index', ['paginator' => $recentProducts])
+                </div>
+            </div>
+        @endif
+
+    </div>
 
 @endsection

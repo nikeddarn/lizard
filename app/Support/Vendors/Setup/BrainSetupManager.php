@@ -59,11 +59,7 @@ class BrainSetupManager
     private function insertBrands()
     {
         // create attribute
-        $brandAttribute = Attribute::query()->firstOrCreate([
-            'defined_attribute_id' => AttributesInterface::BRAND,
-            'name_ru' => 'Бренд',
-            'name_uk' => 'Бренд',
-        ]);
+        $brandAttribute = Attribute::query()->where('defined_attribute_id', AttributesInterface::BRAND)->first();
 
         // get vendor brands
         $vendorBrands = $this->vendorProvider->getBrands();

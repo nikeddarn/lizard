@@ -116,21 +116,20 @@
         </tbody>
     </table>
 
-    <div class="row d-sm-flex align-items-end">
+    <div class="row d-sm-flex align-items-end justify-content-around my-4">
 
-        <div class="col col-sm-6 form-group p-sm-5">
-            <label class="mb-1 text-gray main-link h6" for="productQuantity">Количество</label>
-            <input id="productQuantity" name="quantity" required value="{{ old('quantity', 1) }}"
+        <div class="col-12 col-sm-auto">
+            <input id="productQuantity" class="d-inline-block" name="quantity" required value="{{ old('quantity', 1) }}"
                    min="1">
         </div>
 
-        <div class="col col-sm-6 form-group p-sm-5">
+        <div class="col-12 col-sm-auto mt-4">
             <div id="product-details-actions" class="btn-group d-flex" role="group">
                 <button type="submit" class="btn btn-primary">Добавить в корзину</button>
                 <a href="{{ route('user.favourites.add', ['id' => $product->id]) }}"
                    class="btn btn-outline-theme product-favourite-add"
                    data-toggle="tooltip" data-placement="top" title="В избранное">
-                    <i class="fa fa-heart-o"></i>
+                    <i class="svg-icon-larger" data-feather="heart"></i>
                 </a>
             </div>
         </div>

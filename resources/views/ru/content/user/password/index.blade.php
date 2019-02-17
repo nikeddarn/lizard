@@ -2,17 +2,12 @@
 
 @section('content')
 
-    <section class="row page-content">
+    <div class="card p-2 my-4">
+        <h1 class="h4 text-gray-hover m-0">Изменение пароля</h1>
+    </div>
 
-        <div class="col-lg-12">
-            <div class="underlined-title">
-                <h3 class="page-header text-gray">Изменение пароля</h3>
-            </div>
-        </div>
-
-        <div class="col-lg-12">
-            @include('content.user.password.parts.change_password_form')
-        </div>
-    </section>
+    <div class="card card-body my-4">
+        @include('content.user.password.parts.change_password_form')
+    </div>
 
 @endsection

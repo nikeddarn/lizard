@@ -18,7 +18,7 @@
 
             <div class="card p-2 mb-4">
 
-                <div class="row align-items-center">
+                <div class="row no-gutters align-items-center">
 
                     <div class="col-auto d-block d-md-none mr-auto">
                         @if(isset($usedFilters) && $usedFilters->count())
@@ -26,7 +26,7 @@
                                     data-toggle="modal"
                                     data-target="#filterModal">
                                 <i class="svg-icon" data-feather="filter"></i>
-                                <span class="pr-1">фильтры</span>
+                                {{--<span class="pr-1">фильтр</span>--}}
                                 <span class="badge badge-danger">{{ $usedFilters->count() }}</span>
                             </button>
                         @else
@@ -34,18 +34,18 @@
                                     data-toggle="modal"
                                     data-target="#filterModal">
                                 <i class="svg-icon" data-feather="filter"></i>
-                                <span>Фильтровать</span>
+                                <span>Фильтр</span>
                             </button>
                         @endif
                     </div>
 
-                        <div class="col d-none d-lg-block">
-                            <h1 class="h5 text-gray-hover m-0">{{ $categoryName }}</h1>
-                        </div>
+                    <div class="col d-none d-lg-block">
+                        <h1 class="h5 text-gray-hover m-0">{{ $categoryName }}</h1>
+                    </div>
 
-                        <div class="col-auto col-md-12 col-lg-auto ml-auto">
-                            @include('content.shop.category.leaf.grid.parts.product-control')
-                        </div>
+                    <div class="col-auto col-md-12 col-lg-auto ml-auto">
+                        @include('content.shop.category.leaf.grid.parts.product-control')
+                    </div>
 
                 </div>
 

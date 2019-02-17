@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Support\Breadcrumbs\CategoryBreadcrumbs;
 use App\Support\Seo\Canonical\CanonicalLinkGenerator;
-use App\Support\Seo\MetaTags\CategoryMetaTags;
+use App\Support\Seo\MetaTags\LeafCategoryMetaTags;
 use App\Support\Seo\Pagination\PaginationLinksGenerator;
 use App\Support\Shop\Filters\FiltersCreator;
 use App\Support\Shop\Products\CategoryProducts;
@@ -40,7 +40,10 @@ class LeafCategoryController extends Controller
      */
     private $breadcrumbs;
     /**
-     * @var FiltersCreator
+     * @var FiltersCreator// title, description, keywords
+        $pageTitle = $this->categoryMetaTags->getCategoryTitle($category);
+        $pageDescription = $this->categoryMetaTags->getCategoryDescription($category);
+        $pageKeywords = $this->categoryMetaTags->getCategoryKeywords($category);
      */
     private $filtersCreator;
     /**
@@ -52,7 +55,7 @@ class LeafCategoryController extends Controller
      */
     private $canonicalLinkGenerator;
     /**
-     * @var CategoryMetaTags
+     * @var LeafCategoryMetaTags
      */
     private $categoryMetaTags;
 
@@ -66,9 +69,9 @@ class LeafCategoryController extends Controller
      * @param FiltersCreator $filtersCreator
      * @param PaginationLinksGenerator $paginationLinksGenerator
      * @param CanonicalLinkGenerator $canonicalLinkGenerator
-     * @param CategoryMetaTags $categoryMetaTags
+     * @param LeafCategoryMetaTags $categoryMetaTags
      */
-    public function __construct(Category $category, SortProductsUrlGenerator $sortProductsUrlGenerator, CategoryProducts $productsCreator, ShowProductsUrlGenerator $showProductsUrlGenerator, CategoryBreadcrumbs $breadcrumbs, FiltersCreator $filtersCreator, PaginationLinksGenerator $paginationLinksGenerator, CanonicalLinkGenerator $canonicalLinkGenerator, CategoryMetaTags $categoryMetaTags)
+    public function __construct(Category $category, SortProductsUrlGenerator $sortProductsUrlGenerator, CategoryProducts $productsCreator, ShowProductsUrlGenerator $showProductsUrlGenerator, CategoryBreadcrumbs $breadcrumbs, FiltersCreator $filtersCreator, PaginationLinksGenerator $paginationLinksGenerator, CanonicalLinkGenerator $canonicalLinkGenerator, LeafCategoryMetaTags $categoryMetaTags)
     {
         $this->category = $category;
         $this->sortProductsUrlGenerator = $sortProductsUrlGenerator;
@@ -107,7 +110,7 @@ class LeafCategoryController extends Controller
         $products = $this->getProducts($category, $sortProductsMethod);
 
         // create filters
-        $filters = $this->filtersCreator->getFilters($category, $categoryUrl);
+        $filters = $this->filtersCreator->getFilters($category);
 
         // category content
         $categoryContent = $category->content;

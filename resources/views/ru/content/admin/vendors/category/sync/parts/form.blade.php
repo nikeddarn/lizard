@@ -41,7 +41,7 @@
             <div class="col-sm-6">
                 <div class="custom-control custom-checkbox">
                     <input type="checkbox" class="custom-control-input" id="auto_add_new_products"
-                           name="auto_add_new_products">
+                           name="auto_add_new_products" checked>
                     <label class="custom-control-label empty-checkbox-label" for="auto_add_new_products"></label>
                 </div>
             </div>

@@ -1,5 +1,7 @@
 <div class="card p-5 mb-4">
 
+    <div class="alert alert-info mb-5">Товар публикуется при выполнении условия по сумме <strong>или</strong> по процентам</div>
+
     <div class="form-group mb-4">
         <label for="min-profit-sum-to-offer-product">Минимальная прибыль на товаре для публикации в магазине
             ($)</label>
@@ -8,6 +10,19 @@
                 <input id="min-profit-sum-to-offer-product" class="form-control vendor-settings-input" type="number"
                        name="min_profit_sum_to_offer_product"
                        value="{{ $vendorsData['min_profit_sum_to_offer_product'] }}" min="0.1" max="50"
+                       step="0.1">
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group mb-4">
+        <label for="min-profit-percents-to-offer-product">Минимальная прибыль на товаре для публикации в магазине
+            (%)</label>
+        <div class="row">
+            <div class="col col-sm-6 col-md-5 col-xl-3">
+                <input id="min-profit-percents-to-offer-product" class="form-control vendor-settings-input" type="number"
+                       name="min_profit_percents_to_offer_product"
+                       value="{{ $vendorsData['min_profit_percents_to_offer_product'] }}" min="0.1" max="50"
                        step="0.1">
             </div>
         </div>

@@ -12,6 +12,7 @@ use App\Models\RecentProduct;
 use App\Support\Seo\Locale\AlternateLinksGenerator;
 use App\Support\Settings\SettingsRepository;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
@@ -126,52 +127,65 @@ class CommonDataComposer
      */
     private function getUserBadges(): array
     {
-        if (auth('web')->check()) {
-            return $this->getAuthenticatedUserBadges();
-        } elseif ($this->request->hasCookie('uuid')) {
-            return $this->getGuestUserBadges();
-        } else {
-            return [];
+        $badges = [];
+
+        if (auth('web')->check() || $this->request->hasCookie('uuid')) {
+            $badges['favourites'] = $this->getUserFavouriteProductsCount();
+            $badges['recent'] = $this->getUserRecentProductsCount();
         }
-    }
-
-    /**
-     * Get badges for authenticated user.
-     *
-     * @return array
-     */
-    private function getAuthenticatedUserBadges(): array
-    {
-        $user = auth('web')->user();
-
-        $badges = [];
-
-        $badges['recent'] = $user->timeLimitedRecentProducts()->count();
-        $badges['favourites'] = $user->favouriteProducts()->count();
 
         return $badges;
     }
 
     /**
-     * Get badges for not authenticated user.
+     * Get user favourite products count.
      *
-     * @return array
+     * @return int
      */
-    private function getGuestUserBadges(): array
+    private function getUserFavouriteProductsCount(): int
     {
-        $uuid = $this->request->cookie('uuid');
+        $query = $this->favouriteProduct->newQuery();
 
-        $badges = [];
+        $query = $this->addUserProductConstraints($query);
 
-        $badges['recent'] = $this->recentProduct->where([
-            ['uuid', '=', $uuid],
-            ['updated_at', '>=', Carbon::now()->subDays(config('shop.recent_product_ttl'))],
-        ])
-            ->count();
+        return $query->count();
+    }
 
-        $badges['favourites'] = $this->favouriteProduct->where('uuid', $uuid)->count();
+    /**
+     * Get user recent products count.
+     *
+     * @return int
+     */
+    private function getUserRecentProductsCount(): int
+    {
+        $query = $this->recentProduct->newQuery();
 
-        return $badges;
+        $query = $this->addUserProductConstraints($query);
+
+        $query->where('updated_at', '>=', Carbon::now()->subDays(config('shop.recent_product_ttl')));
+
+        return $query->count();
+    }
+
+    /**
+     * Add user product constraints.
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    private function addUserProductConstraints(Builder $query): Builder
+    {
+        $query->whereHas('product', function ($query) {
+            $query->where('published', 1);
+        });
+
+        if (auth('web')->check()) {
+            $query->where('users_id', auth('web')->id());
+        } else {
+            $query->where('uuid', $this->request->cookie('uuid'));
+        }
+
+        return $query;
     }
 
     /**

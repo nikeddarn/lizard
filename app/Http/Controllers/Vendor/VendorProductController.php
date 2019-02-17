@@ -93,9 +93,9 @@ class VendorProductController extends Controller
             $vendorProcessingProducts = $this->vendorBroker->getVendorCatalogManager($vendorId)->getCategoryPageProducts($vendorCategory->vendor_category_id, $page);
 
         } catch (Exception $exception) {
-            return view('content.admin.vendors.category.products.index')
+            return view('content.admin.vendors.category.synchronized_products.index')
                 ->with(compact('vendorCategory', 'localCategory'))
-                ->withErrors(['message' => $exception->getMessage()]);
+                ->withErrors([$exception->getMessage()]);
         }
 
         // get processing products
@@ -120,7 +120,7 @@ class VendorProductController extends Controller
 
         $totalSynchronizedProductsCount = count($synchronizedProducts);
 
-        return view('content.admin.vendors.category.products.index')->with(compact('vendorCategory', 'localCategory', 'vendorProcessingProducts', 'totalSynchronizedProductsCount'));
+        return view('content.admin.vendors.category.synchronized_products.index')->with(compact('vendorCategory', 'localCategory', 'vendorProcessingProducts', 'totalSynchronizedProductsCount'));
     }
 
 
@@ -337,6 +337,7 @@ class VendorProductController extends Controller
                     $query->whereIn('vendor_product_id', $vendorProductsIds)
                         ->where('vendors_id', $vendorId);
                 })
+                ->has('vendorProducts', '=', 1)
                 ->doesntHave('categories')
                 ->delete();
 
@@ -356,7 +357,7 @@ class VendorProductController extends Controller
         } catch (Exception $exception) {
             DB::rollBack();
 
-            return back()->withErrors(['message' => $exception->getMessage()]);
+            return back()->withErrors([$exception->getMessage()]);
         }
 
         // delete products images from storage

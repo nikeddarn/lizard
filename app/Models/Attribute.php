@@ -79,24 +79,28 @@ class Attribute extends Model
     }
 
     /**
-     * Set attribute's name_ru.
-     *
-     * @param  string  $value
+     * @param  string $value
      * @return void
      */
     public function setNameRuAttribute($value)
     {
-        $this->attributes['name_ru'] = Str::ucfirst(Str::lower($value));
+        if ($value) {
+            $this->attributes['name_ru'] = Str::ucfirst($value);
+        } else {
+            $this->attributes['name_ru'] = $value;
+        }
     }
 
     /**
-     * Set attribute's name_uk.
-     *
-     * @param  string  $value
+     * @param  string $value
      * @return void
      */
     public function setNameUkAttribute($value)
     {
-        $this->attributes['name_uk'] = Str::ucfirst(Str::lower($value));
+        if ($value) {
+            $this->attributes['name_uk'] = Str::ucfirst($value);
+        } else {
+            $this->attributes['name_uk'] = $value;
+        }
     }
 }

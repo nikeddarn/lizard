@@ -14,6 +14,7 @@ use App\Support\Vendors\VendorBroker;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class VendorCategoryController extends Controller
@@ -100,6 +101,36 @@ class VendorCategoryController extends Controller
     }
 
     /**
+     * Show products of vendor category.
+     *
+     * @param int $vendorId
+     * @param int $vendorCategoryId
+     * @return \Illuminate\Contracts\View\Factory|View
+     */
+    public function categoryProducts(int $vendorId, int $vendorCategoryId)
+    {
+        // define current page
+        $page = request()->has('page') ? request()->get('page') : 1;
+
+        try {
+            // get vendor
+            $vendor = $this->vendor->newQuery()->findOrFail($vendorId);
+
+            // get vendor category data
+            $vendorCategory = $this->vendorBroker->getVendorCatalogManager($vendorId)->getVendorCategoryData($vendorCategoryId);
+
+            // get paginator for current page
+            $vendorCategoryProducts = $this->vendorBroker->getVendorCatalogManager($vendorId)->getCategoryPageProducts($vendorCategoryId, $page);
+
+        } catch (Exception $exception) {
+            return view('content.admin.vendors.category.products.index')
+                ->withErrors([$exception->getMessage()]);
+        }
+
+        return view('content.admin.vendors.category.products.index')->with(compact('vendor', 'vendorCategory', 'vendorCategoryProducts'));
+    }
+
+    /**
      * Show synchronized categories.
      *
      * @return \Illuminate\Contracts\View\Factory|View
@@ -113,7 +144,7 @@ class VendorCategoryController extends Controller
         $synchronizedCategories = $this->getSynchronizedCategoriesWithProductsCountQuery($locale)
             ->paginate(config('admin.show_items_per_page'));
 
-        return view('content.admin.vendors.category.synchronized.index')->with(compact('synchronizedCategories'));
+        return view('content.admin.vendors.synchronization.synchronized.index')->with(compact('synchronizedCategories'));
     }
 
     /**
@@ -125,16 +156,17 @@ class VendorCategoryController extends Controller
      */
     public function sync(int $vendorId, int $vendorOwnCategoryId): View
     {
-        $vendor = $this->vendor->newQuery()->findOrFail($vendorId);
-
-        $categories = $this->category->defaultOrder()->withDepth()->get()->toTree();
-
         try {
+
+            $vendor = $this->vendor->newQuery()->findOrFail($vendorId);
+
+            $categories = $this->category->defaultOrder()->withDepth()->get()->toTree();
+
             // get vendor category data
             $vendorCategory = $this->vendorBroker->getVendorCatalogManager($vendorId)->getVendorCategoryData($vendorOwnCategoryId);
 
         } catch (Exception $exception) {
-            return back()->withErrors(['message' => $exception->getMessage()]);
+            return back()->withErrors([$exception->getMessage()]);
         }
 
         return view('content.admin.vendors.category.sync.index')->with(compact('vendor', 'categories', 'vendorCategory'));
@@ -172,7 +204,7 @@ class VendorCategoryController extends Controller
             try {
                 $vendorCategoryData = $this->vendorBroker->getVendorCatalogManager($vendorsId)->getVendorCategoryModelData($vendorOwnCategoryId);
             } catch (Exception $exception) {
-                return back()->withErrors(['message' => $exception->getMessage()]);
+                return back()->withErrors([$exception->getMessage()]);
             }
 
             $vendorCategory = $this->vendorCategory->newQuery()->create($vendorCategoryData);
@@ -202,24 +234,66 @@ class VendorCategoryController extends Controller
         $vendorCategoryId = (int)request()->get('vendor_categories_id');
         $localCategoryId = (int)request()->get('categories_id');
 
-        // retrieve vendor category
-        $vendorCategory = $this->vendorCategory->newQuery()->findOrFail($vendorCategoryId);
+        $vendorId = $this->vendor->newQuery()->whereHas('vendorCategories', function ($query) use ($vendorCategoryId) {
+            $query->where('id', $vendorCategoryId);
+        })->firstOrFail()->id;
 
-        // delete products that synchronized with given vendor and local categories and presents only in one local category
-        $this->product->newQuery()
-            ->whereHas('vendorProducts.vendorCategories', function ($query) use ($vendorCategoryId) {
-                $query->where('id', $vendorCategoryId);
+        // get products that synchronized with given vendor and local categories and not present and not reserved on storages
+        $products = $this->product->newQuery()
+            ->leftJoin('storage_products', 'storage_products.products_id', '=', 'products.id')
+            ->join('vendor_products', 'vendor_products.products_id', '=', 'products.id')
+            ->join('vendor_category_product', 'vendor_products.id', '=', 'vendor_category_product.vendor_products_id')
+            ->join('vendor_categories', 'vendor_categories.id', '=', 'vendor_category_product.vendor_categories_id')
+            ->join('category_product', 'category_product.products_id', '=', 'products.id')
+            ->join('categories', 'category_product.categories_id', '=', 'categories.id')
+            ->join(DB::raw('(SELECT products.id as products_id, COUNT(category_product.products_id) AS categories_count FROM products INNER JOIN category_product ON category_product.products_id = products.id GROUP BY products.id) products_categories_count'), function ($join) {
+                $join->on('products.id', '=', 'products_categories_count.products_id');
             })
-            ->whereHas('categories', function ($query) use ($localCategoryId) {
-                $query->where('id', $localCategoryId);
+            ->join(DB::raw('(SELECT products.id as products_id, COUNT(vendor_products.products_id) AS vendors_count FROM products INNER JOIN vendor_products ON vendor_products.products_id = products.id GROUP BY products.id) vendor_products_count'), function ($join) {
+                $join->on('products.id', '=', 'vendor_products_count.products_id');
             })
-            ->has('categories', '=', 1)
-            ->delete();
+            ->where('vendor_categories.id', $vendorCategoryId)
+            ->where('categories.id', $localCategoryId)
+            ->selectRaw('products.*, products_categories_count.categories_count AS categories_count, vendor_products_count.vendors_count AS vendors_count, IF((storage_products.stock_quantity IS NULL OR storage_products.stock_quantity = 0) AND (storage_products.available_quantity IS NULL OR storage_products.available_quantity = 0), 0, 1) AS storage_presents')
+            ->get()
+            ->keyBy('id');
 
-        // detach vendor category from local category
-        $vendorCategory->categories()->detach($localCategoryId);
+        // vendor category must keep linked to local category
+        $keepLinked = false;
 
-        return back();
+        foreach ($products as $product) {
+            // skip product that presents on own storage or reserved on storage
+            if ($product->storage_presents === 1) {
+                $keepLinked = true;
+                continue;
+            }
+
+            // detach from local category
+            $product->categories()->detach($localCategoryId);
+
+            if ($product->categories_count === 1) {
+                if ($product->vendors_count === 1) {
+                    // delete product
+                    $product->delete();
+                } else {
+                    // delete vendor product
+                    $this->vendorProduct->newQuery()
+                        ->where('products_id', $product->id)
+                        ->where('vendors_id', $vendorId)
+                        ->delete();
+                }
+            }
+        }
+
+        // unlink vendor category
+        if (!$keepLinked) {
+            $this->vendorLocalCategory->newQuery()->where([
+                ['vendor_categories_id', '=', $vendorCategoryId],
+                ['categories_id', '=', $localCategoryId],
+            ])->delete();
+        }
+
+        return $keepLinked ? back() : back()->withErrors(compact('keepLinked'));
     }
 
     /**
@@ -283,13 +357,13 @@ class VendorCategoryController extends Controller
     private function getSynchronizedCategoriesWithProductsCountQuery(string $locale): Builder
     {
         return $this->vendorCategory->newQuery()
-            ->selectRaw("vendor_categories.name_$locale AS vendor_category_name, categories.name_$locale AS local_category_name, categories.url AS local_category_url, COUNT(DISTINCT(products2.id)) AS products_count, vendor_local_categories.auto_add_new_products AS auto_add_products, vendors.name_$locale AS vendor_name, vendors.id AS vendor_id, vendor_categories.id AS vendor_category_id, categories.id AS local_category_id, vendor_categories.vendor_category_id AS own_vendor_category_id")
+            ->selectRaw("vendor_categories.name_$locale AS vendor_category_name, categories.name_$locale AS local_category_name, categories.url AS local_category_url, COUNT(DISTINCT(products2.id)) AS products_count, SUM(IF(products2.published = 1, 1, 0)) AS published_products_count, vendor_local_categories.auto_add_new_products AS auto_add_products, vendors.name_$locale AS vendor_name, vendors.id AS vendor_id, vendor_categories.id AS vendor_category_id, categories.id AS local_category_id, vendor_categories.vendor_category_id AS own_vendor_category_id")
             ->join('vendors', 'vendors.id', '=', 'vendor_categories.vendors_id')
             ->leftJoin('vendor_category_product', 'vendor_category_product.vendor_categories_id', '=', 'vendor_categories.id')
             ->leftJoin('vendor_products', 'vendor_category_product.vendor_products_id', '=', 'vendor_products.id')
             ->leftJoin('products AS products1', 'products1.id', '=', 'vendor_products.products_id')
-            ->leftJoin('vendor_local_categories', 'vendor_local_categories.vendor_categories_id', '=', 'vendor_categories.id')
-            ->leftJoin('categories', 'vendor_local_categories.categories_id', '=', 'categories.id')
+            ->join('vendor_local_categories', 'vendor_local_categories.vendor_categories_id', '=', 'vendor_categories.id')
+            ->join('categories', 'vendor_local_categories.categories_id', '=', 'categories.id')
             ->leftJoin('category_product', 'category_product.categories_id', '=', 'categories.id')
             ->leftJoin('products  AS products2', function ($join) {
                 $join->on('category_product.products_id', '=', 'products2.id');

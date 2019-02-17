@@ -28,12 +28,13 @@ class Kernel extends ConsoleKernel
     {
         // check for new products
         $schedule->command(SyncNewVendorProducts::class)
-            ->hourlyAt(27)
+            ->twiceDaily(7, 14)
             ->withoutOverlapping();
 
         // check for price updated products
         $schedule->command(SyncUpdatedVendorProducts::class)
-            ->everyFifteenMinutes()
+            ->everyThirtyMinutes()
+            ->between('8:00', '18:00')
             ->withoutOverlapping();
 
         // retry failed jobs

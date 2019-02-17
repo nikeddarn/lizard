@@ -10,11 +10,65 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Str;
+use Laravel\Scout\Searchable;
 use Mews\Purifier\Facades\Purifier;
 
 class Product extends Model
 {
     use Translatable;
+    use Searchable;
+
+    // tnt search option
+    public $asYouType = true;
+
+    /**
+     * Get the value used to index the model.
+     *
+     * @return mixed
+     */
+    public function getScoutKey()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array
+     */
+    public function toSearchableArray()
+    {
+        return [
+            'id' => $this->id,
+            'url' => $this->url,
+            'name_ru' => $this->name_ru,
+            'name_uk' => $this->name_uk,
+            'model_ru' => $this->model_ru,
+            'model_uk' => $this->model_uk,
+            'articul' => $this->articul,
+            'code' => $this->code,
+            'title_ru' => $this->title_ru,
+            'title_uk' => $this->title_uk,
+            'description_ru' => $this->description_ru,
+            'description_uk' => $this->description_uk,
+            'brief_content_ru' => $this->brief_content_ru,
+            'brief_content_uk' => $this->brief_content_uk,
+            'content_ru' => $this->content_ru,
+            'content_uk' => $this->content_uk,
+            'manufacturer_ru' => $this->manufacturer_ru,
+            'manufacturer_uk' => $this->manufacturer_uk,
+        ];
+    }
+
+    /**
+     * Is model searchable ?
+     *
+     * @return bool
+     */
+    public function shouldBeSearchable():bool
+    {
+        return (bool)$this->published;
+    }
 
     /**
      * Table name.
@@ -257,7 +311,11 @@ class Product extends Model
      */
     public function setBriefContentRuAttribute($value)
     {
-        $this->attributes['brief_content_ru'] = Purifier::clean($value);
+        if ($value) {
+            $this->attributes['brief_content_ru'] = Purifier::clean($value);
+        } else {
+            $this->attributes['brief_content_ru'] = $value;
+        }
     }
 
     /**
@@ -266,7 +324,11 @@ class Product extends Model
      */
     public function setBriefContentUkAttribute($value)
     {
-        $this->attributes['brief_content_uk'] = Purifier::clean($value);
+        if ($value) {
+            $this->attributes['brief_content_uk'] = Purifier::clean($value);
+        } else {
+            $this->attributes['brief_content_uk'] = $value;
+        }
     }
 
     /**
@@ -275,7 +337,11 @@ class Product extends Model
      */
     public function setContentRuAttribute($value)
     {
-        $this->attributes['content_ru'] = Purifier::clean($value);
+        if ($value) {
+            $this->attributes['content_ru'] = Purifier::clean($value);
+        } else {
+            $this->attributes['content_ru'] = $value;
+        }
     }
 
     /**
@@ -284,7 +350,11 @@ class Product extends Model
      */
     public function setContentUkAttribute($value)
     {
-        $this->attributes['content_uk'] = Purifier::clean($value);
+        if ($value) {
+            $this->attributes['content_uk'] = Purifier::clean($value);
+        } else {
+            $this->attributes['content_uk'] = $value;
+        }
     }
 
     /**
@@ -293,7 +363,11 @@ class Product extends Model
      */
     public function setManufacturerRuAttribute($value)
     {
-        $this->attributes['manufacturer_ru'] = Str::ucfirst($value);
+        if ($value) {
+            $this->attributes['manufacturer_ru'] = Str::ucfirst($value);
+        } else {
+            $this->attributes['manufacturer_ru'] = $value;
+        }
     }
 
     /**
@@ -302,71 +376,101 @@ class Product extends Model
      */
     public function setManufacturerUkAttribute($value)
     {
-        $this->attributes['manufacturer_uk'] = Str::ucfirst($value);
+        if ($value) {
+            $this->attributes['manufacturer_uk'] = Str::ucfirst($value);
+        } else {
+            $this->attributes['manufacturer_uk'] = $value;
+        }
     }
 
     /**
-     * @param  string  $value
+     * @param  string $value
      * @return void
      */
     public function setNameRuAttribute($value)
     {
-        $this->attributes['name_ru'] = Str::ucfirst($value);
+        if ($value) {
+            $this->attributes['name_ru'] = Str::ucfirst($value);
+        } else {
+            $this->attributes['name_ru'] = $value;
+        }
     }
 
     /**
-     * @param  string  $value
+     * @param  string $value
      * @return void
      */
     public function setNameUkAttribute($value)
     {
-        $this->attributes['name_uk'] = Str::ucfirst($value);
+        if ($value) {
+            $this->attributes['name_uk'] = Str::ucfirst($value);
+        } else {
+            $this->attributes['name_uk'] = $value;
+        }
     }
 
     /**
-     * @param  string  $value
+     * @param  string $value
      * @return void
      */
     public function setTitleRuAttribute($value)
     {
-        $this->attributes['title_ru'] = Str::ucfirst($value);
+        if ($value) {
+            $this->attributes['title_ru'] = Str::ucfirst($value);
+        } else {
+            $this->attributes['title_ru'] = $value;
+        }
     }
 
     /**
-     * @param  string  $value
+     * @param  string $value
      * @return void
      */
     public function setTitleUkAttribute($value)
     {
-        $this->attributes['title_uk'] = Str::ucfirst($value);
+        if ($value) {
+            $this->attributes['title_uk'] = Str::ucfirst($value);
+        } else {
+            $this->attributes['title_uk'] = $value;
+        }
     }
 
     /**
-     * @param  string  $value
+     * @param  string $value
      * @return void
      */
     public function setDescriptionRuAttribute($value)
     {
-        $this->attributes['description_ru'] = Str::ucfirst($value);
+        if ($value) {
+            $this->attributes['description_ru'] = Str::ucfirst($value);
+        } else {
+            $this->attributes['description_ru'] = $value;
+        }
     }
 
     /**
-     * @param  string  $value
+     * @param  string $value
      * @return void
      */
     public function setDescriptionUkAttribute($value)
     {
-        $this->attributes['description_uk'] = Str::ucfirst($value);
+        if ($value) {
+            $this->attributes['description_uk'] = Str::ucfirst($value);
+        } else {
+            $this->attributes['description_uk'] = $value;
+        }
     }
 
     /**
-     * Set attribute's name_uk.
-     *
-     * @param  string  $value
+     * @param  string $value
      * @return void
      */
     public function setUrlAttribute($value)
     {
-        $this->attributes['url'] = Str::lower($value);
+        if ($value) {
+            $this->attributes['url'] = Str::lower($value);
+        } else {
+            $this->attributes['url'] = $value;
+        }
     }
 }

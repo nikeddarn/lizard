@@ -71,7 +71,7 @@ class CategoryController extends Controller
 
         $attributes = $request->only(['name_ru', 'name_uk', 'url', 'parent_id', 'title_ru', 'title_uk', 'description_ru', 'description_uk', 'keywords_ru', 'keywords_uk', 'content_ru', 'content_uk']);
 
-        $category = $this->category->create($attributes);
+        $category = $this->category->newQuery()->create($attributes);
 
         // insert image
         if ($request->has('image')) {
@@ -87,11 +87,11 @@ class CategoryController extends Controller
         }
 
         // insert filters
-        if ($request->has('filter_id')) {
-            foreach (array_filter(array_unique($request->get('filter_id'))) as $filterId) {
-                $category->filters()->attach($filterId);
-            }
-        }
+//        if ($request->has('filter_id')) {
+//            foreach (array_filter(array_unique($request->get('filter_id'))) as $filterId) {
+//                $category->filters()->attach($filterId);
+//            }
+//        }
 
         return redirect(route('admin.categories.index'));
     }

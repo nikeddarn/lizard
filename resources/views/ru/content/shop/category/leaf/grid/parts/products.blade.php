@@ -49,7 +49,7 @@
                 @if($product->actualBadges->count())
                     <div class="d-flex justify-content-end mb-3">
                         @foreach($product->actualBadges as $badge)
-                            <span class="badge badge-{{ $badge->class }} d-inline-block">{{ $badge->name }}</span>
+                            <span class="badge badge-{{ $badge->class }} d-inline-block ml-1">{{ $badge->name }}</span>
                         @endforeach
                     </div>
                 @endif

@@ -45,7 +45,9 @@ class ShopSettingsController extends Controller
 
         $badgesData = $this->settingsRepository->getProperty('badges');
 
-        return view('content.admin.settings.shop.index')->with(compact('currenciesData', 'badgesData', 'productData'));
+        $filtersData = $this->settingsRepository->getProperty('shop.products_filters_show');
+
+        return view('content.admin.settings.shop.index')->with(compact('currenciesData', 'badgesData', 'productData', 'filtersData'));
     }
 
     /**
@@ -85,6 +87,13 @@ class ShopSettingsController extends Controller
             ProductBadgesInterface::NEW => $request->get('new_product_badge_ttl'),
             ProductBadgesInterface::PRICE_DOWN => $request->get('price_down_badge_ttl'),
             ProductBadgesInterface::ENDING => $request->get('ending_badge_products_count'),
+        ]);
+
+        // filters
+        $this->settingsRepository->setProperty('shop.products_filters_show', [
+            'min' => $request->get('min_show_filters_per_page'),
+            'max' => $request->get('max_show_filters_per_page'),
+            'max_values_count' => $request->get('max_values_count'),
         ]);
 
         return redirect(route('admin.settings.shop.edit'))->with([

@@ -35,7 +35,7 @@ class PasswordController extends Controller
 
         $this->resetPassword($request->only('password'), $user);
 
-        return redirect(route('profile.show'));
+        return redirect(route('user.profile.show'));
     }
 
     /**

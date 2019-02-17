@@ -16,6 +16,10 @@ class SeoSettingsController extends Controller
     /**
      * @var string
      */
+    const LEAF_CATEGORY_METADATA_KEY = 'seo.metadata.leaf_category';
+    /**
+     * @var string
+     */
     const VIRTUAL_CATEGORY_METADATA_KEY = 'seo.metadata.virtual_category';
     /**
      * @var string
@@ -47,11 +51,16 @@ class SeoSettingsController extends Controller
     public function edit()
     {
         $categorySeoData = $this->settingsRepository->getProperty(self::CATEGORY_METADATA_KEY);
+
+        $leafCategorySeoData = $this->settingsRepository->getProperty(self::LEAF_CATEGORY_METADATA_KEY);
+
         $virtualCategorySeoData = $this->settingsRepository->getProperty(self::VIRTUAL_CATEGORY_METADATA_KEY);
+
         $filteredCategorySeoData = $this->settingsRepository->getProperty(self::FILTERED_CATEGORY_METADATA_KEY);
+
         $productSeoData = $this->settingsRepository->getProperty(self::PRODUCT_METADATA_KEY);
 
-        return view('content.admin.settings.seo.index')->with(compact('categorySeoData', 'virtualCategorySeoData', 'filteredCategorySeoData', 'productSeoData'));
+        return view('content.admin.settings.seo.index')->with(compact('categorySeoData', 'leafCategorySeoData',  'virtualCategorySeoData', 'filteredCategorySeoData', 'productSeoData'));
     }
 
     /**
@@ -72,6 +81,19 @@ class SeoSettingsController extends Controller
                 'title' => $request->get('category_title_uk'),
                 'description' => $request->get('category_description_uk'),
                 'keywords' => $request->get('category_keywords_uk'),
+            ],
+        ];
+
+        $leafCategorySeoData = [
+            LocalesInterface::RU => [
+                'title' => $request->get('leaf_category_title_ru'),
+                'description' => $request->get('leaf_category_description_ru'),
+                'keywords' => $request->get('leaf_category_keywords_ru'),
+            ],
+            LocalesInterface::UK => [
+                'title' => $request->get('leaf_category_title_uk'),
+                'description' => $request->get('leaf_category_description_uk'),
+                'keywords' => $request->get('leaf_category_keywords_uk'),
             ],
         ];
 
@@ -119,6 +141,7 @@ class SeoSettingsController extends Controller
         ];
 
         $this->settingsRepository->setProperty(self::CATEGORY_METADATA_KEY, $categorySeoData);
+        $this->settingsRepository->setProperty(self::LEAF_CATEGORY_METADATA_KEY, $leafCategorySeoData);
         $this->settingsRepository->setProperty(self::VIRTUAL_CATEGORY_METADATA_KEY, $virtualCategorySeoData);
         $this->settingsRepository->setProperty(self::FILTERED_CATEGORY_METADATA_KEY, $filteredCategorySeoData);
         $this->settingsRepository->setProperty(self::PRODUCT_METADATA_KEY, $productSeoData);

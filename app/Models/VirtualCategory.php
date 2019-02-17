@@ -57,74 +57,106 @@ class VirtualCategory extends Model
     }
 
     /**
-     * @param  string  $value
+     * @param  string $value
      * @return void
      */
     public function setContentRuAttribute($value)
     {
-        $this->attributes['content_ru'] = Purifier::clean($value);
+        if ($value) {
+            $this->attributes['content_ru'] = Purifier::clean($value);
+        } else {
+            $this->attributes['content_ru'] = $value;
+        }
     }
 
     /**
-     * @param  string  $value
+     * @param  string $value
      * @return void
      */
     public function setContentUkAttribute($value)
     {
-        $this->attributes['content_uk'] = Purifier::clean($value);
+        if ($value) {
+            $this->attributes['content_uk'] = Purifier::clean($value);
+        } else {
+            $this->attributes['content_uk'] = $value;
+        }
     }
 
     /**
-     * @param  string  $value
+     * @param  string $value
      * @return void
      */
     public function setNameRuAttribute($value)
     {
-        $this->attributes['name_ru'] = Str::ucfirst($value);
+        if ($value) {
+            $this->attributes['name_ru'] = Str::ucfirst($value);
+        } else {
+            $this->attributes['name_ru'] = $value;
+        }
     }
 
     /**
-     * @param  string  $value
+     * @param  string $value
      * @return void
      */
     public function setNameUkAttribute($value)
     {
-        $this->attributes['name_uk'] = Str::ucfirst($value);
+        if ($value) {
+            $this->attributes['name_uk'] = Str::ucfirst($value);
+        } else {
+            $this->attributes['name_uk'] = $value;
+        }
     }
 
     /**
-     * @param  string  $value
+     * @param  string $value
      * @return void
      */
     public function setTitleRuAttribute($value)
     {
-        $this->attributes['title_ru'] = Str::ucfirst($value);
+        if ($value) {
+            $this->attributes['title_ru'] = Str::ucfirst($value);
+        } else {
+            $this->attributes['title_ru'] = $value;
+        }
     }
 
     /**
-     * @param  string  $value
+     * @param  string $value
      * @return void
      */
     public function setTitleUkAttribute($value)
     {
-        $this->attributes['title_uk'] = Str::ucfirst($value);
+        if ($value) {
+            $this->attributes['title_uk'] = Str::ucfirst($value);
+        } else {
+            $this->attributes['title_uk'] = $value;
+        }
     }
 
     /**
-     * @param  string  $value
+     * @param  string $value
      * @return void
      */
     public function setDescriptionRuAttribute($value)
     {
-        $this->attributes['description_ru'] = Str::ucfirst($value);
+        if ($value) {
+            $this->attributes['description_ru'] = Str::ucfirst($value);
+        } else {
+            $this->attributes['description_ru'] = $value;
+        }
     }
 
     /**
-     * @param  string  $value
+     * @param  string $value
      * @return void
      */
     public function setDescriptionUkAttribute($value)
     {
-        $this->attributes['description_uk'] = Str::ucfirst($value);
+        if ($value) {
+            $this->attributes['description_uk'] = Str::ucfirst($value);
+        } else {
+            $this->attributes['description_uk'] = $value;
+        }
     }
 }

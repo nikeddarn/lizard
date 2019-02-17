@@ -6,6 +6,7 @@
 namespace App\Support\Shop\Products;
 
 use App\Contracts\Shop\UrlParametersInterface;
+use App\Models\Category;
 use App\Models\Product;
 use App\Support\Settings\SettingsRepository;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -70,6 +71,17 @@ abstract class AbstractProduct
     protected function getRetrieveProductQuery():Builder
     {
         return $this->product->newQuery()->where('published', 1);
+    }
+
+    /**
+     * Get retrieve product Builder.
+     *
+     * @param Category $category
+     * @return Builder
+     */
+    protected function getRetrieveCategoryProductsQuery(Category $category):Builder
+    {
+        return $category->products()->getQuery()->where('published', 1);
     }
 
     /**
