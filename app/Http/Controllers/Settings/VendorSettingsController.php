@@ -6,7 +6,6 @@ use App\Http\Requests\Admin\Settings\UpdateVendorSettingsRequest;
 use App\Models\Vendor;
 use App\Support\Settings\SettingsRepository;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\DB;
 
 class VendorSettingsController extends Controller
 {
@@ -38,20 +37,16 @@ class VendorSettingsController extends Controller
     public function edit()
     {
         $vendorsData = [
-            'min_profit_sum_to_offer_product' => $this->settingsRepository->getProperty('vendor.min_profit_sum_to_offer_product'),
-            'min_profit_percents_to_offer_product' => $this->settingsRepository->getProperty('vendor.min_profit_percents_to_offer_product'),
+            'insert_product' => $this->settingsRepository->getProperty('vendor.insert_product'),
 
-            'update_own_product_price_on_vendor_sync' => $this->settingsRepository->getProperty('vendor.update_own_product_price_on_vendor_sync'),
+            'delete_product' => $this->settingsRepository->getProperty('vendor.delete_product'),
 
-            'use_vendor_available_product_to_calculate_price' => $this->settingsRepository->getProperty('vendor.use_vendor_available_product_to_calculate_price'),
+            'product_price_conditions' => $this->settingsRepository->getProperty('vendor.product_price_conditions'),
 
-            'min_profit_sum_to_price_discount' => $this->settingsRepository->getProperty('vendor.min_profit_sum_to_price_discount'),
-            'min_profit_percents_to_price_discount' => $this->settingsRepository->getProperty('vendor.min_profit_percents_to_price_discount'),
-
-            'column_discounts' => $this->settingsRepository->getProperty('vendor.column_discounts'),
+            'price_discount' => $this->settingsRepository->getProperty('vendor.price_discount'),
         ];
 
-        return view('content.admin.settings.vendors.index')->with(compact('vendors', 'vendorsData'));
+        return view('content.admin.settings.vendors.index')->with(compact('vendorsData'));
     }
 
     /**
@@ -62,49 +57,42 @@ class VendorSettingsController extends Controller
      */
     public function update(UpdateVendorSettingsRequest $request)
     {
-        $oldMinProfitSumToPublish = $this->settingsRepository->getProperty('vendor.min_profit_sum_to_offer_product');
-        $oldMinProfitPercentsToPublish = $this->settingsRepository->getProperty('vendor.min_profit_percents_to_offer_product');
+        $insertProductSettings = [
+            'download_archive_product' => $request->has('download_archive_product'),
+        ];
 
-        $minProfitSumToPublish = $request->get('min_profit_sum_to_offer_product');
-        $minProfitPercentsToPublish = $request->get('min_profit_percents_to_offer_product');
+        $deleteProductSettings = [
+            'delete_product_on_delete_vendor_category' => $request->has('delete_product_on_delete_vendor_category'),
+            'keep_link_in_stock_present_product_on_delete' => $request->has('keep_link_in_stock_present_product_on_delete'),
+            'delete_empty_local_category_on_delete_vendor_category' => $request->has('delete_empty_local_category_on_delete_vendor_category'),
+            'delete_product_on_archive_vendor_product' => $request->has('delete_product_on_archive_vendor_product'),
+        ];
 
-        $this->settingsRepository->setProperty('vendor.min_profit_sum_to_offer_product', $minProfitSumToPublish);
-        $this->settingsRepository->setProperty('vendor.min_profit_percents_to_offer_product', $minProfitPercentsToPublish);
+        $productPriceConditions = [
+            'update_own_product_price_on_vendor_sync' => $request->has('update_own_product_price_on_vendor_sync'),
+            'use_vendor_available_product_to_calculate_price' => $request->has('use_vendor_available_product_to_calculate_price'),
+        ];
 
-        $this->settingsRepository->setProperty('vendor.update_own_product_price_on_vendor_sync', $request->has('update_own_product_price_on_vendor_sync'));
+        $priceDiscount = [
+            'min_profit_sum_to_price_discount' => $request->get('min_profit_sum_to_price_discount'),
+            'min_profit_percents_to_price_discount' => $request->get('min_profit_percents_to_price_discount'),
+            'column_discounts' => [
+                'price1' => $request->get('discount_price1'),
+                'price2' => $request->get('discount_price2'),
+                'price3' => $request->get('discount_price3'),
+            ]
+        ];
 
-        $this->settingsRepository->setProperty('vendor.use_vendor_available_product_to_calculate_price', $request->has('use_vendor_available_product_to_calculate_price'));
+        $this->settingsRepository->setProperty('vendor.insert_product', $insertProductSettings);
 
-        $this->settingsRepository->setProperty('vendor.min_profit_sum_to_price_discount', $request->get('min_profit_sum_to_price_discount'));
-        $this->settingsRepository->setProperty('vendor.min_profit_percents_to_price_discount', $request->get('min_profit_percents_to_price_discount'));
+        $this->settingsRepository->setProperty('vendor.delete_product', $deleteProductSettings);
 
-        $this->settingsRepository->setProperty('vendor.column_discounts', [
-            'price1' => $request->get('discount_price1'),
-            'price2' => $request->get('discount_price2'),
-            'price3' => $request->get('discount_price3'),
-        ]);
+        $this->settingsRepository->setProperty('vendor.product_price_conditions', $productPriceConditions);
 
-        // recalculate product publishing
-        if ($oldMinProfitSumToPublish !== $minProfitSumToPublish || $oldMinProfitPercentsToPublish !== $minProfitPercentsToPublish) {
-            $this->updateProductsPublished($minProfitSumToPublish, $minProfitPercentsToPublish);
-        }
+        $this->settingsRepository->setProperty('vendor.price_discount', $priceDiscount);
 
         return redirect(route('admin.settings.vendor.edit'))->with([
             'successful' => true,
-        ]);
-    }
-
-    /**
-     * Update products `published` property.
-     *
-     * @param float $minProfitSumToPublish
-     * @param $minProfitPercentsToPublish
-     */
-    private function updateProductsPublished(float $minProfitSumToPublish, $minProfitPercentsToPublish)
-    {
-        DB::statement('UPDATE products p, (SELECT vp.products_id AS product_id, MIN(vp.price) AS min_vendor_price FROM vendor_products vp GROUP BY vp.products_id) vpdata SET p.published = IF((vpdata.min_vendor_price IS NULL) OR ((p.price1 - vpdata.min_vendor_price) > :mps) OR (((p.price1 - vpdata.min_vendor_price) / vpdata.min_vendor_price * 100) > :mpp), 1, 0) WHERE p.id = vpdata.product_id', [
-            'mps' => $minProfitSumToPublish,
-            'mpp' => $minProfitPercentsToPublish,
         ]);
     }
 }

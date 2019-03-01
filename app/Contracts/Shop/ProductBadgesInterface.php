@@ -15,4 +15,6 @@ interface ProductBadgesInterface
     const ACTION = 3;
 
     const ENDING = 4;
+
+    const ARCHIVE = 5;
 }

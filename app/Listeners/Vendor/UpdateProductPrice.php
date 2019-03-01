@@ -6,8 +6,7 @@ use App\Contracts\Shop\ProductBadgesInterface;
 use App\Models\Product;
 use App\Support\ProductBadges\ProductBadges;
 use App\Support\ProductPrices\VendorProductPrice;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Support\Settings\SettingsRepository;
 
 class UpdateProductPrice
 {
@@ -19,17 +18,23 @@ class UpdateProductPrice
      * @var ProductBadges
      */
     private $productBadges;
+    /**
+     * @var SettingsRepository
+     */
+    private $settingsRepository;
 
     /**
      * Create the event listener.
      *
      * @param VendorProductPrice $productPrice
      * @param ProductBadges $productBadges
+     * @param SettingsRepository $settingsRepository
      */
-    public function __construct(VendorProductPrice $productPrice, ProductBadges $productBadges)
+    public function __construct(VendorProductPrice $productPrice, ProductBadges $productBadges, SettingsRepository $settingsRepository)
     {
         $this->productPrice = $productPrice;
         $this->productBadges = $productBadges;
+        $this->settingsRepository = $settingsRepository;
     }
 
     /**
@@ -44,8 +49,10 @@ class UpdateProductPrice
         // get product
         $product = $event->product;
 
+        $productPriceConditions = $this->settingsRepository->getProperty('vendor.product_price_conditions');
+
         // allow update product
-        if (config('vendor.price.update_own_product_price_on_vendor_sync') || !$this->isProductOwn($product)) {
+        if ($productPriceConditions['update_own_product_price_on_vendor_sync'] || !$this->isProductOwn($product)) {
             // get recalculated prices
             $newProductPrices = $this->productPrice->getProductPrices($product);
 
@@ -67,7 +74,7 @@ class UpdateProductPrice
      */
     private function isProductOwn(Product $product): bool
     {
-        return (bool)$product->storageProducts()->count();
+        return (bool)$product->stockStorages->count();
     }
 
     /**

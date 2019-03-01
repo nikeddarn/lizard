@@ -32,8 +32,29 @@
 
             // confirm delete category
             $(".category-form").submit(function (event) {
-                if (confirm('Удалить категорию вместе с подкатегориями ?')) {
-                    return true;
+
+                let checkCategoryUrl = $(this).data('check-empty-url');
+
+                if (confirm('Удалить категорию вместе с подкатегориями и продуктами ?')) {
+                    let response = $.ajax({
+                        url: checkCategoryUrl,
+                        async: false
+                    }).responseText;
+
+                    if (response === 'true') {
+                        return true;
+                    } else if (response === 'false') {
+                        if (confirm('Категория не пустая (содержит продукты или подкатегории). Удалить категорию вместе со всеми подкатегориями и продуктами ?')) {
+                            return true;
+                        }else {
+                            event.preventDefault();
+                            return false;
+                        }
+                    } else {
+                        event.preventDefault();
+                        return false;
+                    }
+
                 } else {
                     event.preventDefault();
                     return false;

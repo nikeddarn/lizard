@@ -48,6 +48,13 @@ class SingleProduct extends AbstractProduct
      */
     protected function addRelations(Builder $query): Builder
     {
-        return $query->with('productImages', 'availableStorageProducts', 'expectingStorageProducts', 'availableVendorProducts', 'expectingVendorProducts', 'availableProductStorages.city', 'attributeValues.attribute');
+        $user = $this->getUser();
+
+        $userId = $user ? $user->id : null;
+
+        return $query->with('productImages', 'availableStorageProducts', 'expectingStorageProducts', 'availableVendorProducts', 'expectingVendorProducts', 'availableProductStorages.city', 'attributeValues.attribute')
+            ->with(['favouriteProducts' => function ($query) use ($userId) {
+                $query->where('users_id', $userId);
+            }]);
     }
 }

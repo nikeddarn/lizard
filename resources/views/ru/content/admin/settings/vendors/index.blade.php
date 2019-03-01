@@ -21,17 +21,26 @@
             <nav>
                 <div class="nav nav-tabs" id="nav-tab" role="tablist">
                     <a class="nav-item nav-link show active" data-toggle="tab"
-                       href="#settings-vendor" role="tab"
-                       aria-controls="settings-vendor"
-                       aria-selected="true">Общее</a>
+                       href="#settings-vendor-product" role="tab"
+                       aria-controls="settings-vendor-product"
+                       aria-selected="true">Продукты</a>
+                    <a class="nav-item nav-link" data-toggle="tab"
+                       href="#settings-vendor-price" role="tab"
+                       aria-controls="settings-vendor-price"
+                       aria-selected="true">Цены</a>
                 </div>
             </nav>
 
             <div class="tab-content">
                 <div class="tab-pane fade show active"
-                     id="settings-vendor" role="tabpanel"
-                     aria-labelledby="settings-vendor-tab">
-                    @include('content.admin.settings.vendors.parts.common')
+                     id="settings-vendor-product" role="tabpanel"
+                     aria-labelledby="settings-vendor-product-tab">
+                    @include('content.admin.settings.vendors.parts.product')
+                </div>
+                <div class="tab-pane fade"
+                     id="settings-vendor-price" role="tabpanel"
+                     aria-labelledby="settings-vendor-price-tab">
+                    @include('content.admin.settings.vendors.parts.price')
                 </div>
             </div>
 
@@ -79,8 +88,8 @@
             });
 
             $(".vendor-settings-input-discount").TouchSpin({
-                min: -50,
-                max: 50,
+                min: -100,
+                max: 100,
                 step: 0.1,
                 decimals: 1,
                 buttondown_class: "btn btn-primary h-100",

@@ -9,6 +9,7 @@ use App\Contracts\Shop\UrlParametersInterface;
 use App\Models\Category;
 use App\Models\Product;
 use App\Support\Settings\SettingsRepository;
+use App\Support\User\RetrieveUser;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Carbon\Carbon;
 use App\Support\ExchangeRates\ExchangeRates;
@@ -19,6 +20,8 @@ use Illuminate\Support\Collection;
 
 abstract class AbstractProduct
 {
+    use RetrieveUser;
+
     /**
      * @var int
      */
@@ -81,7 +84,9 @@ abstract class AbstractProduct
      */
     protected function getRetrieveCategoryProductsQuery(Category $category):Builder
     {
-        return $category->products()->getQuery()->where('published', 1);
+        return $category->products()->getQuery()
+            ->where('published', 1)
+            ->where('is_archive', 0);
     }
 
     /**

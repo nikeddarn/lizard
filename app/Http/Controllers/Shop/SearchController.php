@@ -2,34 +2,58 @@
 
 namespace App\Http\Controllers\Shop;
 
-use App\Models\Product;
+use App\Support\Shop\Products\SearchProducts;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class SearchController extends Controller
 {
     /**
-     * @var Product
+     * @var SearchProducts
      */
-    private $product;
+    private $searchProducts;
+
 
     /**
      * SearchController constructor.
-     * @param Product $product
+     * @param SearchProducts $searchProducts
      */
-    public function __construct(Product $product)
+    public function __construct(SearchProducts $searchProducts)
     {
-        $this->product = $product;
+        $this->searchProducts = $searchProducts;
     }
 
     public function index(Request $request)
     {
+        if (!$request->has('search_for')) {
+            abort(404);
+        }
+
+        $locale = app()->getLocale();
+
         $searchingText = $request->get('search_for');
-//        phpinfo();exit;
-//        dd(config('scout.tntsearch'));exit;
-        $products = Product::search($searchingText)->get();
-        var_dump($products->pluck('name_ru')->toArray());
-        echo '<br>';
-        var_dump($products->count());
+
+        $foundProductsIds = $this->searchProducts->getFoundProductsIds($searchingText);
+
+        return redirect(route('shop.search.results', ['locale' => $locale]))->with(compact('searchingText', 'foundProductsIds'));
+    }
+
+    /**
+     * Show found products.
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function results(Request $request)
+    {
+        $request->session()->keep(['searchingText', 'foundProductsIds']);
+
+        $searchingText = $request->session()->get('searchingText');
+
+        $foundProductsIds = $request->session()->get('foundProductsIds', []);
+
+        $products = $this->searchProducts->getProducts($foundProductsIds);
+
+        return view('content.shop.search.index')->with(compact('searchingText', 'products'));
     }
 }

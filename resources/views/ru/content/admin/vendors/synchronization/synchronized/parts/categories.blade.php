@@ -1,5 +1,5 @@
 <div class="table-responsive">
-    <table class="table table-striped m-0">
+    <table class="table m-0">
 
         <thead>
         <tr class="text-center">
@@ -28,9 +28,14 @@
                 <td class="d-flex justify-content-center">
 
                     <div class="d-flex justify-content-around">
-                        <a href="{{ route('vendor.category.products.index', ['vendorId' => $category->vendor_id, 'localCategoryId' => $category->local_category_id, 'vendorCategoryId' => $category->vendor_category_id]) }}"
+                        <a href="{{ route('vendor.category.products.sync', ['vendorId' => $category->vendor_id, 'localCategoryId' => $category->local_category_id, 'vendorCategoryId' => $category->vendor_category_id]) }}"
                            data-toggle="tooltip"
                            title="Синхронизировать продукты" class="btn btn-primary">
+                            <i class="svg-icon-larger" data-feather="list"></i>
+                        </a>
+
+                        <a href="{{ route('vendor.category.products.downloaded', ['localCategoryId' => $category->local_category_id, 'vendorCategoryId' => $category->vendor_category_id]) }}"
+                           data-toggle="tooltip" title="Загруженные продукты" class="btn btn-primary ml-1">
                             <i class="svg-icon-larger" data-feather="eye"></i>
                         </a>
 
@@ -61,7 +66,7 @@
                         </form>
 
                         <form class="d-inline-block unlink-form"
-                              action="{{ route('vendor.category.unlink') }}" method="post">
+                              action="{{ route('vendor.category.products.destroy') }}" method="post">
                             @csrf
                             @method('DELETE')
                             <input type="hidden" name="vendors_id" value="{{ $category->vendor_id }}">

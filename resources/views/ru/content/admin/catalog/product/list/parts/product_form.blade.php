@@ -4,8 +4,9 @@
 
         <thead>
         <tr class="text-center">
+            <td><strong>Создан</strong></td>
+            <td><strong>Архивный</strong></td>
             <td class="d-none d-lg-table-cell"><strong>Изображение</strong></td>
-            <td class="d-none d-lg-table-cell"><strong>Id</strong></td>
             <td><strong>Название</strong></td>
             <td><strong>Размещен в категориях</strong></td>
             <td><strong>Поставщики</strong></td>
@@ -20,13 +21,19 @@
 
             <tr class="text-center">
 
+                <td>{{ $product->created_at->format('d - m - Y') }}</td>
+
+                <td>
+                    @if($product->is_archive)
+                        <i class="svg-icon-larger text-danger" data-feather="archive"></i>
+                    @endif
+                </td>
+
                 <td class="d-none d-lg-table-cell">
                     @if($product->primaryImage)
                         <img src="/storage/{{ $product->primaryImage->small }}" class="img-responsive table-image">
                     @endif
                 </td>
-
-                <td class="d-none d-lg-table-cell">{{ $product->id }}</td>
 
                 <td>{{ $product->name }}</td>
 
@@ -45,7 +52,7 @@
 
                 <td>
 
-                    <div class="d-flex justify-content-around">
+                    <div class="d-flex justify-content-center align-items-start">
                         <a href="{{ route('admin.products.show', ['id' => $product->id]) }}" data-toggle="tooltip"
                            title="Просмотреть" class="btn btn-primary">
                             <i class="svg-icon-larger" data-feather="eye"></i>

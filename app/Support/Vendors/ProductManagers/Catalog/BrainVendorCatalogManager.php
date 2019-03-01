@@ -166,6 +166,7 @@ class BrainVendorCatalogManager extends VendorCatalogManager
             $preparedVendorProduct = new stdClass();
 
             $preparedVendorProduct->id = $vendorProduct->productID;
+            $preparedVendorProduct->is_archive = $vendorProduct->is_archive;
             $preparedVendorProduct->image = $vendorProduct->small_image ? $vendorProduct->small_image : $vendorProduct->medium_image;
             $preparedVendorProduct->articul = $vendorProduct->articul;
             $preparedVendorProduct->name = $vendorProduct->name;

@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\Admin\Category\Real;
 
-use App\Rules\ParentCategoryHasNotProducts;
+use App\Rules\EmptyCategory;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -20,7 +20,7 @@ class UpdateCategoryRequest extends FormRequest
 
         return [
             'url' => ['required', 'string', 'max:64', $uniqueRule],
-            'parent_id' => ['required', 'numeric', new ParentCategoryHasNotProducts()],
+            'parent_id' => ['required', 'numeric', new EmptyCategory()],
             'name_ru' => ['required', 'string', 'max:128', $uniqueRule],
             'name_uk' => ['required', 'string', 'max:128', $uniqueRule],
             'title_ru' => ['nullable', 'string', 'max:256', $uniqueRule],

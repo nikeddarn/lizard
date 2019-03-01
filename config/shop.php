@@ -14,6 +14,14 @@ return [
     // ttl in days to show user's recent product
     'recent_product_ttl' => 20,
 
+    'delete_product' => [
+        // delete products when deleting its category
+        'delete_product_on_delete_category' => true,
+
+        // archive product instead of delete
+        'archive_product_on_delete' => true,
+    ],
+
     // show product rate
     'show_rate' => [
         'allowed' => true,

@@ -44,13 +44,13 @@ class CategoryProducts extends AbstractProduct
      */
     protected function addRelations(Builder $query): Builder
     {
+        $user = $this->getUser();
+
+        $userId = $user ? $user->id : null;
+
         return $query->with('primaryImage', 'productImages', 'actualBadges', 'availableStorageProducts', 'expectingStorageProducts', 'availableVendorProducts', 'expectingVendorProducts', 'availableProductStorages.city')
-            ->with(['favouriteProducts' => function($query){
-                if (auth('web')->check()){
-                    $query->where('users_id', auth('web')->id());
-                }elseif (request()->hasCookie('uuid')){
-                    $query->where('users_id', request()->cookie('uuid'));
-                }
+            ->with(['favouriteProducts' => function ($query) use ($userId) {
+                $query->where('users_id', $userId);
             }]);
     }
 
@@ -63,7 +63,7 @@ class CategoryProducts extends AbstractProduct
      */
     protected function sortProductsBy(Builder $query, string $sortMethod): Builder
     {
-        switch ($sortMethod){
+        switch ($sortMethod) {
             case SortProductsInterface::POPULAR:
                 $query->withCount('recentProducts')->orderByDesc('recent_products_count');
                 break;

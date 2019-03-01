@@ -29,7 +29,7 @@
                         feather.replace();
                     }
                 });
-            }, 10000);
+            }, 4000);
 
             // activate admin menu
             let currentLink = $('#main-menu-sync-jobs');

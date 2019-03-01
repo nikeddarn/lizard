@@ -6,12 +6,12 @@
 namespace App\Support\Shop\Products;
 
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Cookie;
-use Illuminate\Support\Str;
+use App\Support\User\RetrieveUser;
 
 class RecentProducts extends AbstractProduct
 {
+    use RetrieveUser;
+
     /**
      * Get users' recent products.
      *
@@ -19,47 +19,24 @@ class RecentProducts extends AbstractProduct
      */
     public function getProducts()
     {
-        if (auth('web')->check()) {
-            $recentProductsQuery = $this->makeAuthenticatedUserProductsQuery();
+        $user = $this->getUser();
+
+        if ($user) {
+            $userId = $user->id;
+
+            $products = $user->timeLimitedRecentProducts()
+                ->with('primaryImage', 'availableStorageProducts', 'expectingStorageProducts', 'availableVendorProducts', 'expectingVendorProducts')
+                ->with(['favouriteProducts' => function ($query) use ($userId) {
+                    $query->where('users_id', $userId);
+                }])
+                ->paginate($this->productsPerPage)
+                ->appends(request()->query());
+
+            $this->addProductsProperties($products);
+
+            return $products;
         } else {
-            $recentProductsQuery = $this->makeGuestUserProductsQuery();
+            return null;
         }
-
-        $products = $recentProductsQuery->with('primaryImage', 'availableStorageProducts', 'expectingStorageProducts', 'availableVendorProducts', 'expectingVendorProducts')
-            ->paginate($this->productsPerPage)->appends(request()->query());
-
-        $this->addProductsProperties($products);
-
-        return $products;
-    }
-
-    /**
-     * Create retrieve authenticated user favourite products query.
-     *
-     * @return Builder
-     */
-    private function makeAuthenticatedUserProductsQuery(): Builder
-    {
-        $usersId = auth('web')->id();
-
-        return $this->getRetrieveProductQuery()
-            ->whereHas('recentProducts', function ($query) use ($usersId) {
-                $query->where('users_id', $usersId);
-            });
-    }
-
-    /**
-     * Create retrieve guest user favourite products query.
-     *
-     * @return Builder
-     */
-    private function makeGuestUserProductsQuery(): Builder
-    {
-        $uuid = Cookie::get('uuid', Str::uuid());
-
-        return $this->getRetrieveProductQuery()
-            ->whereHas('recentProducts', function ($query) use ($uuid) {
-                $query->where('uuid', $uuid);
-            });
     }
 }

@@ -5,9 +5,11 @@ namespace App\Providers;
 use App\Events\Shop\CategoryDeleted;
 use App\Events\Shop\CategorySaved;
 use App\Events\Shop\ProductDeleted;
+use App\Events\Shop\ProductDeleting;
 use App\Events\Shop\ProductSaved;
 use App\Events\Vendor\VendorProductInserted;
 use App\Events\Vendor\VendorProductUpdated;
+use App\Listeners\Shop\ArchiveOrDeleteProduct;
 use App\Listeners\Shop\UpdateParentCategoryTimestamp;
 use App\Listeners\Vendor\UpdateProductAvailability;
 use App\Listeners\Shop\UpdateProductCategoryTimestamp;
@@ -53,6 +55,11 @@ class EventServiceProvider extends ServiceProvider
         ],
         CategoryDeleted::class => [
             UpdateParentCategoryTimestamp::class,
+        ],
+
+        // delete or archive product
+        ProductDeleting::class => [
+            ArchiveOrDeleteProduct::class,
         ],
 
         // product changed

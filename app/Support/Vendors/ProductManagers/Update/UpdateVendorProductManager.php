@@ -8,9 +8,6 @@ namespace App\Support\Vendors\ProductManagers\Update;
 
 use App\Events\Vendor\VendorProductUpdated;
 use App\Models\VendorProduct;
-use App\Support\ProductAvailability\ProductAvailability;
-use App\Support\ProductBadges\ProductBadges;
-use App\Support\ProductPrices\VendorProductPrice;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -21,7 +18,7 @@ abstract class UpdateVendorProductManager
     /**
      * @var array
      */
-    protected $vendorProductPricesData;
+    protected $vendorProductData;
     /**
      * @var array
      */
@@ -30,33 +27,6 @@ abstract class UpdateVendorProductManager
      * @var VendorProduct
      */
     protected $vendorProduct;
-    /**
-     * @var VendorProductPrice
-     */
-    private $productPrice;
-    /**
-     * @var ProductAvailability
-     */
-    private $productAvailability;
-    /**
-     * @var ProductBadges
-     */
-    private $productBadges;
-
-    /**
-     * UpdateVendorProductPriceManager constructor.
-     * @param VendorProduct $vendorProduct
-     * @param VendorProductPrice $productPrice
-     * @param ProductAvailability $productAvailability
-     * @param ProductBadges $productBadges
-     */
-    public function __construct(VendorProduct $vendorProduct, VendorProductPrice $productPrice, ProductAvailability $productAvailability, ProductBadges $productBadges)
-    {
-        $this->vendorProduct = $vendorProduct;
-        $this->productPrice = $productPrice;
-        $this->productAvailability = $productAvailability;
-        $this->productBadges = $productBadges;
-    }
 
     /**
      * Update vendor product price.
@@ -72,9 +42,9 @@ abstract class UpdateVendorProductManager
         // retrieve product data from vendor and prepare it for update
         $this->prepareVendorProductData($vendorProductId);
 
-        DB::beginTransaction();
-
         try {
+            DB::beginTransaction();
+
             // update product
             $this->updateProductProperties($vendorProduct);
 
@@ -82,13 +52,20 @@ abstract class UpdateVendorProductManager
 
         } catch (Throwable $exception) {
             DB::rollBack();
-
             throw new  Exception($exception->getMessage());
         }
 
         // fire event
         event(new VendorProductUpdated($vendorProduct->product));
     }
+
+    /**
+     * Get vendor product.
+     *
+     * @param int $vendorProductId
+     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model
+     */
+    abstract protected function getVendorProduct(int $vendorProductId);
 
     /**
      * Prepare product data for update.
@@ -101,14 +78,14 @@ abstract class UpdateVendorProductManager
     /**
      * Update vendor product and product data.
      *
-     * @param VendorProduct $vendorProduct
+     * @param VendorProduct|Model $vendorProduct
      * @throws Exception
      */
     private function updateProductProperties(VendorProduct $vendorProduct)
     {
         // update vendor product prices
-        if (isset($this->vendorProductPricesData)) {
-            $this->updateProductPrices($vendorProduct);
+        if (isset($this->vendorProductData)) {
+            $this->updateProductData($vendorProduct);
         }
 
         // update vendor product stocks data
@@ -123,10 +100,10 @@ abstract class UpdateVendorProductManager
      * @param VendorProduct $vendorProduct
      * @throws Exception
      */
-    private function updateProductPrices(VendorProduct $vendorProduct)
+    private function updateProductData(VendorProduct $vendorProduct)
     {
         // update vendor product prices
-        $vendorProduct->update($this->vendorProductPricesData);
+        $vendorProduct->update($this->vendorProductData);
     }
 
     /**

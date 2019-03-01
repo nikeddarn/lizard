@@ -2,25 +2,23 @@
 
 namespace App\Listeners\Vendor;
 
-use App\Contracts\Shop\StorageDepartmentsInterface;
 use App\Models\Product;
-use App\Support\Settings\SettingsRepository;
+use App\Models\VendorCategory;
 
 class UpdateProductPublishing
 {
     /**
-     * @var SettingsRepository
+     * @var VendorCategory
      */
-    private $settingsRepository;
+    private $vendorCategory;
 
     /**
-     * Create the event listener.
-     *
-     * @param SettingsRepository $settingsRepository
+     * UpdateProductPublishing constructor.
+     * @param VendorCategory $vendorCategory
      */
-    public function __construct(SettingsRepository $settingsRepository)
+    public function __construct(VendorCategory $vendorCategory)
     {
-        $this->settingsRepository = $settingsRepository;
+        $this->vendorCategory = $vendorCategory;
     }
 
     /**
@@ -39,16 +37,26 @@ class UpdateProductPublishing
             $product->published = 1;
         } else {
             // calculate min vendor's offer price
-            $minVendorPrices = $product->vendorProducts()->min('price');
+            $minVendorsPrice = $product->vendorProducts()->min('price');
 
-            if ($minVendorPrices) {
-                // max profit
-                $maxProductProfit = $product->price1 - $minVendorPrices;
+            if ($minVendorsPrice) {
+                $productId = $product->id;
 
-                //get min profit to publish product
-                $minProfitToPublish = $this->settingsRepository->getProperty('vendor.min_profit_sum_to_offer_product');
+                $vendorCategories = $this->vendorCategory->newQuery()->whereHas('vendorProducts', function ($query) use ($productId){
+                    $query->where('products_id', $productId);
+                });
 
-                $product->published = $maxProductProfit > $minProfitToPublish;
+                //get min profit sum to publish product
+                $minProfitSumToPublish = $vendorCategories->min('publish_product_min_profit_sum');
+                //get min profit percents to publish product
+                $minProfitPercentsToPublish = $vendorCategories->min('publish_product_min_profit_percent');
+
+                // max profit sum
+                $maxProductProfitSum = $product->price1 - $minVendorsPrice;
+                // max profit percents
+                $maxProductProfitPercents = $maxProductProfitSum / $minVendorsPrice *100;
+
+                $product->published = ($maxProductProfitSum > $minProfitSumToPublish) || ($maxProductProfitPercents > $minProfitPercentsToPublish);
             } else {
                 $product->published = 1;
             }
@@ -63,13 +71,8 @@ class UpdateProductPublishing
      * @param Product $product
      * @return bool
      */
-    private function isProductOnOwnStorage(Product $product)
+    private function isProductOnOwnStorage(Product $product): bool
     {
-        return (bool)$product->storageProducts()
-            ->where([
-                ['storage_departments_id', '=', StorageDepartmentsInterface::STOCK],
-                ['stock_quantity', '>', 0],
-            ])
-            ->count();
+        return (bool)$product->stockStorages->count();
     }
 }

@@ -13,7 +13,7 @@
                 </div>
 
                 {{--details--}}
-                <div class="col-sm-8 mt-2 mt-sm-4">
+                <div class="col-sm-8 mt-2 mt-sm-4 product-wrapper">
                     @include('content.shop.product.details.parts.details')
                 </div>
 
@@ -26,8 +26,6 @@
 
         </div>
     </div>
-
-    @include('content.shop.product.details.parts.modal_product_favourite_added')
 
 @endsection
 

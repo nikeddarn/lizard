@@ -80,8 +80,6 @@
 
     </div>
 
-    @include('content.shop.category.leaf.list.parts.modal_product_favourite_added')
-
     {{-- product filters modal--}}
     @include('content.shop.category.leaf.list.parts.filters_modal')
 

@@ -23,7 +23,8 @@
                     </a>
 
                     <form class="category-delete-form d-inline-block mx-1"
-                          action="{{ route('admin.categories.destroy', ['id' => $category->id]) }}" method="post">
+                          action="{{ route('admin.categories.destroy', ['id' => $category->id]) }}" method="post"
+                          data-check-empty-url="{{ route('admin.categories.empty', ['id' => $category->id]) }}">
                         @csrf
                         @method('DELETE')
 

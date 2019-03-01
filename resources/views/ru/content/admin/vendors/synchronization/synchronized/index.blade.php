@@ -49,7 +49,7 @@
                         data: form.serialize(),
                         success: function () {
                             $(form).removeClass('d-inline-block').addClass('d-none');
-                            $(form).closest('.sync-category-actions').find('.auto-add-products-on-form').removeClass('d-none').addClass('d-inline-block');
+                            $(form).parent().find('.auto-add-products-on-form').removeClass('d-none').addClass('d-inline-block');
                         }
                     });
                 }
@@ -69,7 +69,7 @@
                         data: form.serialize(),
                         success: function () {
                             $(form).removeClass('d-inline-block').addClass('d-none');
-                            $(form).closest('.sync-category-actions').find('.auto-add-products-off-form').removeClass('d-none').addClass('d-inline-block');
+                            $(form).parent().find('.auto-add-products-off-form').removeClass('d-none').addClass('d-inline-block');
                         }
                     });
                 }

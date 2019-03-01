@@ -2,18 +2,42 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\VendorProduct;
 use App\Support\Vendors\Providers\BrainInsertProductProvider;
+use Carbon\Carbon;
+use DateTime;
 use Illuminate\Config\Repository;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Str;
 use stdClass;
 
 class MainPageController extends Controller
 {
     public function show()
     {
+//        $uuid = Str::uuid();
+//
+//        $user = new User();
+//        $user->setRememberToken($uuid);
+//        $user->save();
+////
+//        $cookieName = $user->getRememberTokenName();
+//
+//        auth('web')->login($user, true);
+//        auth('web')->logout();
+
+//        $user = User::query()->where('remember_token', request()->cookie('remember_token'))->first();
+
+//var_dump($user);
+//var_dump(auth('web')->user());
+//        echo(auth()->guard('web')->getProvider());exit;
+//        $uuid = Str::uuid();
+//        return response(view('content.main.index'))->withCookie(cookie()->forever($cookieName, $uuid));
+//        return response(view('content.main.index'));
 //var_dump(explode(',', ''));exit;
 //        var_dump(http_build_query([]));exit;
 //

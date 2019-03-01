@@ -201,13 +201,17 @@
                                     <tr>
                                         <td></td>
                                         <td>
-                                            <div class="btn-group mt-4" role="group" aria-label="Basic example">
-                                                <a href="{{ route('shop.cart.add', ['id' => $product->id]) }}"
-                                                   class="btn btn-primary">Добавить в корзину</a>
+                                            <div id="product-details-actions" class="btn-group d-flex" role="group">
+                                                <button type="submit" class="btn btn-primary">Добавить в корзину</button>
+                                                <a href="{{ route('user.favourites.remove', ['id' => $product->id]) }}"
+                                                   class="btn product-favourite product-favourite-remove align-items-center justify-content-center{{ $product->isFavourite ?  ' active d-flex' : ' d-none'}}"
+                                                   title="Удалить из избранного" data-add-title="Удалить из избранного" data-remove-title="Удалить из избранного">
+                                                    <i class="svg-icon-larger" data-feather="heart"></i>
+                                                </a>
                                                 <a href="{{ route('user.favourites.add', ['id' => $product->id]) }}"
-                                                   class="btn btn-outline-theme product-favourite-add"
-                                                   data-toggle="tooltip" data-placement="top" title="В избранное">
-                                                    <i class="fa fa-heart-o"></i>
+                                                   class="btn product-favourite product-favourite-add align-items-center justify-content-center{{ $product->isFavourite ?  ' d-none' : ' d-flex'}}"
+                                                   title="Добавить в избранное" data-remove-title="Добавить в избранное" data-add-title="Добавить в избранное">
+                                                    <i class="svg-icon-larger" data-feather="heart"></i>
                                                 </a>
                                             </div>
                                         </td>

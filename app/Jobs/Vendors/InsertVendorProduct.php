@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Vendors;
 
+use App\Exceptions\Vendor\DisallowInsertProductException;
 use App\Models\SynchronizingProduct;
 use App\Support\Vendors\VendorBroker;
 use Exception;
@@ -38,6 +39,10 @@ class InsertVendorProduct implements ShouldQueue
      * @var int
      */
     private $vendorProductId;
+    /**
+     * @var bool
+     */
+    private $checkInsertAllow;
 
     /**
      * Create a new job instance.
@@ -46,8 +51,9 @@ class InsertVendorProduct implements ShouldQueue
      * @param array $vendorCategoriesIds
      * @param array $localCategoriesIds
      * @param int $vendorProductId
+     * @param bool $checkInsertAllow
      */
-    public function __construct(int $vendorId, array $vendorCategoriesIds, array $localCategoriesIds, int $vendorProductId)
+    public function __construct(int $vendorId, array $vendorCategoriesIds, array $localCategoriesIds, int $vendorProductId, bool $checkInsertAllow = false)
     {
         $this->vendorId = $vendorId;
         $this->vendorCategoriesIds = $vendorCategoriesIds;
@@ -55,6 +61,7 @@ class InsertVendorProduct implements ShouldQueue
         $this->vendorProductId = $vendorProductId;
 
         $this->tries = config('vendor.insert_vendor_product.tries');
+        $this->checkInsertAllow = $checkInsertAllow;
     }
 
     /**
@@ -69,7 +76,11 @@ class InsertVendorProduct implements ShouldQueue
         if ($this->isJobNotCancelled()) {
             try {
                 // insert product via manager
-                $vendorBroker->getInsertProductJobManager($this->vendorId)->insertVendorProduct($this->vendorCategoriesIds, $this->localCategoriesIds, $this->vendorProductId);
+                $vendorBroker->getInsertProductJobManager($this->vendorId)->insertVendorProduct($this->vendorCategoriesIds, $this->localCategoriesIds, $this->vendorProductId, $this->checkInsertAllow);
+            } catch (DisallowInsertProductException $exception) {
+                // inserting product data don't pass conditions
+                // product not inserted
+                // do nothing
             } catch (Exception $exception) {
                 // log error
                 Log::info('Fail insert product: ' . $exception->getMessage());

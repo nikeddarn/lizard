@@ -7,7 +7,6 @@ namespace App\Support\Repositories;
 
 
 use App\Models\Product;
-use App\Models\VendorProduct;
 use Illuminate\Database\Eloquent\Model;
 
 class ProductRepository
@@ -16,64 +15,14 @@ class ProductRepository
      * @var Product
      */
     private $product;
-    /**
-     * @var VendorProduct
-     */
-    private $vendorProduct;
 
     /**
      * ProductRepository constructor.
      * @param Product $product
-     * @param VendorProduct $vendorProduct
      */
-    public function __construct(Product $product, VendorProduct $vendorProduct)
+    public function __construct(Product $product)
     {
         $this->product = $product;
-        $this->vendorProduct = $vendorProduct;
-    }
-
-    /**
-     * Retrieve existing Product model by fields or create it anew.
-     *
-     * @param array $productModelData
-     * @return Product
-     */
-    public function findOrMakeProduct(array $productModelData): Product
-    {
-        // try to retrieve existing vendor product by product's data
-        $product = $this->getProductByModelData($productModelData);
-
-        // create product
-        if (!$product) {
-            $product = $this->createProduct($productModelData);
-        }
-
-        return $product;
-    }
-
-    /**
-     * Get product by related vendor product model with given own vendor product's id.
-     *
-     * @param int $vendorId
-     * @param int $vendorProductId
-     * @return Product|Model|null
-     */
-    public function getProductByVendorProductId(int $vendorId, int $vendorProductId)
-    {
-        return $this->product->newQuery()
-            ->whereHas('vendorProduct', function ($query) use ($vendorId, $vendorProductId) {
-                $query->where([
-                    ['vendors_id', '=', $vendorId],
-                    ['vendor_product_id', '=', $vendorProductId],
-                ]);
-            })
-            ->with(['vendorProduct' => function($query) use ($vendorId, $vendorProductId) {
-                $query->where([
-                    ['vendors_id', '=', $vendorId],
-                    ['vendor_product_id', '=', $vendorProductId],
-                ]);
-            }])
-            ->first();
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class VendorProduct extends Model
@@ -58,5 +59,16 @@ class VendorProduct extends Model
     public function vendorStocks()
     {
         return $this->belongsToMany('App\Models\VendorStock', 'vendor_stock_product', 'vendor_products_id', 'vendor_stocks_id');
+    }
+
+    /**
+     * Transform timestamp to carbon.
+     *
+     * @param  string  $value
+     * @return string
+     */
+    public function getVendorCreatedAtAttribute($value)
+    {
+        return $value ? Carbon::createFromFormat('Y-m-d H:i:s', $value) : null;
     }
 }

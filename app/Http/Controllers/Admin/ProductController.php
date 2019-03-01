@@ -251,22 +251,25 @@ class ProductController extends Controller
      * Remove the specified resource from storage.
      *
      * @param string $id
-     * @param ProductImageHandler $imageHandler
      * @return \Illuminate\Http\Response
      * @throws \Illuminate\Auth\Access\AuthorizationException
      * @throws \Exception
      */
-    public function destroy(string $id, ProductImageHandler $imageHandler)
+    public function destroy(string $id)
     {
         $this->authorize('delete', $this->product);
 
         // retrieve product
-        $product = $this->product->newQuery()->findOrFail($id);
+        $product = $this->product->newQuery()
+            ->with('storages', 'categories', 'vendorProducts', 'stockStorages')
+            ->findOrFail($id);
 
-        // remove product images from storage
-        $imageHandler->deleteProductImage($id);
+        // product presents or reserved in stock
+        if ($product->stockStorages->count()){
+            return back()->withErrors([trans('validation.product_in_stock')]);
+        }
 
-        // delete product
+        // delete or archive product (via 'deleting' event listeners)
         $product->delete();
 
         return redirect(route('admin.products.index'));

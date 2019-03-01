@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Requests\Admin\Category\Real\StoreCategoryRequest;
 use App\Http\Requests\Admin\Category\Real\UpdateCategoryRequest;
 use App\Models\Category;
+use App\Models\Product;
 use App\Support\ImageHandlers\CategoryImageHandler;
+use App\Support\Settings\SettingsRepository;
 use Exception;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -17,14 +19,20 @@ class CategoryController extends Controller
      * @var Category
      */
     private $category;
+    /**
+     * @var Product
+     */
+    private $product;
 
     /**
      * CategoryController constructor.
      * @param Category $category
+     * @param Product $product
      */
-    public function __construct(Category $category)
+    public function __construct(Category $category, Product $product)
     {
         $this->category = $category;
+        $this->product = $product;
     }
 
     /**
@@ -85,13 +93,6 @@ class CategoryController extends Controller
             $category->image = $destinationImagePath;
             $category->save();
         }
-
-        // insert filters
-//        if ($request->has('filter_id')) {
-//            foreach (array_filter(array_unique($request->get('filter_id'))) as $filterId) {
-//                $category->filters()->attach($filterId);
-//            }
-//        }
 
         return redirect(route('admin.categories.index'));
     }
@@ -197,12 +198,13 @@ class CategoryController extends Controller
      * Remove the specified resource from storage.
      *
      * @param string $id
-     * @param CategoryImageHandler $imageHandler
+     * @param CategoryImageHandler $categoryImageHandler
+     * @param SettingsRepository $settingsRepository
      * @return \Illuminate\Http\Response
      * @throws \Illuminate\Auth\Access\AuthorizationException
      * @throws Exception
      */
-    public function destroy(string $id, CategoryImageHandler $imageHandler)
+    public function destroy(string $id, CategoryImageHandler $categoryImageHandler, SettingsRepository $settingsRepository)
     {
         $this->authorize('delete', $this->category);
 
@@ -210,13 +212,37 @@ class CategoryController extends Controller
         $category = $this->category->newQuery()->findOrFail($id);
 
         // update parent timestamp
-        if ($category->parent_id){
+        if ($category->parent_id) {
             $category->parent()->touch();
         }
 
-        // delete previous image
-        $imageHandler->deleteCategoryIcon($category->id);
+        // get settings
+        $deleteProductSettings = $settingsRepository->getProperty('shop.delete_product');
 
+        // delete products
+        if ($deleteProductSettings['delete_product_on_delete_category']) {
+            // get children and self categories ids
+            $deletingCategoriesIds = $this->category->newQuery()->descendantsAndSelf($id)->get()->pluck('id')->toArray();
+
+            // get deleting products
+            $categoriesProducts = $this->product->newQuery()
+                ->whereHas('categories', function ($query) use ($deletingCategoriesIds) {
+                    $query->whereIn('id', $deletingCategoriesIds);
+                })
+                ->doesntHave('stockStorages')
+                ->with('vendorProducts', 'storages', 'categories')
+                ->get();
+
+            foreach ($categoriesProducts as $product) {
+                // delete or archive product (via 'deleting' event listeners)
+                $product->delete();
+            }
+        }
+
+        // delete previous image
+        $categoryImageHandler->deleteCategoryIcon($category->id);
+
+        // delete category's branch
         $category->delete();
 
         return redirect(route('admin.categories.index'));
@@ -291,5 +317,23 @@ class CategoryController extends Controller
         $this->validate($request, ['image' => 'image']);
 
         return '/storage/' . $request->image->store('images/categories/content', 'public');
+    }
+
+    /**
+     * Has category products ?
+     *
+     * @param Request $request
+     * @param string $id
+     * @return string
+     */
+    public function isEmpty(Request $request, string $id)
+    {
+        if (!$request->ajax()) {
+            abort(403);
+        }
+
+        $category = $this->category->newQuery()->withCount('products')->findOrFail($id);
+
+        return ($category->isLeaf() && !$category->products_count) ? 'true' : 'false';
     }
 }

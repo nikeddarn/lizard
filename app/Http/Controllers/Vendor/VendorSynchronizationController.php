@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Vendor;
 use App\Contracts\Vendor\SyncTypeInterface;
 use App\Http\Controllers\Controller;
 use App\Models\Vendor;
+use App\Models\VendorCategory;
 use App\Support\Vendors\VendorBroker;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\View\View;
 
 class VendorSynchronizationController extends Controller
 {
@@ -21,16 +23,53 @@ class VendorSynchronizationController extends Controller
      * @var VendorBroker
      */
     private $broker;
+    /**
+     * @var VendorCategory
+     */
+    private $vendorCategory;
 
     /**
      * VendorSynchronizationController constructor.
      * @param Vendor $vendor
+     * @param VendorCategory $vendorCategory
      * @param VendorBroker $broker
      */
-    public function __construct(Vendor $vendor, VendorBroker $broker)
+    public function __construct(Vendor $vendor, VendorCategory $vendorCategory, VendorBroker $broker)
     {
         $this->vendor = $vendor;
         $this->broker = $broker;
+        $this->vendorCategory = $vendorCategory;
+    }
+
+    /**
+     * Show synchronized categories.
+     *
+     * @return \Illuminate\Contracts\View\Factory|View
+     */
+    public function synchronizedCategories()
+    {
+        //get locale
+        $locale = app()->getLocale();
+
+        // get synchronized categories with products count
+        $synchronizedCategories = $this->vendorCategory->newQuery()
+            ->selectRaw("vendor_categories.name_$locale AS vendor_category_name, categories.name_$locale AS local_category_name, categories.url AS local_category_url, COUNT(DISTINCT(products2.id)) AS products_count, SUM(IF(products2.published = 1, 1, 0)) AS published_products_count, vendor_local_categories.auto_add_new_products AS auto_add_products, vendors.name_$locale AS vendor_name, vendors.id AS vendor_id, vendor_categories.id AS vendor_category_id, categories.id AS local_category_id, vendor_categories.vendor_category_id AS own_vendor_category_id")
+            ->join('vendors', 'vendors.id', '=', 'vendor_categories.vendors_id')
+            ->leftJoin('vendor_category_product', 'vendor_category_product.vendor_categories_id', '=', 'vendor_categories.id')
+            ->leftJoin('vendor_products', 'vendor_category_product.vendor_products_id', '=', 'vendor_products.id')
+            ->leftJoin('products AS products1', 'products1.id', '=', 'vendor_products.products_id')
+            ->join('vendor_local_categories', 'vendor_local_categories.vendor_categories_id', '=', 'vendor_categories.id')
+            ->join('categories', 'vendor_local_categories.categories_id', '=', 'categories.id')
+            ->leftJoin('category_product', 'category_product.categories_id', '=', 'categories.id')
+            ->leftJoin('products  AS products2', function ($join) {
+                $join->on('category_product.products_id', '=', 'products2.id');
+                $join->on('products1.id', '=', 'products2.id');
+            })
+            ->groupBy("vendor_categories.id", "categories.id", "vendor_local_categories.auto_add_new_products", "vendors.name_$locale", "vendor_categories.id", "categories.id", "vendors.id", "vendor_categories.vendor_category_id")
+            ->orderByRaw('vendor_name, vendor_category_name')
+            ->paginate(config('admin.show_items_per_page'));
+
+        return view('content.admin.vendors.synchronization.synchronized.index')->with(compact('synchronizedCategories'));
     }
 
     /**
@@ -39,7 +78,7 @@ class VendorSynchronizationController extends Controller
      * @param Request $request
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function index(Request $request)
+    public function synchronizationQueue(Request $request)
     {
         $locale = app()->getLocale();
 
@@ -47,20 +86,23 @@ class VendorSynchronizationController extends Controller
         $updateProductPriceSyncType = SyncTypeInterface::UPDATE_PRODUCT;
 
         $vendors = $this->vendor->newQuery()
-            ->leftJoin('synchronizing_products AS ' . $insertProductSyncType, function ($join) use ($insertProductSyncType) {
-                $join->on($insertProductSyncType . '.vendors_id', '=', 'vendors.id');
-                $join->where($insertProductSyncType . '.sync_type', '=', $insertProductSyncType);
+            ->leftJoin('synchronizing_products AS inserting_products', function ($join) use ($insertProductSyncType) {
+                $join->on('inserting_products.vendors_id', '=', 'vendors.id');
+                $join->where('inserting_products.sync_type', '=', $insertProductSyncType);
             })
-            ->leftJoin('synchronizing_products AS ' . $updateProductPriceSyncType, function ($join) use ($updateProductPriceSyncType) {
-                $join->on($updateProductPriceSyncType . '.vendors_id', '=', 'vendors.id');
-                $join->where($updateProductPriceSyncType . '.sync_type', '=', $updateProductPriceSyncType);
+            ->leftJoin('synchronizing_products AS updating_products', function ($join) use ($updateProductPriceSyncType) {
+                $join->on('updating_products.vendors_id', '=', 'vendors.id');
+                $join->where('updating_products.sync_type', '=', $updateProductPriceSyncType);
             })
             ->selectRaw("vendors.id, vendors.name_$locale, vendors.sync_new_products_at, vendors.sync_prices_at")
-            ->selectRaw('COUNT(DISTINCT(' . $insertProductSyncType . '.vendor_product_id)) AS ' . $insertProductSyncType . '_count')
-            ->selectRaw('COUNT(DISTINCT(' . $updateProductPriceSyncType . '.vendor_product_id)) AS ' . $updateProductPriceSyncType . '_count')
+            ->selectRaw('COUNT(DISTINCT(inserting_products.vendor_product_id)) AS inserting_products_count')
+            ->selectRaw('COUNT(DISTINCT(updating_products.vendor_product_id)) AS updating_products_count')
             ->groupBy('vendors.id')
             ->orderBy("vendors.name_$locale")
             ->get();
+
+        // prepare data
+//        $this->prepareVendorsData($vendors);
 
         if ($request->ajax()) {
             return view('content.admin.vendors.synchronization.queue.parts.list')->with(compact('vendors'));
@@ -86,7 +128,7 @@ class VendorSynchronizationController extends Controller
 
             // sync updated vendor products
             $this->syncUpdatedVendorProducts($vendor);
-        }catch (Exception $exception){
+        } catch (Exception $exception) {
             Log::channel('schedule')->info($exception->getMessage());
             return back()->withErrors([$exception->getMessage()]);
         }

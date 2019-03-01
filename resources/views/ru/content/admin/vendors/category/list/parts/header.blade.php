@@ -1,7 +1,7 @@
 <div class="card card-body mb-4">
 
     <h1 class="h4 text-gray-hover">
-        <span>Категории поставщика</span>
+        <span>Загруженные категории поставщика</span>
         <span class="ml-4">{{ $vendor->name }}</span>
     </h1>
 

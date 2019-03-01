@@ -1,4 +1,5 @@
-<table class="table table-striped">
+<div class="table-responsive">
+<table class="table">
 
     <thead>
     <tr class="text-center">
@@ -17,13 +18,13 @@
             <td>{{ $vendor->name_ru }}</td>
 
             @if($vendor->sync_new_products_at)
-                <td>{{ $vendor->{\App\Contracts\Vendor\SyncTypeInterface::INSERT_PRODUCT . '_count'} }}&emsp;({{ \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $vendor->sync_new_products_at)->diffForHumans() }})</td>
+                <td>{{ $vendor->inserting_products_count }}&emsp;({{ $vendor->sync_new_products_at->diffForHumans() }})</td>
             @else
                 <td>Не синхронизировалось</td>
             @endif
 
             @if($vendor->sync_prices_at)
-                <td>{{ $vendor->{\App\Contracts\Vendor\SyncTypeInterface::UPDATE_PRODUCT . '_count'} }}&emsp;({{ \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $vendor->sync_prices_at)->diffForHumans() }})</td>
+                <td>{{ $vendor->updating_products_count }}&emsp;({{ $vendor->sync_prices_at->diffForHumans() }})</td>
             @else
                 <td>Не синхронизировалось</td>
             @endif
@@ -43,3 +44,4 @@
 
     </tbody>
 </table>
+</div>

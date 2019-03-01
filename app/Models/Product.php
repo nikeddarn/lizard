@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Contracts\Shop\StorageDepartmentsInterface;
 use App\Events\Shop\ProductDeleted;
+use App\Events\Shop\ProductDeleting;
 use App\Events\Shop\ProductSaved;
 use App\Models\Support\Translatable;
 use Carbon\Carbon;
@@ -65,7 +66,7 @@ class Product extends Model
      *
      * @return bool
      */
-    public function shouldBeSearchable():bool
+    public function shouldBeSearchable(): bool
     {
         return (bool)$this->published;
     }
@@ -98,6 +99,7 @@ class Product extends Model
      */
     protected $dispatchesEvents = [
         'saved' => ProductSaved::class,
+        'deleting' => ProductDeleting::class,
         'deleted' => ProductDeleted::class,
     ];
 
@@ -196,6 +198,14 @@ class Product extends Model
     /**
      * @return BelongsToMany
      */
+    public function stockStorages()
+    {
+        return $this->belongsToMany('App\Models\Storage', 'storage_products', 'products_id', 'storages_id')->where('storage_departments_id', '=', StorageDepartmentsInterface::STOCK);
+    }
+
+    /**
+     * @return BelongsToMany
+     */
     public function availableProductStorages()
     {
         return $this->belongsToMany('App\Models\Storage', 'storage_products', 'products_id', 'storages_id')
@@ -219,7 +229,8 @@ class Product extends Model
         return $this->belongsToMany('App\Models\Badge', 'product_badge', 'products_id', 'badges_id')
             ->withPivot('expired')
             ->where(function ($query) {
-                $query->where('expired', '>', Carbon::now())->orWhereNull('expired');
+                $query->whereDate('expired', '>', Carbon::now())
+                    ->orWhereNull('expired');
             });
     }
 
@@ -472,5 +483,27 @@ class Product extends Model
         } else {
             $this->attributes['url'] = $value;
         }
+    }
+
+    /**
+     * Transform timestamp to carbon.
+     *
+     * @param  string $value
+     * @return string
+     */
+    public function getCreatedAtAttribute($value)
+    {
+        return $value ? Carbon::createFromFormat('Y-m-d H:i:s', $value) : null;
+    }
+
+    /**
+     * Transform timestamp to carbon.
+     *
+     * @param  string $value
+     * @return string
+     */
+    public function getUpdatedAtAttribute($value)
+    {
+        return $value ? Carbon::createFromFormat('Y-m-d H:i:s', $value) : null;
     }
 }

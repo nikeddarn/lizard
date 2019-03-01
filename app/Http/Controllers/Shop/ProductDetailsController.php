@@ -3,18 +3,20 @@
 namespace App\Http\Controllers\Shop;
 
 use App\Models\Attribute;
-use App\Models\Product;
+use App\Models\User;
 use App\Support\Breadcrumbs\ProductBreadcrumbs;
 use App\Support\Seo\MetaTags\ProductMetaTags;
 use App\Support\Settings\SettingsRepository;
 use App\Support\Shop\Products\SingleProduct;
-use Illuminate\Database\Eloquent\Model;
+use App\Support\User\RetrieveUser;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Str;
 
 class ProductDetailsController extends Controller
 {
+    use RetrieveUser;
+
     /**
      * @var Attribute
      */
@@ -88,29 +90,43 @@ class ProductDetailsController extends Controller
         $pageDescription = $this->productMetaTags->getCategoryDescription($product);
         $pageKeywords = $this->productMetaTags->getCategoryKeywords($product);
 
-        $this->addProductToRecentViewed($product);
+        // add product to user's recent viewed
+        $this->addProductToRecentViewed($product->id);
 
         return view('content.shop.product.details.index')->with(compact('product', 'breadcrumbs', 'comments', 'productAttributes', 'pageTitle', 'pageDescription', 'pageKeywords'));
     }
 
     /**
-     * @param Product|Model $product
+     * @param int $productId
      * @return void
      */
-    private function addProductToRecentViewed(Product $product)
+    private function addProductToRecentViewed(int $productId)
     {
-        if (auth('web')->check()) {
-            $product->recentProducts()->firstOrNew([
-                'users_id' => auth('web')->id(),
-            ])->touch();
-        } else {
-            $uuid = Cookie::get('uuid', Str::uuid());
+        $user = $this->getUser();
 
-            $product->recentProducts()->firstOrNew([
-                'uuid' => $uuid,
-            ])->touch();
-
-            Cookie::queue(Cookie::forever('uuid', $uuid));
+        if (!$user){
+            $user = $this->createUser();
         }
+
+        $user->recentProducts()->syncWithoutDetaching([$productId]);
+    }
+
+    /**
+     * Create new user identifying by cookie.
+     *
+     * @return User
+     */
+    private function createUser():User
+    {
+        $uuid = Str::uuid();
+
+        $user = new User();
+        $user->remember_token = $uuid;
+        $user->save();
+
+        // store user's cookie
+        Cookie::queue(Cookie::forever('remember_token', $uuid));
+
+        return $user;
     }
 }

@@ -6,13 +6,12 @@ use App\Contracts\Vendor\SyncTypeInterface;
 use App\Http\Controllers\Controller;
 use App\Jobs\Vendors\InsertVendorProduct;
 use App\Models\Category;
-use App\Models\CategoryProduct;
 use App\Models\Job;
 use App\Models\Product;
 use App\Models\SynchronizingProduct;
 use App\Models\VendorCategory;
 use App\Models\VendorProduct;
-use App\Support\ImageHandlers\ProductImageHandler;
+use App\Support\Vendors\ProductManagers\Delete\DeleteVendorProductManager;
 use App\Support\Vendors\VendorBroker;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
@@ -46,9 +45,9 @@ class VendorProductController extends Controller
      */
     private $synchronizingProduct;
     /**
-     * @var ProductImageHandler
+     * @var DeleteVendorProductManager
      */
-    private $imageHandler;
+    private $deleteVendorProductManager;
 
 
     /**
@@ -57,70 +56,95 @@ class VendorProductController extends Controller
      * @param Category $category
      * @param VendorBroker $vendorBroker
      * @param VendorProduct $vendorProduct
-     * @param Product $product
      * @param SynchronizingProduct $synchronizingProduct
-     * @param ProductImageHandler $imageHandler
+     * @param DeleteVendorProductManager $deleteVendorProductManager
      */
-    public function __construct(VendorCategory $vendorCategory, Category $category, VendorBroker $vendorBroker, VendorProduct $vendorProduct, Product $product, SynchronizingProduct $synchronizingProduct, ProductImageHandler $imageHandler)
+    public function __construct(VendorCategory $vendorCategory, Category $category, VendorBroker $vendorBroker, VendorProduct $vendorProduct, SynchronizingProduct $synchronizingProduct, DeleteVendorProductManager $deleteVendorProductManager)
     {
         $this->vendorCategory = $vendorCategory;
         $this->vendorBroker = $vendorBroker;
         $this->vendorProduct = $vendorProduct;
         $this->category = $category;
-        $this->product = $product;
         $this->synchronizingProduct = $synchronizingProduct;
-        $this->imageHandler = $imageHandler;
+        $this->deleteVendorProductManager = $deleteVendorProductManager;
+    }
+
+    public function downloaded(int $vendorCategoryId, int $localCategoryId)
+    {
+        $vendorCategory = $this->vendorCategory->newQuery()->with('vendor')->findOrFail($vendorCategoryId);
+
+        $localCategory = $this->category->newQuery()->findOrFail($localCategoryId);
+
+        $downloadedVendorProducts = $this->vendorProduct->newQuery()
+            ->whereHas('vendorCategories', function ($query) use ($vendorCategoryId) {
+                $query->where('id', $vendorCategoryId);
+            })
+            ->whereHas('product.categories', function ($query) use ($localCategoryId) {
+                $query->where('id', $localCategoryId);
+            })
+            ->with('product.primaryImage')
+            ->paginate(config('admin.vendor_products_per_page'));
+
+        foreach ($downloadedVendorProducts as $vendorProduct) {
+            if ($vendorProduct->price && $vendorProduct->product->price1) {
+                $vendorProduct->profit = number_format($vendorProduct->product->price1 - $vendorProduct->price, 2);
+                $vendorProduct->profitPercents = number_format($vendorProduct->profit / $vendorProduct->price * 100, 2);
+            }
+        }
+
+        return view('content.admin.vendors.products.downloaded.index')->with(compact('vendorCategory', 'localCategory', 'downloadedVendorProducts'));
     }
 
     /**
-     * @param int $vendorId
      * @param int $vendorCategoryId
      * @param int $localCategoryId
      * @return View
      */
-    public function index(int $vendorId, int $vendorCategoryId, int $localCategoryId)
+    public function sync(int $vendorCategoryId, int $localCategoryId)
     {
-        // get categories model for view
-        $vendorCategory = $this->vendorCategory->newQuery()->where('id', $vendorCategoryId)->with('vendor')->firstOrFail();
-
-        $localCategory = $this->category->newQuery()->findOrFail($localCategoryId);
-
-        // define current page
-        $page = request()->has('page') ? request()->get('page') : 1;
-
         try {
+            // get categories model for view
+            $vendorCategory = $this->vendorCategory->newQuery()->where('id', $vendorCategoryId)->with('vendor')->firstOrFail();
+
+            $vendorId = $vendorCategory->vendor->id;
+
+            $localCategory = $this->category->newQuery()->findOrFail($localCategoryId);
+
+            // define current page
+            $page = request()->has('page') ? request()->get('page') : 1;
+
             // get paginator for current page
             $vendorProcessingProducts = $this->vendorBroker->getVendorCatalogManager($vendorId)->getCategoryPageProducts($vendorCategory->vendor_category_id, $page);
 
+            // get processing products
+            $processingProductsIds = $vendorProcessingProducts->pluck('id')->toArray();
+
+            // get all synchronized products
+            $synchronizedProducts = $this->getSynchronizedVendorProductsQuery($vendorCategoryId, $localCategoryId)->get();
+
+            // synchronized products ids for current page
+            $currentPageSynchronizedProductsIds = $synchronizedProducts->whereIn('vendor_product_id', $processingProductsIds)
+                ->pluck('vendor_product_id')
+                ->toArray();
+
+            // get queued products
+            $queuedProductsIds = $this->getQueuedVendorProductsIds($vendorId, $vendorCategoryId, $localCategoryId, $processingProductsIds);
+
+            // park vendor products as checked and queued
+            $vendorProcessingProducts->each(function ($product) use ($currentPageSynchronizedProductsIds, $queuedProductsIds) {
+                $product->checked = in_array($product->id, $currentPageSynchronizedProductsIds);
+                $product->queued = in_array($product->id, $queuedProductsIds);
+            });
+
+            $totalSynchronizedProductsCount = count($synchronizedProducts);
+
+            return view('content.admin.vendors.products.synchronization.index')->with(compact('vendorCategory', 'localCategory', 'vendorProcessingProducts', 'totalSynchronizedProductsCount'));
+
         } catch (Exception $exception) {
-            return view('content.admin.vendors.category.synchronized_products.index')
+            return view('content.admin.vendors.products.synchronization.index')
                 ->with(compact('vendorCategory', 'localCategory'))
                 ->withErrors([$exception->getMessage()]);
         }
-
-        // get processing products
-        $processingProductsIds = $vendorProcessingProducts->pluck('id')->toArray();
-
-        // get all synchronized products
-        $synchronizedProducts = $this->getSynchronizedVendorProductsQuery($vendorCategoryId, $localCategoryId)->get();
-
-        // synchronized products ids for current page
-        $currentPageSynchronizedProductsIds = $synchronizedProducts->whereIn('vendor_product_id', $processingProductsIds)
-            ->pluck('vendor_product_id')
-            ->toArray();
-
-        // get queued products
-        $queuedProductsIds = $this->getQueuedVendorProductsIds($vendorId, $vendorCategoryId, $localCategoryId, $processingProductsIds);
-
-        // park vendor products as checked and queued
-        $vendorProcessingProducts->each(function ($product) use ($currentPageSynchronizedProductsIds, $queuedProductsIds) {
-            $product->checked = in_array($product->id, $currentPageSynchronizedProductsIds);
-            $product->queued = in_array($product->id, $queuedProductsIds);
-        });
-
-        $totalSynchronizedProductsCount = count($synchronizedProducts);
-
-        return view('content.admin.vendors.category.synchronized_products.index')->with(compact('vendorCategory', 'localCategory', 'vendorProcessingProducts', 'totalSynchronizedProductsCount'));
     }
 
 
@@ -130,7 +154,7 @@ class VendorProductController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function upload()
+    public function downloadSelected()
     {
         $vendorId = (int)request()->get('vendors_id');
         $vendorCategoryId = (int)request()->get('vendor_categories_id');
@@ -164,7 +188,7 @@ class VendorProductController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function uploadAll()
+    public function downloadAll()
     {
         $vendorId = (int)request()->get('vendors_id');
         $vendorCategoryId = (int)request()->get('vendor_categories_id');
@@ -191,18 +215,18 @@ class VendorProductController extends Controller
         // define not inserted vendor products
         $insertingVendorProductsIds = array_diff($processingVendorProductsIds, $synchronizedProductsIds, $queuedProductsIds);
 
-        // insert not inserted vendor products
-        $this->insertVendorProducts($vendorId, $vendorCategoryId, $localCategoryId, $insertingVendorProductsIds);
+        // insert vendor products with checking inserting conditions
+        $this->insertVendorProducts($vendorId, $vendorCategoryId, $localCategoryId, $insertingVendorProductsIds, true);
 
         return back();
     }
 
     /**
-     * Get already synchronized products from processing vendor products.
+     * Get already synchronized products ids from processing vendor products.
      *
      * @return string
      */
-    public function uploaded()
+    public function downloadedIds()
     {
         // this route for ajax only
         if (!request()->ajax()) {
@@ -220,6 +244,31 @@ class VendorProductController extends Controller
             ->toArray();
 
         return json_encode($synchronizedProductsIds);
+    }
+
+    /**
+     * Delete synchronized vendor product and product if allowed.
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws Exception
+     */
+    public function deleteVendorProduct()
+    {
+        $vendorProductId = request()->get('vendor_product_id');
+        $localCategoryId = request()->get('local_category_id');
+
+        // get product
+        $vendorProduct = $this->vendorProduct->newQuery()
+            ->with(['product' => function ($query) use ($localCategoryId) {
+                $query->with('categories', 'vendorProducts', 'storages', 'stockStorages');
+            }])
+            ->findOrFail($vendorProductId);
+
+        if (!$this->deleteVendorProductManager->deleteVendorProduct($vendorProduct, $localCategoryId)) {
+            return back()->withErrors([trans('validation.product_in_stock')]);
+        }
+
+        return back();
     }
 
     /**
@@ -272,8 +321,9 @@ class VendorProductController extends Controller
      * @param int $vendorCategoryId
      * @param int $localCategoryId
      * @param array $vendorProductsIds
+     * @param bool $checkInsertAllow
      */
-    private function insertVendorProducts(int $vendorId, int $vendorCategoryId, int $localCategoryId, array $vendorProductsIds)
+    private function insertVendorProducts(int $vendorId, int $vendorCategoryId, int $localCategoryId, array $vendorProductsIds, $checkInsertAllow = false)
     {
         $attachingVendorCategories = [$vendorCategoryId];
         $attachingLocalCategories = [$localCategoryId];
@@ -281,7 +331,7 @@ class VendorProductController extends Controller
         foreach ($vendorProductsIds as $vendorProductId) {
             // dispatch product to inserting queue
             $jobId = $this->dispatch(
-                (new InsertVendorProduct($vendorId, $attachingVendorCategories, $attachingLocalCategories, $vendorProductId))
+                (new InsertVendorProduct($vendorId, $attachingVendorCategories, $attachingLocalCategories, $vendorProductId, $checkInsertAllow))
                     ->onConnection('database')
                     ->onQueue(SyncTypeInterface::INSERT_PRODUCT)
             );
@@ -304,65 +354,43 @@ class VendorProductController extends Controller
      * @param int $vendorId
      * @param int $vendorCategoryId
      * @param int $localCategoryId
-     * @param array $vendorProductsIds
+     * @param array $vendorOwnProductsIds
      * @return \Illuminate\Http\RedirectResponse
      */
-    private function deleteVendorProducts(int $vendorId, int $vendorCategoryId, int $localCategoryId, array $vendorProductsIds)
+    private function deleteVendorProducts(int $vendorId, int $vendorCategoryId, int $localCategoryId, array $vendorOwnProductsIds)
     {
-        DB::beginTransaction();
-
         try {
-            // detach product from local category
-            CategoryProduct::query()
-                ->whereHas('product.vendorProducts', function ($query) use ($vendorProductsIds) {
-                    $query->whereIn('vendor_product_id', $vendorProductsIds);
-                })
-                ->where('categories_id', $localCategoryId)
-                ->delete();
+            DB::beginTransaction();
 
-            // deleting products ids
-            $deletingProductsIds = $this->product->newQuery()
-                ->whereHas('vendorProducts', function ($query) use ($vendorProductsIds, $vendorId) {
-                    $query->whereIn('vendor_product_id', $vendorProductsIds)
-                        ->where('vendors_id', $vendorId);
-                })
-                ->doesntHave('categories')
-                ->get()
-                ->pluck('id')
-                ->toArray();
+            // get deleting vendor products
+            $vendorProducts = $this->vendorProduct->newQuery()
+                ->whereIn('vendor_product_id', $vendorOwnProductsIds)
+                ->where('vendors_id', $vendorId)
+                ->with(['product' => function ($query) use ($localCategoryId) {
+                    $query->with('categories', 'vendorProducts', 'storages', 'stockStorages');
+                }])
+                ->get();
 
-            // delete products
-            $this->product->newQuery()
-                ->whereHas('vendorProducts', function ($query) use ($vendorProductsIds, $vendorId) {
-                    $query->whereIn('vendor_product_id', $vendorProductsIds)
-                        ->where('vendors_id', $vendorId);
-                })
-                ->has('vendorProducts', '=', 1)
-                ->doesntHave('categories')
-                ->delete();
-
+            // delete vendor products
+            $allProductsUnlinked = $this->deleteVendorProductManager->deleteVendorProducts($vendorProducts, $localCategoryId);
 
             // delete from jobs
-            Job::query()->whereHas('synchronizingProduct', function ($query) use ($vendorCategoryId, $localCategoryId, $vendorProductsIds) {
+            Job::query()->whereHas('synchronizingProduct', function ($query) use ($vendorCategoryId, $localCategoryId, $vendorOwnProductsIds) {
                 $query->where([
                     ['vendor_categories_id', '=', $vendorCategoryId],
                     ['categories_id', '=', $localCategoryId],
                 ])
-                    ->whereIn('vendor_product_id', $vendorProductsIds);
+                    ->whereIn('vendor_product_id', $vendorOwnProductsIds);
             })
                 ->delete();
 
             DB::commit();
 
+            return $allProductsUnlinked ? back() : back()->withErrors([trans('validation.product_in_stock')]);
+
         } catch (Exception $exception) {
             DB::rollBack();
-
             return back()->withErrors([$exception->getMessage()]);
         }
-
-        // delete products images from storage
-        $this->imageHandler->deleteProductsImages($deletingProductsIds);
-
-        return back();
     }
 }

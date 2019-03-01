@@ -39,6 +39,7 @@ class ShopSettingsController extends Controller
             'show_products_per_page' => $this->settingsRepository->getProperty('shop.show_products_per_page'),
             'show_product_comments_per_page' => $this->settingsRepository->getProperty('shop.show_product_comments_per_page'),
             'recent_product_ttl' => $this->settingsRepository->getProperty('shop.recent_product_ttl'),
+            'delete_product' => $this->settingsRepository->getProperty('shop.delete_product'),
             'show_rate' => $this->settingsRepository->getProperty('shop.show_rate'),
             'show_defect_rate' => $this->settingsRepository->getProperty('shop.show_defect_rate'),
         ];
@@ -73,6 +74,12 @@ class ShopSettingsController extends Controller
         $this->settingsRepository->setProperty('shop.show_products_per_page', $request->get('show_products_per_page'));
         $this->settingsRepository->setProperty('shop.show_product_comments_per_page', $request->get('show_product_comments_per_page'));
         $this->settingsRepository->setProperty('shop.recent_product_ttl', $request->get('recent_product_ttl'));
+
+        $this->settingsRepository->setProperty('shop.delete_product', [
+            'delete_product_on_delete_category' => $request->has('delete_product_on_delete_category'),
+            'archive_product_on_delete' => $request->has('archive_product_on_delete'),
+        ]);
+
         $this->settingsRepository->setProperty('shop.show_rate', [
             'allowed' => $request->has('allow_show_product_rate'),
             'count' => $request->get('show_product_rate_from_review_counts'),
@@ -84,8 +91,10 @@ class ShopSettingsController extends Controller
 
         // badges
         $this->settingsRepository->setProperty('badges', [
-            ProductBadgesInterface::NEW => $request->get('new_product_badge_ttl'),
-            ProductBadgesInterface::PRICE_DOWN => $request->get('price_down_badge_ttl'),
+            'ttl' => [
+                ProductBadgesInterface::NEW => $request->get('new_product_badge_ttl'),
+                ProductBadgesInterface::PRICE_DOWN => $request->get('price_down_badge_ttl'),
+            ],
             ProductBadgesInterface::ENDING => $request->get('ending_badge_products_count'),
         ]);
 
@@ -93,7 +102,7 @@ class ShopSettingsController extends Controller
         $this->settingsRepository->setProperty('shop.products_filters_show', [
             'min' => $request->get('min_show_filters_per_page'),
             'max' => $request->get('max_show_filters_per_page'),
-            'max_values_count' => $request->get('max_values_count'),
+            'max_values_count' => $request->get('max_items_to_open_filter'),
         ]);
 
         return redirect(route('admin.settings.shop.edit'))->with([

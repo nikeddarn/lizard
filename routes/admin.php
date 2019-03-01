@@ -22,6 +22,8 @@ Route::get('/admin/categories/{id}/up', 'Admin\CategoryController@up')->name('ad
 Route::get('/admin/categories/{id}/down', 'Admin\CategoryController@down')->name('admin.categories.down');
 // upload "summernote" editor images
 Route::post('/admin/categories/upload/image', 'Admin\CategoryController@uploadImage')->name('admin.categories.upload.image');
+// is category empty  ?
+Route::get('/admin/categories/{id}/empty', 'Admin\CategoryController@isEmpty')->name('admin.categories.empty');
 
 // category filters
 //    Route::get('/admin/categories/{id}/filter/create', 'Admin\CategoryFilterController@create')->name('admin.categories.filter.create');
@@ -125,41 +127,89 @@ Route::post('/admin/users/role', 'Admin\UserRoleController@store')->name('admin.
 Route::delete('/admin/users/role/destroy', 'Admin\UserRoleController@destroy')->name('admin.users.role.destroy');
 
 
-// ---------------------------------------------- Vendor Routes --------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------- Vendor Routes--------------------------------------------
+// --------------------------------------------------------------------------------------------------------
 
-// categories
-Route::get('/admin/vendor/{vendorId}/categories', 'Vendor\VendorCategoryController@index')->name('vendor.categories.index');
+// ---------------------- vendor catalog -----------------------------
+
+// categories tree
+Route::get('/admin/vendor/{vendorId}/catalog/categories', 'Vendor\VendorCatalogController@categoriesTree')->name('vendor.catalog.categories.tree');
 
 // products of category
-Route::get('/admin/vendor/{vendorId}/category/{vendorCategoryId}/products', 'Vendor\VendorCategoryController@categoryProducts')->name('vendor.category.products.show');
+Route::get('/admin/vendor/{vendorId}/category/{vendorCategoryId}/products', 'Vendor\VendorCatalogController@categoryProducts')->name('vendor.catalog.category.products');
 
 
-Route::get('/admin/categories/synchronized', 'Vendor\VendorCategoryController@synchronized')->name('vendor.categories.synchronized');
+// ---------------------- vendor categories -----------------------------
 
-Route::get('/admin/vendor/{vendorId}/category/{vendorOwnCategoryId}/sync', 'Vendor\VendorCategoryController@sync')->name('vendor.category.sync');
-Route::post('/admin/vendor/category/link', 'Vendor\VendorCategoryController@link')->name('vendor.category.link');
-Route::delete('/admin/vendor/category/unlink', 'Vendor\VendorCategoryController@unlink')->name('vendor.category.unlink');
+// vendor categories list
+Route::get('/admin/vendor/{vendorId}/category/list', 'Vendor\VendorCategoryController@index')->name('vendor.category.list');
 
-Route::post('/admin/vendor/category/products/auto/on', 'Vendor\VendorCategoryController@autoDownloadOn')->name('vendor.category.products.auto.on');
-Route::post('/admin/vendor/category/products/auto/off', 'Vendor\VendorCategoryController@autoDownloadOff')->name('vendor.category.products.auto.off');
+// show vendor category
+Route::get('/admin/vendor/category/{vendorCategoriesId}', 'Vendor\VendorCategoryController@show')->name('vendor.category.show');
 
+// vendor category create
+Route::get('/admin/vendor/{vendorId}/category/{vendorOwnCategoryId}/create', 'Vendor\VendorCategoryController@create')->name('vendor.category.create');
 
-//products
+// vendor category store
+Route::post('/admin/vendor/category/store', 'Vendor\VendorCategoryController@store')->name('vendor.category.store');
 
-// synchronized products
-Route::get('/admin/vendor/{vendorId}/category/{vendorCategoryId}/local/{localCategoryId}/products', 'Vendor\VendorProductController@index')->name('vendor.category.products.index');
+// vendor category edit
+Route::get('/admin/vendor/category/{vendorCategoriesId}/edit', 'Vendor\VendorCategoryController@edit')->name('vendor.category.edit');
 
-Route::post('/admin/vendor/category/products/upload', 'Vendor\VendorProductController@upload')->name('vendor.category.products.upload');
-Route::post('/admin/vendor/category/products/upload/all', 'Vendor\VendorProductController@uploadAll')->name('vendor.category.products.upload.all');
-Route::post('/admin/vendor/category/products/uploaded', 'Vendor\VendorProductController@uploaded')->name('vendor.category.products.uploaded');
+// vendor category store
+Route::post('/admin/vendor/category/update', 'Vendor\VendorCategoryController@update')->name('vendor.category.update');
+
+// vendor category delete
+Route::delete('/admin/vendor/category/delete', 'Vendor\VendorCategoryController@delete')->name('vendor.category.delete');
+
+// --------------------------------- local vendor categories -------------------------------------
+
+// vendor local category create
+Route::get('/admin/vendor/category/{vendorCategoryId}/local/create', 'Vendor\VendorLocalCategoryController@create')->name('vendor.category.local.create');
+
+// vendor local category store
+Route::post('/admin/vendor/category/local/store', 'Vendor\VendorLocalCategoryController@store')->name('vendor.category.local.store');
+
+// vendor local category delete
+Route::delete('/admin/vendor/category/local/delete', 'Vendor\VendorLocalCategoryController@delete')->name('vendor.category.local.delete');
+
+// turn on auto download new products
+Route::post('/admin/vendor/category/products/auto/on', 'Vendor\VendorLocalCategoryController@autoDownloadOn')->name('vendor.category.products.auto.on');
+
+// turn off auto download new products
+Route::post('/admin/vendor/category/products/auto/off', 'Vendor\VendorLocalCategoryController@autoDownloadOff')->name('vendor.category.products.auto.off');
+
+//--------------- sync products --------------------
+
+// downloaded products
+Route::get('/admin/vendor/category/{vendorCategoryId}/local/{localCategoryId}/products/downloaded', 'Vendor\VendorProductController@downloaded')->name('vendor.category.products.downloaded');
+
+// synchronizing products
+Route::get('/admin/vendor/category/{vendorCategoryId}/local/{localCategoryId}/products/sync', 'Vendor\VendorProductController@sync')->name('vendor.category.products.sync');
+
+// download selected
+Route::post('/admin/vendor/category/products/download/selected', 'Vendor\VendorProductController@downloadSelected')->name('vendor.category.products.download.selected');
+
+// download all products of vendor category
+Route::post('/admin/vendor/category/products/download/all', 'Vendor\VendorProductController@downloadAll')->name('vendor.category.products.download.all');
+
+// delete vendor category product
+Route::delete('/admin/vendor/category/products/destroy', 'Vendor\VendorProductController@deleteVendorProduct')->name('vendor.category.products.destroy');
+
+// downloaded vendor products ids
+Route::post('/admin/vendor/category/products/downloaded/ids', 'Vendor\VendorProductController@downloadedIds')->name('vendor.category.products.downloaded.ids');
 
 
 // ---------------------------------------------- Synchronization Routes -----------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
 
+// synchronized categories list
+Route::get('/admin/categories/synchronized', 'Vendor\VendorSynchronizationController@synchronizedCategories')->name('vendor.categories.synchronized');
 
-Route::get('/admin/synchronization', 'Vendor\VendorSynchronizationController@index')->name('vendor.synchronization.index');
+// synchronization jobs queue
+Route::get('/admin/synchronization/queue', 'Vendor\VendorSynchronizationController@synchronizationQueue')->name('vendor.synchronization.index');
+
+// do synchronize vendor
 Route::get('/admin/synchronization/sync/{vendorId}', 'Vendor\VendorSynchronizationController@synchronize')->name('vendor.synchronization.synchronize');
 
 

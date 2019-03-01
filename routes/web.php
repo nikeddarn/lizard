@@ -112,5 +112,6 @@ Route::get('/shop/cart/add/{id}', 'Shop\CartController@addProduct')->name('shop.
 Route::post('/shop/cart/count/{id}', 'Shop\CartController@addProduct')->name('shop.cart.count');
 
 //  Search Routes
-Route::post('/search', 'Shop\SearchController@index')->name('shop.search.index');
+Route::post('/search/{locale?}', 'Shop\SearchController@index')->name('shop.search.index');
+Route::get('/search/{locale?}', 'Shop\SearchController@results')->name('shop.search.results');
 

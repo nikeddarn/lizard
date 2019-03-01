@@ -38,7 +38,7 @@ class VendorProductPrice
     public function getProductPrices(Product $product): array
     {
         // get vendor products
-        $vendorProducts = $product->vendorProducts()->get();
+        $vendorProducts = $product->vendorProducts->get();
 
         if (!$vendorProducts->count()) {
             throw new Exception('Missing any vendor product');
@@ -60,18 +60,18 @@ class VendorProductPrice
             $profitSum = $baseProductRetailPrice - $baseProductIncomingPrice;
             $profitPercentages = $profitSum / $baseProductIncomingPrice * 100;
 
-            // min profit to discount
-            $minProfitSumToDiscount = $this->settingsRepository->getProperty('vendor.min_profit_sum_to_price_discount');
-            $minProfitPercentagesToDiscount = $this->settingsRepository->getProperty('vendor.min_profit_percents_to_price_discount');
+            // discount settings
+            $discountSettings = $this->settingsRepository->getProperty('vendor.price_discount');
 
-            if ($profitSum > $minProfitSumToDiscount || $profitPercentages > $minProfitPercentagesToDiscount) {
-                // get columns discounts
-                $columnDiscounts = $this->settingsRepository->getProperty('vendor.column_discounts');
+            if ($profitSum > $discountSettings['min_profit_sum_to_price_discount'] || $profitPercentages > $discountSettings['min_profit_percents_to_price_discount']) {
 
-                $price1 = $this->getVendorProductColumnPrice($baseProductIncomingPrice, $baseProductRetailPrice, $columnDiscounts['price1']);
-                $price2 = $this->getVendorProductColumnPrice($baseProductIncomingPrice, $baseProductRetailPrice, $columnDiscounts['price2']);
-                $price3 = $this->getVendorProductColumnPrice($baseProductIncomingPrice, $baseProductRetailPrice, $columnDiscounts['price3']);
-            }else{
+                $price1 = $this->getVendorProductColumnPrice($baseProductIncomingPrice, $baseProductRetailPrice, $discountSettings['column_discounts']['price1']);
+
+                $price2 = $this->getVendorProductColumnPrice($baseProductIncomingPrice, $baseProductRetailPrice, $discountSettings['column_discounts']['price2']);
+
+                $price3 = $this->getVendorProductColumnPrice($baseProductIncomingPrice, $baseProductRetailPrice, $discountSettings['column_discounts']['price3']);
+
+            } else {
                 $price1 = $price2 = $price3 = $baseProductRetailPrice;
             }
         } else {
@@ -89,9 +89,9 @@ class VendorProductPrice
      */
     private function getProcessingVendorProducts(Collection $vendorProducts): Collection
     {
-        $isOnlyAvailableVendorProductAllowed = $this->settingsRepository->getProperty('vendor.use_vendor_available_product_to_calculate_price');
+        $vendorPriceConditions = $this->settingsRepository->getProperty('vendor.product_price_conditions');
 
-        if ($vendorProducts->count() === 1 || !$isOnlyAvailableVendorProductAllowed) {
+        if ($vendorProducts->count() === 1 || !$vendorPriceConditions['use_vendor_available_product_to_calculate_price']) {
             // use single vendor product
             return $vendorProducts;
         } else {
@@ -169,9 +169,9 @@ class VendorProductPrice
         // calculate profit
         $profitSum = $baseProductRetailPrice - $baseProductIncomingPrice;
 
-        if ($productPriceColumnDiscount){
+        if ($productPriceColumnDiscount) {
             return $baseProductRetailPrice - $profitSum * min($productPriceColumnDiscount / 100, 1);
-        }else{
+        } else {
             return $baseProductRetailPrice;
         }
     }

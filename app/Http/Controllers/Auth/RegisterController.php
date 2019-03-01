@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Models\FavouriteProduct;
-use App\Models\RecentProduct;
 use App\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -33,25 +31,26 @@ class RegisterController extends Controller
      */
     protected $redirectTo = '/';
     /**
-     * @var FavouriteProduct
+     * @var Request
      */
-    private $favouriteProduct;
+    private $request;
     /**
-     * @var RecentProduct
+     * @var User
      */
-    private $recentProduct;
+    private $user;
 
     /**
      * Create a new controller instance.
      *
-     * @param FavouriteProduct $favouriteProduct
-     * @param RecentProduct $recentProduct
+     * @param Request $request
+     * @param User $user
      */
-    public function __construct(FavouriteProduct $favouriteProduct, RecentProduct $recentProduct)
+    public function __construct(Request $request, User $user)
     {
         $this->middleware('guest');
-        $this->favouriteProduct = $favouriteProduct;
-        $this->recentProduct = $recentProduct;
+
+        $this->request = $request;
+        $this->user = $user;
     }
 
     /**
@@ -77,34 +76,38 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        return User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-        ]);
+        $user = $this->getUser();
+
+        if (!$user) {
+            $user = new User();
+        }
+
+        $this->setUserAttributes($user, $data);
+
+        $user->save();
+
+        return $user;
+    }
+
+    private function getUser()
+    {
+        if ($this->request->hasCookie('remember_token')) {
+            return $this->user->newQuery()->where('remember_token', ($this->request->cookie('remember_token')))->first();
+        } else {
+            return null;
+        }
     }
 
     /**
-     * The user has been registered.
+     * Add attributes to user model.
      *
-     * @param Request $request
-     * @param  User $user
-     * @return void
+     * @param User $user
+     * @param array $data
      */
-    protected function registered(Request $request, $user)
+    private function setUserAttributes(User $user, array $data)
     {
-        // associate created user with unregistered user by it's 'uuid' cookie
-        if ($request->hasCookie('uuid')) {
-
-            $uuid = $request->cookie('uuid');
-
-            $this->favouriteProduct->newQuery()->where('uuid', $uuid)->update([
-                'users_id' => $user->id,
-            ]);
-
-            $this->recentProduct->newQuery()->where('uuid', $uuid)->update([
-                'users_id' => $user->id,
-            ]);
-        }
+        $user->name = $data['name'];
+        $user->email = $data['email'];
+        $user->password = Hash::make($data['password']);
     }
 }

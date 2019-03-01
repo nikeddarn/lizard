@@ -18,9 +18,6 @@ class UpdateVendorSettingsRequest extends FormRequest
     public function rules()
     {
         return [
-            'min_profit_sum_to_offer_product' => 'required|numeric',
-            'min_profit_sum_to_price_discount' => 'required|numeric',
-            'min_profit_percents_to_price_discount' => 'required|numeric',
             'column_discounts*' => 'required|numeric',
         ];
     }

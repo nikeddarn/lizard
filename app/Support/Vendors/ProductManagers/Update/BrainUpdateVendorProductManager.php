@@ -7,14 +7,11 @@ namespace App\Support\Vendors\ProductManagers\Update;
 
 
 use App\Contracts\Vendor\VendorInterface;
-use App\Models\VendorProduct;
-use App\Support\ProductAvailability\ProductAvailability;
-use App\Support\ProductBadges\ProductBadges;
-use App\Support\ProductPrices\VendorProductPrice;
-use App\Support\Vendors\Adapters\BrainProductPriceAdapter;
-use App\Support\Vendors\Adapters\BrainProductStocksDataAdapter;
+use App\Support\Vendors\Adapters\Brain\BrainProductPriceAdapter;
+use App\Support\Vendors\Adapters\Brain\BrainProductStocksDataAdapter;
 use App\Support\Vendors\Providers\BrainUpdateProductProvider;
 use Exception;
+use stdClass;
 
 class BrainUpdateVendorProductManager extends UpdateVendorProductManager
 {
@@ -38,17 +35,12 @@ class BrainUpdateVendorProductManager extends UpdateVendorProductManager
 
     /**
      * BrainUpdateVendorProductPriceManager constructor.
-     * @param VendorProduct $vendorProduct
      * @param BrainUpdateProductProvider $provider
-     * @param VendorProductPrice $productPrice
      * @param BrainProductPriceAdapter $productPriceAdapter
      * @param BrainProductStocksDataAdapter $stocksDataAdapter
-     * @param ProductAvailability $productAvailability
-     * @param ProductBadges $productBadges
      */
-    public function __construct(VendorProduct $vendorProduct, BrainUpdateProductProvider $provider, VendorProductPrice $productPrice, BrainProductPriceAdapter $productPriceAdapter, BrainProductStocksDataAdapter $stocksDataAdapter, ProductAvailability $productAvailability, ProductBadges $productBadges)
+    public function __construct(BrainUpdateProductProvider $provider, BrainProductPriceAdapter $productPriceAdapter, BrainProductStocksDataAdapter $stocksDataAdapter)
     {
-        parent::__construct($vendorProduct, $productPrice, $productAvailability, $productBadges);
 
         $this->provider = $provider;
         $this->productPriceAdapter = $productPriceAdapter;
@@ -68,7 +60,9 @@ class BrainUpdateVendorProductManager extends UpdateVendorProductManager
                 ['vendors_id', '=', VendorInterface::BRAIN],
                 ['vendor_product_id', '=', $vendorProductId],
             ])
-            ->with('product')
+            ->with(['product' => function($query){
+                $query->with('vendorProducts', 'stockStorages');
+            }])
             ->firstOrFail();
     }
 
@@ -85,11 +79,13 @@ class BrainUpdateVendorProductManager extends UpdateVendorProductManager
 
         $vendorUsdCourse = $this->getCashUsdCourse($this->provider->getCoursesData());
 
-        // prepare vendor product prices
-        $this->vendorProductPricesData = $this->productPriceAdapter->prepareVendorProductPrices($vendorProductData, $vendorUsdCourse);
+        // prepare vendor product data
+        $this->vendorProductData = array_merge($this->prepareProductData($vendorProductData), $this->productPriceAdapter->prepareVendorProductPrices($vendorProductData, $vendorUsdCourse));
 
         // prepare vendor product stocks data
         $this->vendorProductStocksData = $this->stocksDataAdapter->prepareVendorProductStocksData($vendorProductData);
+
+
     }
 
     /**
@@ -112,5 +108,18 @@ class BrainUpdateVendorProductManager extends UpdateVendorProductManager
         }else{
             return null;
         }
+    }
+
+    /**
+     * Prepare product data
+     *
+     * @param stdClass $vendorProductData
+     * @return array
+     */
+    private function prepareProductData(stdClass $vendorProductData):array
+    {
+        return [
+            'is_archive' => (int)$vendorProductData->is_archive,
+        ];
     }
 }

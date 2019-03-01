@@ -14,6 +14,20 @@ class FavouriteProduct extends Model
     protected $table = 'favourite_products';
 
     /**
+     * Array of composite primary keys.
+     *
+     * @var array
+     */
+    protected $primaryKey = ['products_id', 'users_id'];
+
+    /**
+     * Non auto incrementing primary key.
+     *
+     * @var bool
+     */
+    public $incrementing = false;
+
+    /**
      * The attributes that aren't mass assignable.
      *
      * @var array

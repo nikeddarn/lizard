@@ -21,6 +21,20 @@ class RecentProduct extends Model
     protected $guarded = [];
 
     /**
+     * Array of composite primary keys.
+     *
+     * @var array
+     */
+    protected $primaryKey = ['products_id', 'users_id'];
+
+    /**
+     * Non auto incrementing primary key.
+     *
+     * @var bool
+     */
+    public $incrementing = false;
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function product()

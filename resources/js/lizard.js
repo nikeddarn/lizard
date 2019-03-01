@@ -1,6 +1,6 @@
 $(document).ready(function () {
 
-    // ------------------------------------ fixing search panel on scroll ----------------------------------
+    // ------------------------------ fixing top panel on scroll ----------------------------------
 
     let fixingTopContainer = $('#header-middle');
 
@@ -56,20 +56,7 @@ $(document).ready(function () {
 
     }
 
-    // highlight input group border on focus
-    let searchForm = $('.form-search');
-
-    let searchInputGroup = $(searchForm).find('.input-group');
-
-    let searchFormInput = $(searchForm).find('input');
-
-    $(searchFormInput).focus(function () {
-        $(this).closest(searchInputGroup).addClass('form-search-active');
-    });
-
-    $(searchFormInput).blur(function () {
-        $(this).closest(searchInputGroup).removeClass('form-search-active');
-    });
+// ----------------------------- Activate dropdown-hover -----------------------------
 
     let dropdownHover = $('.dropdown-hover');
 
@@ -101,6 +88,65 @@ $(document).ready(function () {
         }
     );
 
+    // ----------------------------- Add and remove to favourite -----------------------------
+
+    $('.product-favourite').click(function (e) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+
+        let clickedButton = e.currentTarget;
+        let productWrapper = $(clickedButton).closest('.product-wrapper');
+
+        let productFavouriteRemoveButtons = $(productWrapper).find('.product-favourite-remove');
+        let productFavouriteAddButtons = $(productWrapper).find('.product-favourite-add');
+
+        $.ajax({
+            url: clickedButton,
+            success: function () {
+                if ($(clickedButton).hasClass('product-favourite-remove')) {
+
+                    // change buttons visibility
+                    $(productFavouriteRemoveButtons).removeClass('active d-flex').addClass('d-none');
+                    $(productFavouriteAddButtons).removeClass('d-none').addClass('d-flex');
+
+                    // decrease header badge's count
+                    let badge = $('#header-favourite-products').find('span');
+                    let badgeText = parseInt($(badge).text());
+                    $(badge).text(badgeText && badgeText > 1 ? badgeText - 1 : '');
+
+                } else if ($(clickedButton).hasClass('product-favourite-add')) {
+
+                    // change buttons visibility
+                    $(productFavouriteAddButtons).removeClass('d-flex').addClass('d-none');
+                    $(productFavouriteRemoveButtons).removeClass('d-none').addClass('active d-flex');
+
+                    // increase header badge's count
+                    let badge = $('#header-favourite-products').find('span');
+                    let badgeText = parseInt($(badge).text());
+                    $(badge).text(badgeText ? badgeText + 1 : 1);
+
+                }
+            }
+        });
+    });
+
+    // ------------------------------ search form -------------------------------------
+
+    // highlight input group border on focus
+    let searchForm = $('.form-search');
+
+    let searchInputGroup = $(searchForm).find('.input-group');
+
+    let searchFormInput = $(searchForm).find('input');
+
+    $(searchFormInput).focus(function () {
+        $(this).closest(searchInputGroup).addClass('form-search-active');
+    });
+
+    $(searchFormInput).blur(function () {
+        $(this).closest(searchInputGroup).removeClass('form-search-active');
+    });
+
     // show search on xs
     $('#header-show-search-toggle').click(function () {
         $('#header-search').removeClass('d-none').addClass('d-flex');
@@ -111,64 +157,25 @@ $(document).ready(function () {
         $('#header-search').removeClass('d-flex').addClass('d-none');
     });
 
-    // ----------------------------------------------------- Add and remove to favourite ------------------------------------------
+    let mainSearchForm = $('#main-search-form');
 
-    // add to favourite
-    $('.product-favourite:not(.active)').click(function (e) {
-        addProductToFavourite(e, this);
+    $(mainSearchForm).submit(function (event) {
+
+        // prevent to post roo short search query
+        if ($(mainSearchForm).find('input[name="search_for"]').val().length < 2) {
+
+            $(mainSearchForm).popover('show');
+            setTimeout(function () {
+                $(mainSearchForm).popover('hide');
+            }, 3000);
+
+            event.preventDefault();
+            event.stopImmediatePropagation();
+
+            return false;
+        }
+
+        return true;
     });
-
-
-    // remove to favourite
-    $('.product-favourite.active').click(function (e) {
-        removeProductFromFavourite(e, this);
-    });
-
-    let addProductToFavourite = function (e, favouriteButtonUrl) {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-
-        $.ajax({
-            url: favouriteButtonUrl,
-            success: function (data) {
-                // increase header badge's count
-                let badge = $('#header-favourite-products').find('span');
-                let badgeText = parseInt($(badge).text());
-                $(badge).text(badgeText ? badgeText + 1 : 1);
-
-                // highlight favourite button and replace attributes
-                $(favouriteButtonUrl).addClass('active').attr('href', data).attr('title', $(favouriteButtonUrl).data('remove-title'));
-
-                // rebind 'onclick'
-                $(favouriteButtonUrl).off('click').click(function (e) {
-                    removeProductFromFavourite(e, this);
-                });
-
-            }
-        });
-    };
-
-    let removeProductFromFavourite = function (e, favouriteButtonUrl) {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-
-        $.ajax({
-            url: favouriteButtonUrl,
-            success: function (data) {
-                // decrease header badge's count
-                let badge = $('#header-favourite-products').find('span');
-                let badgeText = parseInt($(badge).text());
-                $(badge).text(badgeText && badgeText > 1 ? badgeText - 1 : '');
-
-                // remove highlight from favourite button and replace attributes
-                $(favouriteButtonUrl).removeClass('active').attr('href', data).attr('title', $(favouriteButtonUrl).data('add-title'));
-
-                // rebind 'onclick'
-                $(favouriteButtonUrl).off('click').click(function (e) {
-                    addProductToFavourite(e, this);
-                });
-            }
-        });
-    };
 
 });

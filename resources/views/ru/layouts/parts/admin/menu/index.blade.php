@@ -62,11 +62,18 @@
 
                         <ul id="main-menu-vendors-{{ $vendor->id }}" class="nav collapse">
 
-                            {{-- Categories --}}
+                            {{-- Categories tree --}}
                             <li class="nav-item w-100">
-                                <a id="main-menu-vendors-{{ $vendor->id }}-categories"
-                                   href="{{ route('vendor.categories.index', ['vendorId' => $vendor->id]) }}"
-                                   class="nav-link text-gray pl-5 submenu-link">Категории</a>
+                                <a id="main-menu-vendors-{{ $vendor->id }}-categories-tree"
+                                   href="{{ route('vendor.catalog.categories.tree', ['vendorId' => $vendor->id]) }}"
+                                   class="nav-link text-gray pl-5 submenu-link">Дерево категорий</a>
+                            </li>
+
+                            {{-- Downloaded categories --}}
+                            <li class="nav-item w-100">
+                                <a id="main-menu-vendors-{{ $vendor->id }}-categories-downloaded"
+                                   href="{{ route('vendor.category.list', ['vendorId' => $vendor->id]) }}"
+                                   class="nav-link text-gray pl-5 submenu-link">Загруженные категории</a>
                             </li>
 
                         </ul>

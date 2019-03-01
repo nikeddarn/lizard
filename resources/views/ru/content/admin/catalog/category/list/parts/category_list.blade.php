@@ -35,7 +35,7 @@
                     </a>
 
                     <form class="d-inline-block category-form ml-lg-2"
-                          action="{{ route('admin.categories.destroy', ['id' => $category->id]) }}" method="post">
+                          action="{{ route('admin.categories.destroy', ['id' => $category->id]) }}" method="post" data-check-empty-url="{{ route('admin.categories.empty', ['id' => $category->id]) }}">
                         @csrf
                         <input type="hidden" name="_method" value="delete"/>
                         <input type="hidden" name="id" value="{{ $category->id }}">
@@ -80,7 +80,7 @@
                     </a>
 
                     <form class="d-inline-block category-form ml-lg-2"
-                          action="{{ route('admin.categories.destroy', ['id' => $category->id]) }}" method="post">
+                          action="{{ route('admin.categories.destroy', ['id' => $category->id]) }}" method="post" data-check-empty-url="{{ route('admin.categories.empty', ['id' => $category->id]) }}">
                         @csrf
                         <input type="hidden" name="_method" value="delete"/>
                         <input type="hidden" name="id" value="{{ $category->id }}">

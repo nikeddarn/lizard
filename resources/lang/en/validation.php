@@ -143,10 +143,15 @@ return [
 
     'attributes' => [],
 
-    // custom rules
-    'old_password_confirmed' => 'Wrong old password.',
-    'no_categories' => 'There are not categories. Create any category first.',
-    'leaf_category' => 'Selected category must be leaf of categories tree.',
-    'parent_category_has_not_products' => 'Parent category should not contain products.',
-    'multiply_product_values' => 'The :attribute attribute does not allow multi values ​​for product.'
+    // auth
+    'old_password_confirmed' => 'Wrong old password',
+
+    // category
+    'no_categories' => 'There are not categories. Create any category first',
+    'leaf_category' => 'Selected category must be leaf of categories tree',
+    'category_not_empty' => 'Parent category contains products or linked to vendor',
+
+    //product
+    'multiply_product_values' => 'The :attribute attribute does not allow multi values ​​for product',
+    'product_in_stock' => 'The product is already presents or reserved in stock',
 ];

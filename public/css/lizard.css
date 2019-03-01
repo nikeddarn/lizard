@@ -795,7 +795,15 @@ textarea:active {
 }
 
 #product-details-actions a {
+  color: #ced4da;
+  -webkit-transition: color .2s, background-color .2s;
+  transition: color .2s, background-color .2s;
+  cursor: pointer;
   border: none;
+}
+
+#product-details-actions a.active {
+  color: #e83e8c;
 }
 
 .table-product-image {

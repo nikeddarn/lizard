@@ -2,8 +2,6 @@
 
 namespace App\Listeners\Vendor;
 
-use Illuminate\Support\Facades\Log;
-
 class UpdateProductSearchIndex
 {
     /**
@@ -18,8 +16,5 @@ class UpdateProductSearchIndex
         // get product
         $product = $event->product;
         $product->save();
-
-//        $product->searchable();
-        Log::info('se');
     }
 }

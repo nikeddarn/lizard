@@ -79,20 +79,6 @@ class LoginController extends Controller
      */
     protected function authenticated(Request $request, $user)
     {
-        // associate created user with unregistered user by it's 'uuid' cookie
-        if ($request->hasCookie('uuid')) {
-
-            $uuid = $request->cookie('uuid');
-
-            $this->favouriteProduct->newQuery()->where('uuid', $uuid)->update([
-                'users_id' => $user->id,
-            ]);
-
-            $this->recentProduct->newQuery()->where('uuid', $uuid)->update([
-                'users_id' => $user->id,
-            ]);
-        }
-
         // set intended for redirect to admin
         if ($user->isEmployee()) {
             return redirect(route('admin.overview'));

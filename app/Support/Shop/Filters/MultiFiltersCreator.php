@@ -37,6 +37,10 @@ class MultiFiltersCreator extends FiltersCreator
                 $this->createMultiFilterItemsUrls($attribute, $category->url, $selectedAttributeValues);
 
                 // sort by opened desc
+                return $attribute->defined_attribute_id;
+            })
+            ->sortByDesc(function (Attribute $attribute) use ($category) {
+                // sort by opened desc
                 return $attribute->showable;
             });
 
@@ -48,7 +52,7 @@ class MultiFiltersCreator extends FiltersCreator
                 $filter->opened = true;
                 $openedFiltersCount++;
             } elseif ($openedFiltersCount < $this->filtersCount['min']) {
-                if ($filter->attribute_values_count <= $this->filtersCount['max_values_count'] || $filter->defined_attribute_id) {
+                if ($filter->attribute_values_count <= $this->filtersCount['max_values_count']) {
                     $filter->opened = true;
                     $openedFiltersCount++;
                 } else {
@@ -57,7 +61,7 @@ class MultiFiltersCreator extends FiltersCreator
             } elseif ($openedFiltersCount >= $this->filtersCount['max']) {
                 $filter->opened = false;
             } else {
-                if ($filter->showable && ($filter->attribute_values_count <= $this->filtersCount['max_values_count'] || $filter->defined_attribute_id)) {
+                if ($filter->showable && $filter->attribute_values_count <= $this->filtersCount['max_values_count']) {
                     $filter->opened = true;
                     $openedFiltersCount++;
                 } else {

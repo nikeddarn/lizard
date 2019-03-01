@@ -7,10 +7,25 @@ namespace App\Support\ProductBadges;
 
 
 use App\Models\Product;
+use App\Support\Settings\SettingsRepository;
 use Carbon\Carbon;
 
 class ProductBadges
 {
+    /**
+     * @var SettingsRepository
+     */
+    private $settingsRepository;
+
+    /**
+     * ProductBadges constructor.
+     * @param SettingsRepository $settingsRepository
+     */
+    public function __construct(SettingsRepository $settingsRepository)
+    {
+        $this->settingsRepository = $settingsRepository;
+    }
+
     /**
      * Insert product badges.
      *
@@ -32,7 +47,10 @@ class ProductBadges
      */
     public function insertProductBadge(Product $product, int $badgeId)
     {
-        $badgeTTL = config('shop.badges.ttl.' . $badgeId);
+        $badgesSettings = $this->settingsRepository->getProperty('badges');
+
+        $badgeTTL = $badgesSettings['ttl'][$badgeId];
+
         $badgeExpired = $badgeTTL ? Carbon::now()->addDays($badgeTTL) : null;
 
         $product->badges()->syncWithoutDetaching([

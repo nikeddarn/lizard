@@ -7,15 +7,13 @@ namespace App\Support\Vendors\ProductManagers\Insert;
 
 
 use App\Contracts\Vendor\VendorInterface;
+use App\Models\VendorCategory;
+use App\Models\VendorProduct;
 use App\Support\ImageHandlers\VendorProductImageHandler;
 use App\Support\ProductBadges\ProductBadges;
 use App\Support\Repositories\ProductRepository;
-use App\Support\Vendors\Adapters\BrainProductAttributesDataAdapter;
-use App\Support\Vendors\Adapters\BrainProductBrandDataAdapter;
-use App\Support\Vendors\Adapters\BrainProductCommentsDataAdapter;
-use App\Support\Vendors\Adapters\BrainProductDataAdapter;
-use App\Support\Vendors\Adapters\BrainProductImagesDataAdapter;
-use App\Support\Vendors\Adapters\BrainProductStocksDataAdapter;
+use App\Support\Settings\SettingsRepository;
+use App\Support\Vendors\Adapters\Brain\BrainDataAdapter;
 use App\Support\Vendors\Providers\BrainInsertProductProvider;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
@@ -25,60 +23,38 @@ class BrainInsertVendorProductManager extends InsertVendorProductManager
     /**
      * @var string
      */
-    const USD_COURSE_CACHE_KEY = 'vendor_' . VendorInterface::BRAIN . '_session_id';
+    const VENDOR_ID = VendorInterface::BRAIN;
 
     /**
      * @var BrainInsertProductProvider
      */
     private $productProvider;
     /**
-     * @var BrainProductDataAdapter
+     * @var BrainDataAdapter
      */
-    private $productDataAdapter;
+    private $dataAdapter;
     /**
-     * @var BrainProductAttributesDataAdapter
+     * @var VendorProduct
      */
-    private $attributesDataAdapter;
-    /**
-     * @var BrainProductStocksDataAdapter
-     */
-    private $stocksDataAdapter;
-    /**
-     * @var BrainProductImagesDataAdapter
-     */
-    private $imagesDataAdapter;
-    /**
-     * @var BrainProductCommentsDataAdapter
-     */
-    private $commentsDataAdapter;
-    /**
-     * @var BrainProductBrandDataAdapter
-     */
-    private $brandDataAdapter;
+    private $vendorProduct;
 
     /**
      * BrainInsertInsertProductManager constructor.
      * @param ProductRepository $productRepository
-     * @param BrainInsertProductProvider $productProvider
-     * @param BrainProductDataAdapter $productDataAdapter
-     * @param BrainProductAttributesDataAdapter $attributesDataAdapter
-     * @param BrainProductStocksDataAdapter $stocksDataAdapter
-     * @param BrainProductImagesDataAdapter $imagesDataAdapter
-     * @param BrainProductCommentsDataAdapter $commentsDataAdapter
-     * @param BrainProductBrandDataAdapter $brandDataAdapter
      * @param ProductBadges $productBadges
      * @param VendorProductImageHandler $productImageHandler
+     * @param BrainInsertProductProvider $productProvider
+     * @param BrainDataAdapter $dataAdapter
+     * @param VendorProduct $vendorProduct
+     * @param VendorCategory $vendorCategory
+     * @param SettingsRepository $settingsRepository
      */
-    public function __construct(ProductRepository $productRepository, BrainInsertProductProvider $productProvider, BrainProductDataAdapter $productDataAdapter, BrainProductAttributesDataAdapter $attributesDataAdapter, BrainProductStocksDataAdapter $stocksDataAdapter, BrainProductImagesDataAdapter $imagesDataAdapter, BrainProductCommentsDataAdapter $commentsDataAdapter, BrainProductBrandDataAdapter $brandDataAdapter, ProductBadges $productBadges, VendorProductImageHandler $productImageHandler)
+    public function __construct(ProductRepository $productRepository, ProductBadges $productBadges, VendorProductImageHandler $productImageHandler, BrainInsertProductProvider $productProvider, BrainDataAdapter $dataAdapter, VendorProduct $vendorProduct, VendorCategory $vendorCategory, SettingsRepository $settingsRepository)
     {
-        parent::__construct($productRepository, $productBadges, $productImageHandler);
+        parent::__construct($productRepository, $productBadges, $productImageHandler, $vendorCategory, $settingsRepository);
         $this->productProvider = $productProvider;
-        $this->productDataAdapter = $productDataAdapter;
-        $this->attributesDataAdapter = $attributesDataAdapter;
-        $this->stocksDataAdapter = $stocksDataAdapter;
-        $this->imagesDataAdapter = $imagesDataAdapter;
-        $this->commentsDataAdapter = $commentsDataAdapter;
-        $this->brandDataAdapter = $brandDataAdapter;
+        $this->dataAdapter = $dataAdapter;
+        $this->vendorProduct = $vendorProduct;
     }
 
     /**
@@ -87,9 +63,16 @@ class BrainInsertVendorProductManager extends InsertVendorProductManager
      * @param int $vendorProductId
      * @return Model|null
      */
-    protected function getExistingProduct(int $vendorProductId)
+    protected function getExistingVendorProduct(int $vendorProductId)
     {
-        return $this->productRepository->getProductByVendorProductId(VendorInterface::BRAIN, $vendorProductId);
+        return $this->vendorProduct->newQuery()->where([
+            ['vendors_id', '=', self::VENDOR_ID],
+            ['vendor_product_id', '=', $vendorProductId],
+        ])
+            ->with(['product' => function($query){
+                $query->with('vendorProducts', 'stockStorages');
+            }])
+            ->first();
     }
 
     /**
@@ -98,7 +81,7 @@ class BrainInsertVendorProductManager extends InsertVendorProductManager
      * @param int $vendorProductId
      * @throws Exception
      */
-    protected function createProductData(int $vendorProductId){
+    protected function prepareVendorProductData(int $vendorProductId){
         // receive whole product data
         $productData = $this->productProvider->getProductData($vendorProductId);
 
@@ -110,29 +93,23 @@ class BrainInsertVendorProductManager extends InsertVendorProductManager
 
         $vendorUsdCourse = $this->getCashUsdCourse($productData['courses']);
 
-
         // set product model data
-        $this->productData = $this->productDataAdapter->prepareProductData($productDataRu, $productContentDataRu, $productContentDataUa);
+        $this->productData = $this->dataAdapter->prepareProductData($productDataRu, $productContentDataRu, $productContentDataUa);
 
         // set vendor product model data
-        $this->vendorProductData = $this->productDataAdapter->prepareVendorProductData($productDataRu, $vendorUsdCourse);
+        $this->vendorProductData = $this->dataAdapter->prepareVendorProductData($productDataRu, $vendorUsdCourse);
 
         // set product attributes
-        $this->attributesData = $this->attributesDataAdapter->prepareProductAttributesData($productContentDataRu->options, $productContentDataUa->options);
+        $this->attributesData = $this->dataAdapter->prepareProductAttributesData($productContentDataRu->options, $productContentDataUa->options, (int)$productDataRu->vendorID);
 
         // set product stocks
-        $this->stocksData = $this->stocksDataAdapter->prepareVendorProductStocksData($productDataRu);
+        $this->stocksData = $this->dataAdapter->prepareVendorProductStocksData($productDataRu);
 
         // set product images
-        $this->imagesData = $this->imagesDataAdapter->prepareVendorProductImagesData($productContentDataRu->images);
+        $this->imagesData = $this->dataAdapter->prepareVendorProductImagesData($productContentDataRu->images);
 
         // set product comments
-        $this->commentsData = $this->commentsDataAdapter->prepareVendorProductCommentsData($comments);
-
-        // add product brand
-        $productBrandData = $this->brandDataAdapter->prepareVendorProductBrandData((int)$productDataRu->vendorID);
-
-        $this->attributesData = $this->attributesData + $productBrandData;
+        $this->commentsData = $this->dataAdapter->prepareVendorProductCommentsData($comments);
     }
 
     /**

@@ -40,6 +40,20 @@
 </div>
 
 <div class="card p-5 mb-5">
+    <div class="custom-control custom-checkbox mb-4">
+        <input type="checkbox" id="delete-product-on-delete-category" name="delete_product_on_delete_category"
+               class="custom-control-input multi-inputs-checkbox"{{ $productData['delete_product']['delete_product_on_delete_category'] ? ' checked' : '' }}>
+        <label class="custom-control-label" for="delete-product-on-delete-category">Удалять продукты при удалении категории</label>
+    </div>
+
+    <div class="custom-control custom-checkbox mb-4">
+        <input type="checkbox" id="archive-product-on-delete" name="archive_product_on_delete"
+               class="custom-control-input multi-inputs-checkbox"{{ $productData['delete_product']['archive_product_on_delete'] ? ' checked' : '' }}>
+        <label class="custom-control-label" for="archive-product-on-delete">Архивировать продукт при удалении</label>
+    </div>
+</div>
+
+<div class="card p-5 mb-5">
 
     <div class="custom-control custom-checkbox mb-4">
         <input type="checkbox" id="allow-show-product-rate" name="allow_show_product_rate"

@@ -11,14 +11,15 @@ use App\Models\FavouriteProduct;
 use App\Models\RecentProduct;
 use App\Support\Seo\Locale\AlternateLinksGenerator;
 use App\Support\Settings\SettingsRepository;
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder;
+use App\Support\User\RetrieveUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 class CommonDataComposer
 {
+    use RetrieveUser;
+
     /**
      * @var Category
      */
@@ -127,65 +128,16 @@ class CommonDataComposer
      */
     private function getUserBadges(): array
     {
-        $badges = [];
+        $user = $this->getUser();
 
-        if (auth('web')->check() || $this->request->hasCookie('uuid')) {
-            $badges['favourites'] = $this->getUserFavouriteProductsCount();
-            $badges['recent'] = $this->getUserRecentProductsCount();
+        if ($user){
+            return [
+                'favourites' => $user->favouriteProducts()->count(),
+                'recent' => $user->timeLimitedRecentProducts()->count(),
+            ];
+        }else{
+            return [];
         }
-
-        return $badges;
-    }
-
-    /**
-     * Get user favourite products count.
-     *
-     * @return int
-     */
-    private function getUserFavouriteProductsCount(): int
-    {
-        $query = $this->favouriteProduct->newQuery();
-
-        $query = $this->addUserProductConstraints($query);
-
-        return $query->count();
-    }
-
-    /**
-     * Get user recent products count.
-     *
-     * @return int
-     */
-    private function getUserRecentProductsCount(): int
-    {
-        $query = $this->recentProduct->newQuery();
-
-        $query = $this->addUserProductConstraints($query);
-
-        $query->where('updated_at', '>=', Carbon::now()->subDays(config('shop.recent_product_ttl')));
-
-        return $query->count();
-    }
-
-    /**
-     * Add user product constraints.
-     *
-     * @param Builder $query
-     * @return Builder
-     */
-    private function addUserProductConstraints(Builder $query): Builder
-    {
-        $query->whereHas('product', function ($query) {
-            $query->where('published', 1);
-        });
-
-        if (auth('web')->check()) {
-            $query->where('users_id', auth('web')->id());
-        } else {
-            $query->where('uuid', $this->request->cookie('uuid'));
-        }
-
-        return $query;
     }
 
     /**

@@ -843,7 +843,15 @@ textarea:active {
     }
 
     a {
+        color: #ced4da;
+        -webkit-transition: color .2s, background-color .2s;
+        transition: color .2s, background-color .2s;
+        cursor: pointer;
         border: none;
+    }
+
+    a.active{
+        color: #e83e8c;
     }
 }
 

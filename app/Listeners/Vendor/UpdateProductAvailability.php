@@ -5,8 +5,7 @@ namespace App\Listeners\Vendor;
 use App\Contracts\Shop\ProductBadgesInterface;
 use App\Support\ProductAvailability\ProductAvailability;
 use App\Support\ProductBadges\ProductBadges;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Support\Settings\SettingsRepository;
 
 class UpdateProductAvailability
 {
@@ -18,24 +17,29 @@ class UpdateProductAvailability
      * @var ProductBadges
      */
     private $productBadges;
+    /**
+     * @var SettingsRepository
+     */
+    private $settingsRepository;
 
     /**
      * Create the event listener.
      *
      * @param ProductAvailability $productAvailability
      * @param ProductBadges $productBadges
+     * @param SettingsRepository $settingsRepository
      */
-    public function __construct(ProductAvailability $productAvailability, ProductBadges $productBadges)
+    public function __construct(ProductAvailability $productAvailability, ProductBadges $productBadges, SettingsRepository $settingsRepository)
     {
-        //
         $this->productAvailability = $productAvailability;
         $this->productBadges = $productBadges;
+        $this->settingsRepository = $settingsRepository;
     }
 
     /**
      * Handle the event.
      *
-     * @param  object  $event
+     * @param  object $event
      * @return void
      */
     public function handle($event)
@@ -48,6 +52,17 @@ class UpdateProductAvailability
             $this->productBadges->insertProductBadge($product, ProductBadgesInterface::ENDING);
         } else {
             $this->productBadges->deleteProductBadge($product, ProductBadgesInterface::ENDING);
+        }
+
+        // check is archive
+        if (!$product->stockStorages->count()) {
+
+            $deleteProductOnVendorArchive = $this->settingsRepository->getProperty('vendor.delete_product')['delete_product_on_archive_vendor_product'];
+
+            if ($deleteProductOnVendorArchive && $product->vendorProducts->min('is_archive')) {
+                // delete or archive product
+                $product->delete();
+            }
         }
     }
 }

@@ -154,13 +154,16 @@ class SitemapController extends Controller
      *
      * @return Collection
      */
-    private function getProductsItems():Collection
+    private function getProductsItems(): Collection
     {
         $siteMapItems = collect();
 
-        $products = $this->product->newQuery()->get();
+        $products = $this->product->newQuery()
+            ->where('published', 1)
+            ->where('is_archive', 0)
+            ->get();
 
-        foreach ($products as $product){
+        foreach ($products as $product) {
             $siteMapItems->push($this->createProductSitemapItem($product));
         }
 

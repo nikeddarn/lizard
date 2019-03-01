@@ -35,5 +35,10 @@ return [
         'class' => 'danger',
     ],
 
-
+    [
+        'id' => ProductBadgesInterface::ARCHIVE,
+        'name_ru' => 'Архивный',
+        'name_uk' => 'Архівний',
+        'class' => 'danger',
+    ],
 ];

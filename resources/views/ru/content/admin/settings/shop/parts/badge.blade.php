@@ -6,7 +6,7 @@
             <div class="col col-sm-6 col-md-5 col-xl-3">
                 <input id="badge-new" class="form-control default-bootstrap-select-input" type="number"
                        name="new_product_badge_ttl"
-                       value="{{ $badgesData[\App\Contracts\Shop\ProductBadgesInterface::NEW] }}" min="1"
+                       value="{{ $badgesData['ttl'][\App\Contracts\Shop\ProductBadgesInterface::NEW] }}" min="1"
                        max="100">
             </div>
         </div>
@@ -22,7 +22,7 @@
             <div class="col col-sm-6 col-md-5 col-xl-3">
                 <input id="badge-price-down" class="form-control default-bootstrap-select-input" type="number"
                        name="price_down_badge_ttl"
-                       value="{{ $badgesData[\App\Contracts\Shop\ProductBadgesInterface::PRICE_DOWN] }}" min="1"
+                       value="{{ $badgesData['ttl'][\App\Contracts\Shop\ProductBadgesInterface::PRICE_DOWN] }}" min="1"
                        max="100">
             </div>
         </div>

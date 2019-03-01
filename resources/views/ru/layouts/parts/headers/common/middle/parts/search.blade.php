@@ -1,4 +1,4 @@
-<form class="form-inline w-100" method="post" action="{{ route('shop.search.index') }}">
+<form id="main-search-form" class="form-inline w-100" method="post" action="{{ route('shop.search.index', ['locale' => app()->getLocale() === config('app.canonical_locale') ? '' : app()->getLocale()]) }}" data-toggle="popover" data-content="Минимум 2 символа">
     @csrf
     <div class="input-group input-group-search">
         <div class="input-group-prepend">

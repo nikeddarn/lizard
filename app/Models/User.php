@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\Settings\SettingsRepository;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Carbon;
@@ -88,6 +89,10 @@ class User extends Authenticatable
      */
     public function timeLimitedRecentProducts()
     {
-        return $this->belongsToMany('App\Models\Product', 'recent_products', 'users_id', 'products_id')->wherePivot('updated_at', '>=', Carbon::now()->subDays(config('shop.recent_product_ttl')));
+        $settingsRepository = app()->make(SettingsRepository::class);
+
+        $recentProductTtl = $settingsRepository->getProperty('shop.recent_product_ttl');
+
+        return $this->belongsToMany('App\Models\Product', 'recent_products', 'users_id', 'products_id')->wherePivot('updated_at', '>=', Carbon::now()->subDays($recentProductTtl));
     }
 }

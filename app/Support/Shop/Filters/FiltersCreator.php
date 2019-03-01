@@ -54,6 +54,10 @@ class FiltersCreator
                 $this->createSingleFilterItemsUrls($attribute, $category->url);
 
                 // sort by opened desc
+                return $attribute->defined_attribute_id;
+            })
+            ->sortByDesc(function (Attribute $attribute) use ($category) {
+                // sort by opened desc
                 return $attribute->showable;
             });
 
@@ -61,20 +65,20 @@ class FiltersCreator
         $openedFiltersCount = 0;
 
         foreach ($filters as $filter) {
-            if ($openedFiltersCount < $this->filtersCount['min']){
-                if ($filter->attribute_values_count <= $this->filtersCount['max_values_count'] || $filter->defined_attribute_id){
+            if ($openedFiltersCount < $this->filtersCount['min']) {
+                if ($filter->attribute_values_count <= $this->filtersCount['max_values_count']) {
                     $filter->opened = true;
                     $openedFiltersCount++;
-                }else{
+                } else {
                     $filter->opened = false;
                 }
-            }elseif($openedFiltersCount >= $this->filtersCount['max']){
+            } elseif ($openedFiltersCount >= $this->filtersCount['max']) {
                 $filter->opened = false;
-            }else{
-                if ($filter->showable && ($filter->attribute_values_count <= $this->filtersCount['max_values_count'] || $filter->defined_attribute_id)){
+            } else {
+                if ($filter->showable && $filter->attribute_values_count <= $this->filtersCount['max_values_count']) {
                     $filter->opened = true;
                     $openedFiltersCount++;
-                }else{
+                } else {
                     $filter->opened = false;
                 }
             }
@@ -98,7 +102,11 @@ class FiltersCreator
                     $query->whereIn('products_id', $productsId);
                 });
             }])
-            ->withCount('attributeValues')
+            ->withCount(['attributeValues' => function ($query) use ($productsId) {
+                $query->whereHas('productAttributes', function ($query) use ($productsId) {
+                    $query->whereIn('products_id', $productsId);
+                });
+            }])
             ->whereHas('attributeValues', function ($query) use ($productsId) {
                 $query->whereHas('productAttributes', function ($query) use ($productsId) {
                     $query->whereIn('products_id', $productsId);
