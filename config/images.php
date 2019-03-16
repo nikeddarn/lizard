@@ -35,5 +35,7 @@ return [
 
         // stored user avatar's width
         'avatar_width' => 400,
-    ]
+    ],
+
+    'main_slider_width' => 1920,
 ];

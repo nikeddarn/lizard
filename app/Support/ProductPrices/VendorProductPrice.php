@@ -38,7 +38,7 @@ class VendorProductPrice
     public function getProductPrices(Product $product): array
     {
         // get vendor products
-        $vendorProducts = $product->vendorProducts->get();
+        $vendorProducts = $product->vendorProducts()->get();
 
         if (!$vendorProducts->count()) {
             throw new Exception('Missing any vendor product');

@@ -17,31 +17,31 @@ return [
 
   Category::class  => [
       RoleInterface::ADMIN,
-      RoleInterface::VENDOR_MANAGER,
+      RoleInterface::CONTENT_MANAGER,
       RoleInterface::USER_MANAGER,
   ],
 
     Product::class  => [
       RoleInterface::ADMIN,
-      RoleInterface::VENDOR_MANAGER,
+      RoleInterface::CONTENT_MANAGER,
       RoleInterface::USER_MANAGER,
   ],
 
     Attribute::class  => [
       RoleInterface::ADMIN,
-      RoleInterface::VENDOR_MANAGER,
+      RoleInterface::CONTENT_MANAGER,
       RoleInterface::USER_MANAGER,
   ],
 
     Brand::class  => [
       RoleInterface::ADMIN,
-      RoleInterface::VENDOR_MANAGER,
+      RoleInterface::CONTENT_MANAGER,
       RoleInterface::USER_MANAGER,
   ],
 
     Filter::class  => [
       RoleInterface::ADMIN,
-      RoleInterface::VENDOR_MANAGER,
+      RoleInterface::CONTENT_MANAGER,
       RoleInterface::USER_MANAGER,
   ],
 

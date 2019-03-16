@@ -3,15 +3,12 @@
 namespace App\Http\Controllers\Shop;
 
 use App\Models\Attribute;
-use App\Models\User;
 use App\Support\Breadcrumbs\ProductBreadcrumbs;
 use App\Support\Seo\MetaTags\ProductMetaTags;
 use App\Support\Settings\SettingsRepository;
 use App\Support\Shop\Products\SingleProduct;
 use App\Support\User\RetrieveUser;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Cookie;
-use Illuminate\Support\Str;
 
 class ProductDetailsController extends Controller
 {
@@ -102,31 +99,8 @@ class ProductDetailsController extends Controller
      */
     private function addProductToRecentViewed(int $productId)
     {
-        $user = $this->getUser();
-
-        if (!$user){
-            $user = $this->createUser();
-        }
+        $user = $this->getOrCreateUser();
 
         $user->recentProducts()->syncWithoutDetaching([$productId]);
-    }
-
-    /**
-     * Create new user identifying by cookie.
-     *
-     * @return User
-     */
-    private function createUser():User
-    {
-        $uuid = Str::uuid();
-
-        $user = new User();
-        $user->remember_token = $uuid;
-        $user->save();
-
-        // store user's cookie
-        Cookie::queue(Cookie::forever('remember_token', $uuid));
-
-        return $user;
     }
 }

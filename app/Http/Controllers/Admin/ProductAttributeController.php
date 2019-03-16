@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\ProductAttribute;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Gate;
 
 class ProductAttributeController extends Controller
 {
@@ -49,11 +50,12 @@ class ProductAttributeController extends Controller
      *
      * @param string $id
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function create(string $id)
     {
-        $this->authorize('create', $this->productAttribute);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $locale = app()->getLocale();
 
@@ -76,11 +78,12 @@ class ProductAttributeController extends Controller
      *
      * @param StoreProductAttributeRequest $request
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function store(StoreProductAttributeRequest $request)
     {
-        $this->authorize('create', $this->productAttribute);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $productsId = $request->get('products_id');
 
@@ -94,11 +97,12 @@ class ProductAttributeController extends Controller
      *
      * @param Request $request
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function destroy(Request $request)
     {
-        $this->authorize('delete', $this->productAttribute);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $productsId = $request->get('products_id');
         $attributeValuesId = $request->get('attribute_values_id');

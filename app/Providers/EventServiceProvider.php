@@ -16,6 +16,7 @@ use App\Listeners\Shop\UpdateProductCategoryTimestamp;
 use App\Listeners\Vendor\UpdateProductPrice;
 use App\Listeners\Vendor\UpdateProductPublishing;
 use App\Listeners\Vendor\UpdateProductSearchIndex;
+use App\Listeners\Vendor\UpdateProductWarranty;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -39,6 +40,7 @@ class EventServiceProvider extends ServiceProvider
             UpdateProductAvailability::class,
             UpdateProductPublishing::class,
             UpdateProductSearchIndex::class,
+            UpdateProductWarranty::class,
         ],
 
         // update vendor product
@@ -47,6 +49,7 @@ class EventServiceProvider extends ServiceProvider
             UpdateProductAvailability::class,
             UpdateProductPublishing::class,
             UpdateProductSearchIndex::class,
+            UpdateProductWarranty::class,
         ],
 
         // category changed

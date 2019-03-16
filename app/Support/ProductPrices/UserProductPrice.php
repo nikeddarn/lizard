@@ -14,11 +14,12 @@ class UserProductPrice
      * Define product price.
      *
      * @param Product $product
+     * @param $user
      * @return float|null
      */
-    public function getUsersProductPrice(Product $product)
+    public function getUserProductPrice(Product $product, $user = null)
     {
-        $priceColumn = $this->definePriceColumn();
+        $priceColumn = 'price' . $this->definePriceGroup($user);
 
         return $product->{$priceColumn};
     }
@@ -26,14 +27,12 @@ class UserProductPrice
     /**
      * Define price group column.
      *
+     * @param $user
      * @return string
      */
-    private function definePriceColumn():string
+    private function definePriceGroup($user = null): string
     {
-        if (auth('web')->check()){
-            return 'price' . auth('web')->user()->price_group;
-        }else{
-            return 'price1';
-        }
+
+        return $user ? $user->price_group : 1;
     }
 }

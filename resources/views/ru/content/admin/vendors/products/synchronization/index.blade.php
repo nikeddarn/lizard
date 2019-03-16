@@ -6,10 +6,6 @@
 
     @include('elements.errors.admin_error.index')
 
-
-
-
-
     @if(!empty($vendorProcessingProducts))
         <div class="card card-body">
             @include('content.admin.vendors.products.synchronization.parts.product_list')
@@ -22,7 +18,6 @@
         @endif
 
     @endif
-
 
 @endsection
 

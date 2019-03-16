@@ -14,4 +14,6 @@
 
     </div>
 
+    @include('layouts.parts.admin.menu.main_menu_modal')
+
 </header>

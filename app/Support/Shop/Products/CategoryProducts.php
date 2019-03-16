@@ -23,15 +23,17 @@ class CategoryProducts extends AbstractProduct
      */
     public function getProducts(Category $category, string $sortMethod): LengthAwarePaginator
     {
+        $user = $this->getUser();
+
         $query = $this->getRetrieveCategoryProductsQuery($category);
 
-        $query = $this->addRelations($query);
+        $query = $this->addRelations($query, $user);
 
         $query = $this->sortProductsBy($query, $sortMethod);
 
         $products = $query->paginate($this->productsPerPage)->appends(request()->query());
 
-        $this->addProductsProperties($products);
+        $this->addProductsProperties($products, $user);
 
         return $products;
     }
@@ -40,18 +42,20 @@ class CategoryProducts extends AbstractProduct
      * Add relations to query.
      *
      * @param Builder $query
+     * @param $user
      * @return Builder
      */
-    protected function addRelations(Builder $query): Builder
+    protected function addRelations(Builder $query, $user): Builder
     {
-        $user = $this->getUser();
+        $query->with('primaryImage', 'productImages', 'actualBadges', 'availableStorageProducts', 'expectingStorageProducts', 'availableVendorProducts', 'expectingVendorProducts', 'availableProductStorages.city');
 
-        $userId = $user ? $user->id : null;
-
-        return $query->with('primaryImage', 'productImages', 'actualBadges', 'availableStorageProducts', 'expectingStorageProducts', 'availableVendorProducts', 'expectingVendorProducts', 'availableProductStorages.city')
-            ->with(['favouriteProducts' => function ($query) use ($userId) {
-                $query->where('users_id', $userId);
+        if ($user) {
+            $query->with(['favouriteProducts' => function ($query) use ($user) {
+                $query->where('users_id', $user->id);
             }]);
+        }
+
+        return $query;
     }
 
     /**

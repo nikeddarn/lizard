@@ -7,6 +7,7 @@ use App\Models\VendorCategory;
 use App\Support\Vendors\VendorBroker;
 use Exception;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
 class VendorCatalogController extends Controller
@@ -45,6 +46,10 @@ class VendorCatalogController extends Controller
      */
     public function categoriesTree(int $vendorId): View
     {
+        if (Gate::denies('vendor-catalog', auth('web')->user())) {
+            abort(401);
+        }
+
         try {
             $vendor = $this->vendor->newQuery()->findOrFail($vendorId);
 
@@ -72,6 +77,10 @@ class VendorCatalogController extends Controller
      */
     public function categoryProducts(int $vendorId, int $vendorCategoryId)
     {
+        if (Gate::denies('vendor-catalog', auth('web')->user())) {
+            abort(401);
+        }
+
         try {
             // define current page
             $page = request()->has('page') ? request()->get('page') : 1;

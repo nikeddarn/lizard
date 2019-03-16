@@ -40,9 +40,20 @@ class ProductRepository
         $searchDoubleKeys = config('vendor.search_double_by.product');
 
         return $this->product->newQuery()
+            // group operations in brackets
             ->where(function ($query) use ($searchDoubleKeys, $productData) {
-                foreach ($searchDoubleKeys as $field) {
-                    $query->orWhere($field, $productData[$field]);
+                // check each of fields set with 'OR' operation
+                foreach ($searchDoubleKeys as $fieldsSet) {
+                    $query->orWhere(function ($query) use ($fieldsSet, $productData) {
+                        // check each field of set with 'AND' operation
+                        foreach ($fieldsSet as $field) {
+                            $query->where(function ($query) use ($field, $productData) {
+                                // field may be null or equal with comparing
+                                $query->whereNull($field)
+                                    ->orWhere($field, $productData[$field]);
+                            });
+                        }
+                    });
                 }
             })
             ->first();

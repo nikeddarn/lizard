@@ -6,6 +6,13 @@
 
         <div class="d-inline-flex align-items-start">
 
+            @if($product->published)
+                <a href="{{ route('shop.product.index', ['id' => $product->url]) }}" data-toggle="tooltip"
+                   title="Смотреть в магазине" class="btn btn-primary mr-1">
+                    <i class="svg-icon-larger" data-feather="eye"></i>
+                </a>
+            @endif
+
             <a href="{{ route('admin.products.edit', ['id' => $product->id]) }}" data-toggle="tooltip"
                title="Редактировать" class="btn btn-primary">
                 <i class="svg-icon-larger" data-feather="edit"></i>

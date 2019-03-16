@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Requests\Admin\User\CreateUserRole;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\UserRole;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Validation\Rule;
 
 class UserRoleController extends Controller
 {
@@ -46,18 +46,13 @@ class UserRoleController extends Controller
      */
     public function create(string $id)
     {
-        $this->authorize('create', $this->userRole);
+        $user = $this->user->newQuery()->withCount('roles')->findOrFail($id);
 
-        $locale = app()->getLocale();
+        $this->authorize('modify', $user);
 
-        $user = $this->user->newQuery()->findOrFail($id);
+        $roles = $this->role->newQuery()->get();
 
-        $roles = $this->role->newQuery()->orderBy("title_$locale")->get();
-
-        return view('content.admin.users.roles.create.index')->with([
-            'user' => $user,
-            'roles' => $roles,
-        ]);
+        return view('content.admin.users.admins.role.index')->with(compact('user', 'roles'));
 
 
     }
@@ -65,29 +60,26 @@ class UserRoleController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param CreateUserRole $request
      * @return \Illuminate\Http\Response
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function store(Request $request)
+    public function store(CreateUserRole $request)
     {
-        $this->authorize('create', $this->userRole);
+        $userId = $request->get('users_id');
+        $roleId = $request->get('roles_id');
 
-        $user = $this->user->newQuery()->findOrFail($request->get('users_id'));
+        $user = $this->user->newQuery()->findOrFail($userId);
 
-        // prevent add role to self
-        if (auth('web')->id() === $user->id){
-            return redirect(route('admin.users.show', $user->id));
-        }
+        $this->authorize('modify', $user);
 
-        $this->validate($request, [
-            'roles_id' => ['integer', Rule::unique('user_role', 'roles_id')->where('users_id', $user->id)],
-        ]);
+        $user->roles()->attach($roleId);
 
+        // set wholesale price group for employees
+        $user->price_group = 3;
+        $user->save();
 
-        $user->roles()->attach($request->get('roles_id'));
-
-        return redirect(route('admin.users.show', ['id' => $user->id]));
+        return redirect(route('admin.users.administrators.show', ['id' => $user->id]));
     }
 
 
@@ -100,15 +92,21 @@ class UserRoleController extends Controller
      */
     public function destroy(Request $request)
     {
-        $userRole = $this->userRole->newQuery()->where([
-            'users_id' => $request->get('users_id'),
-            'roles_id' => $request->get('roles_id'),
-        ])->firstOrFail();
+        $userId = $request->get('users_id');
+        $roleId = $request->get('roles_id');
 
-        $this->authorize('delete', $userRole);
+        $user = $this->user->newQuery()->withCount('roles')->findOrFail($userId);
 
-        $userRole->user->roles()->detach($userRole->roles_id);
+        $this->authorize('modify', $user);
 
-        return redirect(route('admin.users.show', $userRole->users_id));
+        $user->roles()->detach($roleId);
+
+        if ($user->roles_count > 1){
+            // user is still admin
+            return redirect(route('admin.users.administrators.show', $userId));
+        }else{
+            // user is customer after deleted single role
+            return redirect(route('admin.users.customers.show', $userId));
+        }
     }
 }

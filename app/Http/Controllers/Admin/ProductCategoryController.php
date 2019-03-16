@@ -2,15 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Requests\Admin\ProductCategory\StoreProductCategoryRequest;
 use App\Models\Category;
-use App\Models\CategoryProduct;
 use App\Models\Product;
 use App\Models\VendorCategoryProduct;
-use App\Models\VendorLocalCategory;
-use App\Rules\LeafCategory;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Gate;
 
 class ProductCategoryController extends Controller
 {
@@ -19,24 +17,18 @@ class ProductCategoryController extends Controller
      */
     private $product;
     /**
-     * @var CategoryProduct
-     */
-    private $categoryProduct;
-    /**
      * @var Category
      */
     private $category;
 
     /**
      * ProductFilterController constructor.
-     * @param CategoryProduct $categoryProduct
      * @param Product $product
      * @param Category $category
      */
-    public function __construct(CategoryProduct $categoryProduct, Product $product, Category $category)
+    public function __construct(Product $product, Category $category)
     {
         $this->product = $product;
-        $this->categoryProduct = $categoryProduct;
         $this->category = $category;
     }
 
@@ -45,11 +37,12 @@ class ProductCategoryController extends Controller
      *
      * @param string $id
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function create(string $id)
     {
-        $this->authorize('create', $this->categoryProduct);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $product = $this->product->newQuery()->findOrFail($id);
 
@@ -61,36 +54,28 @@ class ProductCategoryController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param StoreProductCategoryRequest $request
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request)
+    public function store(StoreProductCategoryRequest $request)
     {
-        $this->authorize('create', $this->categoryProduct);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $productId = $request->get('products_id');
         $categoryId = $request->get('categories_id');
 
-        $this->validate($request, [
-            'categories_id' => ['integer', Rule::unique('category_product', 'categories_id')->where('products_id', $productId), new LeafCategory()],
-            'products_id' => ['integer'],
-        ]);
+        $category = $this->category->newQuery()->findOrFail($categoryId);
 
         // attach product to category
-        $this->categoryProduct->newQuery()->create($request->only(['products_id', 'categories_id']));
+        $category->products()->syncWithoutDetaching([$productId]);
 
         // get vendor categories ids that contains processing product
         $vendorCategoryIds = $this->getProductsVendorCategories($productId);
 
         // attach each vendor category of product to new local category
-        foreach ($vendorCategoryIds as $vendorCategoryId){
-            VendorLocalCategory::query()->create([
-                'vendor_categories_id' => $vendorCategoryId,
-                'categories_id' => $categoryId,
-            ]);
-        }
+        $category->vendorCategories()->syncWithoutDetaching($vendorCategoryIds);
 
         return redirect(route('admin.products.show', ['id' => $productId]));
     }
@@ -100,27 +85,20 @@ class ProductCategoryController extends Controller
      *
      * @param Request $request
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function destroy(Request $request)
     {
-        $this->authorize('delete', $this->categoryProduct);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $productId = $request->get('products_id');
         $categoryId = $request->get('categories_id');
 
         $product = $this->product->newQuery()->with('categories')->findOrFail($productId);
 
-        if ($product->categories->count() > 1) {
-            // detach product from local category
-            $product->categories()->detach($categoryId);
-
-            // get vendor categories ids that contains processing product
-            $vendorCategoryIds = $this->getProductsVendorCategories($productId);
-
-            // detach each vendor category of product from local category
-            VendorLocalCategory::query()->where('categories_id', $categoryId)->whereIn('vendor_categories_id', $vendorCategoryIds)->delete();
-        }
+        // detach product from local category
+        $product->categories()->detach($categoryId);
 
         return redirect(route('admin.products.show', ['id' => $productId]));
     }

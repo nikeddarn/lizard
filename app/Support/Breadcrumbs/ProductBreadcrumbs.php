@@ -23,12 +23,16 @@ class ProductBreadcrumbs extends CategoryBreadcrumbs
             // get category id from session
             $categoryId = session()->get('product_category_id');
         } else {
-            // get first product category's id
-            $categoryId = $product->categories()->first()->id;
+            // get first product category
+            $productCategory = $product->categories()->first();
+
+            $categoryId = $productCategory ? $productCategory->id : null;
         }
 
         // create categories' breadcrumbs
-        $breadcrumbs = $this->createCategoryBreadcrumbs($categoryId);
+        if ($categoryId) {
+            $breadcrumbs = $this->createCategoryBreadcrumbs($categoryId);
+        }
 
         // append product breadcrumb
         $breadcrumbs[$product->name] = null;

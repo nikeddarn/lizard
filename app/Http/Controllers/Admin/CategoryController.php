@@ -12,6 +12,7 @@ use Exception;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class CategoryController extends Controller
 {
@@ -39,11 +40,12 @@ class CategoryController extends Controller
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function index()
     {
-        $this->authorize('view', $this->category);
+        if (Gate::denies('local-catalog-show', auth('web')->user())) {
+            abort(401);
+        }
 
         $categories = $this->category->defaultOrder()->withCount('products')->get()->toTree();
 
@@ -54,11 +56,12 @@ class CategoryController extends Controller
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function create()
     {
-        $this->authorize('create', $this->category);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $categories = $this->category->defaultOrder()->withDepth()->get()->toTree();
 
@@ -71,11 +74,12 @@ class CategoryController extends Controller
      * @param StoreCategoryRequest $request
      * @param CategoryImageHandler $imageHandler
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function store(StoreCategoryRequest $request, CategoryImageHandler $imageHandler)
     {
-        $this->authorize('create', $this->category);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $attributes = $request->only(['name_ru', 'name_uk', 'url', 'parent_id', 'title_ru', 'title_uk', 'description_ru', 'description_uk', 'keywords_ru', 'keywords_uk', 'content_ru', 'content_uk']);
 
@@ -102,11 +106,12 @@ class CategoryController extends Controller
      *
      * @param string $id
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function show(string $id)
     {
-        $this->authorize('view', $this->category);
+        if (Gate::denies('local-catalog-show', auth('web')->user())) {
+            abort(401);
+        }
 
         $category = $this->category->newQuery()->findOrFail($id);
 
@@ -120,11 +125,12 @@ class CategoryController extends Controller
      *
      * @param string $id
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function edit(string $id)
     {
-        $this->authorize('update', $this->category);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $category = $this->category->newQuery()->findOrFail($id);
 
@@ -141,12 +147,13 @@ class CategoryController extends Controller
      * @param string $id
      * @param CategoryImageHandler $imageHandler
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      * @throws Exception
      */
     public function update(UpdateCategoryRequest $request, string $id, CategoryImageHandler $imageHandler)
     {
-        $this->authorize('update', $this->category);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $category = $this->category->newQuery()->findOrFail($id);
 
@@ -201,12 +208,13 @@ class CategoryController extends Controller
      * @param CategoryImageHandler $categoryImageHandler
      * @param SettingsRepository $settingsRepository
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      * @throws Exception
      */
     public function destroy(string $id, CategoryImageHandler $categoryImageHandler, SettingsRepository $settingsRepository)
     {
-        $this->authorize('delete', $this->category);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         // retrieve category
         $category = $this->category->newQuery()->findOrFail($id);
@@ -257,8 +265,11 @@ class CategoryController extends Controller
      */
     public function up(string $id)
     {
-        $category = $this->category->newQuery()->findOrFail($id);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
+        $category = $this->category->newQuery()->findOrFail($id);
 
         try {
             DB::beginTransaction();
@@ -283,8 +294,11 @@ class CategoryController extends Controller
      */
     public function down(string $id)
     {
-        $category = $this->category->newQuery()->findOrFail($id);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
+        $category = $this->category->newQuery()->findOrFail($id);
 
         try {
             DB::beginTransaction();
@@ -310,6 +324,10 @@ class CategoryController extends Controller
      */
     public function uploadImage(Request $request)
     {
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
+
         if (!($request->ajax() && $request->hasFile('image'))) {
             return abort(405);
         }
@@ -328,6 +346,10 @@ class CategoryController extends Controller
      */
     public function isEmpty(Request $request, string $id)
     {
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
+
         if (!$request->ajax()) {
             abort(403);
         }

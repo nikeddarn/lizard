@@ -2,32 +2,9 @@
 
 namespace App\Providers;
 
-use App\Models\Attribute;
-use App\Models\AttributeValue;
-use App\Models\Brand;
-use App\Models\Category;
-use App\Models\CategoryFilter;
-use App\Models\CategoryProduct;
-use App\Models\Filter;
-use App\Models\Product;
-use App\Models\ProductAttribute;
-use App\Models\ProductFilter;
-use App\Models\ProductImage;
+use App\Contracts\Auth\RoleInterface;
 use App\Models\User;
-use App\Models\UserRole;
-use App\Policies\Admin\AttributePolicy;
-use App\Policies\Admin\AttributeValuePolicy;
-use App\Policies\Admin\BrandPolicy;
-use App\Policies\Admin\CategoryFilterPolicy;
-use App\Policies\Admin\CategoryPolicy;
-use App\Policies\Admin\FilterPolicy;
-use App\Policies\Admin\ProductAttributePolicy;
-use App\Policies\Admin\ProductCategoryPolicy;
-use App\Policies\Admin\ProductFilterPolicy;
-use App\Policies\Admin\ProductImagePolicy;
-use App\Policies\Admin\ProductPolicy;
 use App\Policies\Admin\UserPolicy;
-use App\Policies\Admin\UserRolePolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
@@ -39,25 +16,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array
      */
     protected $policies = [
-
-        Category::class => CategoryPolicy::class,
-        CategoryFilter::class => CategoryFilterPolicy::class,
-
-        Product::class => ProductPolicy::class,
-        ProductImage::class => ProductImagePolicy::class,
-        ProductAttribute::class => ProductAttributePolicy::class,
-        ProductFilter::class => ProductFilterPolicy::class,
-        CategoryProduct::class => ProductCategoryPolicy::class,
-
-        Brand::class => BrandPolicy::class,
-
-        Attribute::class => AttributePolicy::class,
-        AttributeValue::class => AttributeValuePolicy::class,
-
-        Filter::class => FilterPolicy::class,
-
         User::class => UserPolicy::class,
-        UserRole::class => UserRolePolicy::class,
     ];
 
     /**
@@ -69,6 +28,60 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        //
+        // show and edit vendor catalog
+        Gate::define('vendor-catalog', function ($user) {
+            return $user->hasAnyRole([
+                RoleInterface::ADMIN,
+                RoleInterface::CONTENT_MANAGER,
+            ]);
+        });
+
+        // show local catalog
+        Gate::define('local-catalog-show', function ($user) {
+            return $user->hasAnyRole([
+                RoleInterface::ADMIN,
+                RoleInterface::CONTENT_MANAGER,
+                RoleInterface::USER_MANAGER,
+            ]);
+        });
+
+        // show and edit local catalog
+        Gate::define('local-catalog-edit', function ($user) {
+            return $user->hasAnyRole([
+                RoleInterface::ADMIN,
+                RoleInterface::CONTENT_MANAGER,
+            ]);
+        });
+
+        // show and edit users (not admins)
+        Gate::define('users-edit', function ($user) {
+            return $user->hasAnyRole([
+                RoleInterface::ADMIN,
+                RoleInterface::USER_MANAGER,
+            ]);
+        });
+
+        // show and edit admins
+        Gate::define('admins-edit', function ($user) {
+            return $user->hasAnyRole([
+                RoleInterface::ADMIN,
+            ]);
+        });
+
+        // show and edit admins
+        Gate::define('settings-edit', function ($user) {
+            return $user->hasAnyRole([
+                RoleInterface::ADMIN,
+                RoleInterface::CONTENT_MANAGER,
+            ]);
+        });
+
+        // page content
+        Gate::define('content-edit', function ($user) {
+            return $user->hasAnyRole([
+                RoleInterface::ADMIN,
+                RoleInterface::CONTENT_MANAGER,
+            ]);
+        });
     }
 }

@@ -13,15 +13,15 @@ return [
         'title_uk' => 'Адміністратор',
     ],
     [
+        'id' => RoleInterface::CONTENT_MANAGER,
+        'title_ru' => 'Контент менеджер',
+        'title_uk' => 'Контент менеджер',
+    ],
+    [
         'id' => RoleInterface::USER_MANAGER,
         'title_ru' => 'Менеджер по продажам',
         'title_uk' => 'Менеджер з продажу
 ',
-    ],
-    [
-        'id' => RoleInterface::VENDOR_MANAGER,
-        'title_ru' => 'Менеджер по закупкам',
-        'title_uk' => 'Менеджер по закупці',
     ],
     [
         'id' => RoleInterface::STOREKEEPER,

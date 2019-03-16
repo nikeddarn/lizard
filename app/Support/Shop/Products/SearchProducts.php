@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Builder;
 
 class SearchProducts extends AbstractProduct
 {
-
     /**
      * Get found products' ids
      *
@@ -32,13 +31,15 @@ class SearchProducts extends AbstractProduct
      */
     public function getProducts(array $productsIds): LengthAwarePaginator
     {
+        $user = $this->getUser();
+
         $query = $this->getRetrieveProductQuery()->whereIn('id', $productsIds);
 
-        $query = $this->addRelations($query);
+        $query = $this->addRelations($query, $user);
 
         $products = $query->paginate($this->productsPerPage)->appends(request()->query());
 
-        $this->addProductsProperties($products);
+        $this->addProductsProperties($products, $user);
 
         return $products;
     }
@@ -47,17 +48,19 @@ class SearchProducts extends AbstractProduct
      * Add relations to query.
      *
      * @param Builder $query
+     * @param $user
      * @return Builder
      */
-    protected function addRelations(Builder $query): Builder
+    protected function addRelations(Builder $query, $user): Builder
     {
-        $user = $this->getUser();
+        $query->with('primaryImage', 'productImages', 'actualBadges', 'availableStorageProducts', 'expectingStorageProducts', 'availableVendorProducts', 'expectingVendorProducts', 'availableProductStorages.city');
 
-        $userId = $user ? $user->id : null;
-
-        return $query->with('primaryImage', 'productImages', 'actualBadges', 'availableStorageProducts', 'expectingStorageProducts', 'availableVendorProducts', 'expectingVendorProducts', 'availableProductStorages.city')
-            ->with(['favouriteProducts' => function ($query) use ($userId) {
-                $query->where('users_id', $userId);
+        if ($user) {
+            $query->with(['favouriteProducts' => function ($query) use ($user) {
+                $query->where('users_id', $user->id);
             }]);
+        }
+
+        return $query;
     }
 }

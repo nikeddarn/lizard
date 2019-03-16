@@ -154,4 +154,7 @@ return [
     //product
     'multiply_product_values' => 'The :attribute attribute does not allow multi values ​​for product',
     'product_in_stock' => 'The product is already presents or reserved in stock',
+
+    // user
+    'balance_not_zero' => 'Can not delete user. Balance is not zero.',
 ];

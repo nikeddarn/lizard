@@ -24,6 +24,16 @@
                    aria-controls="attributes" aria-selected="false">Атрибуты</a>
             </li>
 
+            <li class="nav-item">
+                <a class="nav-link" id="categories-tab" data-toggle="tab" href="#categories" role="tab"
+                   aria-controls="categories" aria-selected="false">Категории</a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" id="vendors-tab" data-toggle="tab" href="#vendors" role="tab"
+                   aria-controls="vendors" aria-selected="false">Поставщики</a>
+            </li>
+
         </ul>
 
         <div class="tab-content">
@@ -38,6 +48,14 @@
 
             <div class="tab-pane fade" id="attributes" role="tabpanel" aria-labelledby="attributes-tab">
                 @include('content.admin.catalog.product.show.parts.attributes')
+            </div>
+
+            <div class="tab-pane fade" id="categories" role="tabpanel" aria-labelledby="categories-tab">
+                @include('content.admin.catalog.product.show.parts.categories')
+            </div>
+
+            <div class="tab-pane fade" id="vendors" role="tabpanel" aria-labelledby="vendors-tab">
+                @include('content.admin.catalog.product.show.parts.vendors')
             </div>
 
         </div>

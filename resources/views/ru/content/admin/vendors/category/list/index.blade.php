@@ -4,6 +4,8 @@
 
     @include('content.admin.vendors.category.list.parts.header')
 
+    @include('elements.errors.admin_error.index')
+
     @if($vendorCategories->count())
 
         <div class="card card-body">

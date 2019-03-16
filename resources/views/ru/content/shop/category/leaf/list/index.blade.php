@@ -83,6 +83,9 @@
     {{-- product filters modal--}}
     @include('content.shop.category.leaf.list.parts.filters_modal')
 
+    {{-- cart modal--}}
+    @include('elements.cart.cart_modal')
+
 @endsection
 
 @section('styles')
@@ -103,6 +106,27 @@
                 min: 1,
                 buttondown_class: "btn btn-primary h-100",
                 buttonup_class: "btn btn-primary h-100"
+            });
+
+            // add to cart
+            $('.add-to-cart').click(function (event) {
+
+                event.preventDefault();
+                event.stopImmediatePropagation();
+
+                $.ajax({
+                    url: this,
+                    success: function (data) {
+                        let cartData = JSON.parse(data);
+                        // set header cart data
+                        $('#cart-items-count').html(cartData.itemsCount);
+                        $('#header-cart-content').removeClass('d-none').html(cartData.cart);
+                        // set modal cart data and activate modal
+                        let cartModal = $('#cart-content-modal');
+                        $(cartModal).find('.modal-cart').html(cartData.cart);
+                        $(cartModal).modal();
+                    }
+                });
             });
 
         });

@@ -14,7 +14,7 @@
         <div class="btn btn-default image-preview-input">
             <span class="fa fa-folder-open"></span>
             <span class="image-preview-input-title">Выбрать</span>
-            <input type="file" name="{{ isset($inputFileFieldName) ? $inputFileFieldName : 'image' }}" accept="image/*"/>
+            <input class="input-image" type="file" name="{{ isset($inputFileFieldName) ? $inputFileFieldName : 'image' }}" accept="image/*"/>
         </div>
     </span>
 

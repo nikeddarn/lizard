@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Brand;
 use App\Support\ImageHandlers\BrandImageHandler;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class BrandController extends Controller
 {
@@ -27,11 +28,12 @@ class BrandController extends Controller
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function index()
     {
-        $this->authorize('view', $this->brand);
+        if (Gate::denies('local-catalog-show', auth('web')->user())) {
+            abort(401);
+        }
 
         return view('content.admin.catalog.brand.list.index')->with([
             'brands' => $this->brand->newQuery()->orderBy('name')->get(),
@@ -42,11 +44,12 @@ class BrandController extends Controller
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function create()
     {
-        $this->authorize('create', $this->brand);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         return view('content.admin.catalog.brand.create.index');
     }
@@ -57,12 +60,13 @@ class BrandController extends Controller
      * @param Request $request
      * @param BrandImageHandler $imageHandler
      * @return \Illuminate\Http\RedirectResponse
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request, BrandImageHandler $imageHandler)
     {
-        $this->authorize('create', $this->brand);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $this->validate($request, [
             'name' => 'required|string|max:32',
@@ -92,11 +96,12 @@ class BrandController extends Controller
      *
      * @param string $id
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function edit(string $id)
     {
-        $this->authorize('update', $this->brand);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         return view('content.admin.catalog.brand.update.index')->with([
             'brand' => $this->brand->newQuery()->findOrFail($id),
@@ -110,12 +115,13 @@ class BrandController extends Controller
      * @param string $id
      * @param BrandImageHandler $imageHandler
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      * @throws \Illuminate\Validation\ValidationException
      */
     public function update(Request $request, string $id, BrandImageHandler $imageHandler)
     {
-        $this->authorize('update', $this->brand);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $brand = $this->brand->newQuery()->findOrFail($id);
 
@@ -152,12 +158,13 @@ class BrandController extends Controller
      * @param string $id
      * @param BrandImageHandler $imageHandler
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      * @throws \Exception
      */
     public function destroy(string $id, BrandImageHandler $imageHandler)
     {
-        $this->authorize('delete', $this->brand);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $brand = $this->brand->newQuery()->findOrFail($id);
 

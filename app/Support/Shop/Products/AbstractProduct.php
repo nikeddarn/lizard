@@ -5,7 +5,6 @@
 
 namespace App\Support\Shop\Products;
 
-use App\Contracts\Shop\UrlParametersInterface;
 use App\Models\Category;
 use App\Models\Product;
 use App\Support\Settings\SettingsRepository;
@@ -93,50 +92,32 @@ abstract class AbstractProduct
      * Add properties to each product.
      *
      * @param LengthAwarePaginator|Collection $products
+     * @param $user
      */
-    protected function addProductsProperties($products)
+    protected function addProductsProperties($products, $user)
     {
         $exchangeRate = $this->exchangeRates->getRate();
 
         $isUsdPriceAllowed = $this->isUsdPriceAllowedToShow();
 
+        $currentLocale = app()->getLocale();
+        $localeRouteParameter = $currentLocale === config('app.canonical_locale') ? null : $currentLocale;
+
         foreach ($products as $product) {
             // add query parameters
-            $product->href = $this->createProductLinkUrl($product->url);
+            $this->createProductLinkUrl($product, $localeRouteParameter);
 
-            // product prices
-            $productPrice = $this->productPrice->getUsersProductPrice($product);
+            // add product prices
+            $this->createProductPrice($product, $exchangeRate, $isUsdPriceAllowed, $user);
 
-            if ($productPrice){
-                if ($isUsdPriceAllowed) {
-                    $product->price = $this->formatProductPrice($productPrice);
-                }
+            // add product availability
+            $this->createProductAvailability($product);
 
-                if ($exchangeRate) {
-                    $product->localPrice = $this->formatProductPrice($productPrice * $exchangeRate, 0);
-                }
-            }
+            // add product rating
+            $this->createProductRates($product);
 
-            // product availability
-            $productExpectedAt = $this->productAvailability->getProductExpectedTime($product);
-            $product->isAvailable = $this->productAvailability->isProductAvailable($product);
-            $product->expectedAt = $productExpectedAt;
-            $product->isExpectedToday = ($productExpectedAt && $productExpectedAt < Carbon::today()->addDay()) ? true : false;
-
-            // product rating
-            $showRateConfig = $this->settingsRepository->getProperty('shop.show_rate');
-            if ($showRateConfig['allowed'] && $product->rating_quantity >= $showRateConfig['count']) {
-                $product->productRate = $product->rating;
-            }
-
-            // defect rate
-            $showDefectRateConfig = $this->settingsRepository->getProperty('shop.show_defect_rate');
-            if ($showDefectRateConfig['allowed'] && $product->sold_quantity >= $showDefectRateConfig['count']) {
-                $product->defectRate = $product->defect_rate;
-            }
-
-            // is product favourite
-            $product->isFavourite = $product->favouriteProducts->count();
+            // set product favourite
+            $this->createFavouriteProperty($product);
         }
     }
 
@@ -145,7 +126,7 @@ abstract class AbstractProduct
      *
      * @return bool
      */
-    private function isUsdPriceAllowedToShow(): bool
+    protected function isUsdPriceAllowedToShow(): bool
     {
         // get settings
         $showUsdPriceSettings = $this->settingsRepository->getProperty('currencies.show_usd_price');
@@ -162,32 +143,83 @@ abstract class AbstractProduct
     }
 
     /**
-     * Format product price.
+     * Create product prices.
      *
-     * @param float $price
-     * @param int $decimals
-     * @return string
+     * @param Product $product
+     * @param float $exchangeRate
+     * @param bool $isUsdPriceAllowed
+     * @param $user
      */
-    private function formatProductPrice(float $price, int $decimals = 0)
+    protected function createProductPrice(Product $product, float $exchangeRate, bool $isUsdPriceAllowed, $user)
     {
-        return number_format($price, $decimals, '.', '');
+        // product prices
+        $productPrice = $this->productPrice->getUserProductPrice($product, $user);
+
+        if ($productPrice){
+            if ($isUsdPriceAllowed) {
+                $product->price = number_format($productPrice);
+            }
+
+            if ($exchangeRate) {
+                $product->localPrice = number_format($productPrice * $exchangeRate);
+            }
+        }
+    }
+
+    /**
+     * Create product availability.
+     *
+     * @param Product $product
+     */
+    protected function createProductAvailability(Product $product)
+    {
+        $productExpectedAt = $this->productAvailability->getProductExpectedTime($product);
+        $product->isAvailable = $this->productAvailability->isProductAvailable($product);
+        $product->expectedAt = $productExpectedAt;
+        $product->isExpectedToday = ($productExpectedAt && $productExpectedAt < Carbon::today()->addDay()) ? true : false;
     }
 
     /**
      * Create product's link url.
      *
-     * @param string $productUrl
-     * @return string
+     * @param Product $product
+     * @param string $locale
      */
-    private function createProductLinkUrl(string $productUrl): string
+    protected function createProductLinkUrl(Product $product, string $locale = null)
     {
-        $currentRouteLocaleParameter = request()->route()->parameter(UrlParametersInterface::LOCALE);
-
-        $productRouteName = 'shop.product.index';
-
-        return route($productRouteName, [
-            'url' => $productUrl,
-            'locale' => $currentRouteLocaleParameter,
+        $product->href = route('shop.product.index', [
+            'url' => $product->url,
+            'locale' => $locale,
         ]);
+    }
+
+    /**
+     * Create product rates.
+     *
+     * @param Product $product
+     */
+    protected function createProductRates(Product $product)
+    {
+        // product rating
+        $showRateConfig = $this->settingsRepository->getProperty('shop.show_rate');
+        if ($showRateConfig['allowed'] && $product->rating_quantity >= $showRateConfig['count']) {
+            $product->productRate = $product->rating;
+        }
+
+        // defect rate
+        $showDefectRateConfig = $this->settingsRepository->getProperty('shop.show_defect_rate');
+        if ($showDefectRateConfig['allowed'] && $product->sold_quantity >= $showDefectRateConfig['count']) {
+            $product->defectRate = $product->defect_rate;
+        }
+    }
+
+    /**
+     * Create favourite property.
+     *
+     * @param Product $product
+     */
+    protected function createFavouriteProperty(Product $product)
+    {
+        $product->isFavourite = (bool)$product->favouriteProducts->count();
     }
 }

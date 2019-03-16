@@ -4,7 +4,6 @@
 
     @if($errors->any())
         @include('elements.errors.admin_error.index')
-
     @else
 
         @include('content.admin.vendors.category.create.parts.header')

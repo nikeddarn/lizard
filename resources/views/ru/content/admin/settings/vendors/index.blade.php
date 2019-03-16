@@ -88,7 +88,7 @@
             });
 
             $(".vendor-settings-input-discount").TouchSpin({
-                min: -100,
+                min: 0,
                 max: 100,
                 step: 0.1,
                 decimals: 1,

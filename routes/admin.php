@@ -4,8 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/sitemap.xml', 'SitemapController@index');
 
-// --------------------------------------------- Admin Routes ----------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------- Admin Routes --------------------------------------
 
 // overview page
 Route::get('/admin', 'Admin\OverviewController@index')->name('admin.overview');
@@ -49,6 +48,10 @@ Route::put('/admin/products/{id}', 'Admin\ProductController@update')->name('admi
 Route::delete('/admin/products/{id}', 'Admin\ProductController@destroy')->name('admin.products.destroy');
 // upload "summernote" editor images
 Route::post('/admin/products/upload/image', 'Admin\ProductController@uploadImage')->name('admin.products.upload.image');
+
+// product publishing
+Route::post('/admin/products/publish/on', 'Admin\ProductController@publishProduct')->name('admin.products.publish.on');
+Route::post('/admin/products/publish/off', 'Admin\ProductController@unPublishProduct')->name('admin.products.publish.off');
 
 // product images
 Route::get('/admin/products/{id}/image/create', 'Admin\ProductImageController@create')->name('admin.products.image.create');
@@ -114,14 +117,21 @@ Route::delete('/admin/attributes/values/{id}', 'Admin\AttributeValueController@d
 //Route::delete('/admin/filters/{id}', 'Admin\FilterController@destroy')->name('admin.filters.destroy');
 
 // users
-Route::get('/admin/users/customers', 'Admin\UserController@customers')->name('admin.users.customers');
-Route::get('/admin/users/administrators', 'Admin\UserController@administrators')->name('admin.users.administrators');
-Route::get('/admin/users/show/{id}', 'Admin\UserController@show')->name('admin.users.show');
-Route::get('/admin/users/{id}/edit', 'Admin\UserController@edit')->name('admin.users.edit');
-Route::put('/admin/users/{id}', 'Admin\UserController@update')->name('admin.users.update');
-Route::delete('/admin/users/{id}', 'Admin\UserController@destroy')->name('admin.users.destroy');
+Route::get('/admin/users/customers', 'Admin\UserController@index')->name('admin.users.customers');
+Route::get('/admin/users/customers/show/{id}', 'Admin\UserController@show')->name('admin.users.customers.show');
+Route::delete('/admin/users/customers/{id}', 'Admin\UserController@destroy')->name('admin.users.customers.destroy');
 
-// user roles
+// increase and decrease price groups
+Route::post('/admin/users/group/up', 'Admin\UserController@increasePriceGroup')->name('admin.users.group.up');
+Route::post('/admin/users/group/down', 'Admin\UserController@decreasePriceGroup')->name('admin.users.group.down');
+
+
+// admins
+Route::get('/admin/users/administrators', 'Admin\AdminController@index')->name('admin.users.administrators');
+Route::get('/admin/users/administrators/show/{id}', 'Admin\AdminController@show')->name('admin.users.administrators.show');
+Route::delete('/admin/users/administrators/{id}', 'Admin\AdminController@destroy')->name('admin.users.administrators.destroy');
+
+// admin roles
 Route::get('/admin/users/{id}/role/create', 'Admin\UserRoleController@create')->name('admin.users.role.create');
 Route::post('/admin/users/role', 'Admin\UserRoleController@store')->name('admin.users.role.store');
 Route::delete('/admin/users/role/destroy', 'Admin\UserRoleController@destroy')->name('admin.users.role.destroy');
@@ -179,25 +189,28 @@ Route::post('/admin/vendor/category/products/auto/on', 'Vendor\VendorLocalCatego
 // turn off auto download new products
 Route::post('/admin/vendor/category/products/auto/off', 'Vendor\VendorLocalCategoryController@autoDownloadOff')->name('vendor.category.products.auto.off');
 
-//--------------- sync products --------------------
+//--------------- synchronizing vendor products --------------------
+
+// synchronizing products
+Route::get('/admin/vendor/category/{vendorCategoryId}/local/{localCategoryId}/products/sync', 'Vendor\VendorSynchronizingProductsController@sync')->name('vendor.category.products.sync');
+
+// download selected
+Route::post('/admin/vendor/category/products/download/selected', 'Vendor\VendorSynchronizingProductsController@downloadSelected')->name('vendor.category.products.download.selected');
+
+// download all products of vendor category
+Route::post('/admin/vendor/category/products/download/all', 'Vendor\VendorSynchronizingProductsController@downloadAll')->name('vendor.category.products.download.all');
+
+// downloaded vendor products ids
+Route::post('/admin/vendor/category/products/downloaded/ids', 'Vendor\VendorSynchronizingProductsController@downloadedIds')->name('vendor.category.products.downloaded.ids');
+
+
+// ------------------ vendor category synchronized products ---------------------------------
 
 // downloaded products
 Route::get('/admin/vendor/category/{vendorCategoryId}/local/{localCategoryId}/products/downloaded', 'Vendor\VendorProductController@downloaded')->name('vendor.category.products.downloaded');
 
-// synchronizing products
-Route::get('/admin/vendor/category/{vendorCategoryId}/local/{localCategoryId}/products/sync', 'Vendor\VendorProductController@sync')->name('vendor.category.products.sync');
-
-// download selected
-Route::post('/admin/vendor/category/products/download/selected', 'Vendor\VendorProductController@downloadSelected')->name('vendor.category.products.download.selected');
-
-// download all products of vendor category
-Route::post('/admin/vendor/category/products/download/all', 'Vendor\VendorProductController@downloadAll')->name('vendor.category.products.download.all');
-
 // delete vendor category product
-Route::delete('/admin/vendor/category/products/destroy', 'Vendor\VendorProductController@deleteVendorProduct')->name('vendor.category.products.destroy');
-
-// downloaded vendor products ids
-Route::post('/admin/vendor/category/products/downloaded/ids', 'Vendor\VendorProductController@downloadedIds')->name('vendor.category.products.downloaded.ids');
+Route::delete('/admin/vendor/category/products/destroy', 'Vendor\VendorProductController@delete')->name('vendor.category.products.destroy');
 
 
 // ---------------------------------------------- Synchronization Routes -----------------------------------------------
@@ -232,4 +245,41 @@ Route::post('/admin/settings/shop/update', 'Settings\ShopSettingsController@upda
 Route::get('/admin/settings/vendor/edit', 'Settings\VendorSettingsController@edit')->name('admin.settings.vendor.edit');
 Route::post('/admin/settings/vendor/update', 'Settings\VendorSettingsController@update')->name('admin.settings.vendor.update');
 
+// -------------------------------- Page Content -------------------------------------------------
+
+// ---------------------------- common
+Route::get('/admin/content/common/edit', 'Content\CommonContentController@edit')->name('admin.content.common.edit');
+Route::post('/admin/content/common/update', 'Content\CommonContentController@update')->name('admin.content.common.update');
+
+// ------------------------------- main
+
+Route::get('/admin/content/main/edit', 'Content\MainContentController@edit')->name('admin.content.main.edit');
+
+//seo
+Route::post('/admin/content/main/update/seo', 'Content\MainContentController@updateSeo')->name('admin.content.main.update.seo');
+
+//slider
+Route::post('/admin/content/main/sort/slides', 'Content\MainContentController@sortSlides')->name('admin.content.main.sort.slides');
+
+// products groups
+Route::post('/admin/content/main/sort/groups', 'Content\MainContentController@sortGroups')->name('admin.content.main.sort.groups');
+
+
+// -------------------------------- Slides -----------------------------------
+Route::get('/admin/slider/{slider_id}/slide/create', 'Content\SlideController@create')->name('admin.slider.slide.create');
+Route::post('/admin/slider/slide/store', 'Content\SlideController@store')->name('admin.slider.slide.store');
+
+Route::get('/admin/slider/slide/{slide_id}/edit', 'Content\SlideController@edit')->name('admin.slider.slide.edit');
+Route::post('/admin/slider/slide/update', 'Content\SlideController@update')->name('admin.slider.slide.update');
+
+Route::post('/admin/content/main/delete/slide', 'Content\MainContentController@delete')->name('admin.slider.slide.delete');
+
+// -------------------------------- Product Groups -----------------------------------
+Route::get('/admin/product/group/create', 'Content\ProductGroupController@create')->name('admin.product.group.create');
+Route::post('/admin/product/group/store', 'Content\ProductGroupController@store')->name('admin.product.group.store');
+
+Route::get('/admin/product/group/{group_id}/edit', 'Content\ProductGroupController@edit')->name('admin.product.group.edit');
+Route::post('/admin/product/group/update', 'Content\ProductGroupController@update')->name('admin.product.group.update');
+
+Route::post('/admin/product/group/delete', 'Content\ProductGroupController@delete')->name('admin.product.group.delete');
 

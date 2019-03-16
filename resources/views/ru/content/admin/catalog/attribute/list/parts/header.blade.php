@@ -6,7 +6,7 @@
 
         <a class="btn btn-primary" href="{{ route('admin.attributes.create') }}" data-toggle="tooltip"
            title="Создать атрибут">
-            <i data-feather="plus"></i>
+            <i class="svg-icon-larger" data-feather="plus"></i>
             <span class="ml-1">Создать атрибут</span>
         </a>
 

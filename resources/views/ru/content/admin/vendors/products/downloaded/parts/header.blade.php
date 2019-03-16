@@ -14,7 +14,7 @@
             </span>
         </h1>
 
-        <a href="{{ url()->previous() }}"
+        <a href="{{ route('vendor.category.show', ['vendorCategoriesId' => $vendorCategory->id]) }}"
            data-toggle="tooltip" title="Назад" class="btn btn-primary">
             <i class="svg-icon-larger" data-feather="corner-up-left"></i>
         </a>

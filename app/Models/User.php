@@ -30,6 +30,22 @@ class User extends Authenticatable
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
+    public function cartProducts()
+    {
+        return $this->belongsToMany('App\Models\Product', 'user_cart_product', 'users_id', 'products_id')->withPivot('count');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function userCartProducts()
+    {
+        return $this->hasMany('App\Models\UserCartProduct', 'users_id', 'id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function roles()
     {
         return $this->belongsToMany('App\Models\Role', 'user_role', 'users_id', 'roles_id')->withTimestamps();
@@ -94,5 +110,27 @@ class User extends Authenticatable
         $recentProductTtl = $settingsRepository->getProperty('shop.recent_product_ttl');
 
         return $this->belongsToMany('App\Models\Product', 'recent_products', 'users_id', 'products_id')->wherePivot('updated_at', '>=', Carbon::now()->subDays($recentProductTtl));
+    }
+
+    /**
+     * Transform timestamp to carbon.
+     *
+     * @param  string  $value
+     * @return string
+     */
+    public function getCreatedAtAttribute($value)
+    {
+        return $value ? Carbon::createFromFormat('Y-m-d H:i:s', $value) : null;
+    }
+
+    /**
+     * Transform timestamp to carbon.
+     *
+     * @param  string  $value
+     * @return string
+     */
+    public function getUpdatedAtAttribute($value)
+    {
+        return $value ? Carbon::createFromFormat('Y-m-d H:i:s', $value) : null;
     }
 }

@@ -1,0 +1,21 @@
+<?php
+
+namespace App\Http\Requests\Content\Slide;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class DeleteSlideRequest extends FormRequest
+{
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array
+     */
+    public function rules()
+    {
+
+        return [
+            'slide_id' => 'required|integer',
+        ];
+    }
+}

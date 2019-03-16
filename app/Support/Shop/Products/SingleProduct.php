@@ -18,13 +18,13 @@ class SingleProduct extends AbstractProduct
      */
     public function getProduct(string $url)
     {
+        $user = $this->getUser();
+
         $query = $this->makeRetrieveProductsQuery($url);
 
-        $query = $this->addRelations($query);
+        $products = $this->addRelations($query, $user)->get();
 
-        $products = $query->get();
-
-        $this->addProductsProperties($products);
+        $this->addProductsProperties($products, $user);
 
         return $products->first();
     }
@@ -44,17 +44,19 @@ class SingleProduct extends AbstractProduct
      * Add relations to query.
      *
      * @param Builder $query
+     * @param $user
      * @return Builder
      */
-    protected function addRelations(Builder $query): Builder
+    protected function addRelations(Builder $query, $user): Builder
     {
-        $user = $this->getUser();
+        $query->with('productImages', 'availableStorageProducts', 'expectingStorageProducts', 'availableVendorProducts', 'expectingVendorProducts', 'availableProductStorages.city', 'attributeValues.attribute');
 
-        $userId = $user ? $user->id : null;
-
-        return $query->with('productImages', 'availableStorageProducts', 'expectingStorageProducts', 'availableVendorProducts', 'expectingVendorProducts', 'availableProductStorages.city', 'attributeValues.attribute')
-            ->with(['favouriteProducts' => function ($query) use ($userId) {
-                $query->where('users_id', $userId);
+        if ($user) {
+            $query->with(['favouriteProducts' => function ($query) use ($user) {
+                $query->where('users_id', $user->id);
             }]);
+        }
+
+        return $query;
     }
 }

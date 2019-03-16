@@ -120,6 +120,7 @@ class BrainUpdateVendorProductManager extends UpdateVendorProductManager
     {
         return [
             'is_archive' => (int)$vendorProductData->is_archive,
+            'warranty' => (int)$vendorProductData->warranty,
         ];
     }
 }

@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Requests\Admin\ProductImage\StoreProductImageRequest;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Support\ImageHandlers\ProductImageHandler;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Gate;
 
 class ProductImageController extends Controller
 {
@@ -37,11 +36,12 @@ class ProductImageController extends Controller
      *
      * @param string $id
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function create(string $id)
     {
-        $this->authorize('create', $this->productImage);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $product = $this->product->newQuery()->findOrFail($id);
 
@@ -53,23 +53,23 @@ class ProductImageController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param StoreProductImageRequest $request
      * @param ProductImageHandler $imageHandler
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request, ProductImageHandler $imageHandler)
+    public function store(StoreProductImageRequest $request, ProductImageHandler $imageHandler)
     {
-        $this->authorize('create', $this->productImage);
-
-        $this->validate($request, [
-            'image' => 'image'
-        ]);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $product = $this->product->newQuery()->findOrFail($request->get('products_id'));
 
-        $this->insertProductImage($imageHandler, $request->image, $product);
+        // define priority
+        $priority = $product->productImages()->where('priority', 1)->count() ? 0 : 1;
+
+        // create product images
+        $imageHandler->insertProductImage($product, $request->image, $priority);
 
         return redirect(route('admin.products.show', ['id' => $product->id]));
     }
@@ -78,13 +78,15 @@ class ProductImageController extends Controller
      * Remove the specified resource from storage.
      *
      * @param string $id
+     * @param ProductImageHandler $imageHandler
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      * @throws \Exception
      */
-    public function destroy(string $id)
+    public function destroy(string $id, ProductImageHandler $imageHandler)
     {
-        $this->authorize('delete', $this->productImage);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $image = $this->productImage->newQuery()->findOrFail($id);
 
@@ -100,9 +102,7 @@ class ProductImageController extends Controller
         }
 
         // remove images from storage
-        foreach (['image', 'small', 'medium', 'large'] as $type) {
-            Storage::disk('public')->delete($image->$type);
-        }
+        $imageHandler->deleteProductImage($productId);
 
         // delete image
         $image->delete();
@@ -116,11 +116,12 @@ class ProductImageController extends Controller
      *
      * @param string $id
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function priority(string $id)
     {
-        $this->authorize('update', $this->productImage);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $newPriorityImage = $this->productImage->newQuery()->findOrFail($id);
 
@@ -137,21 +138,5 @@ class ProductImageController extends Controller
         $newPriorityImage->save();
 
         return redirect(route('admin.products.show', ['id' => $productsId]));
-    }
-
-    /**
-     * Create and store images.
-     *
-     * @param ProductImageHandler $imageHandler
-     * @param string $sourcePath
-     * @param Product|Model $product
-     */
-    private function insertProductImage(ProductImageHandler $imageHandler, string $sourcePath, Product $product)
-    {
-        // define priority
-        $priority = $product->productImages()->where('priority', 1)->count() ? 0 : 1;
-
-        // create product images
-        $imageHandler->insertProductImage($product, $sourcePath, $priority);
     }
 }

@@ -7,10 +7,10 @@ namespace App\Http\Composers;
 
 
 use App\Models\Category;
-use App\Models\FavouriteProduct;
-use App\Models\RecentProduct;
+use App\Models\Product;
 use App\Support\Seo\Locale\AlternateLinksGenerator;
 use App\Support\Settings\SettingsRepository;
+use App\Support\Shop\Products\CartProducts;
 use App\Support\User\RetrieveUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -25,14 +25,6 @@ class CommonDataComposer
      */
     private $category;
     /**
-     * @var FavouriteProduct
-     */
-    private $favouriteProduct;
-    /**
-     * @var RecentProduct
-     */
-    private $recentProduct;
-    /**
      * @var Request
      */
     private $request;
@@ -44,24 +36,26 @@ class CommonDataComposer
      * @var AlternateLinksGenerator
      */
     private $alternateLinksGenerator;
+    /**
+     * @var CartProducts
+     */
+    private $cartProducts;
 
     /**
      * CommonDataComposer constructor.
      * @param Request $request
      * @param Category $category
-     * @param FavouriteProduct $favouriteProduct
-     * @param RecentProduct $recentProduct
      * @param SettingsRepository $settingsRepository
      * @param AlternateLinksGenerator $alternateLinksGenerator
+     * @param CartProducts $cartProducts
      */
-    public function __construct(Request $request, Category $category, FavouriteProduct $favouriteProduct, RecentProduct $recentProduct, SettingsRepository $settingsRepository, AlternateLinksGenerator $alternateLinksGenerator)
+    public function __construct(Request $request, Category $category, SettingsRepository $settingsRepository, AlternateLinksGenerator $alternateLinksGenerator, CartProducts $cartProducts)
     {
         $this->category = $category;
-        $this->favouriteProduct = $favouriteProduct;
-        $this->recentProduct = $recentProduct;
         $this->request = $request;
         $this->settingsRepository = $settingsRepository;
         $this->alternateLinksGenerator = $alternateLinksGenerator;
+        $this->cartProducts = $cartProducts;
     }
 
     /**
@@ -75,11 +69,15 @@ class CommonDataComposer
         // create product categories
         $productCategories = $this->getCategories();
 
-        // create user badges
-        $userBadges = $this->getUserBadges();
+        $user = $this->getUser();
 
-        // retrieve user
-        $user = auth('web')->user();
+        if ($user) {
+            // create user badges
+            $userBadges = $this->getUserBadges($user);
+
+            // get cart data
+            $cartData = $this->getCartData($user);
+        }
 
         // create contacts data
         $shopContacts = $this->getContactsData();
@@ -90,7 +88,8 @@ class CommonDataComposer
         // create seo alternate languages links
         $alternateLocalesLinks = $this->alternateLinksGenerator->createAlternateLinks();
 
-        $view->with(compact('productCategories', 'userBadges', 'user', 'shopContacts', 'availableLocalesLinksData', 'alternateLocalesLinks'));
+
+        $view->with(compact('productCategories', 'userBadges', 'user', 'shopContacts', 'availableLocalesLinksData', 'alternateLocalesLinks', 'cartData'));
     }
 
     /**
@@ -124,20 +123,15 @@ class CommonDataComposer
     /**
      * Create user badges.
      *
+     * @param $user
      * @return array
      */
-    private function getUserBadges(): array
+    private function getUserBadges($user): array
     {
-        $user = $this->getUser();
-
-        if ($user){
-            return [
-                'favourites' => $user->favouriteProducts()->count(),
-                'recent' => $user->timeLimitedRecentProducts()->count(),
-            ];
-        }else{
-            return [];
-        }
+        return [
+            'favourites' => $user->favouriteProducts()->count(),
+            'recent' => $user->timeLimitedRecentProducts()->count(),
+        ];
     }
 
     /**
@@ -147,7 +141,7 @@ class CommonDataComposer
      */
     private function getContactsData()
     {
-        $phones = $this->settingsRepository->getProperty('contacts.phones');
+        $phones = $this->settingsRepository->getProperty('content.common.header.phones');
 
         return compact('phones');
     }
@@ -199,5 +193,23 @@ class CommonDataComposer
     protected function createQueryString(array $parameters)
     {
         return $parameters ? '?' . urldecode(http_build_query($parameters)) : '';
+    }
+
+    /**
+     * Get user cart data.
+     *
+     * @param $user
+     * @return array
+     */
+    private function getCartData($user)
+    {
+        $products = $this->cartProducts->getProducts($user);
+
+        // calculate product's prices and total amount
+        $amount = number_format($products->sum(function (Product $product) {
+            return $product->localPrice * $product->pivot->count;
+        }));
+
+        return compact('products', 'amount');
     }
 }

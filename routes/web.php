@@ -8,17 +8,16 @@ use Illuminate\Support\Facades\Route;
  * ****************************************************************
  */
 Route::get('/setup', 'Setup\SetupController@setup');
-//Route::get('/setup/users', 'Setup\SetupController@setupUsers');
+Route::get('/setup/users', 'Setup\SetupController@setupUsers');
 Route::get('/setup/vendors', 'Setup\SetupController@setupVendors');
+Route::get('/setup/pages', 'Setup\SetupController@setupStaticPages');
 
-// --------------------------------------------- Common Routes ---------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------- Common Routes -------------------------------------------------
 
-Route::get('/{locale?}', 'MainPageController@show')->name('main')
+Route::get('/{locale?}', 'Pages\MainPageController@index')->name('main')
     ->where('locale', '(' . implode('|', config('app.available_locales')) . ')');
 
-// --------------------------------------------- Auth Routes ---------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------- Auth Routes ------------------------------------------------------
 
 Route::get('/login/{locale?}', 'Auth\LoginController@showLoginForm')->name('login');
 Route::post('login', 'Auth\LoginController@login');
@@ -109,9 +108,25 @@ Route::post('/product/comments', 'Shop\ProductCommentController@store')->name('p
 // user cart
 Route::get('/shop/cart/{locale?}', 'Shop\CartController@index')->name('shop.cart.index');
 Route::get('/shop/cart/add/{id}', 'Shop\CartController@addProduct')->name('shop.cart.add');
-Route::post('/shop/cart/count/{id}', 'Shop\CartController@addProduct')->name('shop.cart.count');
+Route::get('/shop/cart/remove/{id}', 'Shop\CartController@removeProduct')->name('shop.cart.remove');
+Route::post('/shop/cart/count', 'Shop\CartController@addProductCount')->name('shop.cart.count');
+Route::get('/shop/cart/increment/{id}', 'Shop\CartController@increaseProductCount')->name('shop.cart.increment');
+Route::get('/shop/cart/decrement/{id}', 'Shop\CartController@decreaseProductCount')->name('shop.cart.decrement');
+
+// checkout
+Route::get('/shop/checkout/{locale?}', 'Shop\CheckoutController@index')->name('shop.checkout.index');
+Route::post('/shop/checkout/confirm', 'Shop\CheckoutController@confirm')->name('shop.checkout.confirm');
 
 //  Search Routes
 Route::post('/search/{locale?}', 'Shop\SearchController@index')->name('shop.search.index');
 Route::get('/search/{locale?}', 'Shop\SearchController@results')->name('shop.search.results');
 
+
+// -------------------------------- Static pages -----------------------------------
+
+Route::get('/shop/delivery/{locale?}', 'Shop\PageController@delivery')->name('shop.delivery.index');
+Route::get('/shop/payments/{locale?}', 'Shop\PageController@payments')->name('shop.payments.index');
+Route::get('/shop/return/{locale?}', 'Shop\PageController@return')->name('shop.return.index');
+Route::get('/shop/warranty/{locale?}', 'Shop\PageController@warranty')->name('shop.warranty.index');
+Route::get('/shop/about/{locale?}', 'Shop\PageController@about')->name('shop.about.index');
+Route::get('/shop/contacts/{locale?}', 'Shop\PageController@contacts')->name('shop.contacts.index');

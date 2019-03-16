@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\ProductFilter;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
 class ProductFilterController extends Controller
@@ -42,11 +43,12 @@ class ProductFilterController extends Controller
      *
      * @param string $id
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function create(string $id)
     {
-        $this->authorize('create', $this->productFilter);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $locale = app()->getLocale();
 
@@ -65,11 +67,13 @@ class ProductFilterController extends Controller
      *
      * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request)
     {
-        $this->authorize('create', $this->productFilter);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $productsId = $request->get('products_id');
 
@@ -89,11 +93,12 @@ class ProductFilterController extends Controller
      *
      * @param Request $request
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function destroy(Request $request)
     {
-        $this->authorize('delete', $this->productFilter);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $productsId = $request->get('products_id');
         $filtersId = $request->get('filters_id');

@@ -8,6 +8,7 @@
             <tr>
                 <td><strong>Локальная категория</strong></td>
                 <td class="text-center"><strong>Товаров</strong></td>
+                <td class="text-center"><strong>Опубликовано</strong></td>
                 <td class="text-center"><strong>Действия</strong></td>
             </tr>
             </thead>
@@ -21,6 +22,8 @@
                     <td class="py-1">{{ $category->name }}</td>
 
                     <td class="py-1 text-center">{{ $category->products_count }}</td>
+
+                    <td class="py-1 text-center">{{ $category->published_products_count }}</td>
 
                     <td class="py-1 sync-category-actions d-flex justify-content-center align-items-start">
 

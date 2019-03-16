@@ -7,6 +7,7 @@ namespace App\Support\Vendors\Adapters\Brain;
 
 
 use App\Contracts\Vendor\VendorInterface;
+use App\Models\Product;
 use DateTime;
 use Exception;
 use Illuminate\Support\Str;
@@ -22,14 +23,20 @@ class BrainProductDataAdapter
      * @var BrainProductPriceAdapter
      */
     private $productPriceAdapter;
+    /**
+     * @var Product
+     */
+    private $product;
 
     /**
      * BrainProductDataAdapter constructor.
      * @param BrainProductPriceAdapter $productPriceAdapter
+     * @param Product $product
      */
-    public function __construct(BrainProductPriceAdapter $productPriceAdapter)
+    public function __construct(BrainProductPriceAdapter $productPriceAdapter, Product $product)
     {
         $this->productPriceAdapter = $productPriceAdapter;
+        $this->product = $product;
     }
 
     /**
@@ -43,17 +50,16 @@ class BrainProductDataAdapter
      */
     public function prepareProductData(stdClass $productDataRu, stdClass $productContentDataRu, stdClass $productContentDataUa)
     {
-        if (!($productDataRu->name && $productContentDataUa->name)){
+        if (!($productDataRu->name && $productContentDataUa->name)) {
             throw new Exception('Can not insert vendor product. Missing necessary product data');
         }
 
-        return [
+        $productData = [
             'code' => $productDataRu->product_code,
             'articul' => $productDataRu->articul,
             'min_order_quantity' => (int)$productDataRu->min_order_amount,
             'warranty' => $productDataRu->warranty ? (int)$productDataRu->warranty : null,
             'is_archive' => (int)$productDataRu->is_archive,
-            'url' => Str::slug($productDataRu->name),
 
             'name_ru' => $productContentDataRu->name,
             'name_uk' => $productContentDataUa->name,
@@ -71,11 +77,15 @@ class BrainProductDataAdapter
             'model_uk' => $productContentDataUa->model,
 
             'volume' => $productContentDataRu->volume ? (float)$productContentDataRu->volume : null,
-            'weight' => $productContentDataRu->weight ?(float)$productContentDataRu->weight : null,
+            'weight' => $productContentDataRu->weight ? (float)$productContentDataRu->weight : null,
             'length' => $productContentDataRu->depth ? (float)$productContentDataRu->depth : null,
             'width' => $productContentDataRu->width ? (float)$productContentDataRu->width : null,
             'height' => $productContentDataRu->height ? (float)$productContentDataRu->height : null,
         ];
+
+        $productData['url'] = $this->createProductUrl($productData);
+
+        return $productData;
     }
 
     /**
@@ -88,7 +98,7 @@ class BrainProductDataAdapter
      */
     public function prepareVendorProductData(stdClass $productDataRu, float $vendorUsdCourse)
     {
-        if (!($productDataRu->productID && $vendorUsdCourse > 0)){
+        if (!($productDataRu->productID && $vendorUsdCourse > 0)) {
             throw new Exception('Can not insert vendor product. Missing necessary vendor product data');
         }
 
@@ -123,5 +133,37 @@ class BrainProductDataAdapter
         ];
 
         return array_merge($vendorProductPrices, $vendorProductData);
+    }
+
+    /**
+     * Generate slug for product
+     *
+     * @param array $productData
+     * @return string
+     */
+    private function createProductUrl(array $productData): string
+    {
+        $searchDoubleKeys = config('vendor.search_double_by.product');
+
+        $url = '';
+
+        // try to create unique url with each set of product unique fields
+        foreach ($searchDoubleKeys as $keysSet) {
+            // define new url parts
+            $slugParts = [];
+            // add product fields to url string until url is unique
+            foreach ($keysSet as $key) {
+                // add value of product ley to url
+                $slugParts[] = Str::slug($productData[$key]);
+                // create url
+                $url = implode('_', $slugParts);
+                // check is url unique
+                if (!$this->product->newQuery()->where('url', $url)->count()) {
+                    break 2;
+                }
+            }
+        }
+
+        return $url;
     }
 }

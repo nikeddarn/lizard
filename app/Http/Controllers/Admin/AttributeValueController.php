@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\AttributeValue\UpdateAttributeValueRequest;
 use App\Models\Attribute;
 use App\Models\AttributeValue;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 
 class AttributeValueController extends Controller
@@ -37,11 +38,12 @@ class AttributeValueController extends Controller
      *
      * @param string $id
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function create(string $id)
     {
-        $this->authorize('create', $this->attributeValue);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         return view('content.admin.catalog.attribute_value.create.index')->with([
             'attribute' => $this->attribute->newQuery()->findOrFail($id),
@@ -53,11 +55,12 @@ class AttributeValueController extends Controller
      *
      * @param StoreAttributeValueRequest $request
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function store(StoreAttributeValueRequest $request)
     {
-        $this->authorize('create', $this->attributeValue);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $attributeId = $request->get('attributeId');
 
@@ -79,11 +82,12 @@ class AttributeValueController extends Controller
      *
      * @param string $id
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function edit(string $id)
     {
-        $this->authorize('update', $this->attributeValue);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         return view('content.admin.catalog.attribute_value.update.index')->with([
             'attributeValue' => $this->attributeValue->newQuery()->findOrFail($id),
@@ -96,11 +100,12 @@ class AttributeValueController extends Controller
      * @param UpdateAttributeValueRequest $request
      * @param string $id
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function update(UpdateAttributeValueRequest $request, string $id)
     {
-        $this->authorize('update', $this->attributeValue);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $attributeValue = $this->attributeValue->newQuery()->findOrFail($id);
 
@@ -123,12 +128,13 @@ class AttributeValueController extends Controller
      *
      * @param string $id
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      * @throws \Exception
      */
     public function destroy(string $id)
     {
-        $this->authorize('delete', $this->attributeValue);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $this->attributeValue->newQuery()->findOrFail($id)->delete();
 

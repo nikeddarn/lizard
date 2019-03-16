@@ -1,27 +1,25 @@
-<div class="card py-2 px-1 p-lg-5 mb-5">
-    <h4 class="mb-5 text-center">Поставщики</h4>
+@if($product->vendors->count())
 
-    @if($product->vendors->count())
-
+    <div class="table-responsive">
         <table class="table">
+
+            <thead>
+            <tr>
+                <td><strong>Поставщик</strong></td>
+            </tr>
+            </thead>
 
             <tbody>
 
             @foreach($product->vendors as $vendor)
-
                 <tr>
-
-                    <td><strong>{{ $vendor->name_ru }}</strong></td>
-
+                    <td>{{ $vendor->name_ru }}</td>
                 </tr>
-
-
             @endforeach
 
             </tbody>
 
         </table>
+    </div>
 
-    @endif
-
-</div>
+@endif

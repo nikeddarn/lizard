@@ -27,28 +27,8 @@
         </div>
     </div>
 
-@endsection
-
-@section('breadcrumbs')
-
-    <div class="breadcrumb-wrapper">
-        <div class="container">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb py-2">
-                    <li class="breadcrumb-item"><a href="/">Главная</a></li>
-                    @foreach($breadcrumbs as $name => $href)
-                        @if ($loop->last)
-                            <li class="breadcrumb-item active" aria-current="page">{{ $name }}</li>
-                        @else
-                            <li class="breadcrumb-item">
-                                <a href="{{ $href }}">{{ $name }}</a>
-                            </li>
-                        @endif
-                    @endforeach
-                </ol>
-            </nav>
-        </div>
-    </div>
+    {{-- cart modal--}}
+    @include('elements.cart.cart_modal')
 
 @endsection
 
@@ -126,6 +106,29 @@
                     }
                 }
             });
+
+            // add to cart
+            $('#add-to-cart').submit(function (event) {
+
+                event.preventDefault();
+                event.stopImmediatePropagation();
+
+                $.post({
+                    url: this.action,
+                    data: $(this).serialize(),
+                    success: function (data) {
+                        let cartData = JSON.parse(data);
+                        // set header cart data
+                        $('#cart-items-count').html(cartData.itemsCount);
+                        $('#header-cart-content').removeClass('d-none').html(cartData.cart);
+                        // set modal cart data and activate modal
+                        let cartModal = $('#cart-content-modal');
+                        $(cartModal).find('.modal-cart').html(cartData.cart);
+                        $(cartModal).modal();
+                    }
+                });
+            });
+
         });
 
     </script>

@@ -6,12 +6,8 @@
 namespace App\Support\Shop\Products;
 
 
-use App\Support\User\RetrieveUser;
-
 class RecentProducts extends AbstractProduct
 {
-    use RetrieveUser;
-
     /**
      * Get users' recent products.
      *
@@ -22,17 +18,15 @@ class RecentProducts extends AbstractProduct
         $user = $this->getUser();
 
         if ($user) {
-            $userId = $user->id;
-
             $products = $user->timeLimitedRecentProducts()
                 ->with('primaryImage', 'availableStorageProducts', 'expectingStorageProducts', 'availableVendorProducts', 'expectingVendorProducts')
-                ->with(['favouriteProducts' => function ($query) use ($userId) {
-                    $query->where('users_id', $userId);
+                ->with(['favouriteProducts' => function ($query) use ($user) {
+                    $query->where('users_id', $user->id);
                 }])
                 ->paginate($this->productsPerPage)
                 ->appends(request()->query());
 
-            $this->addProductsProperties($products);
+            $this->addProductsProperties($products, $user);
 
             return $products;
         } else {

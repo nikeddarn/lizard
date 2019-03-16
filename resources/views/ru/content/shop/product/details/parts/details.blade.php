@@ -8,9 +8,9 @@
     </h2>
 @endif
 
-<form action="{{ route('shop.cart.count', ['id' => $product->id]) }}" method="post">
-
+<form id="add-to-cart" method="post" action="{{ route('shop.cart.count') }}">
     @csrf
+    <input type="hidden" name="product_id[]" value="{{ $product->id }}">
 
     <table class="table product-details text-gray-hover">
         <tbody>
@@ -118,22 +118,29 @@
 
     <div class="row d-sm-flex align-items-end justify-content-around my-4">
 
-        <div class="col-12 col-sm-auto">
-            <input id="productQuantity" class="d-inline-block" name="quantity" required value="{{ old('quantity', 1) }}"
-                   min="1">
-        </div>
+        @if($product->price1)
+            <div class="col-12 col-sm-auto">
+                <input id="productQuantity" class="d-inline-block" name="count[]" required
+                       value="{{ old('quantity', 1) }}"
+                       min="1">
+            </div>
+        @endif
 
         <div class="col-12 col-sm-auto mt-4">
             <div id="product-details-actions" class="btn-group d-flex" role="group">
-                <button type="submit" class="btn btn-primary">Добавить в корзину</button>
+                @if($product->price1)
+                    <button type="submit" class="btn btn-primary">Добавить в корзину</button>
+                @endif
                 <a href="{{ route('user.favourites.remove', ['id' => $product->id]) }}"
                    class="btn product-favourite product-favourite-remove align-items-center justify-content-center{{ $product->isFavourite ?  ' active d-flex' : ' d-none'}}"
-                   title="Удалить из избранного" data-add-title="Удалить из избранного" data-remove-title="Удалить из избранного">
+                   title="Удалить из избранного" data-add-title="Удалить из избранного"
+                   data-remove-title="Удалить из избранного">
                     <i class="svg-icon-larger" data-feather="heart"></i>
                 </a>
                 <a href="{{ route('user.favourites.add', ['id' => $product->id]) }}"
                    class="btn product-favourite product-favourite-add align-items-center justify-content-center{{ $product->isFavourite ?  ' d-none' : ' d-flex'}}"
-                   title="Добавить в избранное" data-remove-title="Добавить в избранное" data-add-title="Добавить в избранное">
+                   title="Добавить в избранное" data-remove-title="Добавить в избранное"
+                   data-add-title="Добавить в избранное">
                     <i class="svg-icon-larger" data-feather="heart"></i>
                 </a>
             </div>

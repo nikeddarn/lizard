@@ -81,10 +81,12 @@
 
             </div>
 
-            <div class="card-footer">
-                <a href="{{ route('shop.cart.add', ['id' => $product->id]) }}"
-                   class="btn btn-sm rounded-pill btn-outline-primary btn-block">В корзину</a>
-            </div>
+            @if($product->price1)
+                <div class="card-footer">
+                    <a href="{{ route('shop.cart.add', ['id' => $product->id]) }}"
+                       class="btn btn-sm rounded-pill btn-outline-primary btn-block add-to-cart">В корзину</a>
+                </div>
+            @endif
 
         </div>
 

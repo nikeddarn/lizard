@@ -5,12 +5,9 @@ namespace App\Http\Controllers\User;
 use App\Models\FavouriteProduct;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
-use App\Models\User;
 use App\Support\Shop\Products\FavouriteProducts;
 use App\Support\User\RetrieveUser;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cookie;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class FavouriteProductController extends Controller
@@ -75,11 +72,7 @@ class FavouriteProductController extends Controller
      */
     public function addProductToFavourite(string $id)
     {
-        $user = $this->getUser();
-
-        if (!$user){
-            $user = $this->createUser();
-        }
+        $user = $this->getOrCreateUser();
 
         $user->favouriteProducts()->syncWithoutDetaching([$id]);
 
@@ -97,31 +90,10 @@ class FavouriteProductController extends Controller
     {
         $user = $this->getUser();
 
-        if (!$user){
-            $user = $this->createUser();
+        if ($user) {
+            $user->favouriteProducts()->detach($id);
         }
 
-        $user->favouriteProducts()->detach($id);
-
         return $this->request->ajax() ? 'true' : back();
-    }
-
-    /**
-     * Create new user identifying by cookie.
-     *
-     * @return User
-     */
-    private function createUser():User
-    {
-        $uuid = Str::uuid();
-
-        $user = new User();
-        $user->remember_token = $uuid;
-        $user->save();
-
-        // store user's cookie
-        Cookie::queue(Cookie::forever('remember_token', $uuid));
-
-        return $user;
     }
 }

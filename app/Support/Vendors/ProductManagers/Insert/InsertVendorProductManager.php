@@ -103,6 +103,12 @@ abstract class InsertVendorProductManager
         if ($vendorProduct) {
             // get vendor product
             $product = $vendorProduct->product;
+
+            // restore from archive
+            if ($product->is_archive) {
+                $product->is_archive = 0;
+                $product->save;
+            }
         } else {
             // get and adapt all product data from vendor
             $this->prepareVendorProductData($vendorProductId);

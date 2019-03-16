@@ -1,41 +1,44 @@
 @extends('layouts.admin')
 
 @section('content')
-        @include('content.admin.vendors.category.show.parts.header')
 
-        <div class="card card-body">
+    @include('content.admin.vendors.category.show.parts.header')
 
-                <nav>
-                    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+    @include('elements.errors.admin_error.index')
 
-                        <a class="nav-item nav-link show active" data-toggle="tab"
-                           href="#local-categories" role="tab"
-                           aria-controls="local-categories"
-                           aria-selected="false">Локальные категории</a>
-                        <a class="nav-item nav-link" data-toggle="tab"
-                           href="#vendor-category-properties" role="tab"
-                           aria-controls="vendor-category-properties"
-                           aria-selected="true">Свойства</a>
+    <div class="card card-body">
 
-                    </div>
-                </nav>
+        <nav>
+            <div class="nav nav-tabs" id="nav-tab" role="tablist">
 
-                <div class="tab-content">
+                <a class="nav-item nav-link show active" data-toggle="tab"
+                   href="#local-categories" role="tab"
+                   aria-controls="local-categories"
+                   aria-selected="false">Локальные категории</a>
+                <a class="nav-item nav-link" data-toggle="tab"
+                   href="#vendor-category-properties" role="tab"
+                   aria-controls="vendor-category-properties"
+                   aria-selected="true">Свойства</a>
 
-                    <div class="tab-pane fade show active"
-                         id="local-categories" role="tabpanel"
-                         aria-labelledby="local-categories-tab">
-                        @include('content.admin.vendors.category.show.parts.categories')
-                    </div>
-                    <div class="tab-pane fade"
-                         id="vendor-category-properties" role="tabpanel"
-                         aria-labelledby="vendor-category-properties-tab">
-                        @include('content.admin.vendors.category.show.parts.properties')
-                    </div>
+            </div>
+        </nav>
 
-                </div>
+        <div class="tab-content">
+
+            <div class="tab-pane fade show active"
+                 id="local-categories" role="tabpanel"
+                 aria-labelledby="local-categories-tab">
+                @include('content.admin.vendors.category.show.parts.categories')
+            </div>
+            <div class="tab-pane fade"
+                 id="vendor-category-properties" role="tabpanel"
+                 aria-labelledby="vendor-category-properties-tab">
+                @include('content.admin.vendors.category.show.parts.properties')
+            </div>
 
         </div>
+
+    </div>
 
 @endsection
 

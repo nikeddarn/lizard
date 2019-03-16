@@ -46,9 +46,10 @@ class ArchiveOrDeleteProduct
         $product = $event->product;
 
         // get settings
-        $deleteProductSettings = $this->settingsRepository->getProperty('shop.delete_product');
+        $archiveProductOnDelete = $this->settingsRepository->getProperty('shop.delete_product')['archive_product_on_delete'];
 
-        if ($deleteProductSettings['archive_product_on_delete'] || $product->storages->count()) {
+        // archive by settings or if product on any storage
+        if ($archiveProductOnDelete || $product->storageProducts()->count()) {
             // archive product existing in any storage or by settings
             $this->archiveProductManager->archiveProduct($product);
 

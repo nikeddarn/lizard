@@ -4,9 +4,7 @@
 
     @include('content.admin.vendors.category.local.parts.header')
 
-    @if($errors->any())
-        @include('elements.errors.admin_error.index')
-    @endif
+    @include('elements.errors.admin_error.index')
 
     <div class="card card-body">
         @include('content.admin.vendors.category.local.parts.form')

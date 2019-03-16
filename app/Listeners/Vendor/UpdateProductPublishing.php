@@ -39,11 +39,9 @@ class UpdateProductPublishing
             // calculate min vendor's offer price
             $minVendorsPrice = $product->vendorProducts()->min('price');
 
-            if ($minVendorsPrice) {
-                $productId = $product->id;
-
-                $vendorCategories = $this->vendorCategory->newQuery()->whereHas('vendorProducts', function ($query) use ($productId){
-                    $query->where('products_id', $productId);
+            if ($product->price1 && $minVendorsPrice) {
+                $vendorCategories = $this->vendorCategory->newQuery()->whereHas('vendorProducts', function ($query) use ($product){
+                    $query->where('products_id', $product->id);
                 });
 
                 //get min profit sum to publish product
@@ -54,7 +52,7 @@ class UpdateProductPublishing
                 // max profit sum
                 $maxProductProfitSum = $product->price1 - $minVendorsPrice;
                 // max profit percents
-                $maxProductProfitPercents = $maxProductProfitSum / $minVendorsPrice *100;
+                $maxProductProfitPercents = $maxProductProfitSum / $minVendorsPrice * 100;
 
                 $product->published = ($maxProductProfitSum > $minProfitSumToPublish) || ($maxProductProfitPercents > $minProfitPercentsToPublish);
             } else {

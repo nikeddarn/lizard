@@ -7,6 +7,7 @@ use App\Models\CategoryFilter;
 use App\Models\Filter;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
 class CategoryFilterController extends Controller
@@ -42,11 +43,12 @@ class CategoryFilterController extends Controller
      *
      * @param string $id
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function create(string $id)
     {
-        $this->authorize('create', $this->categoryFilter);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $locale = app()->getLocale();
 
@@ -65,11 +67,13 @@ class CategoryFilterController extends Controller
      *
      * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request)
     {
-        $this->authorize('create', $this->categoryFilter);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $categoriesId = $request->get('categories_id');
 
@@ -89,11 +93,12 @@ class CategoryFilterController extends Controller
      *
      * @param Request $request
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function destroy(Request $request)
     {
-        $this->authorize('delete', $this->categoryFilter);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $categoriesId = $request->get('categories_id');
         $filtersId = $request->get('filters_id');

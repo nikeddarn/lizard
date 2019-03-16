@@ -2,39 +2,12 @@
 
 @section('content')
 
-    <div class="row admin-content-header">
-        <div class="col admin-content-title">
-            <h2>Добавить продукт в категорию:<i class="ml-5 admin-content-sub-header">{{ $product->name }}</i></h2>
-        </div>
-        <div class="col-auto admin-content-actions">
-            <button type="submit" form="product-category-form" data-toggle="tooltip" title="Сохранить"
-                    class="btn btn-primary">
-                <i class="fa fa-save"></i></button>
-            <a href="{{ route('admin.products.show', ['id' => $product->id]) }}" data-toggle="tooltip" title="Отменить"
-               class="btn btn-primary"><i class="fa fa-reply"></i></a>
-        </div>
-    </div>
+    @include('content.admin.catalog.product_category.create.parts.header')
 
-    @if ($errors->any())
-        <div class="row">
-            <div class="col-sm-8">
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            </div>
-        </div>
-    @endif
+    @include('elements.errors.admin_error.index')
 
-    <div class="row">
-        <div class="col-lg-12">
-
-            @include('content.admin.catalog.product_category.create.parts.category_form')
-
-        </div>
+    <div class="card card-body">
+        @include('content.admin.catalog.product_category.create.parts.category_form')
     </div>
 
 @endsection

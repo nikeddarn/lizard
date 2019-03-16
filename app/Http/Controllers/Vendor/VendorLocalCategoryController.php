@@ -7,9 +7,9 @@ use App\Http\Requests\Vendor\Category\CreateVendorLocalCategoryRequest;
 use App\Models\Category;
 use App\Models\VendorCategory;
 use App\Models\VendorLocalCategory;
-use App\Support\Settings\SettingsRepository;
-use App\Support\Vendors\ProductManagers\Delete\DeleteVendorProductManager;
+use App\Support\Vendors\ProductManagers\Delete\UnlinkVendorLocalCategoryManager;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Gate;
 
 class VendorLocalCategoryController extends Controller
 {
@@ -26,29 +26,23 @@ class VendorLocalCategoryController extends Controller
      */
     private $vendorLocalCategory;
     /**
-     * @var DeleteVendorProductManager
+     * @var UnlinkVendorLocalCategoryManager
      */
-    private $deleteVendorProductManager;
-    /**
-     * @var SettingsRepository
-     */
-    private $settingsRepository;
+    private $unlinkVendorLocalCategoryManager;
 
     /**
      * VendorLocalCategoryController constructor.
      * @param VendorCategory $vendorCategory
      * @param Category $category
      * @param VendorLocalCategory $vendorLocalCategory
-     * @param DeleteVendorProductManager $deleteVendorProductManager
-     * @param SettingsRepository $settingsRepository
+     * @param UnlinkVendorLocalCategoryManager $unlinkVendorLocalCategoryManager
      */
-    public function __construct(VendorCategory $vendorCategory, Category $category, VendorLocalCategory $vendorLocalCategory, DeleteVendorProductManager $deleteVendorProductManager, SettingsRepository $settingsRepository)
+    public function __construct(VendorCategory $vendorCategory, Category $category, VendorLocalCategory $vendorLocalCategory, UnlinkVendorLocalCategoryManager $unlinkVendorLocalCategoryManager)
     {
         $this->vendorCategory = $vendorCategory;
         $this->category = $category;
         $this->vendorLocalCategory = $vendorLocalCategory;
-        $this->deleteVendorProductManager = $deleteVendorProductManager;
-        $this->settingsRepository = $settingsRepository;
+        $this->unlinkVendorLocalCategoryManager = $unlinkVendorLocalCategoryManager;
     }
 
     /**
@@ -59,6 +53,10 @@ class VendorLocalCategoryController extends Controller
      */
     public function create(int $vendorCategoryId)
     {
+        if (Gate::denies('vendor-catalog', auth('web')->user())) {
+            abort(401);
+        }
+
         $vendorCategory = $this->vendorCategory->newQuery()->with('categories', 'vendor')->findOrFail($vendorCategoryId);
 
         $categories = $this->category->defaultOrder()->withDepth()->get()->toTree();
@@ -74,6 +72,10 @@ class VendorLocalCategoryController extends Controller
      */
     public function store(CreateVendorLocalCategoryRequest $request)
     {
+        if (Gate::denies('vendor-catalog', auth('web')->user())) {
+            abort(401);
+        }
+
         $vendorCategoryId = (int)$request->get('vendor_category_id');
         $localCategoryId = (int)$request->get('categories_id');
         $autoAddNewProducts = (int)$request->has('auto_add_new_products');
@@ -94,57 +96,17 @@ class VendorLocalCategoryController extends Controller
      */
     public function delete()
     {
+        if (Gate::denies('vendor-catalog', auth('web')->user())) {
+            abort(401);
+        }
+
         $vendorCategoryId = (int)request()->get('vendor_categories_id');
         $localCategoryId = (int)request()->get('categories_id');
 
-        //get settings
-        $deleteProductSettings = $this->settingsRepository->getProperty('vendor.delete_product');
-
-        $localCategory = $this->category->newQuery()->findOrFail($localCategoryId);
-
-        // get deleting vendor products
-        $vendorProducts = $this->vendorProduct->newQuery()
-            ->whereHas('vendorCategories', function ($query) use ($vendorCategoryId) {
-                $query->where('id', $vendorCategoryId);
-            })
-            ->whereHas('product.categories', function ($query) use ($localCategoryId) {
-                $query->where('id', $localCategoryId);
-            })
-            ->with(['product' => function ($query) use ($localCategoryId) {
-                $query->with('categories', 'vendorProducts', 'storages', 'stockStorages');
-            }])
-            ->get();
-
-        if ($deleteProductSettings['delete_product_on_delete_vendor_category']) {
-            // delete vendor products anf products
-            $allProductsUnlinked = $this->deleteVendorProductManager->deleteVendorProducts($vendorProducts, $localCategoryId);
-
-            if ($allProductsUnlinked) {
-                // unlink local category from vendor
-                $localCategory->vendorCategories()->detach($vendorCategoryId);
-
-                // delete local category if empty
-                if ($deleteProductSettings['delete_empty_local_category_on_delete_vendor_category']) {
-                    $localCategoryProductsCount = $localCategory->products()->count();
-
-                    if (!$localCategoryProductsCount) {
-                        $localCategory->delete();
-                    }
-                }
-            }
-
-            return $allProductsUnlinked ? back() : back()->withErrors([trans('validation.product_in_stock')]);
-
-        } else {
-            // delete only vendor products
-            foreach ($vendorProducts as $vendorProduct) {
-                $vendorProduct->delete();
-            }
-
-            // unlink local category from vendor
-            $localCategory->vendorCategories()->detach($vendorCategoryId);
-
+        if ($this->unlinkVendorLocalCategoryManager->unlinkVendorCategory($vendorCategoryId, $localCategoryId)) {
             return back();
+        } else {
+            return back()->withErrors([trans('validation.product_in_stock')]);
         }
     }
 
@@ -155,6 +117,10 @@ class VendorLocalCategoryController extends Controller
      */
     public function autoDownloadOn()
     {
+        if (Gate::denies('vendor-catalog', auth('web')->user())) {
+            abort(401);
+        }
+
         $vendorCategoryId = (int)request()->get('vendor_categories_id');
         $localCategoryId = (int)request()->get('categories_id');
 
@@ -181,6 +147,10 @@ class VendorLocalCategoryController extends Controller
      */
     public function autoDownloadOff()
     {
+        if (Gate::denies('vendor-catalog', auth('web')->user())) {
+            abort(401);
+        }
+
         $vendorCategoryId = (int)request()->get('vendor_categories_id');
         $localCategoryId = (int)request()->get('categories_id');
 

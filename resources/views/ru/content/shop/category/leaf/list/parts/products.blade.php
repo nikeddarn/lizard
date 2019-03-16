@@ -83,8 +83,10 @@
                     @endif
                 </div>
 
-                <a href="{{ route('shop.cart.add', ['id' => $product->id]) }}"
-                   class="btn btn-sm rounded-pill btn-outline-primary">Добавить в корзину</a>
+                @if($product->price1)
+                    <a href="{{ route('shop.cart.add', ['id' => $product->id]) }}"
+                       class="btn btn-sm rounded-pill btn-outline-primary add-to-cart">Добавить в корзину</a>
+                @endif
 
             </div>
         </div>

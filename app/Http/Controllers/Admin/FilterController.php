@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\Admin\Filter\StoreFilterRequest;
 use App\Models\Filter;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Gate;
 
 class FilterController extends Controller
 {
@@ -28,11 +28,12 @@ class FilterController extends Controller
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function index()
     {
-        $this->authorize('view', $this->filter);
+        if (Gate::denies('local-catalog-show', auth('web')->user())) {
+            abort(401);
+        }
 
         return view('content.admin.catalog.filter.list.index')->with([
             'filters' => $this->filter->newQuery()->paginate(config('admin.show_items_per_page')),
@@ -43,11 +44,12 @@ class FilterController extends Controller
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function create()
     {
-        $this->authorize('create', $this->filter);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         return view('content.admin.catalog.filter.create.index');
     }
@@ -57,11 +59,12 @@ class FilterController extends Controller
      *
      * @param StoreFilterRequest $request
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function store(StoreFilterRequest $request)
     {
-        $this->authorize('create', $this->filter);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $this->filter->newQuery()->create($request->only(['name_ru', 'name_uk']));
 
@@ -73,11 +76,12 @@ class FilterController extends Controller
      *
      * @param string $id
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function show(string $id)
     {
-        $this->authorize('view', $this->filter);
+        if (Gate::denies('local-catalog-show', auth('web')->user())) {
+            abort(401);
+        }
 
         $filter = $this->filter->newQuery()->findOrFail($id);
 
@@ -94,11 +98,12 @@ class FilterController extends Controller
      *
      * @param string $id
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function edit(string $id)
     {
-        $this->authorize('update', $this->filter);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         return view('content.admin.catalog.filter.update.index')->with([
             'filter' => $this->filter->newQuery()->findOrFail($id),
@@ -111,11 +116,12 @@ class FilterController extends Controller
      * @param StoreFilterRequest $request
      * @param string $id
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function update(StoreFilterRequest $request, string $id)
     {
-        $this->authorize('update', $this->filter);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $this->filter->newQuery()->findOrFail($id)->update($request->only(['name_ru', 'name_uk']));
 
@@ -127,11 +133,13 @@ class FilterController extends Controller
      *
      * @param string $id
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Exception
      */
     public function destroy(string $id)
     {
-        $this->authorize('delete', $this->filter);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $this->filter->newQuery()->findOrFail($id)->delete();
 

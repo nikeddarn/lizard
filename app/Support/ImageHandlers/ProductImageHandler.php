@@ -7,6 +7,7 @@ namespace App\Support\ImageHandlers;
 
 
 use App\Models\Product;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Image;
 use Intervention\Image\ImageManagerStatic;
@@ -39,7 +40,7 @@ class ProductImageHandler extends ImageHandler
     /**
      * Insert product model images.
      *
-     * @param Product $product
+     * @param Product|Model $product
      * @param string $sourcePath
      * @param int $priority
      */

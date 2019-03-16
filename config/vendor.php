@@ -38,10 +38,9 @@ return [
         'min_profit_sum_to_price_discount' => 10,
 
         // min profit percents to use discount for columns (%)
-        'min_profit_percents_to_price_discount' => 3,
+        'min_profit_percents_to_price_discount' => 5,
 
         // discount profit from vendor products for columns
-        // use negative value for rise profit
         'column_discounts' => [
             'price1' => 0,
             'price2' => 20,
@@ -51,10 +50,13 @@ return [
 
     // search double on insert new entity.
     'search_double_by' => [
-        // fields of product model
+        // set of product model fields that must be equal to get product as double of existing
         'product' => [
-            'name_ru', 'name_uk',
+            // fields in arrays applies with 'AND' operation
+            ['name_ru', 'manufacturer_ru'],
+            ['name_uk', 'manufacturer_uk'],
         ],
+        
         // fields of attribute model
         'attribute' => [
             'name_ru', 'name_uk',
@@ -98,11 +100,6 @@ return [
 
     // session id ttl (minutes)
     'vendor_session_id_ttl' => [
-        VendorInterface::BRAIN => 30,
-    ],
-
-    // usd rate ttl
-    'vendor_exchange_rate_ttl' => [
         VendorInterface::BRAIN => 30,
     ],
 ];

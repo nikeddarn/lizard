@@ -7,8 +7,8 @@ use App\Http\Requests\Admin\Category\Virtual\StoreVirtualCategoryRequest;
 use App\Models\AttributeValue;
 use App\Models\Category;
 use App\Models\VirtualCategory;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Gate;
 
 class VirtualCategoryController extends Controller
 {
@@ -42,11 +42,12 @@ class VirtualCategoryController extends Controller
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function index()
     {
-        $this->authorize('view', $this->category);
+        if (Gate::denies('local-catalog-show', auth('web')->user())) {
+            abort(401);
+        }
 
         $locale = app()->getLocale();
 
@@ -59,11 +60,12 @@ class VirtualCategoryController extends Controller
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function create()
     {
-        $this->authorize('create', $this->category);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $locale = app()->getLocale();
 
@@ -81,11 +83,12 @@ class VirtualCategoryController extends Controller
      *
      * @param StoreVirtualCategoryRequest $request
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function store(StoreVirtualCategoryRequest $request)
     {
-        $this->authorize('create', $this->category);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $attributes = $request->only(['categories_id', 'attribute_values_id', 'name_ru', 'name_uk', 'title_ru', 'title_uk', 'description_ru', 'description_uk', 'keywords_ru', 'keywords_uk', 'content_ru', 'content_uk']);
 
@@ -99,11 +102,12 @@ class VirtualCategoryController extends Controller
      *
      * @param string $id
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function show(string $id)
     {
-        $this->authorize('view', $this->category);
+        if (Gate::denies('local-catalog-show', auth('web')->user())) {
+            abort(401);
+        }
 
         $virtualCategory = $this->virtualCategory->newQuery()->with('category', 'attributeValue')->findOrFail($id);
 
@@ -115,11 +119,12 @@ class VirtualCategoryController extends Controller
      *
      * @param string $id
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function edit(string $id)
     {
-        $this->authorize('update', $this->category);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $virtualCategory = $this->virtualCategory->newQuery()->findOrFail($id);
 
@@ -132,11 +137,12 @@ class VirtualCategoryController extends Controller
      * @param UpdateVirtualCategoryRequest $request
      * @param string $id
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function update(UpdateVirtualCategoryRequest $request, string $id)
     {
-        $this->authorize('update', $this->category);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $virtualCategory = $this->virtualCategory->newQuery()->findOrFail($id);
 
@@ -152,12 +158,13 @@ class VirtualCategoryController extends Controller
      *
      * @param string $id
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      * @throws \Exception
      */
     public function destroy(string $id)
     {
-        $this->authorize('delete', $this->category);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         // retrieve category
         $virtualCategory = $this->category->newQuery()->findOrFail($id);
@@ -165,23 +172,5 @@ class VirtualCategoryController extends Controller
         $virtualCategory->delete();
 
         return redirect(route('admin.categories.virtual.index'));
-    }
-
-    /**
-     * Store image on public disk. Return image url.
-     *
-     * @param Request $request
-     * @return string
-     * @throws \Illuminate\Validation\ValidationException
-     */
-    public function uploadImage(Request $request)
-    {
-        if (!($request->ajax() && $request->hasFile('image'))) {
-            return abort(405);
-        }
-
-        $this->validate($request, ['image' => 'image']);
-
-        return '/storage/' . $request->image->store('images/categories/content', 'public');
     }
 }

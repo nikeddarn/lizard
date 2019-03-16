@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\Attribute\UpdateAttributeRequest;
 use App\Models\Attribute;
 use App\Http\Controllers\Controller;
 use App\Models\AttributeValue;
+use Illuminate\Support\Facades\Gate;
 
 class AttributeController extends Controller
 {
@@ -34,11 +35,12 @@ class AttributeController extends Controller
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function index()
     {
-        $this->authorize('view', $this->attribute);
+        if (Gate::denies('local-catalog-show', auth('web')->user())) {
+            abort(401);
+        }
 
         $locale = app()->getLocale();
 
@@ -51,11 +53,12 @@ class AttributeController extends Controller
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function create()
     {
-        $this->authorize('create', $this->attribute);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         return view('content.admin.catalog.attribute.create.index');
     }
@@ -65,11 +68,12 @@ class AttributeController extends Controller
      *
      * @param StoreAttributeRequest $request
      * @return \Illuminate\Http\RedirectResponse
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function store(StoreAttributeRequest $request)
     {
-        $this->authorize('create', $this->attribute);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $attributeData = $request->only(['name_ru', 'name_uk']);
         $attributeData['multiply_product_values'] = (int)$request->has('multiply_product_values');
@@ -108,11 +112,12 @@ class AttributeController extends Controller
      *
      * @param string $id
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function show(string $id)
     {
-        $this->authorize('view', $this->attribute);
+        if (Gate::denies('local-catalog-show', auth('web')->user())) {
+            abort(401);
+        }
 
         $locale = app()->getLocale();
 
@@ -132,11 +137,12 @@ class AttributeController extends Controller
      *
      * @param string $id
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function edit(string $id)
     {
-        $this->authorize('update', $this->attribute);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         return view('content.admin.catalog.attribute.update.index')->with([
             'attribute' => $this->attribute->newQuery()->findOrFail($id),
@@ -149,11 +155,12 @@ class AttributeController extends Controller
      * @param UpdateAttributeRequest $request
      * @param string $id
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function update(UpdateAttributeRequest $request, string $id)
     {
-        $this->authorize('update', $this->attribute);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $attributeData = $request->only(['name_ru', 'name_uk']);
         $attributeData['multiply_product_values'] = (int)$request->has('multiply_product_values');
@@ -170,12 +177,13 @@ class AttributeController extends Controller
      *
      * @param string $id
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      * @throws \Exception
      */
     public function destroy(string $id)
     {
-        $this->authorize('delete', $this->attribute);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $this->attribute->newQuery()->findOrFail($id)->delete();
 
@@ -187,11 +195,12 @@ class AttributeController extends Controller
      *
      * @param string $id
      * @return \Illuminate\Http\RedirectResponse|string
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function makeAttributeFilterVisible(string $id)
     {
-        $this->authorize('update', $this->attribute);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $attribute = $this->attribute->newQuery()->findOrFail($id);
 
@@ -206,11 +215,12 @@ class AttributeController extends Controller
      *
      * @param string $id
      * @return \Illuminate\Http\RedirectResponse|string
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function makeAttributeFilterHidden(string $id)
     {
-        $this->authorize('update', $this->attribute);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $attribute = $this->attribute->newQuery()->findOrFail($id);
 
@@ -225,11 +235,12 @@ class AttributeController extends Controller
      *
      * @param string $id
      * @return \Illuminate\Http\RedirectResponse|string
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function allowRobotsIndex(string $id)
     {
-        $this->authorize('update', $this->attribute);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $attribute = $this->attribute->newQuery()->findOrFail($id);
 
@@ -244,11 +255,12 @@ class AttributeController extends Controller
      *
      * @param string $id
      * @return \Illuminate\Http\RedirectResponse|string
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function disallowRobotsIndex(string $id)
     {
-        $this->authorize('update', $this->attribute);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $attribute = $this->attribute->newQuery()->findOrFail($id);
 

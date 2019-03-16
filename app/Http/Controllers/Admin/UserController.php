@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\User;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class UserController extends Controller
 {
@@ -26,38 +27,21 @@ class UserController extends Controller
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function customers()
+    public function index()
     {
-        $this->authorize('view', $this->user);
+        if (Gate::denies('users-edit')) {
+            abort(401);
+        }
 
-        return view('content.admin.users.list.customers.index')->with([
-            'users' => $this->user->newQuery()
-                ->doesntHave('roles')
-                ->orderBy('name')
-                ->paginate(config('admin.show_items_per_page')),
-        ]);
-    }
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     */
-    public function administrators()
-    {
-        $this->authorize('view', $this->user);
-
+        // only authenticate able users
         $users = $this->user->newQuery()
-            ->has('roles')
+            ->whereNotNull('email')
+            ->doesntHave('roles')
             ->orderBy('name')
-            ->with('userRoles.role')->paginate(config('admin.show_items_per_page'));
+            ->paginate(config('admin.show_items_per_page'));
 
-        return view('content.admin.users.list.administrators.index')->with([
-            'users' => $users,
-        ]);
+        return view('content.admin.users.customers.list.index')->with(compact('users'));
     }
 
     /**
@@ -65,62 +49,16 @@ class UserController extends Controller
      *
      * @param string $id
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function show(string $id)
     {
-        $this->authorize('view', $this->user);
-
-        $loggedUser = auth('web')->user();
-        $user = $this->user->newQuery()->with('roles')->findOrFail($id);
-
-        if ($user->hasAnyRole()) {
-            $view = view('content.admin.users.show.administrators.index')->with('userRoles');
-        } else {
-            $view = view('content.admin.users.show.customers.index');
+        if (Gate::denies('users-edit')) {
+            abort(401);
         }
 
-        return $view->with([
-            'user' => $user,
-        ]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param string $id
-     * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     */
-    public function edit(string $id)
-    {
         $user = $this->user->newQuery()->findOrFail($id);
 
-        $this->authorize('update', $user);
-
-        return view('content.admin.users.update.customers.index')->with([
-            'user' => $user,
-        ]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param string $id
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     */
-    public function update(string $id)
-    {
-        $user = $this->user->newQuery()->findOrFail($id);
-
-        $this->authorize('update', $user);
-
-        $user->price_group = request()->get('price_group');
-
-        $user->save();
-
-        return redirect(route('admin.users.show', ['id' => $user->id]));
+        return view('content.admin.users.customers.show.index')->with(compact('user'));
     }
 
     /**
@@ -128,16 +66,75 @@ class UserController extends Controller
      *
      * @param string $id
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Exception
      */
     public function destroy(string $id)
     {
+        if (Gate::denies('users-edit')) {
+            abort(401);
+        }
+
         $user = $this->user->newQuery()->findOrFail($id);
 
-        $this->authorize('delete', $user);
+        if ($user->balance == 0) {
+            $user->delete();
+            return redirect(route('admin.users.customers'));
+        } else {
+            return back()->withErrors([trans('validation.balance_not_zero')]);
+        }
 
-        $user->delete();
 
-        return back();
+    }
+
+    /**
+     * Increase price group for user.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|string
+     */
+    public function increasePriceGroup(Request $request)
+    {
+        if (Gate::denies('users-edit', auth('web')->user())) {
+            abort(401);
+        }
+
+        $userId = $request->get('user_id');
+
+        $user = $this->user->newQuery()->findOrFail($userId);
+
+        $user->price_group = min($user->price_group + 1, 3);
+        $user->save();
+
+        if (request()->ajax()) {
+            return $user->price_group;
+        } else {
+            return back();
+        }
+    }
+
+    /**
+     * Decrease price group for user.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|string
+     */
+    public function decreasePriceGroup(Request $request)
+    {
+        if (Gate::denies('users-edit', auth('web')->user())) {
+            abort(401);
+        }
+
+        $userId = $request->get('user_id');
+
+        $user = $this->user->newQuery()->findOrFail($userId);
+
+        $user->price_group = max($user->price_group - 1, 1);
+        $user->save();
+
+        if (request()->ajax()) {
+            return $user->price_group;
+        } else {
+            return back();
+        }
     }
 }

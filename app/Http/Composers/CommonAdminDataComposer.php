@@ -37,9 +37,10 @@ class CommonAdminDataComposer
         // get locale
         $locale = app()->getLocale();
 
-        // get vendors
         $vendors = $this->vendor->newQuery()->orderBy("name_$locale")->get();
 
-        $view->with(compact('vendors'));
+        $user = auth('web')->user();
+
+        $view->with(compact('user', 'vendors'));
     }
 }

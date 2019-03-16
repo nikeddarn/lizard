@@ -10,6 +10,7 @@ use App\Support\Vendors\VendorBroker;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
@@ -48,6 +49,10 @@ class VendorSynchronizationController extends Controller
      */
     public function synchronizedCategories()
     {
+        if (Gate::denies('vendor-catalog', auth('web')->user())) {
+            abort(401);
+        }
+
         //get locale
         $locale = app()->getLocale();
 
@@ -80,6 +85,10 @@ class VendorSynchronizationController extends Controller
      */
     public function synchronizationQueue(Request $request)
     {
+        if (Gate::denies('vendor-catalog', auth('web')->user())) {
+            abort(401);
+        }
+
         $locale = app()->getLocale();
 
         $insertProductSyncType = SyncTypeInterface::INSERT_PRODUCT;
@@ -119,6 +128,10 @@ class VendorSynchronizationController extends Controller
      */
     public function synchronize(int $vendorId)
     {
+        if (Gate::denies('vendor-catalog', auth('web')->user())) {
+            abort(401);
+        }
+
         // retrieve vendor
         $vendor = $this->vendor->newQuery()->findOrFail($vendorId);
 

@@ -68,9 +68,10 @@ $(document).ready(function () {
     }
 
     $(dropdownHover).hover(
-        function () {
-            $(this).addClass('show');
-            $(this).find('.dropdown-menu').addClass('show').css({
+        function (event) {
+            let dropdownHover = event.currentTarget;
+            $(dropdownHover).addClass('show');
+            $(dropdownHover).find('.dropdown-menu').addClass('show').css({
                 'opacity': 0,
                 'top': '50%'
             }).stop(true).animate({

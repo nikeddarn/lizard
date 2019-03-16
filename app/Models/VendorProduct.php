@@ -30,6 +30,14 @@ class VendorProduct extends Model
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function vendorCategoryProducts()
+    {
+        return $this->hasMany('App\Models\VendorCategoryProduct', 'vendor_products_id', 'id');
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function product()

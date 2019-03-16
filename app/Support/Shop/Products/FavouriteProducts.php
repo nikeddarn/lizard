@@ -5,12 +5,8 @@
 
 namespace App\Support\Shop\Products;
 
-use App\Support\User\RetrieveUser;
-
 class FavouriteProducts extends AbstractProduct
 {
-    use RetrieveUser;
-
     /**
      * Get users' favourite products.
      *
@@ -26,7 +22,7 @@ class FavouriteProducts extends AbstractProduct
                 ->paginate($this->productsPerPage)
                 ->appends(request()->query());
 
-            $this->addProductsProperties($products);
+            $this->addProductsProperties($products, $user);
 
             return $products;
         } else {

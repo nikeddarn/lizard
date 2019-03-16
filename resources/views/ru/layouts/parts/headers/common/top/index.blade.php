@@ -2,7 +2,7 @@
     <div class="container">
         <div class="row">
 
-            <div class="col-auto d-none d-md-block">
+            <div class="col-auto">
                 @include('layouts.parts.headers.common.top.parts.phones')
             </div>
 

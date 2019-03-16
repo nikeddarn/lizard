@@ -24,6 +24,8 @@ class FilteredCategoryProducts extends CategoryProducts
      */
     public function getFilteredProducts(Category $category, string $sortMethod, Collection $selectedAttributeValues): LengthAwarePaginator
     {
+        $user = $this->getUser();
+
         $query = $this->getRetrieveCategoryProductsQuery($category);
 
         $query = $this->constraintQueryWithFilters($query, $selectedAttributeValues);
@@ -34,7 +36,7 @@ class FilteredCategoryProducts extends CategoryProducts
 
         $products = $query->paginate($this->productsPerPage)->appends(request()->query());
 
-        $this->addProductsProperties($products);
+        $this->addProductsProperties($products, $user);
 
         return $products;
     }

@@ -12,9 +12,12 @@ use App\Models\Filter;
 use App\Models\Product;
 use App\Support\ImageHandlers\ProductImageHandler;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Gate;
 
 class ProductController extends Controller
 {
@@ -59,14 +62,30 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param Request $request
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function index()
+    public function index(Request $request)
     {
-        $this->authorize('view', $this->product);
+        if (Gate::denies('local-catalog-show', auth('web')->user())) {
+            abort(401);
+        }
 
-        $products = $this->product->newQuery()->with('categories', 'primaryImage', 'vendors')->paginate(config('admin.show_items_per_page'));
+        $locale = app()->getLocale();
+
+        $query = $this->product->newQuery()
+            ->leftJoin('vendor_products', 'vendor_products.products_id', '=', 'products.id')
+            ->leftJoin('vendors', 'vendor_products.vendors_id', '=', 'vendors.id')
+            ->leftJoin('category_product', 'category_product.products_id', '=', 'products.id')
+            ->leftJoin('categories', 'category_product.categories_id', '=', 'categories.id')
+            ->selectRaw("products.*, vendors.name_$locale AS vendor_name, categories.name_$locale AS category_name")
+            ->with('categories', 'primaryImage', 'vendors');
+
+        if ($request->has('sortBy')) {
+            $query = $this->addSortByConstraint($request, $query);
+        }
+
+        $products = $query->paginate(config('admin.show_items_per_page'))->appends(request()->query());
 
         return view('content.admin.catalog.product.list.index')->with([
             'products' => $products,
@@ -77,11 +96,12 @@ class ProductController extends Controller
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function create()
     {
-        $this->authorize('create', $this->product);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $locale = app()->getLocale();
 
@@ -114,11 +134,12 @@ class ProductController extends Controller
      * @param CreateProductRequest $request
      * @param ProductImageHandler $imageHandler
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function store(CreateProductRequest $request, ProductImageHandler $imageHandler)
     {
-        $this->authorize('create', $this->attribute);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $productData = $request->only(['name_ru', 'name_uk', 'model_ru', 'model_uk', 'articul', 'code', 'url', 'title_ru', 'title_uk', 'description_ru', 'description_uk', 'keywords_ru', 'keywords_uk', 'brief_content_ru', 'brief_content_uk', 'content_ru', 'content_uk', 'manufacturer_ru', 'manufacturer_uk', 'min_order_quantity', 'price1', 'price2', 'price3', 'is_new', 'warranty', 'weight', 'length', 'width', 'height', 'volume']);
 
@@ -178,11 +199,12 @@ class ProductController extends Controller
      *
      * @param string $id
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function show(string $id)
     {
-        $this->authorize('view', $this->product);
+        if (Gate::denies('local-catalog-show', auth('web')->user())) {
+            abort(401);
+        }
 
         $product = $this->product->newQuery()->with('productImages', 'productAttributes.attributeValue.attribute', 'filters', 'categories', 'brand', 'vendors')->findOrFail($id);
 
@@ -194,11 +216,12 @@ class ProductController extends Controller
      *
      * @param string $id
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function edit(string $id)
     {
-        $this->authorize('update', $this->product);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $product = $this->product->newQuery()->with('brand')->findOrFail($id);
 
@@ -213,11 +236,12 @@ class ProductController extends Controller
      * @param UpdateProductRequest $request
      * @param string $id
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function update(UpdateProductRequest $request, string $id)
     {
-        $this->authorize('update', $this->product);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         $productData = $request->only(['name_ru', 'name_uk', 'model_ru', 'model_uk', 'articul', 'code', 'url', 'title_ru', 'title_uk', 'description_ru', 'description_uk', 'keywords_ru', 'keywords_uk', 'brief_content_ru', 'brief_content_uk', 'content_ru', 'content_uk', 'manufacturer_ru', 'manufacturer_uk', 'min_order_quantity', 'price1', 'price2', 'price3', 'is_new', 'warranty', 'weight', 'length', 'width', 'height', 'volume']);
 
@@ -252,12 +276,13 @@ class ProductController extends Controller
      *
      * @param string $id
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      * @throws \Exception
      */
     public function destroy(string $id)
     {
-        $this->authorize('delete', $this->product);
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
 
         // retrieve product
         $product = $this->product->newQuery()
@@ -265,7 +290,7 @@ class ProductController extends Controller
             ->findOrFail($id);
 
         // product presents or reserved in stock
-        if ($product->stockStorages->count()){
+        if ($product->stockStorages->count()) {
             return back()->withErrors([trans('validation.product_in_stock')]);
         }
 
@@ -285,6 +310,10 @@ class ProductController extends Controller
      */
     public function uploadImage(Request $request, ProductImageHandler $imageHandler)
     {
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
+
         if (!($request->ajax() && $request->hasFile('image'))) {
             return abort(405);
         }
@@ -295,13 +324,69 @@ class ProductController extends Controller
     }
 
     /**
+     * Set product published.
+     *
+     * @return bool|RedirectResponse
+     */
+    public function publishProduct()
+    {
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
+
+        Product::withoutSyncingToSearch(function () {
+
+            $productId = (int)request()->get('product_id');
+
+            $product = $this->product->newQuery()->findOrFail($productId);
+
+            $product->published = 1;
+            $product->save();
+        });
+
+        if (request()->ajax()) {
+            return 'true';
+        } else {
+            return back();
+        }
+    }
+
+    /**
+     * Set product un published.
+     *
+     * @return bool|RedirectResponse
+     */
+    public function unPublishProduct()
+    {
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
+
+        Product::withoutSyncingToSearch(function () {
+
+            $productId = (int)request()->get('product_id');
+
+            $product = $this->product->newQuery()->findOrFail($productId);
+
+            $product->published = 0;
+            $product->save();
+        });
+
+        if (request()->ajax()) {
+            return 'true';
+        } else {
+            return back();
+        }
+    }
+
+    /**
      * Create and store images.
      *
      * @param ProductImageHandler $imageHandler
      * @param CreateProductRequest $request
      * @param Product|Model $product
      */
-    public function insertProductImages(ProductImageHandler $imageHandler, CreateProductRequest $request, Product $product)
+    private function insertProductImages(ProductImageHandler $imageHandler, CreateProductRequest $request, Product $product)
     {
         $priorityImageIndex = (int)$request->get('priority');
 
@@ -312,5 +397,69 @@ class ProductController extends Controller
             // create product images
             $imageHandler->insertProductImage($product, $image, $priority);
         }
+    }
+
+    /**
+     * Add sort by condition.
+     *
+     * @param Request $request
+     * @param Builder $query
+     * @return Builder
+     */
+    private function addSortByConstraint(Request $request, Builder $query): Builder
+    {
+        switch ($request->get('sortBy')) {
+            case 'createdAt' :
+                if ($request->get('sortMethod') === 'asc') {
+                    $query->orderBy('created_at');
+                } else if ($request->get('sortMethod') === 'desc') {
+                    $query->orderByDesc('created_at');
+                }
+                break;
+
+            case 'published' :
+                if ($request->get('sortMethod') === 'asc') {
+                    $query->orderByDesc('published');
+                } else if ($request->get('sortMethod') === 'desc') {
+                    $query->orderBy('published');
+                }
+                break;
+
+            case 'archived':
+                if ($request->get('sortMethod') === 'asc') {
+                    $query->orderByDesc('is_archive');
+                } else if ($request->get('sortMethod') === 'desc') {
+                    $query->orderBy('is_archive');
+                }
+                break;
+
+            case 'name':
+                $locale = app()->getLocale();
+
+                if ($request->get('sortMethod') === 'asc') {
+                    $query->orderBy('name_' . $locale);
+                } else if ($request->get('sortMethod') === 'desc') {
+                    $query->orderByDesc('name_' . $locale);
+                }
+                break;
+
+            case 'category':
+                if ($request->get('sortMethod') === 'asc') {
+                    $query->orderBy('category_name');
+                } else if ($request->get('sortMethod') === 'desc') {
+                    $query->orderByDesc('category_name');
+                }
+                break;
+
+            case 'vendor':
+                if ($request->get('sortMethod') === 'asc') {
+                    $query->orderBy('vendor_name');
+                } else if ($request->get('sortMethod') === 'desc') {
+                    $query->orderByDesc('vendor_name');
+                }
+                break;
+        }
+
+        return $query;
     }
 }

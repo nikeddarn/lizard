@@ -6,6 +6,7 @@ use App\Http\Requests\Admin\Settings\UpdateVendorSettingsRequest;
 use App\Models\Vendor;
 use App\Support\Settings\SettingsRepository;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 
 class VendorSettingsController extends Controller
 {
@@ -83,6 +84,8 @@ class VendorSettingsController extends Controller
             ]
         ];
 
+        $oldPriceDiscount = $this->settingsRepository->getProperty('vendor.price_discount');
+
         $this->settingsRepository->setProperty('vendor.insert_product', $insertProductSettings);
 
         $this->settingsRepository->setProperty('vendor.delete_product', $deleteProductSettings);
@@ -91,8 +94,36 @@ class VendorSettingsController extends Controller
 
         $this->settingsRepository->setProperty('vendor.price_discount', $priceDiscount);
 
+        // update products' prices
+        if ($priceDiscount !== $oldPriceDiscount){
+            $this->updateProductPrices($priceDiscount);
+        }
+
         return redirect(route('admin.settings.vendor.edit'))->with([
             'successful' => true,
+        ]);
+    }
+
+    /**
+     * Update products' prices.
+     *
+     * @param array $priceDiscount
+     */
+    private function updateProductPrices(array $priceDiscount)
+    {
+        // update prices if profit sum or profit percents more than given
+        DB::statement('UPDATE products p, (SELECT vp.id AS vendor_product_id, vp.products_id AS product_id, AVG(vp.price) AS avg_incoming_price, AVG(IFNULL(vp.recommendable_price, vp.retail_price)) AS avg_retail_price FROM vendor_products vp GROUP BY vp.products_id, vp.id) vpdata SET p.price1 = avg_retail_price - (avg_retail_price - avg_incoming_price) * LEAST(:price1_discount / 100, 1), p.price2 = avg_retail_price - (avg_retail_price - avg_incoming_price) * LEAST(:price2_discount / 100, 1), p.price3 = avg_retail_price - (avg_retail_price - avg_incoming_price) * LEAST(:price3_discount / 100, 1) WHERE p.id = vpdata.product_id AND avg_incoming_price IS NOT NULL AND avg_retail_price IS NOT NULL AND ((avg_retail_price - avg_incoming_price) >= :min_profit_sum OR ((avg_retail_price - avg_incoming_price) / avg_incoming_price * 100) >= :min_profit_percents)', [
+            'price1_discount' => (float)$priceDiscount['column_discounts']['price1'],
+            'price2_discount' => (float)$priceDiscount['column_discounts']['price2'],
+            'price3_discount' => (float)$priceDiscount['column_discounts']['price3'],
+            'min_profit_sum' => (float)$priceDiscount['min_profit_sum_to_price_discount'],
+            'min_profit_percents' => (float)$priceDiscount['min_profit_percents_to_price_discount'],
+        ]);
+
+        // set retail price to each price columns if profit sum or profit percents less than given
+        DB::statement('UPDATE products p, (SELECT vp.id AS vendor_product_id, vp.products_id AS product_id, AVG(vp.price) AS avg_incoming_price, AVG(IFNULL(vp.recommendable_price, vp.retail_price)) AS avg_retail_price FROM vendor_products vp GROUP BY vp.products_id, vp.id) vpdata SET p.price1 = avg_retail_price, p.price2 = avg_retail_price, p.price3 = avg_retail_price WHERE p.id = vpdata.product_id AND avg_incoming_price IS NOT NULL AND avg_retail_price IS NOT NULL AND ((avg_retail_price - avg_incoming_price) < :min_profit_sum AND ((avg_retail_price - avg_incoming_price) / avg_incoming_price * 100) < :min_profit_percents)', [
+            'min_profit_sum' => (float)$priceDiscount['min_profit_sum_to_price_discount'],
+            'min_profit_percents' => (float)$priceDiscount['min_profit_percents_to_price_discount'],
         ]);
     }
 }

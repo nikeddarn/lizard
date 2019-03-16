@@ -170,6 +170,15 @@ class Product extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
+    public function stockStorageProducts()
+    {
+        return $this->hasMany('App\Models\StorageProduct', 'products_id', 'id')
+            ->where('storage_departments_id', '=', StorageDepartmentsInterface::STOCK);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function availableStorageProducts()
     {
         return $this->hasMany('App\Models\StorageProduct', 'products_id', 'id')
@@ -200,7 +209,8 @@ class Product extends Model
      */
     public function stockStorages()
     {
-        return $this->belongsToMany('App\Models\Storage', 'storage_products', 'products_id', 'storages_id')->where('storage_departments_id', '=', StorageDepartmentsInterface::STOCK);
+        return $this->belongsToMany('App\Models\Storage', 'storage_products', 'products_id', 'storages_id')
+            ->wherePivot('storage_departments_id', '=', StorageDepartmentsInterface::STOCK);
     }
 
     /**
@@ -209,7 +219,7 @@ class Product extends Model
     public function availableProductStorages()
     {
         return $this->belongsToMany('App\Models\Storage', 'storage_products', 'products_id', 'storages_id')
-            ->where('storage_departments_id', '=', StorageDepartmentsInterface::STOCK)
+            ->wherePivot('storage_departments_id', '=', StorageDepartmentsInterface::STOCK)
             ->wherePivot('available_quantity', '>', 0);
     }
 

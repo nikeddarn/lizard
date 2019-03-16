@@ -30,7 +30,7 @@
                     title="Синхронизировать выбранные продукты">
                 <i class="svg-icon-larger" data-feather="check-square"></i>
             </button>
-            <a href="{{ url()->previous() }}"
+            <a href="{{ route('vendor.category.show', ['vendorCategoriesId' => $vendorCategory->id]) }}"
                data-toggle="tooltip" title="Назад" class="btn btn-primary ml-4">
                 <i class="svg-icon-larger" data-feather="corner-up-left"></i>
             </a>

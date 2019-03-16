@@ -10,10 +10,12 @@ use App\Models\VendorCategory;
 use App\Http\Controllers\Controller;
 use App\Models\VendorProduct;
 use App\Support\Settings\SettingsRepository;
+use App\Support\Vendors\ProductManagers\Delete\UnlinkVendorCategoryManager;
 use App\Support\Vendors\VendorBroker;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
 class VendorCategoryController extends Controller
@@ -42,6 +44,10 @@ class VendorCategoryController extends Controller
      * @var SettingsRepository
      */
     private $settingsRepository;
+    /**
+     * @var UnlinkVendorCategoryManager
+     */
+    private $unlinkVendorCategoryManager;
 
     /**
      * VendorCategoryController constructor.
@@ -51,8 +57,9 @@ class VendorCategoryController extends Controller
      * @param Category $category
      * @param VendorProduct $vendorProduct
      * @param SettingsRepository $settingsRepository
+     * @param UnlinkVendorCategoryManager $unlinkVendorCategoryManager
      */
-    public function __construct(Vendor $vendor, VendorCategory $vendorCategory, VendorBroker $vendorBroker, Category $category, VendorProduct $vendorProduct, SettingsRepository $settingsRepository)
+    public function __construct(Vendor $vendor, VendorCategory $vendorCategory, VendorBroker $vendorBroker, Category $category, VendorProduct $vendorProduct, SettingsRepository $settingsRepository, UnlinkVendorCategoryManager $unlinkVendorCategoryManager)
     {
         $this->vendorCategory = $vendorCategory;
         $this->vendor = $vendor;
@@ -60,6 +67,7 @@ class VendorCategoryController extends Controller
         $this->category = $category;
         $this->vendorProduct = $vendorProduct;
         $this->settingsRepository = $settingsRepository;
+        $this->unlinkVendorCategoryManager = $unlinkVendorCategoryManager;
     }
 
     /**
@@ -70,6 +78,10 @@ class VendorCategoryController extends Controller
      */
     public function index(int $vendorId)
     {
+        if (Gate::denies('vendor-catalog', auth('web')->user())) {
+            abort(401);
+        }
+
         $vendor = $this->vendor->newQuery()->findOrFail($vendorId);
 
         $vendorCategories = $this->vendorCategory->newQuery()
@@ -88,10 +100,20 @@ class VendorCategoryController extends Controller
      */
     public function show(int $vendorCategoriesId)
     {
+        if (Gate::denies('vendor-catalog', auth('web')->user())) {
+            abort(401);
+        }
+
         $vendorCategory = $this->vendorCategory->newQuery()
             ->with('vendor')
             ->with(['categories' => function ($query) use ($vendorCategoriesId) {
                 $query->withCount(['products' => function ($query) use ($vendorCategoriesId) {
+                    $query->whereHas('vendorProducts.vendorCategories', function ($query) use ($vendorCategoriesId) {
+                        $query->where('id', $vendorCategoriesId);
+                    });
+                }]);
+                $query->withCount(['products AS published_products_count' => function ($query) use ($vendorCategoriesId) {
+                    $query->where('published', '1');
                     $query->whereHas('vendorProducts.vendorCategories', function ($query) use ($vendorCategoriesId) {
                         $query->where('id', $vendorCategoriesId);
                     });
@@ -111,6 +133,10 @@ class VendorCategoryController extends Controller
      */
     public function create(int $vendorId, int $vendorOwnCategoryId)
     {
+        if (Gate::denies('vendor-catalog', auth('web')->user())) {
+            abort(401);
+        }
+
         try {
             $vendor = $this->vendor->newQuery()->findOrFail($vendorId);
 
@@ -131,6 +157,10 @@ class VendorCategoryController extends Controller
      */
     public function store(CreateVendorCategoryRequest $request)
     {
+        if (Gate::denies('vendor-catalog', auth('web')->user())) {
+            abort(401);
+        }
+
         try {
             $vendorsId = (int)$request->get('vendors_id');
             $vendorOwnCategoryId = (int)$request->get('vendor_own_category_id');
@@ -164,6 +194,10 @@ class VendorCategoryController extends Controller
      */
     public function edit(int $vendorCategoryId)
     {
+        if (Gate::denies('vendor-catalog', auth('web')->user())) {
+            abort(401);
+        }
+
         $vendorCategory = $this->vendorCategory->newQuery()->with('vendor')->findOrFail($vendorCategoryId);
 
         return view('content.admin.vendors.category.edit.index')->with(compact('vendorCategory'));
@@ -177,6 +211,10 @@ class VendorCategoryController extends Controller
      */
     public function update(UpdateVendorCategoryRequest $request)
     {
+        if (Gate::denies('vendor-catalog', auth('web')->user())) {
+            abort(401);
+        }
+
         $vendorCategoryId = (int)$request->get('vendorCategoriesId');
 
         $vendorCategory = $this->vendorCategory->newQuery()->findOrFail($vendorCategoryId);
@@ -190,7 +228,7 @@ class VendorCategoryController extends Controller
         ];
 
         // update product publish
-        if ($vendorCategoryConstraintsData['publish_product_min_profit_sum'] !== $vendorCategory->publish_product_min_profit_sum || $vendorCategoryConstraintsData['publish_product_min_profit_percent'] !== $vendorCategory->publish_product_min_profit_percent){
+        if ($vendorCategoryConstraintsData['publish_product_min_profit_sum'] !== $vendorCategory->publish_product_min_profit_sum || $vendorCategoryConstraintsData['publish_product_min_profit_percent'] !== $vendorCategory->publish_product_min_profit_percent) {
             $this->updateProductsPublished($vendorCategoryId, $vendorCategoryConstraintsData['publish_product_min_profit_sum'], $vendorCategoryConstraintsData['publish_product_min_profit_percent']);
         }
 
@@ -209,86 +247,16 @@ class VendorCategoryController extends Controller
      */
     public function delete()
     {
-        $vendorCategoryId = (int)request()->get('vendorCategoriesId');
-
-        //get settings
-        $deleteProductSettings = $this->settingsRepository->getProperty('vendor.delete_product');
-
-        $localCategoriesIds = $this->category->newQuery()
-            ->whereHas('vendorCategories', function ($query) use ($vendorCategoryId) {
-                $query->where('id', $vendorCategoryId);
-            })
-            ->get()
-            ->pluck('id')
-            ->toArray();
-
-        $allProductsUnlinked = true;
-
-        foreach ($localCategoriesIds as $localCategoryId){
-            if (!$this->deleteVendorLocalCategory($vendorCategoryId, $localCategoryId, $deleteProductSettings)){
-                $allProductsUnlinked = false;
-            }
+        if (Gate::denies('vendor-catalog', auth('web')->user())) {
+            abort(401);
         }
 
-        return $allProductsUnlinked ? back() : back()->withErrors([trans('validation.product_in_stock')]);
-    }
+        $vendorCategoryId = (int)request()->get('vendorCategoriesId');
 
-    /**
-     * Delete products present in given categories. Unlink local category from vendor category.
-     *
-     * @param int $vendorCategoryId
-     * @param int $localCategoryId
-     * @param array $deleteProductSettings
-     * @return bool
-     * @throws Exception
-     */
-    public function deleteVendorLocalCategory(int $vendorCategoryId, int $localCategoryId, array $deleteProductSettings)
-    {
-        $localCategory = $this->category->newQuery()->findOrFail($localCategoryId);
-
-        // get deleting vendor products
-        $vendorProducts = $this->vendorProduct->newQuery()
-            ->whereHas('vendorCategories', function ($query) use ($vendorCategoryId) {
-                $query->where('id', $vendorCategoryId);
-            })
-            ->whereHas('product.categories', function ($query) use ($localCategoryId) {
-                $query->where('id', $localCategoryId);
-            })
-            ->with(['product' => function ($query) use ($localCategoryId) {
-                $query->with('categories', 'vendorProducts', 'storages', 'stockStorages');
-            }])
-            ->get();
-
-        if ($deleteProductSettings['delete_product_on_delete_vendor_category']) {
-            // delete vendor products anf products
-            $allProductsUnlinked = $this->deleteVendorProductManager->deleteVendorProducts($vendorProducts, $localCategoryId);
-
-            if ($allProductsUnlinked) {
-                // unlink local category from vendor
-                $localCategory->vendorCategories()->detach($vendorCategoryId);
-
-                // delete local category if empty
-                if ($deleteProductSettings['delete_empty_local_category_on_delete_vendor_category']) {
-                    $localCategoryProductsCount = $localCategory->products()->count();
-
-                    if (!$localCategoryProductsCount) {
-                        $localCategory->delete();
-                    }
-                }
-            }
-
-            return $allProductsUnlinked;
-
+        if ($this->unlinkVendorCategoryManager->unlinkVendorCategory($vendorCategoryId)) {
+            return back();
         } else {
-            // delete only vendor products
-            foreach ($vendorProducts as $vendorProduct) {
-                $vendorProduct->delete();
-            }
-
-            // unlink local category from vendor
-            $localCategory->vendorCategories()->detach($vendorCategoryId);
-
-            return true;
+            return back()->withErrors([trans('validation.product_in_stock')]);
         }
     }
 

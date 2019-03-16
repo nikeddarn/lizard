@@ -29,7 +29,7 @@ class AuthenticateAdmin
         $adminRoles = [
             RoleInterface::ADMIN,
             RoleInterface::USER_MANAGER,
-            RoleInterface::VENDOR_MANAGER,
+            RoleInterface::CONTENT_MANAGER,
             RoleInterface::STOREKEEPER,
             RoleInterface::SERVICEMAN,
         ];

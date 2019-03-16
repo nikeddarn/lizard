@@ -452,6 +452,10 @@ select.selectpicker {
   height: 80px;
 }
 
+.table-image-smaller {
+  height: 60px;
+}
+
 .show-content-property {
   max-height: 10rem;
   overflow-y: auto;
@@ -648,5 +652,35 @@ label.required:after {
 
 .custom-control-input.queued-product-checkbox:checked ~ .custom-control-label::before {
   background-color: #f6993f !important;
+}
+
+.slider-item,
+.group-item {
+  position: relative;
+}
+
+.slider-item-control,
+.group-item-control {
+  position: absolute;
+  top: 0;
+  right: 0;
+  opacity: 0;
+  -webkit-transition: .3s;
+  transition: .3s;
+}
+
+.slider-item:hover .slider-item-control,
+.group-item:hover .group-item-control {
+  opacity: 1;
+}
+
+#sortable-slides > div:hover,
+#sortable-groups > div:hover {
+  cursor: pointer;
+}
+
+#sortable-slides > div.ui-sortable-helper,
+#sortable-groups > div.ui-sortable-helper {
+  cursor: move;
 }
 
