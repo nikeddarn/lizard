@@ -20,7 +20,7 @@ class VendorSettingsController extends Controller
     private $vendor;
 
     /**
-     * SeoSettingsController constructor.
+     * VendorSettingsController constructor.
      * @param SettingsRepository $settingsRepository
      * @param Vendor $vendor
      */

@@ -15,7 +15,7 @@ class ShopSettingsController extends Controller
     private $settingsRepository;
 
     /**
-     * SeoSettingsController constructor.
+     * ShopSettingsController constructor.
      * @param SettingsRepository $settingsRepository
      */
     public function __construct(SettingsRepository $settingsRepository)

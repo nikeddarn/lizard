@@ -113,6 +113,14 @@ class User extends Authenticatable
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function userAddresses()
+    {
+        return $this->hasMany('App\Models\UserAddress', 'users_id', 'id');
+    }
+
+    /**
      * Transform timestamp to carbon.
      *
      * @param  string  $value

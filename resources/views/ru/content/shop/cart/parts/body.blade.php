@@ -65,9 +65,9 @@
     </table>
 
     <div class="text-center">
-        <small class="counter">ИТОГО</small>
+        <small class="counter">СУММА</small>
         <h3 class="bold text-gray-hover">{{ $amount }} грн</h3>
-        <a href="{{ route('shop.checkout.index', ['locale' => app()->getLocale() === config('app.canonical_locale') ? null : app()->getLocale()]) }}"
+        <a href="{{ route('shop.order.create', ['locale' => app()->getLocale() === config('app.canonical_locale') ? null : app()->getLocale()]) }}"
            class="btn btn-primary rounded-pill btn-lg">
             <span>Доставка</span>
             <i class="svg-icon-larger" data-feather="arrow-right"></i>

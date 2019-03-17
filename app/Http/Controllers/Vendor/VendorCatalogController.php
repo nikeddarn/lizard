@@ -107,7 +107,7 @@ class VendorCatalogController extends Controller
             $vendorCategoryProducts = $this->vendorBroker->getVendorCatalogManager($vendorId)->getCategoryPageProducts($vendorCategoryId, $page);
 
         } catch (Exception $exception) {
-            return view('content.admin.vendors.category.products.index')
+            return view('content.admin.vendors.catalog.products.index')
                 ->withErrors([$exception->getMessage()]);
         }
 

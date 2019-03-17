@@ -13,6 +13,7 @@
             <td><strong>Цена</strong></td>
             <td><strong>Прибыль ($)</strong></td>
             <td><strong>Прибыль (%)</strong></td>
+            <td><strong>Доступность</strong></td>
         </tr>
         </thead>
 
@@ -36,7 +37,15 @@
                 <td>{{ $vendorOwnProduct->price }}</td>
                 <td>{{ $vendorOwnProduct->profit }}</td>
                 <td>{{ $vendorOwnProduct->profitPercents }}</td>
-
+                <td>
+                    @if($vendorOwnProduct->isAvailable)
+                        <span class="text-success">На складе</span>
+                    @elseif($vendorOwnProduct->expected)
+                        <span class="text-info">{{ $vendorOwnProduct->expected }}</span>
+                    @else
+                        <span class="text-danger">Отсутствует</span>
+                    @endif
+                </td>
             </tr>
 
         @endforeach

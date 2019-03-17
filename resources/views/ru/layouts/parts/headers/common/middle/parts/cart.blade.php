@@ -34,7 +34,7 @@
                class="btn btn-block rounded-pill btn-secondary p-1">В корзину</a>
         </div>
         <div class="w-100 ml-1">
-            <a href="{{ route('shop.checkout.index', ['locale' => app()->getLocale() === config('app.canonical_locale') ? null : app()->getLocale()]) }}"
+            <a href="{{ route('shop.order.create', ['locale' => app()->getLocale() === config('app.canonical_locale') ? null : app()->getLocale()]) }}"
                class="btn btn-block rounded-pill btn-primary p-1">Оформить</a>
         </div>
     </div>

@@ -170,6 +170,12 @@
                        class="nav-link text-gray pl-4 submenu-link">Поставщики</a>
                 </li>
 
+                {{-- Orders --}}
+                <li class="nav-item w-100">
+                    <a id="main-menu-settings-orders" href="{{ route('admin.settings.order.edit') }}"
+                       class="nav-link text-gray pl-4 submenu-link">Заказы</a>
+                </li>
+
             </ul>
 
         </li>

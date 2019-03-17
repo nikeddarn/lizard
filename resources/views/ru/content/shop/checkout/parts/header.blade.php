@@ -8,6 +8,6 @@
         </a>
     </li>
     <li class="nav-item">
-        <a class="nav-link active h-100" href="{{ route('shop.checkout.index') }}">ДОСТАВКА</a>
+        <a class="nav-link active h-100" href="{{ route('shop.order.store') }}">ДОСТАВКА</a>
     </li>
 </ul>

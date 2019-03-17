@@ -4,7 +4,7 @@
  * Defined product attributes model items.
  */
 
-use App\Contracts\Delivery\DeliveryTypesInterface;
+use App\Contracts\Order\DeliveryTypesInterface;
 
 return [
     [

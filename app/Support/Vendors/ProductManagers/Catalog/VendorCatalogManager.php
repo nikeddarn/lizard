@@ -152,9 +152,9 @@ abstract class VendorCatalogManager
      * @param float $price
      * @return string
      */
-    protected function formatPrice(float $price)
+    protected function formatPrice(float $price = null):string
     {
-        return number_format($price, 2);
+        return $price ? number_format($price, 2) : '';
     }
 
     /**
@@ -163,8 +163,8 @@ abstract class VendorCatalogManager
      * @param float $percents
      * @return string
      */
-    protected function formatProfitPercents(float $percents)
+    protected function formatProfitPercents(float $percents = null):string
     {
-        return number_format($percents, 1);
+        return $percents ? number_format($percents, 1) : '';
     }
 }

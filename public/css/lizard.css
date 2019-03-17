@@ -1190,7 +1190,7 @@ textarea:active {
 }
 
 .form-checkout {
-  max-width: 500px;
+  max-width: 600px;
 }
 
 .form-checkout .form-control:not(:focus):not([disabled]):not([readonly]) {

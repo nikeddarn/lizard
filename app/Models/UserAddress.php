@@ -4,35 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class UserCartProduct extends Model
+class UserAddress extends Model
 {
     /**
      * Table name.
      *
      * @var string
      */
-    protected $table = 'user_cart_product';
-
-    /**
-     * Array of composite primary keys.
-     *
-     * @var array
-     */
-    protected $primaryKey = ['users_id', 'products_id'];
-
-    /**
-     * Non auto incrementing primary key.
-     *
-     * @var bool
-     */
-    public $incrementing = false;
-
-    /**
-     * Indicates if the model should be timestamped.
-     *
-     * @var bool
-     */
-    public $timestamps = false;
+    protected $table = 'user_addresses';
 
     /**
      * The attributes that aren't mass assignable.
@@ -40,6 +19,13 @@ class UserCartProduct extends Model
      * @var array
      */
     protected $guarded = [];
+
+    /**
+     * Indicates if the model should be timestamped.
+     *
+     * @var bool
+     */
+    public $timestamps = false;
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -52,8 +38,16 @@ class UserCartProduct extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function product()
+    public function city()
     {
-        return $this->belongsTo('App\Models\Product', 'products_id', 'id');
+        return $this->belongsTo('App\Models\City', 'cities_id', 'id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function orders()
+    {
+        return $this->hasMany('App\Models\Order', 'user_addresses_id', 'id');
     }
 }

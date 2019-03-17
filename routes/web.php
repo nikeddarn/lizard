@@ -114,8 +114,8 @@ Route::get('/shop/cart/increment/{id}', 'Shop\CartController@increaseProductCoun
 Route::get('/shop/cart/decrement/{id}', 'Shop\CartController@decreaseProductCount')->name('shop.cart.decrement');
 
 // checkout
-Route::get('/shop/checkout/{locale?}', 'Shop\CheckoutController@index')->name('shop.checkout.index');
-Route::post('/shop/checkout/confirm', 'Shop\CheckoutController@confirm')->name('shop.checkout.confirm');
+Route::get('/shop/checkout/create/{locale?}', 'Shop\OrderController@create')->name('shop.order.create');
+Route::post('/shop/checkout/store', 'Shop\OrderController@store')->name('shop.order.store');
 
 //  Search Routes
 Route::post('/search/{locale?}', 'Shop\SearchController@index')->name('shop.search.index');

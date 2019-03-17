@@ -8,6 +8,7 @@ namespace App\Support\Vendors\ProductManagers\Catalog;
 
 use App\Contracts\Vendor\VendorInterface;
 use App\Support\Vendors\Providers\BrainCatalogProvider;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Pagination\LengthAwarePaginator;
 use stdClass;
@@ -136,7 +137,7 @@ class BrainVendorCatalogManager extends VendorCatalogManager
         $preparedProducts = $this->prepareCategoryProductsData($products, $course);
 
         return new LengthAwarePaginator($preparedProducts, $productsTotal, $productsPerPage, $page, [
-            'path'  => request()->url(),
+            'path' => request()->url(),
         ]);
     }
 
@@ -154,14 +155,11 @@ class BrainVendorCatalogManager extends VendorCatalogManager
         foreach ($vendorProducts as $vendorProduct) {
 
             //incoming product price
-            $incomingProductPrice = $vendorProduct->price;
+            $incomingProductPrice = $vendorProduct->price ? $vendorProduct->price : null;
 
             // retail product price
-            $productRetailPrice = (!empty($vendorProduct->retail_price_uah) ? $vendorProduct->retail_price_uah : $vendorProduct->recommendable_price) / $course;
-
-            // product profit
-            $productProfit = $productRetailPrice - $incomingProductPrice;
-            $productProfitPercents = $productProfit/$incomingProductPrice*100;
+            $productRetailUahPrice = $vendorProduct->retail_price_uah ? $vendorProduct->retail_price_uah : $vendorProduct->recommendable_price;
+            $productRetailPrice = $productRetailUahPrice && $course ? $productRetailUahPrice / $course : null;
 
             $preparedVendorProduct = new stdClass();
 
@@ -173,8 +171,10 @@ class BrainVendorCatalogManager extends VendorCatalogManager
             $preparedVendorProduct->country = $vendorProduct->country;
             $preparedVendorProduct->warranty = $vendorProduct->warranty;
             $preparedVendorProduct->price = $this->formatPrice($incomingProductPrice);
-            $preparedVendorProduct->profit = $this->formatPrice($productProfit);
-            $preparedVendorProduct->profitPercents = $this->formatProfitPercents($productProfitPercents);
+            $preparedVendorProduct->profit = $this->formatPrice($this->calculateProfitSum($incomingProductPrice, $productRetailPrice));
+            $preparedVendorProduct->profitPercents = $this->formatProfitPercents($this->calculateProfitPercents($incomingProductPrice, $productRetailPrice));
+            $preparedVendorProduct->isAvailable = $this->getProductAvailability($vendorProduct);
+            $preparedVendorProduct->expected = $this->getProductExpected($vendorProduct);
 
             $preparedProducts[] = $preparedVendorProduct;
         }
@@ -227,5 +227,69 @@ class BrainVendorCatalogManager extends VendorCatalogManager
     private function getCashUsdCourse($vendorCourses): float
     {
         return (float)collect($vendorCourses)->where('currencyID', '=', 2)->first()->value;
+    }
+
+    /**
+     * Define product availability.
+     *
+     * @param stdClass $vendorProduct
+     * @return bool
+     */
+    private function getProductAvailability(stdClass $vendorProduct): bool
+    {
+        $stocksAvailability = array_filter((array)$vendorProduct->available);
+
+        $stocksPresents = array_filter((array)$vendorProduct->stocks);
+
+        return $stocksAvailability || $stocksPresents;
+    }
+
+    /**
+     * Define product availability.
+     *
+     * @param stdClass $vendorProduct
+     * @return mixed|null
+     */
+    private function getProductExpected(stdClass $vendorProduct)
+    {
+        $stocksExpected = array_filter((array)$vendorProduct->stocks_expected);
+
+        if ($stocksExpected) {
+            return Carbon::createFromFormat('Y-m-d H:i:s', min($stocksExpected))->format('d-m-Y');
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Calculate profit sum.
+     *
+     * @param $incomingProductPrice
+     * @param $productRetailPrice
+     * @return float|null
+     */
+    private function calculateProfitSum(float $incomingProductPrice = null, float $productRetailPrice = null)
+    {
+        if ($incomingProductPrice && $productRetailPrice) {
+            return $productRetailPrice - $incomingProductPrice;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Calculate profit sum.
+     *
+     * @param $incomingProductPrice
+     * @param $productRetailPrice
+     * @return float|null
+     */
+    private function calculateProfitPercents(float $incomingProductPrice = null, float $productRetailPrice = null)
+    {
+        if ($incomingProductPrice && $productRetailPrice) {
+            return ($productRetailPrice - $incomingProductPrice) / $incomingProductPrice * 100;
+        } else {
+            return null;
+        }
     }
 }

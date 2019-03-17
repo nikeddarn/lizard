@@ -8,6 +8,7 @@ use App\Models\Badge;
 use App\Models\CastProductMethod;
 use App\Models\City;
 use App\Models\DeliveryType;
+use App\Models\OrderStatus;
 use App\Models\Role;
 use App\Models\Slider;
 use App\Models\StaticPage;
@@ -46,8 +47,8 @@ class SetupController extends Controller
     public function setup()
     {
         $this->fillLibraries();
-        $this->insertLocalStorages();
-        $this->insertVendors();
+//        $this->insertLocalStorages();
+//        $this->insertVendors();
 
         return view('elements.setup.setup_complete');
     }
@@ -139,6 +140,11 @@ class SetupController extends Controller
         // fill delivery types
         foreach (require app_path('Http/Controllers/Setup/Libraries/delivery_types.php') as $deliveryType) {
             DeliveryType::query()->firstOrCreate($deliveryType);
+        }
+
+        // fill order status
+        foreach (require app_path('Http/Controllers/Setup/Libraries/order_status.php') as $orderStatus) {
+            OrderStatus::query()->firstOrCreate($orderStatus);
         }
     }
 

@@ -41,20 +41,32 @@
             $('#delivery_type').find('input').change(function () {
                 let deliveryAddressWrapper = $('#delivery-address-wrapper');
                 let deliveryCityWrapper = $('#delivery-city-wrapper');
+                let totalAmountField = $('#total-amount');
+                let totalAmount = parseInt($(totalAmountField).data('amount'));
 
                 switch (parseInt(this.value)) {
                     case 1:
                         $(deliveryAddressWrapper).addClass('d-none');
                         $(deliveryCityWrapper).addClass('d-none');
+
+                        // set total sum as order sum
+                        $(totalAmountField).html(new Intl.NumberFormat().format(totalAmount));
                         break;
                     case 2:
                         $(deliveryAddressWrapper).removeClass('d-none');
                         $(deliveryCityWrapper).removeClass('d-none');
                         $('.selectpicker').selectpicker();
+
+                        // add delivery sum to order sum
+                        let deliverySum = parseInt($('#delivery_type').data('courier-delivery-sum'));
+                        $(totalAmountField).html(new Intl.NumberFormat().format(totalAmount + deliverySum));
                         break;
                     case 3:
                         $(deliveryCityWrapper).addClass('d-none');
                         $(deliveryAddressWrapper).removeClass('d-none');
+
+                        // set total sum as order sum
+                        $(totalAmountField).html(new Intl.NumberFormat().format(totalAmount));
                         break;
                 }
             });

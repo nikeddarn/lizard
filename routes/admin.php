@@ -245,6 +245,10 @@ Route::post('/admin/settings/shop/update', 'Settings\ShopSettingsController@upda
 Route::get('/admin/settings/vendor/edit', 'Settings\VendorSettingsController@edit')->name('admin.settings.vendor.edit');
 Route::post('/admin/settings/vendor/update', 'Settings\VendorSettingsController@update')->name('admin.settings.vendor.update');
 
+// Orders
+Route::get('/admin/settings/order/edit', 'Settings\OrderSettingsController@edit')->name('admin.settings.order.edit');
+Route::post('/admin/settings/order/update', 'Settings\OrderSettingsController@update')->name('admin.settings.order.update');
+
 // -------------------------------- Page Content -------------------------------------------------
 
 // ---------------------------- common

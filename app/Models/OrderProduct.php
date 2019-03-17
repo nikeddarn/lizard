@@ -4,21 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class UserCartProduct extends Model
+class OrderProduct extends Model
 {
     /**
      * Table name.
      *
      * @var string
      */
-    protected $table = 'user_cart_product';
+    protected $table = 'order_product';
 
     /**
      * Array of composite primary keys.
      *
      * @var array
      */
-    protected $primaryKey = ['users_id', 'products_id'];
+    protected $primaryKey = ['orders_id', 'products_id'];
 
     /**
      * Non auto incrementing primary key.
@@ -28,13 +28,6 @@ class UserCartProduct extends Model
     public $incrementing = false;
 
     /**
-     * Indicates if the model should be timestamped.
-     *
-     * @var bool
-     */
-    public $timestamps = false;
-
-    /**
      * The attributes that aren't mass assignable.
      *
      * @var array
@@ -42,11 +35,18 @@ class UserCartProduct extends Model
     protected $guarded = [];
 
     /**
+     * Indicates if the model should be timestamped.
+     *
+     * @var bool
+     */
+    public $timestamps = false;
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function user()
+    public function order()
     {
-        return $this->belongsTo('App\Models\User', 'users_id', 'id');
+        return $this->belongsTo('App\Models\Order', 'orders_id', 'id');
     }
 
     /**

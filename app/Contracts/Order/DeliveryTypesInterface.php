@@ -3,7 +3,7 @@
  * Delivery types
  */
 
-namespace App\Contracts\Delivery;
+namespace App\Contracts\Order;
 
 
 interface DeliveryTypesInterface
