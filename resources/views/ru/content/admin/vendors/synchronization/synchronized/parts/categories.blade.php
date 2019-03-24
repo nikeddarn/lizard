@@ -65,19 +65,18 @@
                             </button>
                         </form>
 
-                        <form class="d-inline-block unlink-form"
-                              action="{{ route('vendor.category.products.destroy') }}" method="post">
+                        <form class="delete-form d-inline-block unlink-form ml-lg-2"
+                              action="{{ route('vendor.category.local.delete') }}" method="post">
                             @csrf
                             @method('DELETE')
-                            <input type="hidden" name="vendors_id" value="{{ $category->vendor_id }}">
-                            <input type="hidden" name="vendor_categories_id"
-                                   value="{{ $category->vendor_category_id }}">
+                            <input type="hidden" name="vendor_categories_id" value="{{ $category->vendor_category_id }}">
                             <input type="hidden" name="categories_id" value="{{ $category->local_category_id }}">
                             <button type="submit" class="btn btn-danger" data-toggle="tooltip"
-                                    title="Отвязать и удалить товары">
+                                    title="Отсоединить и удалить товары">
                                 <i class="svg-icon-larger" data-feather="link-2"></i>
                             </button>
                         </form>
+
                     </div>
 
                 </td>

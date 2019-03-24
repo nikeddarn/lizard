@@ -80,6 +80,10 @@
                 }
             };
 
+            $('#zoom-image').hover(function () {
+                alert('hover');
+            });
+
             activateZoom(zoomImage);
 
             // change main image

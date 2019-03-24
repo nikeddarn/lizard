@@ -1,6 +1,6 @@
 <div class="d-none d-lg-inline-block ml-4">
     <ul class="nav nav-main">
-        <li class="dropdown dropdown-hover dropdown-mega">
+        <li id="head-catalog-dropdown" class="dropdown dropdown-mega">
             <a href="#" class="nav-link dropdown-toggle caret-off text-gray" data-toggle="dropdown"
                role="button" aria-haspopup="true"
                aria-expanded="false" id="header-menu-products-catalog" onclick="return false;">

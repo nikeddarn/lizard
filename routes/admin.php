@@ -276,7 +276,7 @@ Route::post('/admin/slider/slide/store', 'Content\SlideController@store')->name(
 Route::get('/admin/slider/slide/{slide_id}/edit', 'Content\SlideController@edit')->name('admin.slider.slide.edit');
 Route::post('/admin/slider/slide/update', 'Content\SlideController@update')->name('admin.slider.slide.update');
 
-Route::post('/admin/content/main/delete/slide', 'Content\MainContentController@delete')->name('admin.slider.slide.delete');
+Route::post('/admin/content/main/delete/slide', 'Content\SlideController@delete')->name('admin.slider.slide.delete');
 
 // -------------------------------- Product Groups -----------------------------------
 Route::get('/admin/product/group/create', 'Content\ProductGroupController@create')->name('admin.product.group.create');
@@ -287,3 +287,57 @@ Route::post('/admin/product/group/update', 'Content\ProductGroupController@updat
 
 Route::post('/admin/product/group/delete', 'Content\ProductGroupController@delete')->name('admin.product.group.delete');
 
+
+// ------------------------------- contacts page ---------------------------
+
+Route::get('/admin/content/contacts/edit', 'Content\ContactsContentController@edit')->name('admin.content.contacts.edit');
+
+Route::post('/admin/content/contacts/update', 'Content\ContactsContentController@update')->name('admin.content.contacts.update');
+
+// upload "summernote" editor images
+Route::post('/admin/content/contacts/upload/image', 'Admin\ContactsContentController@uploadImage')->name('admin.content.contacts.upload.image');
+
+// ------------------------------- about page ---------------------------
+
+Route::get('/admin/content/about/edit', 'Content\AboutContentController@edit')->name('admin.content.about.edit');
+
+Route::post('/admin/content/about/update', 'Content\AboutContentController@update')->name('admin.content.about.update');
+
+// upload "summernote" editor images
+Route::post('/admin/content/about/upload/image', 'Admin\AboutContentController@uploadImage')->name('admin.content.about.upload.image');
+
+// ------------------------------- delivery page ---------------------------
+
+Route::get('/admin/content/delivery/edit', 'Content\DeliveryContentController@edit')->name('admin.content.delivery.edit');
+
+Route::post('/admin/content/delivery/update', 'Content\DeliveryContentController@update')->name('admin.content.delivery.update');
+
+// upload "summernote" editor images
+Route::post('/admin/content/delivery/upload/image', 'Admin\DeliveryContentController@uploadImage')->name('admin.content.delivery.upload.image');
+
+// ------------------------------- payments page ---------------------------
+
+Route::get('/admin/content/payments/edit', 'Content\PaymentsContentController@edit')->name('admin.content.payments.edit');
+
+Route::post('/admin/content/payments/update', 'Content\PaymentsContentController@update')->name('admin.content.payments.update');
+
+// upload "summernote" editor images
+Route::post('/admin/content/payments/upload/image', 'Admin\PaymentsContentController@uploadImage')->name('admin.content.payments.upload.image');
+
+// ------------------------------- return page ---------------------------
+
+Route::get('/admin/content/return/edit', 'Content\ReturnContentController@edit')->name('admin.content.return.edit');
+
+Route::post('/admin/content/return/update', 'Content\ReturnContentController@update')->name('admin.content.return.update');
+
+// upload "summernote" editor images
+Route::post('/admin/content/return/upload/image', 'Admin\ReturnContentController@uploadImage')->name('admin.content.return.upload.image');
+
+// ------------------------------- warranty page ---------------------------
+
+Route::get('/admin/content/warranty/edit', 'Content\WarrantyContentController@edit')->name('admin.content.warranty.edit');
+
+Route::post('/admin/content/warranty/update', 'Content\WarrantyContentController@update')->name('admin.content.warranty.update');
+
+// upload "summernote" editor images
+Route::post('/admin/content/warranty/upload/image', 'Admin\WarrantyContentController@uploadImage')->name('admin.content.warranty.upload.image');

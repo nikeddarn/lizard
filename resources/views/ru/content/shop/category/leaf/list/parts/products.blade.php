@@ -68,13 +68,16 @@
                 <div class="d-none d-md-block mb-2 text-gray-hover">{!! $product->brief_content !!}</div>
 
                 <div class="text-gray mb-4">
-                    @if($product->isAvailable)
+                    @if(!empty($product->isAvailable))
                         <i class="svg-icon text-success" data-feather="check-circle"></i>
                         <span class="ml-2">Готов к отгрузке</span>
-                    @elseif($product->isExpectedToday)
+                    @elseif(!empty($product->isExpectedToday))
                         <i class="svg-icon text-warning" data-feather="clock"></i>
                         <span class="ml-2">Ожидается сегодня</span>
-                    @elseif($product->expectedAt)
+                    @elseif(!empty($product->isExpectedTomorrow))
+                        <i class="svg-icon text-warning" data-feather="clock"></i>
+                        <span class="ml-2">Ожидается завтра</span>
+                    @elseif(!empty($product->expectedAt))
                         <i class="svg-icon text-warning" data-feather="clock"></i>
                         <span class="ml-2">Ожидается {{ $product->expectedAt->diffForHumans() }}</span>
                     @else
@@ -83,7 +86,7 @@
                     @endif
                 </div>
 
-                @if($product->price1)
+                @if($product->cartAble)
                     <a href="{{ route('shop.cart.add', ['id' => $product->id]) }}"
                        class="btn btn-sm rounded-pill btn-outline-primary add-to-cart">Добавить в корзину</a>
                 @endif

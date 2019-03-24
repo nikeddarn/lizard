@@ -81,8 +81,8 @@
                             @endif
 
                             <form action="{{ route('shop.cart.count', ['id' => $product->id]) }}" method="post">
-
                                 @csrf
+                                <input type="hidden" name="product_id[]" value="{{ $product->id }}">
 
                                 <table class="table table-responsive table-border-top-none product-details">
                                     <tbody>
@@ -185,32 +185,39 @@
                                         </tr>
                                     @endif
 
-                                    <tr>
-                                        <td>
-                                            <label class="m-0"
-                                                   for="productQuantity-{{ $product->id }}">Количество</label>
-                                        </td>
-                                        <td>
-                                            <input id="productQuantity-{{ $product->id }}" class="touchspin"
-                                                   name="quantity" type="number" required
-                                                   value="{{ old('quantity', 1) }}"
-                                                   min="1">
-                                        </td>
-                                    </tr>
+                                    @if($product->cartAble)
+                                        <tr>
+                                            <td>
+                                                <label class="m-0"
+                                                       for="productQuantity-{{ $product->id }}">Количество</label>
+                                            </td>
+                                            <td>
+                                                <input id="productQuantity-{{ $product->id }}" class="touchspin"
+                                                       name="count[]" type="number" required
+                                                       value="{{ old('count', 1) }}"
+                                                       min="1">
+                                            </td>
+                                        </tr>
+                                    @endif
 
                                     <tr>
                                         <td></td>
                                         <td>
-                                            <div id="product-details-actions" class="btn-group d-flex" role="group">
-                                                <button type="submit" class="btn btn-primary">Добавить в корзину</button>
+                                            <div id="product-details-actions" class="btn-group d-inline-flex" role="group">
+                                                @if($product->cartAble)
+                                                    <button type="submit" class="btn btn-primary">Добавить в корзину
+                                                    </button>
+                                                @endif
                                                 <a href="{{ route('user.favourites.remove', ['id' => $product->id]) }}"
                                                    class="btn product-favourite product-favourite-remove align-items-center justify-content-center{{ $product->isFavourite ?  ' active d-flex' : ' d-none'}}"
-                                                   title="Удалить из избранного" data-add-title="Удалить из избранного" data-remove-title="Удалить из избранного">
+                                                   title="Удалить из избранного" data-add-title="Удалить из избранного"
+                                                   data-remove-title="Удалить из избранного">
                                                     <i class="svg-icon-larger" data-feather="heart"></i>
                                                 </a>
                                                 <a href="{{ route('user.favourites.add', ['id' => $product->id]) }}"
                                                    class="btn product-favourite product-favourite-add align-items-center justify-content-center{{ $product->isFavourite ?  ' d-none' : ' d-flex'}}"
-                                                   title="Добавить в избранное" data-remove-title="Добавить в избранное" data-add-title="Добавить в избранное">
+                                                   title="Добавить в избранное" data-remove-title="Добавить в избранное"
+                                                   data-add-title="Добавить в избранное">
                                                     <i class="svg-icon-larger" data-feather="heart"></i>
                                                 </a>
                                             </div>

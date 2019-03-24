@@ -58,7 +58,7 @@ class VendorSynchronizationController extends Controller
 
         // get synchronized categories with products count
         $synchronizedCategories = $this->vendorCategory->newQuery()
-            ->selectRaw("vendor_categories.name_$locale AS vendor_category_name, categories.name_$locale AS local_category_name, categories.url AS local_category_url, COUNT(DISTINCT(products2.id)) AS products_count, SUM(IF(products2.published = 1, 1, 0)) AS published_products_count, vendor_local_categories.auto_add_new_products AS auto_add_products, vendors.name_$locale AS vendor_name, vendors.id AS vendor_id, vendor_categories.id AS vendor_category_id, categories.id AS local_category_id, vendor_categories.vendor_category_id AS own_vendor_category_id")
+            ->selectRaw("vendor_categories.name_$locale AS vendor_category_name, categories.name_$locale AS local_category_name, categories.url AS local_category_url, COUNT(DISTINCT(products1.id)) AS products_count, COUNT(DISTINCT(products2.id)) AS published_products_count, vendor_local_categories.auto_add_new_products AS auto_add_products, vendors.name_$locale AS vendor_name, vendors.id AS vendor_id, vendor_categories.id AS vendor_category_id, categories.id AS local_category_id, vendor_categories.vendor_category_id AS own_vendor_category_id")
             ->join('vendors', 'vendors.id', '=', 'vendor_categories.vendors_id')
             ->leftJoin('vendor_category_product', 'vendor_category_product.vendor_categories_id', '=', 'vendor_categories.id')
             ->leftJoin('vendor_products', 'vendor_category_product.vendor_products_id', '=', 'vendor_products.id')
@@ -69,6 +69,7 @@ class VendorSynchronizationController extends Controller
             ->leftJoin('products  AS products2', function ($join) {
                 $join->on('category_product.products_id', '=', 'products2.id');
                 $join->on('products1.id', '=', 'products2.id');
+                $join->where('products2.published', '=', 1);
             })
             ->groupBy("vendor_categories.id", "categories.id", "vendor_local_categories.auto_add_new_products", "vendors.name_$locale", "vendor_categories.id", "categories.id", "vendors.id", "vendor_categories.vendor_category_id")
             ->orderByRaw('vendor_name, vendor_category_name')

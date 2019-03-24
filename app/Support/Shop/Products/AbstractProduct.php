@@ -72,7 +72,7 @@ abstract class AbstractProduct
      */
     protected function getRetrieveProductQuery():Builder
     {
-        return $this->product->newQuery()->where('published', 1);
+        return $this->product->newQuery();
     }
 
     /**
@@ -118,6 +118,9 @@ abstract class AbstractProduct
 
             // set product favourite
             $this->createFavouriteProperty($product);
+
+            // is allow to put product to cart
+            $this->setCartAbleProperty($product);
         }
     }
 
@@ -173,10 +176,18 @@ abstract class AbstractProduct
      */
     protected function createProductAvailability(Product $product)
     {
-        $productExpectedAt = $this->productAvailability->getProductExpectedTime($product);
-        $product->isAvailable = $this->productAvailability->isProductAvailable($product);
-        $product->expectedAt = $productExpectedAt;
-        $product->isExpectedToday = ($productExpectedAt && $productExpectedAt < Carbon::today()->addDay()) ? true : false;
+        $isProductAvailable = $this->productAvailability->isProductAvailable($product);
+        $product->isAvailable = $isProductAvailable;
+
+        if (!$isProductAvailable){
+            $productExpectedAt = $this->productAvailability->getProductExpectedTime($product);
+
+            if ($productExpectedAt){
+                $product->isExpectedToday = ($productExpectedAt < Carbon::today()->addDay()) ? true : false;
+                $product->isExpectedTomorrow = (!$product->isExpectedToday && $productExpectedAt < Carbon::today()->addDays(2)) ? true : false;
+                $product->expectedAt = $productExpectedAt;
+            }
+        }
     }
 
     /**
@@ -221,5 +232,15 @@ abstract class AbstractProduct
     protected function createFavouriteProperty(Product $product)
     {
         $product->isFavourite = (bool)$product->favouriteProducts->count();
+    }
+
+    /**
+     * Set is product cart able?
+     *
+     * @param Product $product
+     */
+    private function setCartAbleProperty(Product $product)
+    {
+        $product->cartAble = $product->price1 && $product->published;
     }
 }

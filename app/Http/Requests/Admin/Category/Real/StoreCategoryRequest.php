@@ -31,7 +31,7 @@ class StoreCategoryRequest extends FormRequest
             'keywords_uk' => 'nullable|string|max:512',
             'content_ru' => 'nullable|string',
             'content_uk' => 'nullable|string',
-            'image' => 'required|image',
+            'image' => 'image',
         ];
     }
 }

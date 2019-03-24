@@ -202,6 +202,42 @@
                        class="nav-link text-gray pl-4 submenu-link">Главная</a>
                 </li>
 
+                {{-- About --}}
+                <li class="nav-item w-100">
+                    <a id="main-menu-content-about" href="{{ route('admin.content.about.edit') }}"
+                       class="nav-link text-gray pl-4 submenu-link">О нас</a>
+                </li>
+
+                {{-- Contacts --}}
+                <li class="nav-item w-100">
+                    <a id="main-menu-content-contacts" href="{{ route('admin.content.contacts.edit') }}"
+                       class="nav-link text-gray pl-4 submenu-link">Контакты</a>
+                </li>
+
+                {{-- Delivery --}}
+                <li class="nav-item w-100">
+                    <a id="main-menu-content-delivery" href="{{ route('admin.content.delivery.edit') }}"
+                       class="nav-link text-gray pl-4 submenu-link">Доставка</a>
+                </li>
+
+                {{-- Payments --}}
+                <li class="nav-item w-100">
+                    <a id="main-menu-content-payments" href="{{ route('admin.content.payments.edit') }}"
+                       class="nav-link text-gray pl-4 submenu-link">Оплата</a>
+                </li>
+
+                {{-- Return --}}
+                <li class="nav-item w-100">
+                    <a id="main-menu-content-return" href="{{ route('admin.content.return.edit') }}"
+                       class="nav-link text-gray pl-4 submenu-link">Возврат</a>
+                </li>
+
+                {{-- Warranty --}}
+                <li class="nav-item w-100">
+                    <a id="main-menu-content-warranty" href="{{ route('admin.content.warranty.edit') }}"
+                       class="nav-link text-gray pl-4 submenu-link">Гарантия</a>
+                </li>
+
             </ul>
 
         </li>

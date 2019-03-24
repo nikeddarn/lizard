@@ -252,9 +252,10 @@ class VendorCategoryController extends Controller
         }
 
         $vendorCategoryId = (int)request()->get('vendorCategoriesId');
+        $vendorId = (int)request()->get('vendor_id');
 
         if ($this->unlinkVendorCategoryManager->unlinkVendorCategory($vendorCategoryId)) {
-            return back();
+            return redirect(route('vendor.category.list', ['vendorId' => $vendorId]));
         } else {
             return back()->withErrors([trans('validation.product_in_stock')]);
         }

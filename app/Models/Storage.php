@@ -47,11 +47,27 @@ class Storage extends Model
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function storagePhones()
+    {
+        return $this->hasMany('App\Models\StoragePhone', 'storages_id', 'id');
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function city()
     {
         return $this->belongsTo('App\Models\City', 'cities_id', 'id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function workDays()
+    {
+        return $this->belongsToMany('App\Models\WorkDay', 'storage_work_day', 'storages_id', 'work_days_id')->withPivot('start_time', 'end_time');
     }
 
     /**

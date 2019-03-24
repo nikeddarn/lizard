@@ -1,5 +1,15 @@
 <div class="card p-5 mb-4">
 
+    <div class="custom-control custom-checkbox mb-4">
+        <input type="checkbox" id="show_available_products_only" name="show_available_products_only"
+               class="custom-control-input multi-inputs-checkbox"{{ $productData['show_available_products_only'] ? ' checked' : '' }}>
+        <label class="custom-control-label" for="show_available_products_only">Показывать только доступные продукты</label>
+    </div>
+
+</div>
+
+<div class="card p-5 mb-4">
+
     <div class="form-group mb-4">
         <label for="show-items-per-page">Количество продуктов на странице</label>
         <div class="row">

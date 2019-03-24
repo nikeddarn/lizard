@@ -70,7 +70,7 @@ class BrainInsertVendorProductManager extends InsertVendorProductManager
             ['vendor_product_id', '=', $vendorProductId],
         ])
             ->with(['product' => function($query){
-                $query->with('vendorProducts', 'stockStorages');
+                $query->with('vendorProducts', 'availableStorageProducts', 'availableVendorProducts', 'expectingStorageProducts', 'expectingVendorProducts');
             }])
             ->first();
     }

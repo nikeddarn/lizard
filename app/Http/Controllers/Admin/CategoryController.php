@@ -230,7 +230,7 @@ class CategoryController extends Controller
         // delete products
         if ($deleteProductSettings['delete_product_on_delete_category']) {
             // get children and self categories ids
-            $deletingCategoriesIds = $this->category->newQuery()->descendantsAndSelf($id)->get()->pluck('id')->toArray();
+            $deletingCategoriesIds = $this->category->newQuery()->descendantsAndSelf($id)->pluck('id')->toArray();
 
             // get deleting products
             $categoriesProducts = $this->product->newQuery()

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\Admin\Category\Real\UpdateVirtualCategoryRequest;
 use App\Http\Requests\Admin\Category\Virtual\StoreVirtualCategoryRequest;
+use App\Models\Attribute;
 use App\Models\AttributeValue;
 use App\Models\Category;
 use App\Models\VirtualCategory;
@@ -82,13 +83,21 @@ class VirtualCategoryController extends Controller
      * Store a newly created resource in storage.
      *
      * @param StoreVirtualCategoryRequest $request
+     * @param Attribute $attribute
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreVirtualCategoryRequest $request)
+    public function store(StoreVirtualCategoryRequest $request, Attribute $attribute)
     {
         if (Gate::denies('local-catalog-edit', auth('web')->user())) {
             abort(401);
         }
+
+        // update indexable property
+        $attribute->newQuery()
+            ->whereHas('attributeValues', function ($query) {
+                $query->where('id', request()->get('attribute_values_id'));
+            })
+            ->update(['indexable' => 1]);
 
         $attributes = $request->only(['categories_id', 'attribute_values_id', 'name_ru', 'name_uk', 'title_ru', 'title_uk', 'description_ru', 'description_uk', 'keywords_ru', 'keywords_uk', 'content_ru', 'content_uk']);
 

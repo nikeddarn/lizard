@@ -89,13 +89,9 @@ class MainPageController extends Controller
             }])
             ->first();
 
-        $pageTitle = $pageData->{'title_' . $locale};
-        $pageDescription = $pageData->{'description_' . $locale};
-        $pageKeywords = $pageData->{'keywords_' . $locale};
-
         $productGroups = $this->getProductGroups($locale);
 
-        return view('content.pages.main.index')->with(compact('pageTitle', 'pageDescription', 'pageKeywords', 'mainSlider', 'productGroups'));
+        return view('content.pages.main.index')->with(compact('pageData', 'mainSlider', 'productGroups'));
     }
 
     /**
@@ -180,7 +176,7 @@ class MainPageController extends Controller
     {
         foreach ($products as $product) {
             if ($course) {
-                $product->localPrice = (int)$product->{'price' . $userPriceGroup} * $course;
+                $product->localPrice = number_format($product->{'price' . $userPriceGroup} * $course);
             }
 
             $product->href = route('shop.product.index', ['url' => $product->url, 'locale' => $locale]);

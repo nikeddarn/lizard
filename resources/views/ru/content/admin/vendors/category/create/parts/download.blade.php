@@ -34,9 +34,8 @@
         <label for="download-product-max-age">Максимальный возраст товара для загрузки в магазин (мес)</label>
         <div class="row">
             <div class="col col-sm-6 col-md-5 col-xl-3">
-                <input id="download-product-max-age" class="form-control" type="number"
-                       name="download_product_max_age" min="1" max="60"
-                       step="1">
+                <input id="download-product-max-age" class="form-control" type="text"
+                       name="download_product_max_age">
             </div>
         </div>
     </div>

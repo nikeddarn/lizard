@@ -45,7 +45,7 @@
 
         </form>
 
-        {{--delete slide forms--}}
+        {{--delete group forms--}}
         @foreach($productGroups as $group)
             <form id="delete-group-form-{{ $group->id }}" class="delete-group-form" method="post"
                   action="{{ route('admin.product.group.delete') }}"

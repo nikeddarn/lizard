@@ -29,6 +29,15 @@ abstract class UpdateVendorProductManager
     protected $vendorProduct;
 
     /**
+     * UpdateVendorProductManager constructor.
+     * @param VendorProduct $vendorProduct
+     */
+    public function __construct(VendorProduct $vendorProduct)
+    {
+        $this->vendorProduct = $vendorProduct;
+    }
+
+    /**
      * Update vendor product price.
      * Update local product price.
      *

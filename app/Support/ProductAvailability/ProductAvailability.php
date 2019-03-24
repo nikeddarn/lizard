@@ -15,6 +15,17 @@ use Carbon\Carbon;
 class ProductAvailability
 {
     /**
+     * Is product available or expecting.
+     *
+     * @param Product $product
+     * @return bool
+     */
+    public function isProductAvailableOrExpecting(Product $product):bool
+    {
+        return (bool)$product->availableStorageProducts->count() || (bool)$product->availableVendorProducts->count() || $product->expectingStorageProducts->count() || $product->expectingVendorProducts->count();
+    }
+
+    /**
      * Is product available on any local or vendor storages.
      *
      * @param Product $product

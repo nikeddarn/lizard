@@ -53,7 +53,7 @@
 
     <div class="row form-group">
         <div class="col-sm-2">
-            <label class="required">Изображение</label>
+            <label>Изображение</label>
         </div>
         <div class="col-sm-8">
             @include('elements.input_image.index')

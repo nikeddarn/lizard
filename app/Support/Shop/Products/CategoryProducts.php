@@ -45,7 +45,7 @@ class CategoryProducts extends AbstractProduct
      * @param $user
      * @return Builder
      */
-    protected function addRelations(Builder $query, $user): Builder
+    protected function addRelations(Builder $query, $user = null): Builder
     {
         $query->with('primaryImage', 'productImages', 'actualBadges', 'availableStorageProducts', 'expectingStorageProducts', 'availableVendorProducts', 'expectingVendorProducts', 'availableProductStorages.city');
 

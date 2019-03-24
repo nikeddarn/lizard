@@ -39,8 +39,8 @@
                 <form class="delete-form" method="post" action="{{ route('vendor.category.delete') }}">
                     @csrf
                     @method('delete')
-                    <input type="hidden" name="vendorCategoriesId"
-                           value="{{ $vendorCategory->id }}">
+                    <input type="hidden" name="vendorCategoriesId" value="{{ $vendorCategory->id }}">
+                    <input type="hidden" name="vendor_id" value="{{ $vendor->id }}">
                     <button type="submit"
                             data-toggle="tooltip"
                             title="Удалить категорию и все товары" class="btn btn-danger ml-1">

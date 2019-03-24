@@ -7,10 +7,10 @@ use Illuminate\Support\Facades\Route;
  * ToDo this routes must be removed after setup completed !!!!!!!!!!!
  * ****************************************************************
  */
-Route::get('/setup', 'Setup\SetupController@setup');
-Route::get('/setup/users', 'Setup\SetupController@setupUsers');
-Route::get('/setup/vendors', 'Setup\SetupController@setupVendors');
-Route::get('/setup/pages', 'Setup\SetupController@setupStaticPages');
+//Route::get('/setup', 'Setup\SetupController@setup');
+//Route::get('/setup/users', 'Setup\SetupController@setupUsers');
+//Route::get('/setup/vendors', 'Setup\SetupController@setupVendors');
+//Route::get('/setup/pages', 'Setup\SetupController@setupStaticPages');
 
 // --------------------------------------------- Common Routes -------------------------------------------------
 
@@ -124,9 +124,14 @@ Route::get('/search/{locale?}', 'Shop\SearchController@results')->name('shop.sea
 
 // -------------------------------- Static pages -----------------------------------
 
-Route::get('/shop/delivery/{locale?}', 'Shop\PageController@delivery')->name('shop.delivery.index');
-Route::get('/shop/payments/{locale?}', 'Shop\PageController@payments')->name('shop.payments.index');
-Route::get('/shop/return/{locale?}', 'Shop\PageController@return')->name('shop.return.index');
-Route::get('/shop/warranty/{locale?}', 'Shop\PageController@warranty')->name('shop.warranty.index');
-Route::get('/shop/about/{locale?}', 'Shop\PageController@about')->name('shop.about.index');
-Route::get('/shop/contacts/{locale?}', 'Shop\PageController@contacts')->name('shop.contacts.index');
+Route::get('/shop/delivery/{locale?}', 'Pages\DeliveryPageController@index')->name('shop.delivery.index');
+
+Route::get('/shop/payments/{locale?}', 'Pages\PaymentsPageController@index')->name('shop.payments.index');
+
+Route::get('/shop/return/{locale?}', 'Pages\ReturnPageController@index')->name('shop.return.index');
+
+Route::get('/shop/warranty/{locale?}', 'Pages\WarrantyPageController@index')->name('shop.warranty.index');
+
+Route::get('/shop/about/{locale?}', 'Pages\AboutPageController@index')->name('shop.about.index');
+
+Route::get('/shop/contacts/{locale?}', 'Pages\ContactsPageController@index')->name('shop.contacts.index');

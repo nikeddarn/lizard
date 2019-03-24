@@ -54,8 +54,8 @@ class UpdateProductAvailability
             $this->productBadges->deleteProductBadge($product, ProductBadgesInterface::ENDING);
         }
 
-        // check is archive
-        if (!$product->stockStorages->count()) {
+        // delete or archive product if all vendor products are archived
+        if (!$this->productAvailability->isProductAvailableOrExpecting($product)) {
 
             $deleteProductOnVendorArchive = $this->settingsRepository->getProperty('vendor.delete_product')['delete_product_on_archive_vendor_product'];
 

@@ -20,43 +20,7 @@ $(document).ready(function () {
         }
     });
 
-    // ----------------------------------- Mega Menu Content ------------------------------------
-
-    //only for devices with hover event
-    if (!('ontouchstart' in window)) {
-
-        let megaMenuCategories = $('#mega-menu-categories');
-        let megaMenuSubcategories = $('#mega-menu-subcategories');
-
-        $(megaMenuCategories).find('a').hover(function () {
-            // don't handle current category
-            if ($(this).hasClass('show')) {
-                return;
-            }
-
-            let currentCategory = this;
-
-            // highlight current category
-            $(megaMenuCategories).find('.show').removeClass('show');
-            $(this).addClass('show');
-
-            // show current subcategories
-            $(megaMenuSubcategories).find('.mega-menu-subcategory.show').stop(true).animate({
-                opacity: 0
-            }, 200, null, function () {
-                $(this).removeClass('show');
-                $(megaMenuSubcategories).find('#mega-menu-children-' + $(currentCategory).attr('aria-controls').match(/\d+/)[0]).css('opacity', 0).addClass('show').stop(true).animate({
-                    opacity: 1
-                }, 200, function () {
-                    // align subcategories of current category with isotope
-                    $(megaMenuSubcategories).find('.grid').masonry();
-                });
-            });
-        })
-
-    }
-
-// ----------------------------- Activate dropdown-hover -----------------------------
+    // ----------------------------- Activate dropdown-hover -----------------------------
 
     let dropdownHover = $('.dropdown-hover');
 

@@ -159,7 +159,6 @@ class SitemapController extends Controller
         $siteMapItems = collect();
 
         $products = $this->product->newQuery()
-            ->where('published', 1)
             ->where('is_archive', 0)
             ->get();
 

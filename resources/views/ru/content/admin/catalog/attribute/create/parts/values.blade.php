@@ -3,7 +3,7 @@
 <div class="card p-5 mb-5 text-right">
     <div>
         <button class="btn btn-primary attribute-value-add-item" type="button">
-            <i class="fa fa-plus"></i>&nbsp;
+            <i class="svg-icon-larger" data-feather="plus"></i>
             <span>Добавить значение</span>
         </button>
     </div>

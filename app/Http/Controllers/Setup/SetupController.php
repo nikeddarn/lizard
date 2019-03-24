@@ -12,10 +12,12 @@ use App\Models\OrderStatus;
 use App\Models\Role;
 use App\Models\Slider;
 use App\Models\StaticPage;
+use App\Models\Storage;
 use App\Models\StorageDepartment;
 use App\Models\User;
 use App\Http\Controllers\Controller;
 use App\Models\Vendor;
+use App\Models\WorkDay;
 use App\Support\Vendors\VendorBroker;
 use Exception;
 
@@ -47,8 +49,9 @@ class SetupController extends Controller
     public function setup()
     {
         $this->fillLibraries();
-//        $this->insertLocalStorages();
-//        $this->insertVendors();
+        $this->insertLocalStorages();
+        $this->insertVendors();
+        $this->setupStaticPages();
 
         return view('elements.setup.setup_complete');
     }
@@ -98,7 +101,7 @@ class SetupController extends Controller
         }
 
         // create main slider
-        Slider::query()->create([
+        Slider::query()->firstOrCreate([
             'key' => 'main_page_top_slider',
             'name_ru' => 'Основной слайдер главной страницы',
             'name_uk' => 'Основний слайдер головної сторінки',
@@ -145,6 +148,11 @@ class SetupController extends Controller
         // fill order status
         foreach (require app_path('Http/Controllers/Setup/Libraries/order_status.php') as $orderStatus) {
             OrderStatus::query()->firstOrCreate($orderStatus);
+        }
+
+        // fill work days
+        foreach (require app_path('Http/Controllers/Setup/Libraries/work_days.php') as $workDay) {
+            WorkDay::query()->firstOrCreate($workDay);
         }
     }
 
@@ -194,10 +202,36 @@ class SetupController extends Controller
             'name_uk' => 'Київ',
         ]);
 
-        $city->storages()->firstOrCreate([
-            'name_ru' => 'Лукьяновка',
-            'name_uk' => 'Лук\'янівка',
-            'primary' => 1,
+        $storage = Storage::query()->where('name_ru', 'Лукьяновка')->first();
+
+        if (!$storage) {
+            $storage = Storage::query()->firstOrCreate([
+                'cities_id' => $city->id,
+                'name_ru' => 'Лукьяновка',
+                'name_uk' => 'Лук\'янівка',
+                'primary' => 1,
+                'address_ru' => 'Киев, улица Дегтяревская 21',
+                'address_uk' => 'Київ, вулиця Дегтярівська 21',
+                'longitude' => 30.461027,
+                'latitude' => 50.461107,
+            ]);
+        }
+
+
+        $storagePhones = ['(098) 096-57-72', '(066) 384-43-59', '(093) 956-59-23'];
+
+        foreach ($storagePhones as $phone) {
+            $storage->storagePhones()->firstOrCreate([
+                'phone' => $phone,
+            ]);
+        }
+
+        $workDayId = WorkDay::query()->where('name_ru', 'Пн - Пт')->first()->id;
+        $storage->workDays()->syncWithoutDetaching([
+            $workDayId => [
+                'start_time' => 9,
+                'end_time' => 18,
+            ],
         ]);
     }
 

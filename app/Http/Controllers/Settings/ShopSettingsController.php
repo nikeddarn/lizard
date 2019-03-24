@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Settings;
 
 use App\Contracts\Shop\ProductBadgesInterface;
 use App\Http\Requests\Admin\Settings\UpdateShopSettingsRequest;
+use App\Models\Product;
+use App\Support\ProductPublishing\ProductPublishManager;
 use App\Support\Settings\SettingsRepository;
 use App\Http\Controllers\Controller;
 
@@ -13,14 +15,26 @@ class ShopSettingsController extends Controller
      * @var SettingsRepository
      */
     private $settingsRepository;
+    /**
+     * @var ProductPublishManager
+     */
+    private $productPublishManager;
+    /**
+     * @var Product
+     */
+    private $product;
 
     /**
      * ShopSettingsController constructor.
      * @param SettingsRepository $settingsRepository
+     * @param ProductPublishManager $productPublishManager
+     * @param Product $product
      */
-    public function __construct(SettingsRepository $settingsRepository)
+    public function __construct(SettingsRepository $settingsRepository, ProductPublishManager $productPublishManager, Product $product)
     {
         $this->settingsRepository = $settingsRepository;
+        $this->productPublishManager = $productPublishManager;
+        $this->product = $product;
     }
 
     /**
@@ -36,6 +50,7 @@ class ShopSettingsController extends Controller
         ];
 
         $productData = [
+            'show_available_products_only' => $this->settingsRepository->getProperty('shop.show_available_products_only'),
             'show_products_per_page' => $this->settingsRepository->getProperty('shop.show_products_per_page'),
             'show_product_comments_per_page' => $this->settingsRepository->getProperty('shop.show_product_comments_per_page'),
             'recent_product_ttl' => $this->settingsRepository->getProperty('shop.recent_product_ttl'),
@@ -71,6 +86,10 @@ class ShopSettingsController extends Controller
         ]);
 
         // shop
+        $oldShowAvailableProductsOnly = $this->settingsRepository->getProperty('shop.show_available_products_only');
+        $newShowAvailableProductsOnly = $request->has('show_available_products_only');
+
+        $this->settingsRepository->setProperty('shop.show_available_products_only', $newShowAvailableProductsOnly);
         $this->settingsRepository->setProperty('shop.show_products_per_page', $request->get('show_products_per_page'));
         $this->settingsRepository->setProperty('shop.show_product_comments_per_page', $request->get('show_product_comments_per_page'));
         $this->settingsRepository->setProperty('shop.recent_product_ttl', $request->get('recent_product_ttl'));
@@ -105,8 +124,22 @@ class ShopSettingsController extends Controller
             'max_values_count' => $request->get('max_items_to_open_filter'),
         ]);
 
+        if ($oldShowAvailableProductsOnly != $newShowAvailableProductsOnly){
+            $this->updateProductPublishing();
+        }
+
         return redirect(route('admin.settings.shop.edit'))->with([
             'successful' => true,
         ]);
+    }
+
+    /**
+     * Update product publishing.
+     */
+    private function updateProductPublishing()
+    {
+        $products = $this->product->newQuery()->get();
+
+        $this->productPublishManager->updateProductsPublish($products);
     }
 }

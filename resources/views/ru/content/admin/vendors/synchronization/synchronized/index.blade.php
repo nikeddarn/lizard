@@ -4,9 +4,7 @@
 
     @include('content.admin.vendors.synchronization.synchronized.parts.header')
 
-    @if($errors->has('keepLinked'))
-        <div class="alert alert-info">Удалены не все товары. Некоторые продукты присутствуют на складе или в заказах</div>
-        @endif
+    @include('elements.errors.admin_error.index')
 
     @if($synchronizedCategories->count())
         <div class="card card-body my-4">

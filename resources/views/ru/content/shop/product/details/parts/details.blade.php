@@ -8,6 +8,10 @@
     </h2>
 @endif
 
+@if($product->is_archive)
+    <h2 class="text-danger bold my-4">Архивный</h2>
+@endif
+
 <form id="add-to-cart" method="post" action="{{ route('shop.cart.count') }}">
     @csrf
     <input type="hidden" name="product_id[]" value="{{ $product->id }}">
@@ -63,27 +67,21 @@
                                                             :&emsp;{{ $storage->name_ru }}</span>
                         @endforeach
                     </div>
-                @elseif($product->isAvailable)
-                    <div class="text-gray">
-                        <i class="svg-icon text-success" data-feather="check-circle"></i>
-                        <span class="ml-2">Готов к отгрузке</span>
-                    </div>
-                @elseif($product->isExpectedToday)
-                    <div class="text-gray">
-                        <i class="svg-icon text-warning" data-feather="clock"></i>
-                        <span class="ml-2">Ожидается сегодня</span>
-                    </div>
-                @elseif($product->expectedAt)
-                    <div class="text-gray">
-                        <i class="svg-icon text-warning" data-feather="clock"></i>
-                        <span
-                            class="ml-2">Ожидается {{ $product->expectedAt->diffForHumans() }}</span>
-                    </div>
+                @elseif(!empty($product->isAvailable))
+                    <i class="svg-icon text-success" data-feather="check-circle"></i>
+                    <span class="ml-2">Готов к отгрузке</span>
+                @elseif(!empty($product->isExpectedToday))
+                    <i class="svg-icon text-warning" data-feather="clock"></i>
+                    <span class="ml-2">Ожидается сегодня</span>
+                @elseif(!empty($product->isExpectedTomorrow))
+                    <i class="svg-icon text-warning" data-feather="clock"></i>
+                    <span class="ml-2">Ожидается завтра</span>
+                @elseif(!empty($product->expectedAt))
+                    <i class="svg-icon text-warning" data-feather="clock"></i>
+                    <span class="ml-2">Ожидается {{ $product->expectedAt->diffForHumans() }}</span>
                 @else
-                    <div class="text-gray">
-                        <i class="svg-icon text-danger" data-feather="alert-circle"></i>
-                        <span class="ml-2">Нет в наличии</span>
-                    </div>
+                    <i class="svg-icon text-danger" data-feather="alert-circle"></i>
+                    <span class="ml-2">Нет в наличии</span>
                 @endif
             </td>
         </tr>
@@ -118,7 +116,7 @@
 
     <div class="row d-sm-flex align-items-end justify-content-around my-4">
 
-        @if($product->price1)
+        @if($product->cartAble)
             <div class="col-12 col-sm-auto">
                 <input id="productQuantity" class="d-inline-block" name="count[]" required
                        value="{{ old('quantity', 1) }}"
@@ -128,7 +126,7 @@
 
         <div class="col-12 col-sm-auto mt-4">
             <div id="product-details-actions" class="btn-group d-flex" role="group">
-                @if($product->price1)
+                @if($product->cartAble)
                     <button type="submit" class="btn btn-primary">Добавить в корзину</button>
                 @endif
                 <a href="{{ route('user.favourites.remove', ['id' => $product->id]) }}"

@@ -1,11 +1,13 @@
 <div class="row">
 
-    <div class="col-auto d-none d-lg-block">
-        <div class="card card-body">
-            <img class="table-image img-thumbnail" src="{{ url('/storage/' . $category->image) }}"
-                 alt="category icon">
+    @if($category->image)
+        <div class="col-auto d-none d-lg-block">
+            <div class="card card-body">
+                <img class="table-image img-thumbnail" src="{{ url('/storage/' . $category->image) }}"
+                     alt="category icon">
+            </div>
         </div>
-    </div>
+    @endif
 
     <div class="col">
 

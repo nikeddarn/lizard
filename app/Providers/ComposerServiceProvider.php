@@ -22,6 +22,7 @@ class ComposerServiceProvider extends ServiceProvider
             'layouts.shop',
             'layouts.product',
             'layouts.user',
+            'content.pages.main.index',
         ], CommonDataComposer::class);
 
         View::composer('layouts.admin', CommonAdminDataComposer::class);

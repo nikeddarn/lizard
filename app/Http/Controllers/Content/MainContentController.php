@@ -10,6 +10,7 @@ use App\Models\Slide;
 use App\Models\Slider;
 use App\Models\StaticPage;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Gate;
 
 class MainContentController extends Controller
 {
@@ -60,6 +61,10 @@ class MainContentController extends Controller
      */
     public function edit()
     {
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
+
         $pageData = $this->staticPage->newQuery()->where('route', self::MAIN_PAGE_ROUTE_NAME)
             ->first();
 
@@ -83,6 +88,10 @@ class MainContentController extends Controller
      */
     public function updateSeo(UpdateMainPageSeoDataRequest $request)
     {
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
+
         $pageData = [
             'title_ru' => $request->get('title_ru'),
             'title_uk' => $request->get('title_uk'),
@@ -109,6 +118,10 @@ class MainContentController extends Controller
      */
     public function sortSlides(SortSlidesRequest $request)
     {
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
+
         $slidesIds = $request->get('slide_id');
 
         foreach ($slidesIds as $index => $slideId) {
@@ -130,6 +143,10 @@ class MainContentController extends Controller
      */
     public function sortGroups(SortGroupsRequest $request)
     {
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
+
         $groupsIds = $request->get('group_id');
 
         foreach ($groupsIds as $index => $groupId) {

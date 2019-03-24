@@ -79,9 +79,6 @@
 
             // activate Touch Spin
             $("#download-product-max-age").TouchSpin({
-                min: 0,
-                max: 60,
-                step: 1,
                 buttondown_class: "btn btn-primary h-100",
                 buttonup_class: "btn btn-primary h-100"
             });

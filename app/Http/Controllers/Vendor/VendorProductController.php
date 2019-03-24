@@ -84,9 +84,11 @@ class VendorProductController extends Controller
 
         // calculate product profit
         foreach ($downloadedVendorProducts as $vendorProduct) {
-            if ($vendorProduct->price && $vendorProduct->product->price1) {
-                $vendorProduct->profit = number_format($vendorProduct->product->price1 - $vendorProduct->price, 2);
-                $vendorProduct->profitPercents = number_format($vendorProduct->profit / $vendorProduct->price * 100, 2);
+            if ($vendorProduct->price > 0 && $vendorProduct->product->price1 > 0) {
+                $profitSum = $vendorProduct->product->price1 - $vendorProduct->price;
+                $profitPercents = $profitSum / $vendorProduct->price * 100;
+                $vendorProduct->profit = number_format($profitSum, 2);
+                $vendorProduct->profitPercents = number_format($profitPercents, 2);
             } else {
                 $vendorProduct->profit = null;
                 $vendorProduct->profitPercents = null;

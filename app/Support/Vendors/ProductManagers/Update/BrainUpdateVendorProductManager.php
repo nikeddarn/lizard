@@ -7,6 +7,7 @@ namespace App\Support\Vendors\ProductManagers\Update;
 
 
 use App\Contracts\Vendor\VendorInterface;
+use App\Models\VendorProduct;
 use App\Support\Vendors\Adapters\Brain\BrainProductPriceAdapter;
 use App\Support\Vendors\Adapters\Brain\BrainProductStocksDataAdapter;
 use App\Support\Vendors\Providers\BrainUpdateProductProvider;
@@ -38,9 +39,11 @@ class BrainUpdateVendorProductManager extends UpdateVendorProductManager
      * @param BrainUpdateProductProvider $provider
      * @param BrainProductPriceAdapter $productPriceAdapter
      * @param BrainProductStocksDataAdapter $stocksDataAdapter
+     * @param VendorProduct $vendorProduct
      */
-    public function __construct(BrainUpdateProductProvider $provider, BrainProductPriceAdapter $productPriceAdapter, BrainProductStocksDataAdapter $stocksDataAdapter)
+    public function __construct(BrainUpdateProductProvider $provider, BrainProductPriceAdapter $productPriceAdapter, BrainProductStocksDataAdapter $stocksDataAdapter, VendorProduct $vendorProduct)
     {
+        parent::__construct($vendorProduct);
 
         $this->provider = $provider;
         $this->productPriceAdapter = $productPriceAdapter;
@@ -61,7 +64,7 @@ class BrainUpdateVendorProductManager extends UpdateVendorProductManager
                 ['vendor_product_id', '=', $vendorProductId],
             ])
             ->with(['product' => function($query){
-                $query->with('vendorProducts', 'stockStorages');
+                $query->with('vendorProducts', 'availableStorageProducts', 'availableVendorProducts', 'expectingStorageProducts', 'expectingVendorProducts');
             }])
             ->firstOrFail();
     }

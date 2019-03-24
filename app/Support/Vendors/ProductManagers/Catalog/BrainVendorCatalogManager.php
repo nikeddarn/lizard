@@ -45,16 +45,13 @@ class BrainVendorCatalogManager extends VendorCatalogManager
 
         foreach ($categoriesData as $category) {
             // get only real categories
-            if ($category->realcat == 0) {
+            $vendorCategory = new stdClass();
 
-                $vendorCategory = new stdClass();
+            $vendorCategory->id = (int)$category->categoryID;
+            $vendorCategory->parentId = (int)$category->parentID;
+            $vendorCategory->name = $category->name;
 
-                $vendorCategory->id = (int)$category->categoryID;
-                $vendorCategory->parentId = (int)$category->parentID;
-                $vendorCategory->name = $category->name;
-
-                $vendorCategories[] = $vendorCategory;
-            }
+            $vendorCategories[] = $vendorCategory;
         }
 
         return $vendorCategories;

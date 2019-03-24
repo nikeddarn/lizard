@@ -44,7 +44,10 @@
 {{-- Laravel token--}}
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
-{{-- Yield custom page's styles if exists--}}
+{{-- Yield custom page's meta section if exists--}}
+@yield('meta')
+
+{{-- Yield custom page's styles section if exists--}}
 @yield('styles')
 
 {{-- Application css file --}}
@@ -80,6 +83,107 @@
     $(document).ready(function () {
         // replace feather icons with svg
         feather.replace();
+
+        // -------------------------------- Activate mega menu -------------------------------------
+
+        let headCatalogDropdown = ('#head-catalog-dropdown');
+        let leftMenuCategories = $('#left-menu-categories');
+
+        // disable open mega menu onclick events
+        if (!('ontouchstart' in window)) {
+            $(headCatalogDropdown).find('.dropdown-toggle').click(function (e) {
+                e.stopImmediatePropagation();
+            });
+        }
+
+        // activate and deactivate mega menu on hover mega menu dropdown or left menu categories
+        $(headCatalogDropdown).hover(function (event) {
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+
+            activateMegaMenu(headCatalogDropdown);
+        }, function () {
+            deactivateMegaMenu(headCatalogDropdown);
+        });
+
+        function activateMegaMenu(headCatalogDropdown) {
+            $(headCatalogDropdown).addClass('show').find('.dropdown-menu').addClass('show').css({
+                'opacity': 0,
+                'top': '50%'
+            }).stop(true).animate({
+                opacity: 1,
+                'top': '100%'
+            }, 300, null, function () {
+                //
+            });
+        }
+
+        function deactivateMegaMenu(headCatalogDropdown) {
+            $(headCatalogDropdown).removeClass('show');
+            $(headCatalogDropdown).find('.dropdown-menu').removeClass('show');
+        }
+
+        // ----------------------------------- Mega Menu Content ------------------------------------
+
+        $('.main-menu-category').hover(function (event) {
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+
+            let oldActiveSubcategory = $('.main-menu-subcategory.show');
+
+            let categoryId = $(this).data('category-id');
+            let newActiveSubcategory = $('#mega-menu-subcategories').find('#mega-menu-children-' + categoryId);
+
+            // highlight current category
+            $('.main-menu-category.show').removeClass('show');
+            $(this).addClass('show');
+
+            if (oldActiveSubcategory) {
+                changeShowingSubcategory(oldActiveSubcategory, newActiveSubcategory);
+            } else {
+                activateSubcategory(newActiveSubcategory);
+            }
+        }, function (event) {
+            if (!$(event.relatedTarget).closest('#head-catalog-dropdown').length) {
+                let headCatalogDropdown = ('#head-catalog-dropdown');
+                deactivateMegaMenu(headCatalogDropdown);
+            }
+        });
+
+        function changeShowingSubcategory(oldActiveSubcategory, newActiveSubcategory) {
+            if (oldActiveSubcategory.is(newActiveSubcategory)) {
+                return;
+            }
+
+            if (oldActiveSubcategory) {
+                $(oldActiveSubcategory).stop(true).animate({
+                    opacity: 0
+                }, 100, null, function () {
+                    $(oldActiveSubcategory).removeClass('d-block show').addClass('d-none');
+                    activateSubcategory(newActiveSubcategory);
+                });
+            } else {
+                activateSubcategory(newActiveSubcategory);
+            }
+        }
+
+        function activateSubcategory(subcategory) {
+            let currentGrid = $(subcategory).find('.grid');
+
+            $(subcategory).css('opacity', 0).removeClass('d-none').addClass('d-block show');
+
+            // layout complete handler
+            $(currentGrid).off('layoutComplete').on('layoutComplete', function () {
+                $(subcategory).stop(true).animate({
+                    opacity: 1
+                }, 150);
+            });
+
+
+            $(currentGrid).masonry({
+                transitionDuration: 0
+            });
+        }
     });
 
 </script>
