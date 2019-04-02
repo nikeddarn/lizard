@@ -165,7 +165,7 @@ class MultiFilterCategoryController extends Controller
             ->with('products')->firstOrFail();
 
         if (!$category->isLeaf()) {
-            abort(422);
+            abort(404);
         }
 
         return $category;
@@ -185,7 +185,7 @@ class MultiFilterCategoryController extends Controller
             ->get();
 
         if ($selectedAttributeValues->count() < 2) {
-            abort(422);
+            abort(404);
         }
 
         return $selectedAttributeValues;

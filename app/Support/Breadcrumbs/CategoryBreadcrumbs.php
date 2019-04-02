@@ -53,7 +53,7 @@ class CategoryBreadcrumbs
         $routeLocale = $this->request->route()->parameter('locale');
 
         // get breadcrumbs' categories
-        $breadcrumbsCategories = $this->category->newQuery()->ancestorsAndSelf($categoryId);
+        $breadcrumbsCategories = $this->category->newQuery()->defaultOrder()->ancestorsAndSelf($categoryId);
 
         foreach ($breadcrumbsCategories as $category) {
             if ($category->isLeaf()) {

@@ -46,7 +46,7 @@ class CategoryController extends Controller
         $category = $this->category->newQuery()->where('url', $url)->firstOrFail();
 
         if ($category->isLeaf()){
-            abort(422);
+            abort(404);
         }
 
         // create breadcrumbs

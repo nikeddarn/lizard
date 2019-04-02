@@ -9,7 +9,6 @@ use App\Models\Product;
 use Carbon\Carbon;
 use App\Support\ExchangeRates\ExchangeRates;
 use App\Support\ProductAvailability\ProductAvailability;
-use App\Support\ProductPrices\UserProductPrice;
 
 abstract class AbstractCartProduct
 {
@@ -18,10 +17,6 @@ abstract class AbstractCartProduct
      */
     protected $exchangeRates;
     /**
-     * @var UserProductPrice
-     */
-    protected $productPrice;
-    /**
      * @var ProductAvailability
      */
     protected $productAvailability;
@@ -29,13 +24,11 @@ abstract class AbstractCartProduct
     /**
      * CategoryProductsCreator constructor.
      * @param ExchangeRates $exchangeRates
-     * @param UserProductPrice $productPrice
      * @param ProductAvailability $productAvailability
      */
-    public function __construct(ExchangeRates $exchangeRates, UserProductPrice $productPrice, ProductAvailability $productAvailability)
+    public function __construct(ExchangeRates $exchangeRates, ProductAvailability $productAvailability)
     {
         $this->exchangeRates = $exchangeRates;
-        $this->productPrice = $productPrice;
         $this->productAvailability = $productAvailability;
     }
 
@@ -45,12 +38,12 @@ abstract class AbstractCartProduct
      *
      * @param Product $product
      * @param float $exchangeRate
-     * @param $user
+     * @param string $productPriceColumn
      */
-    protected function createProductPrice(Product $product, float $exchangeRate, $user)
+    protected function createProductPrice(Product $product, float $exchangeRate, string $productPriceColumn)
     {
         // product prices
-        $productPrice = $this->productPrice->getUserProductPrice($product, $user);
+        $productPrice = $product->$productPriceColumn;
 
         if ($productPrice && $exchangeRate) {
             $product->localPrice = $productPrice * $exchangeRate;

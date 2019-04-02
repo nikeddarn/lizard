@@ -3,14 +3,13 @@
 
     @csrf
 
-    <div class="row">
+    <div class="row my-4 custom-form">
 
         <div class="col-sm-12 col-md-6 form-group{{ $errors->has('name') ? ' has-error' : '' }}">
-            <label for="name">Ваше имя</label>
+            <label class="bold text-gray-hover" for="name">Ваше имя</label>
             <div>
                 <input id="name" type="text" class="form-control" name="name"
-                       value="{{ old('name', $userProfile->name) }}" required
-                       autofocus>
+                       value="{{ old('name', $userProfile->name) }}" required>
                 @if ($errors->has('name'))
                     <span class="help-block">
                     <strong>{{ $errors->first('name') }}</strong>
@@ -20,7 +19,7 @@
         </div>
 
         <div class="col-sm-12 col-md-6 form-group{{ $errors->has('avatar') ? ' has-error' : '' }}">
-            <label for="avatar">Аватар пользователя</label>
+            <label class="bold text-gray-hover" for="avatar">Аватар пользователя</label>
             <div>
                 @include('elements.input_image.index', ['inputFileFieldName' => 'avatar'])
                 @if ($errors->has('avatar'))
@@ -32,11 +31,10 @@
         </div>
 
         <div class="col-sm-12 col-md-6 form-group{{ $errors->has('email') ? ' has-error' : '' }}">
-            <label for="email">E-Mail Адрес</label>
+            <label class="bold text-gray-hover" for="email">E-Mail Адрес</label>
             <div>
                 <input id="email" type="email" class="form-control" name="email"
-                       value="{{ old('email', $userProfile->email) }}" required
-                       autofocus>
+                       value="{{ old('email', $userProfile->email) }}" required>
                 @if ($errors->has('email'))
                     <span class="help-block">
                     <strong>{{ $errors->first('email') }}</strong>
@@ -46,7 +44,7 @@
         </div>
 
         <div class="col-sm-12 col-md-6 form-group{{ $errors->has('phone') ? ' has-error' : '' }}">
-            <label for="phone">Номер Телефона</label>
+            <label class="bold text-gray-hover" for="phone">Номер Телефона</label>
             <div>
                 <input id="phone" type="text" class="form-control" name="phone"
                        value="{{ old('phone', $userProfile->phone) }}">
@@ -60,10 +58,9 @@
 
     </div>
 
-    <div class="my-4 text-right">
+    <div class="my-4">
         <button type="submit" class="btn btn-primary">
-            <i class="svg-icon-larger" data-feather="save"></i>
-            <span class="ml-2">Сохранить изменения</span>
+            <span class="ml-2">Обновить профиль</span>
         </button>
     </div>
 

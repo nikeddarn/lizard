@@ -8,6 +8,9 @@ return [
     // items count per page on shop pages
     'show_products_per_page' => 24,
 
+    // items count per page on shop pages
+    'show_orders_per_page' => 18,
+
     // product comments count per page
     'show_product_comments_per_page' => 8,
 

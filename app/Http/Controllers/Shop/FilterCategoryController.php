@@ -187,7 +187,7 @@ class FilterCategoryController extends Controller
         $attributeValues = $this->attributeValue->newQuery()->where('url', $filterItemUrl)->with('attribute')->get();
 
         if ($attributeValues->count() !== 1) {
-            abort(422);
+            abort(404);
         }
 
         return $attributeValues;
@@ -211,7 +211,7 @@ class FilterCategoryController extends Controller
             ->firstOrFail();
 
         if (!$category->isLeaf()) {
-            abort(422);
+            abort(404);
         }
 
         return $category;

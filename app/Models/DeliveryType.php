@@ -17,6 +17,13 @@ class DeliveryType extends Model
     protected $table = 'delivery_types';
 
     /**
+     * Non auto incrementing primary key.
+     *
+     * @var bool
+     */
+    public $incrementing = false;
+
+    /**
      * The attributes that aren't mass assignable.
      *
      * @var array

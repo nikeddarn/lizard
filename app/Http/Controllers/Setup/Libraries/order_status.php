@@ -8,33 +8,39 @@ use App\Contracts\Order\OrderStatusInterface;
 
 return [
     [
-        'interface_id' => OrderStatusInterface::HANDLING,
+        'id' => OrderStatusInterface::HANDLING,
         'name_ru' => 'Обрабатывается',
         'name_uk' => 'Обробляється',
+        'class' => 'warning',
     ],
     [
-        'interface_id' => OrderStatusInterface::COLLECTING,
+        'id' => OrderStatusInterface::COLLECTING,
         'name_ru' => 'Собирается',
         'name_uk' => 'Збирається',
+        'class' => 'info',
     ],
     [
-        'interface_id' => OrderStatusInterface::COLLECTED,
+        'id' => OrderStatusInterface::COLLECTED,
         'name_ru' => 'Готов к отгрузке',
         'name_uk' => 'Готовий до відвантаження',
+        'class' => 'info',
     ],
     [
-        'interface_id' => OrderStatusInterface::DELIVERING,
+        'id' => OrderStatusInterface::DELIVERING,
         'name_ru' => 'На доставке',
         'name_uk' => 'На доставці',
+        'class' => 'info',
     ],
     [
-        'interface_id' => OrderStatusInterface::DELIVERED,
-        'name_ru' => 'Доставлен',
-        'name_uk' => 'Доставлений',
+        'id' => OrderStatusInterface::DELIVERED,
+        'name_ru' => 'Отгружен',
+        'name_uk' => 'Відвантажено',
+        'class' => 'success',
     ],
     [
-        'interface_id' => OrderStatusInterface::CANCELLED,
+        'id' => OrderStatusInterface::CANCELLED,
         'name_ru' => 'Отменен',
         'name_uk' => 'Скасовано',
+        'class' => 'danger',
     ],
 ];

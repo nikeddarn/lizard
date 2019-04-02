@@ -6,7 +6,7 @@
 
         <div class="card my-3">
 
-            <div class="full-card">
+            <div class="full-cart">
                 <div class="card-header border-bottom bg-white p-0 d-flex justify-content-center align-items-center">
                     @include('content.shop.cart.parts.header')
                 </div>

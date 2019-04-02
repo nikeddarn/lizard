@@ -138,7 +138,7 @@ class ShopSettingsController extends Controller
      */
     private function updateProductPublishing()
     {
-        $products = $this->product->newQuery()->get();
+        $products = $this->product->newQuery()->with('availableStorageProducts', 'availableVendorProducts', 'expectingStorageProducts', 'expectingVendorProducts', 'vendorProducts')->get();
 
         $this->productPublishManager->updateProductsPublish($products);
     }

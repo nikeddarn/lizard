@@ -8,18 +8,18 @@ namespace App\Support\Vendors\ProductManagers\Update;
 
 use App\Contracts\Vendor\VendorInterface;
 use App\Models\VendorProduct;
+use App\Support\ImageHandlers\ProductImageHandler;
+use App\Support\Vendors\Adapters\Brain\BrainProductImagesDataAdapter;
 use App\Support\Vendors\Adapters\Brain\BrainProductPriceAdapter;
 use App\Support\Vendors\Adapters\Brain\BrainProductStocksDataAdapter;
 use App\Support\Vendors\Providers\BrainUpdateProductProvider;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use stdClass;
 
 class BrainUpdateVendorProductManager extends UpdateVendorProductManager
 {
-    /**
-     * @var string
-     */
-    const USD_COURSE_CACHE_KEY = 'vendor_' . VendorInterface::BRAIN . '_session_id';
 
     /**
      * @var BrainUpdateProductProvider
@@ -33,6 +33,10 @@ class BrainUpdateVendorProductManager extends UpdateVendorProductManager
      * @var BrainProductStocksDataAdapter
      */
     private $stocksDataAdapter;
+    /**
+     * @var BrainProductImagesDataAdapter
+     */
+    private $imagesDataAdapter;
 
     /**
      * BrainUpdateVendorProductPriceManager constructor.
@@ -40,21 +44,25 @@ class BrainUpdateVendorProductManager extends UpdateVendorProductManager
      * @param BrainProductPriceAdapter $productPriceAdapter
      * @param BrainProductStocksDataAdapter $stocksDataAdapter
      * @param VendorProduct $vendorProduct
+     * @param BrainProductImagesDataAdapter $imagesDataAdapter
+     * @param ProductImageHandler $productImageHandler
      */
-    public function __construct(BrainUpdateProductProvider $provider, BrainProductPriceAdapter $productPriceAdapter, BrainProductStocksDataAdapter $stocksDataAdapter, VendorProduct $vendorProduct)
+    public function __construct(BrainUpdateProductProvider $provider, BrainProductPriceAdapter $productPriceAdapter, BrainProductStocksDataAdapter $stocksDataAdapter, VendorProduct $vendorProduct, BrainProductImagesDataAdapter $imagesDataAdapter, ProductImageHandler $productImageHandler)
     {
-        parent::__construct($vendorProduct);
+        parent::__construct($vendorProduct, $productImageHandler);
 
         $this->provider = $provider;
         $this->productPriceAdapter = $productPriceAdapter;
         $this->stocksDataAdapter = $stocksDataAdapter;
+        $this->vendorProduct = $vendorProduct;
+        $this->imagesDataAdapter = $imagesDataAdapter;
     }
 
     /**
      * Get vendor product.
      *
      * @param int $vendorProductId
-     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model
+     * @return Builder|Model
      */
     protected function getVendorProduct(int $vendorProductId)
     {
@@ -64,7 +72,7 @@ class BrainUpdateVendorProductManager extends UpdateVendorProductManager
                 ['vendor_product_id', '=', $vendorProductId],
             ])
             ->with(['product' => function($query){
-                $query->with('vendorProducts', 'availableStorageProducts', 'availableVendorProducts', 'expectingStorageProducts', 'expectingVendorProducts');
+                $query->with('primaryImage', 'vendorProducts', 'availableStorageProducts', 'availableVendorProducts', 'expectingStorageProducts', 'expectingVendorProducts');
             }])
             ->firstOrFail();
     }
@@ -87,8 +95,21 @@ class BrainUpdateVendorProductManager extends UpdateVendorProductManager
 
         // prepare vendor product stocks data
         $this->vendorProductStocksData = $this->stocksDataAdapter->prepareVendorProductStocksData($vendorProductData);
+    }
 
+    /**
+     * Prepare product images for update.
+     *
+     * @param int $vendorProductId
+     * @throws Exception
+     */
+    protected function prepareProductImagesData(int $vendorProductId)
+    {
+        // get content data
+        $productContentData = $this->provider->getContentData($vendorProductId);
 
+        // set product images
+        $this->imagesData = $this->imagesDataAdapter->prepareVendorProductImagesData($productContentData->images);($productContentData->images);
     }
 
     /**

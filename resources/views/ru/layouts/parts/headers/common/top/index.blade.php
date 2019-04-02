@@ -15,7 +15,7 @@
             </div>
 
             <div class="col-auto">
-                @if($user)
+                @if(auth('web')->check())
                     @include('layouts.parts.headers.common.top.parts.user')
                 @else
                     @include('layouts.parts.headers.common.top.parts.login')

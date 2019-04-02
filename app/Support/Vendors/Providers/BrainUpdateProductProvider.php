@@ -37,4 +37,18 @@ class BrainUpdateProductProvider extends BrainProvider
             return "currencies/$sessionId";
         });
     }
+
+    /**
+     * Get product content data.
+     *
+     * @param int $vendorProductId
+     * @return mixed
+     * @throws Exception
+     */
+    public function getContentData(int $vendorProductId)
+    {
+        return $this->getSingleResponse('POST', function ($sessionId) use ($vendorProductId) {
+            return "products/content/$sessionId?lang=ru";
+        }, ['body' => "lang=ru&productIDs=$vendorProductId"]);
+    }
 }

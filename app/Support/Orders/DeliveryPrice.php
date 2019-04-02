@@ -28,10 +28,10 @@ class DeliveryPrice
      * Calculate delivery price.
      *
      * @param $user
-     * @param float $orderAmount
+     * @param float $orderAmountUah
      * @return int
      */
-    public function calculateDeliveryPrice($user, float $orderAmount):int
+    public function calculateDeliveryPrice($user, float $orderAmountUah):int
     {
         $deliverySettings = $this->settingsRepository->getProperty('shop.order.delivery');
 
@@ -41,10 +41,10 @@ class DeliveryPrice
         }
 
         $freeDeliveryFromSum = $deliverySettings['free_delivery_from_uah_sum'];
-        if ($freeDeliveryFromSum !== null && $orderAmount >= $freeDeliveryFromSum){
+        if ($freeDeliveryFromSum !== null && $orderAmountUah >= $freeDeliveryFromSum){
             return 0;
         }
 
-        return $deliverySettings['delivery_uah_price'];
+        return $deliverySettings['delivery_uah_price'] ? $deliverySettings['delivery_uah_price'] : 0;
     }
 }

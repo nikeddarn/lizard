@@ -7,9 +7,12 @@
 
             <tr>
                 <td class="d-inline-block d-md-table-cell cart-img nostretch">
-                    <a href="{{ $product->href }}">
-                        <img src="{{ url('/storage/' . $product->primaryImage->small) }}" alt="{{ $product->name_ru }}">
-                    </a>
+                    @if($product->primaryImage)
+                        <a href="{{ $product->href }}">
+                            <img src="{{ url('/storage/' . $product->primaryImage->small) }}"
+                                 alt="{{ $product->name_ru }}">
+                        </a>
+                    @endif
                 </td>
                 <td class="d-inline-block d-md-table-cell cart-title">
                     <a href="{{ $product->href }}" class="bold d-inline-block" title="{{ $product->name_ru }}">
@@ -70,7 +73,7 @@
     <div class="text-center">
         <small class="counter">СУММА</small>
         <h3 class="bold text-gray-hover">{{ $amount }} грн</h3>
-        <a href="{{ route('shop.order.create', ['locale' => app()->getLocale() === config('app.canonical_locale') ? null : app()->getLocale()]) }}"
+        <a href="{{ route('shop.checkout.create', ['locale' => app()->getLocale() === config('app.canonical_locale') ? null : app()->getLocale()]) }}"
            class="btn btn-primary rounded-pill btn-lg">
             <span>Доставка</span>
             <i class="svg-icon-larger" data-feather="arrow-right"></i>

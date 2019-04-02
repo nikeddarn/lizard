@@ -49,9 +49,9 @@ class SetupController extends Controller
     public function setup()
     {
         $this->fillLibraries();
-        $this->insertLocalStorages();
-        $this->insertVendors();
-        $this->setupStaticPages();
+//        $this->insertLocalStorages();
+//        $this->insertVendors();
+//        $this->setupStaticPages();
 
         return view('elements.setup.setup_complete');
     }
@@ -115,30 +115,30 @@ class SetupController extends Controller
      */
     private function fillLibraries()
     {
-        // fill roles
-        foreach (require app_path('Http/Controllers/Setup/Libraries/roles.php') as $role) {
-            Role::query()->firstOrCreate($role);
-        }
-
-        // fill storages departments
-        foreach (require app_path('Http/Controllers/Setup/Libraries/storage_departments.php') as $department) {
-            StorageDepartment::query()->firstOrCreate($department);
-        }
-
-        // fill badges
-        foreach (require app_path('Http/Controllers/Setup/Libraries/product_badges.php') as $badge) {
-            Badge::query()->firstOrCreate($badge);
-        }
-
-        // fill attributes
-        foreach (require app_path('Http/Controllers/Setup/Libraries/attributes.php') as $attribute) {
-            Attribute::query()->firstOrCreate($attribute);
-        }
-
-        // fill cast product methods
-        foreach (require app_path('Http/Controllers/Setup/Libraries/cast_product_methods.php') as $method) {
-            CastProductMethod::query()->firstOrCreate($method);
-        }
+//        // fill roles
+//        foreach (require app_path('Http/Controllers/Setup/Libraries/roles.php') as $role) {
+//            Role::query()->firstOrCreate($role);
+//        }
+//
+//        // fill storages departments
+//        foreach (require app_path('Http/Controllers/Setup/Libraries/storage_departments.php') as $department) {
+//            StorageDepartment::query()->firstOrCreate($department);
+//        }
+//
+//        // fill badges
+//        foreach (require app_path('Http/Controllers/Setup/Libraries/product_badges.php') as $badge) {
+//            Badge::query()->firstOrCreate($badge);
+//        }
+//
+//        // fill attributes
+//        foreach (require app_path('Http/Controllers/Setup/Libraries/attributes.php') as $attribute) {
+//            Attribute::query()->firstOrCreate($attribute);
+//        }
+//
+//        // fill cast product methods
+//        foreach (require app_path('Http/Controllers/Setup/Libraries/cast_product_methods.php') as $method) {
+//            CastProductMethod::query()->firstOrCreate($method);
+//        }
 
         // fill delivery types
         foreach (require app_path('Http/Controllers/Setup/Libraries/delivery_types.php') as $deliveryType) {
@@ -150,10 +150,10 @@ class SetupController extends Controller
             OrderStatus::query()->firstOrCreate($orderStatus);
         }
 
-        // fill work days
-        foreach (require app_path('Http/Controllers/Setup/Libraries/work_days.php') as $workDay) {
-            WorkDay::query()->firstOrCreate($workDay);
-        }
+//        // fill work days
+//        foreach (require app_path('Http/Controllers/Setup/Libraries/work_days.php') as $workDay) {
+//            WorkDay::query()->firstOrCreate($workDay);
+//        }
     }
 
     /**

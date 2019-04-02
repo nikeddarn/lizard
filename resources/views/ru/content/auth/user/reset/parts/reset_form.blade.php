@@ -1,55 +1,47 @@
-<form id="reset-form" class="form-horizontal" method="POST" action="{{ route('password.update') }}">
-
-    @csrf
-
-    <input type="hidden" name="token" value="{{ $token }}">
-
-    <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
-        <label for="email" class="col-md-4 control-label">E-Mail Адрес</label>
-
-        <div class="col-md-6">
-            <input id="email" type="email" class="form-control" name="email" value="{{ $email or old('email') }}" required autofocus>
-
-            @if ($errors->has('email'))
-                <span class="help-block">
-                                        <strong>{{ $errors->first('email') }}</strong>
-                                    </span>
-            @endif
+<div class="row justify-content-center">
+    <div class="col-sm-8 col-md-6 col-lg-5 col-xl-4">
+        <div class="card card-login-repair">
+            <div class="card-body">
+                <form class="form-light-background-input" method="post" action="{{ route('password.update') }}">
+                    @csrf
+                    <div class="form-group text-center">
+                        <h3 class="bold text-gray-hover">Переустановить Пароль</h3>
+                        @if (session('status'))
+                            <em class="text-info">{{ session('status') }}</em>
+                        @endif
+                    </div>
+                    <div class="form-group">
+                              <span class="input-icon">
+                                    <i class="svg-icon text-gray-hover" data-feather="mail"></i>
+                                    <input type="email" class="form-control" name="email" value="{{ old('email') }}"
+                                           placeholder="Email адрес">
+                              </span>
+                        @if ($errors->has('email') && session()->get('auth_method') === 'login')
+                            <small class="text-danger">{{ $errors->first('email') }}</small>
+                        @endif
+                    </div>
+                    <div class="form-group">
+                            <span class="input-icon">
+                                <i class="svg-icon" data-feather="lock"></i>
+                                <input type="password" class="form-control" name="password" placeholder="Пароль">
+                            </span>
+                        @if ($errors->has('password'))
+                            <small class="text-danger">{{ $errors->first('password') }}</small>
+                        @endif
+                    </div>
+                    <div class="form-group">
+                            <span class="input-icon">
+                                <i class="svg-icon" data-feather="lock"></i>
+                                <input type="password" class="form-control" name="password_confirmation"
+                                       placeholder="Повторите пароль">
+                            </span>
+                        @if ($errors->has('password'))
+                            <small class="text-danger">{{ $errors->first('password') }}</small>
+                        @endif
+                    </div>
+                    <button type="submit" class="btn btn-danger btn-block reset-done">ПЕРЕУСТАНОВИТЬ</button>
+                </form>
+            </div>
         </div>
     </div>
-
-    <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }}">
-        <label for="password" class="col-md-4 control-label">Пароль</label>
-
-        <div class="col-md-6">
-            <input id="password" type="password" class="form-control" name="password" required>
-
-            @if ($errors->has('password'))
-                <span class="help-block">
-                                        <strong>{{ $errors->first('password') }}</strong>
-                                    </span>
-            @endif
-        </div>
-    </div>
-
-    <div class="form-group{{ $errors->has('password_confirmation') ? ' has-error' : '' }}">
-        <label for="password-confirm" class="col-md-4 control-label">Подтвердить пароль</label>
-        <div class="col-md-6">
-            <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required>
-
-            @if ($errors->has('password_confirmation'))
-                <span class="help-block">
-                                        <strong>{{ $errors->first('password_confirmation') }}</strong>
-                                    </span>
-            @endif
-        </div>
-    </div>
-
-    <div class="form-group">
-        <div class="col-md-6 col-md-offset-4">
-            <button type="submit" class="btn btn-primary">
-                Переустановить пароль
-            </button>
-        </div>
-    </div>
-</form>
+</div>

@@ -1,4 +1,5 @@
 <div class="mb-2">
+
     @if($product->productImages->count())
         <img id="zoom-image" src="/storage/{{ $product->productImages->first()->large }}"
              data-zoom-image="/storage/{{ $product->productImages->first()->large }}">

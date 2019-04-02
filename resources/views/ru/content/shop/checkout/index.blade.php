@@ -6,7 +6,7 @@
 
         <div class="card my-3">
 
-            <div class="full-card">
+            <div class="full-cart">
                 <div class="card-header border-bottom bg-white p-0 d-flex justify-content-center align-items-center">
                     @include('content.shop.checkout.parts.header')
                 </div>
@@ -35,8 +35,6 @@
     <script>
 
         $(document).ready(function () {
-
-            // $('.selectpicker').selectpicker();
 
             $('#delivery_type').find('input').change(function () {
                 let deliveryAddressWrapper = $('#delivery-address-wrapper');

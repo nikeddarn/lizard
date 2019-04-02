@@ -5,12 +5,14 @@
 
 namespace App\Support\Shop\Products;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+
 class FavouriteProducts extends AbstractProduct
 {
     /**
      * Get users' favourite products.
      *
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator|null
+     * @return LengthAwarePaginator|null
      */
     public function getProducts()
     {

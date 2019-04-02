@@ -47,7 +47,7 @@ class SingleProduct extends AbstractProduct
      * @param $user
      * @return Builder
      */
-    protected function addRelations(Builder $query, $user): Builder
+    protected function addRelations(Builder $query, $user = null): Builder
     {
         $query->with('productImages', 'availableStorageProducts', 'expectingStorageProducts', 'availableVendorProducts', 'expectingVendorProducts', 'availableProductStorages.city', 'attributeValues.attribute');
 

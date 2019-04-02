@@ -1,19 +1,24 @@
-<div class="row h-100 no-gutters">
+<div id="mega-menu-content" class="row h-100">
 
-    <div class="col-lg-3 pt-3">
+    <div class="col-lg-3 pt-4">
         <div id="mega-menu-categories" class="list-group list-group-flush">
             @foreach($productCategories as $key => $category)
                 <a id="mega-menu-category-{{ $category->id }}"
                    href="{{ $category->href }}"
                    class="nav-link list-group-item main-menu-category{{ $loop->first ? ' show' : '' }}"
                    aria-controls="mega-menu-children-{{ $category->id }}" data-category-id="{{ $category->id }}">
-                    <h1 class="h6 my-0 py-0">{{ $category->name }}</h1>
+                    <div class="w-100 d-flex justify-content-between align-items-center">
+                        <h1 class="h6 my-0 text-gray-hover">{{ $category->name }}</h1>
+                        <span>
+                            <i class="svg-icon" data-feather="chevron-right"></i>
+                        </span>
+                    </div>
                 </a>
             @endforeach
         </div>
     </div>
 
-    <div id="mega-menu-subcategories" class="col-lg-9">
+    <div id="mega-menu-subcategories" class="col-lg-9 py-2">
         @foreach($productCategories as $category)
             <div id="mega-menu-children-{{ $category->id }}"
                  class="main-menu-subcategory{{ $loop->first ? ' show' : '' }}">

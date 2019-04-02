@@ -13,7 +13,6 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Carbon\Carbon;
 use App\Support\ExchangeRates\ExchangeRates;
 use App\Support\ProductAvailability\ProductAvailability;
-use App\Support\ProductPrices\UserProductPrice;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
@@ -30,10 +29,6 @@ abstract class AbstractProduct
      */
     private $exchangeRates;
     /**
-     * @var UserProductPrice
-     */
-    private $productPrice;
-    /**
      * @var ProductAvailability
      */
     private $productAvailability;
@@ -49,15 +44,13 @@ abstract class AbstractProduct
     /**
      * CategoryProductsCreator constructor.
      * @param ExchangeRates $exchangeRates
-     * @param UserProductPrice $productPrice
      * @param ProductAvailability $productAvailability
      * @param SettingsRepository $settingsRepository
      * @param Product $product
      */
-    public function __construct(ExchangeRates $exchangeRates, UserProductPrice $productPrice, ProductAvailability $productAvailability, SettingsRepository $settingsRepository, Product $product)
+    public function __construct(ExchangeRates $exchangeRates, ProductAvailability $productAvailability, SettingsRepository $settingsRepository, Product $product)
     {
         $this->exchangeRates = $exchangeRates;
-        $this->productPrice = $productPrice;
         $this->productAvailability = $productAvailability;
         $this->settingsRepository = $settingsRepository;
         $this->product = $product;
@@ -94,11 +87,13 @@ abstract class AbstractProduct
      * @param LengthAwarePaginator|Collection $products
      * @param $user
      */
-    protected function addProductsProperties($products, $user)
+    protected function addProductsProperties($products, $user = null)
     {
         $exchangeRate = $this->exchangeRates->getRate();
 
         $isUsdPriceAllowed = $this->isUsdPriceAllowedToShow();
+
+        $productPriceColumn = 'price' . ($user ? $user->price_group : 1);
 
         $currentLocale = app()->getLocale();
         $localeRouteParameter = $currentLocale === config('app.canonical_locale') ? null : $currentLocale;
@@ -108,7 +103,7 @@ abstract class AbstractProduct
             $this->createProductLinkUrl($product, $localeRouteParameter);
 
             // add product prices
-            $this->createProductPrice($product, $exchangeRate, $isUsdPriceAllowed, $user);
+            $this->createProductPrice($product, $exchangeRate, $isUsdPriceAllowed, $productPriceColumn);
 
             // add product availability
             $this->createProductAvailability($product);
@@ -151,12 +146,12 @@ abstract class AbstractProduct
      * @param Product $product
      * @param float $exchangeRate
      * @param bool $isUsdPriceAllowed
-     * @param $user
+     * @param string $productPriceColumn
      */
-    protected function createProductPrice(Product $product, float $exchangeRate, bool $isUsdPriceAllowed, $user)
+    protected function createProductPrice(Product $product, float $exchangeRate, bool $isUsdPriceAllowed, string $productPriceColumn)
     {
         // product prices
-        $productPrice = $this->productPrice->getUserProductPrice($product, $user);
+        $productPrice = $product->$productPriceColumn;
 
         if ($productPrice){
             if ($isUsdPriceAllowed) {
@@ -241,6 +236,6 @@ abstract class AbstractProduct
      */
     private function setCartAbleProperty(Product $product)
     {
-        $product->cartAble = $product->price1 && $product->published;
+        $product->cartAble = $product->price1 && $product->published && ($product->isAvailable || $product->isExpectedToday || $product->isExpectedTomorrow || $product->expectedAt);
     }
 }

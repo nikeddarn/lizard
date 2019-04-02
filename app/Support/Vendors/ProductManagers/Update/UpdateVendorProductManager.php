@@ -8,7 +8,9 @@ namespace App\Support\Vendors\ProductManagers\Update;
 
 use App\Events\Vendor\VendorProductUpdated;
 use App\Models\VendorProduct;
+use App\Support\ImageHandlers\ProductImageHandler;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Throwable;
@@ -24,17 +26,27 @@ abstract class UpdateVendorProductManager
      */
     protected $vendorProductStocksData;
     /**
+     * @var array
+     */
+    protected $imagesData;
+    /**
      * @var VendorProduct
      */
     protected $vendorProduct;
+    /**
+     * @var ProductImageHandler
+     */
+    private $productImageHandler;
 
     /**
      * UpdateVendorProductManager constructor.
      * @param VendorProduct $vendorProduct
+     * @param ProductImageHandler $productImageHandler
      */
-    public function __construct(VendorProduct $vendorProduct)
+    public function __construct(VendorProduct $vendorProduct, ProductImageHandler $productImageHandler)
     {
         $this->vendorProduct = $vendorProduct;
+        $this->productImageHandler = $productImageHandler;
     }
 
     /**
@@ -50,6 +62,10 @@ abstract class UpdateVendorProductManager
 
         // retrieve product data from vendor and prepare it for update
         $this->prepareVendorProductData($vendorProductId);
+
+        if (!$vendorProduct->product->primaryImage){
+            $this->prepareProductImagesData($vendorProductId);
+        }
 
         try {
             DB::beginTransaction();
@@ -72,7 +88,7 @@ abstract class UpdateVendorProductManager
      * Get vendor product.
      *
      * @param int $vendorProductId
-     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model
+     * @return Builder|Model
      */
     abstract protected function getVendorProduct(int $vendorProductId);
 
@@ -83,6 +99,14 @@ abstract class UpdateVendorProductManager
      * @return void
      */
     abstract protected function prepareVendorProductData(int $vendorProductId);
+
+    /**
+     * Prepare product images for update.
+     *
+     * @param int $vendorProductId
+     * @return void
+     */
+    abstract protected function prepareProductImagesData(int $vendorProductId);
 
     /**
      * Update vendor product and product data.
@@ -100,6 +124,10 @@ abstract class UpdateVendorProductManager
         // update vendor product stocks data
         if (isset($this->vendorProductStocksData)) {
             $this->updateVendorProductStocksData($vendorProduct);
+        }
+
+        if (!empty($this->imagesData)) {
+            $this->productImageHandler->insertVendorProductImages($vendorProduct->product, $this->imagesData);
         }
     }
 

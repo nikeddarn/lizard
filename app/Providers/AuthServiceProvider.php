@@ -3,8 +3,10 @@
 namespace App\Providers;
 
 use App\Contracts\Auth\RoleInterface;
+use App\Models\Order;
 use App\Models\User;
 use App\Policies\Admin\UserPolicy;
+use App\Policies\Shop\OrderPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
@@ -17,6 +19,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         User::class => UserPolicy::class,
+        Order::class => OrderPolicy::class,
     ];
 
     /**

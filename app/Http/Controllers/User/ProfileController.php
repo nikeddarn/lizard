@@ -12,17 +12,6 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
-    /**
-     * Show user profile.
-     *
-     * @return View
-     */
-    public function index():View
-    {
-        return view('content.user.profile.show.index')->with([
-            'userProfile' => auth('web')->user(),
-        ]);
-    }
 
     /**
      * Show user profile form with user profile data.
@@ -54,7 +43,7 @@ class ProfileController extends Controller
         // update user
         $request->user()->update($userData);
 
-        return redirect(route('user.profile.show'));
+        return redirect(route('user.profile.edit'));
     }
 
     /**

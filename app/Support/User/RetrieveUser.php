@@ -59,6 +59,22 @@ trait RetrieveUser
     }
 
     /**
+     * Get user or fail.
+     *
+     * @return User|\Illuminate\Contracts\Auth\Authenticatable|\Illuminate\Database\Eloquent\Model|null
+     */
+    protected function getUserOrFail()
+    {
+        $user = $this->getUser();
+
+        if (!$user){
+            abort(400);
+        }
+
+        return $user;
+    }
+
+    /**
      * Create new user identifying by cookie.
      *
      * @return User

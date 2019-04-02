@@ -7,7 +7,7 @@
                 <span>Каталог товаров</span>
                 <i class="svg-icon" data-feather="chevron-down"></i>
             </a>
-            <div class="dropdown-menu m-0" aria-labelledby="header-menu-products-catalog">
+            <div class="dropdown-menu m-0 p-0" aria-labelledby="header-menu-products-catalog">
                 @include('layouts.parts.headers.common.middle.parts.catalog')
             </div>
         </li>

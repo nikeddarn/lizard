@@ -20,17 +20,15 @@
 
     <div class="container bg-white pt-4">
 
-        <div id="left-menu-row" class="row h-100 no-gutters bg-white mb-4">
+        <div id="left-menu-row" class="row mb-4">
 
             <div class="col-lg-3 d-none d-lg-block">
                 @include('content.pages.main.parts.catalog')
             </div>
 
-            <div class="col-12 col-lg-9 px-2">
+            <div class="col-12 col-lg-9">
                 @if($mainSlider->slides->count())
-                    <div class="d-lg-flex h-100 w-100">
-                        @include('content.pages.main.parts.slider')
-                    </div>
+                    @include('content.pages.main.parts.slider')
                 @endif
             </div>
 

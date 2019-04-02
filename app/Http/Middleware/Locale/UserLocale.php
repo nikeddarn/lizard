@@ -10,6 +10,7 @@ namespace App\Http\Middleware\Locale;
 use App\Contracts\Shop\UrlParametersInterface;
 use Carbon\Carbon;
 use Closure;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
 
@@ -23,8 +24,8 @@ class UserLocale
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \Closure $next
+     * @param Request $request
+     * @param Closure $next
      * @return mixed
      */
     public function handle($request, Closure $next)
@@ -108,7 +109,7 @@ class UserLocale
      * @param Request $request
      * @param string $locale
      * @param string $canonicalLocale
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return RedirectResponse
      */
     private function createRedirect(Request $request, string $locale, string $canonicalLocale)
     {
@@ -147,7 +148,14 @@ class UserLocale
         app()->setLocale($locale);
 
         // set locale for string functions
-        setlocale(LC_ALL, $locale);
+        switch ($locale){
+            case 'ru':
+                setlocale(LC_TIME, 'ru_RU.UTF-8');
+                break;
+            case 'uk':
+                setlocale(LC_TIME, 'uk_UA.UTF-8');
+                break;
+        }
 
         // set locale for carbon
         Carbon::setLocale($locale);

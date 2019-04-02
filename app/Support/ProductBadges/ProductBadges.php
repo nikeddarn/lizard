@@ -49,9 +49,7 @@ class ProductBadges
     {
         $badgesSettings = $this->settingsRepository->getProperty('badges');
 
-        $badgeTTL = $badgesSettings['ttl'][$badgeId];
-
-        $badgeExpired = $badgeTTL ? Carbon::now()->addDays($badgeTTL) : null;
+        $badgeExpired = isset($badgesSettings['ttl'][$badgeId]) ? Carbon::now()->addDays($badgesSettings['ttl'][$badgeId]) : null;
 
         $product->badges()->syncWithoutDetaching([
             $badgeId => [

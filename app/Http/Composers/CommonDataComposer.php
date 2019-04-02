@@ -131,6 +131,7 @@ class CommonDataComposer
         return [
             'favourites' => $user->favouriteProducts()->count(),
             'recent' => $user->timeLimitedRecentProducts()->count(),
+            'orders' => $user->activeOrders()->count(),
         ];
     }
 

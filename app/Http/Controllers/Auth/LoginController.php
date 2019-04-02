@@ -73,8 +73,8 @@ class LoginController extends Controller
     /**
      * The user has been authenticated.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  mixed $user
+     * @param Request $request
+     * @param mixed $user
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     protected function authenticated(Request $request, $user)
@@ -82,7 +82,7 @@ class LoginController extends Controller
         // set intended for redirect to admin
         if ($user->isEmployee()) {
             return redirect(route('admin.overview'));
-        }else{
+        } else {
             return back();
         }
     }
@@ -94,6 +94,30 @@ class LoginController extends Controller
      */
     protected function loggedOut()
     {
-        return back();
+        // redirect to main page if previous url was one od user's page
+        if (stristr(url()->previous(), 'user')) {
+            return redirect('/');
+        } else {
+            return back();
+        }
+    }
+
+    /**
+     * Validate the user login request.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return void
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    protected function validateLogin(Request $request)
+    {
+        // store auth type in session
+        session()->put('auth_method', 'login');
+
+        $request->validate([
+            $this->username() => 'required|string',
+            'password' => 'required|string',
+        ]);
     }
 }

@@ -1,9 +1,13 @@
 @if($cartProductsCount)
 
-    <form class="form-checkout" method="post" action="{{ route('shop.order.store') }}">
+    <form class="form-checkout form-light-background-input" method="post" action="{{ route('shop.checkout.store') }}">
         @csrf
 
         <div class="row mb-4">
+
+            <div class="col-12 mb-2">
+                <em class="h5 d-block text-gray-hover text-center mb-3">Укажите данные для доставки</em>
+            </div>
 
             <div class="form-group col-6">
                 <label for="delivery_type" class="mb-3 bold text-gray-hover">Тип доставки</label>
@@ -13,11 +17,11 @@
                         <div class="delivery-type custom-control custom-radio mb-2">
                             <input class="custom-control-input" type="radio" name="delivery_type"
                                    id="delivery-type-{{ $deliveryType->id }}"
-                                   value="{{ $deliveryType->interface_id }}"{{ $deliveryType->interface_id === \App\Contracts\Order\DeliveryTypesInterface::SELF ? ' checked' : '' }}>
+                                   value="{{ $deliveryType->id }}"{{ $deliveryType->id == old('delivery_type', \App\Contracts\Order\DeliveryTypesInterface::SELF) ? ' checked' : '' }}>
                             <label class="custom-control-label text-gray-hover"
                                    for="delivery-type-{{ $deliveryType->id }}">
                                 <span>{{ $deliveryType->name_ru }}</span>
-                                @if($deliveryType->interface_id === \App\Contracts\Order\DeliveryTypesInterface::COURIER)
+                                @if($deliveryType->id === \App\Contracts\Order\DeliveryTypesInterface::COURIER)
                                     @if($courierDeliverySum > 0)
                                         <span class="ml-1">({{ $courierDeliverySum }} грн)</span>
                                     @else
@@ -36,13 +40,19 @@
                 <div class="form-group">
                     <label class="bold text-gray-hover" for="name">Имя получателя</label>
                     <input type="text" class="form-control" id="name" name="name"
-                           value="{{ old('name', ($lastUserAddress ? $lastUserAddress->name : $user->name)) }}">
+                           value="{{ old('name', ($lastUserRecipient ? $lastUserRecipient->name : $user->name)) }}">
+                    @if ($errors->has('name'))
+                        <small class="text-danger">{{ $errors->first('name') }}</small>
+                    @endif
                 </div>
 
                 <div class="form-group">
                     <label class="bold text-gray-hover" for="delivery-phone">Номер телефона</label>
                     <input type="tel" class="form-control" id="delivery-phone" name="phone"
-                           value="{{ old('phone', $lastUserAddress ? $lastUserAddress->phone : $user->phone) }}">
+                           value="{{ old('phone', $lastUserRecipient ? $lastUserRecipient->phone : $user->phone) }}">
+                    @if ($errors->has('phone'))
+                        <small class="text-danger">{{ $errors->first('phone') }}</small>
+                    @endif
                 </div>
 
             </div>
@@ -50,11 +60,13 @@
             <div class="col-12">
                 <div class="row">
                     <div class="col-6">
-                        <div id="delivery-city-wrapper" class="d-none form-group">
+                        <div id="delivery-city-wrapper"
+                             class="form-group{{ !old('delivery_type') || old('delivery_type') != \App\Contracts\Order\DeliveryTypesInterface::COURIER ? ' d-none' : ''}}">
                             <label class="bold text-gray-hover" for="delivery-city">Город доставки</label>
                             <select id="delivery-city" name="city_id" class="selectpicker w-100">
                                 @foreach($cities as $city)
-                                    <option value="{{ $city->id }}" {{ $lastUserAddress && $lastUserAddress->cities_id === $city->id ? ' selected="selected"' : '' }}>{{ $city->name_ru }}</option>
+                                    <option
+                                        value="{{ $city->id }}" {{ old('city_id', $lastUserAddress ? $lastUserAddress->cities_id : null) == $city->id ? ' selected="selected"' : '' }}>{{ $city->name_ru }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -63,9 +75,14 @@
             </div>
 
             <div class="col-12">
-                <div id="delivery-address-wrapper" class="d-none form-group">
+                <div id="delivery-address-wrapper"
+                     class="form-group{{ !old('delivery_type') || old('delivery_type') == \App\Contracts\Order\DeliveryTypesInterface::SELF ? ' d-none' : ''}}">
                     <label class="bold text-gray-hover" for="delivery-address">Адрес доставки</label>
-                    <input type="text" class="form-control" id="delivery-address" name="address" value="{{ $lastUserAddress ? $lastUserAddress->address : '' }}">
+                    <input type="text" class="form-control" id="delivery-address" name="address"
+                           value="{{ old('address', $lastUserAddress ? $lastUserAddress->address : '') }}">
+                    @if ($errors->has('address'))
+                        <small class="text-danger">{{ $errors->first('address') }}</small>
+                    @endif
                 </div>
             </div>
 
@@ -73,28 +90,15 @@
 
         @if(!auth('web')->check())
 
-            <div class="row mb-4">
+            <div class="row mb-4 mt-5">
+
+                <div class="col-12 mb-2">
+                    <em class="h5 d-block text-gray-hover text-center mb-3">Для получения персональных
+                        скидок</em>
+                </div>
 
                 <div class="col-12">
-                    <h5 class="text-gray-hover text-center mb-3">Зарегистрируйтесь чтобы получать персональные
-                        скидки</h5>
-                </div>
-
-                <div class="col-6">
-                    <div class="form-group">
-                        <label class="bold text-gray-hover" for="email">E-Mail Адрес</label>
-                        <input type="email" class="form-control" id="email" name="email" value="{{ old('email') }}">
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="form-group">
-                        <label class="bold text-gray-hover" for="password">Пароль</label>
-                        <input type="password" class="form-control" id="password" name="password">
-                    </div>
-                    <div class="form-group">
-                        <label class="bold text-gray-hover" for="password">Повторите пароль</label>
-                        <input type="password" class="form-control" id="password" name="password_confirmation">
-                    </div>
+                    @include('content.shop.checkout.parts.login')
                 </div>
 
             </div>

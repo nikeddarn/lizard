@@ -6,12 +6,14 @@
 namespace App\Support\Shop\Products;
 
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+
 class RecentProducts extends AbstractProduct
 {
     /**
      * Get users' recent products.
      *
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     * @return LengthAwarePaginator
      */
     public function getProducts()
     {

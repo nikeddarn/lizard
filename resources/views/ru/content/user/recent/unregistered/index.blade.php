@@ -4,26 +4,24 @@
 
     <div class="container">
 
-        <div class="card p-2 my-4">
-            <h1 class="h4 text-gray-hover m-0">Недавно просмотренные товары</h1>
+        <div class="card card-body my-4">
+
+            <h1 class="h3 text-gray-hover m-0">Недавно просмотренные товары</h1>
+
+            <hr>
+
+            @if(isset($recentProducts) && $recentProducts->count())
+                @include('content.user.recent.unregistered.parts.list')
+            @endif
+
         </div>
 
-        @if(isset($recentProducts))
-
-            @if($recentProducts->count())
-                <div class="card card-body my-4">
-                    @include('content.user.recent.unregistered.parts.list')
+        @if(isset($recentProducts) && $recentProducts->lastPage() !== 1)
+            <div class="row">
+                <div class="col-12 my-4">
+                    @include('layouts.parts.pagination.products.index', ['paginator' => $recentProducts])
                 </div>
-            @endif
-
-            @if($recentProducts->lastPage() !== 1)
-                <div class="row">
-                    <div class="col-12 my-4">
-                        @include('layouts.parts.pagination.products.index', ['paginator' => $recentProducts])
-                    </div>
-                </div>
-            @endif
-
+            </div>
         @endif
 
     </div>

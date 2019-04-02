@@ -3,15 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class UserAddress extends Model
+class OrderRecipient extends Model
 {
     /**
      * Table name.
      *
      * @var string
      */
-    protected $table = 'user_addresses';
+    protected $table = 'order_recipients';
 
     /**
      * The attributes that aren't mass assignable.
@@ -28,7 +30,7 @@ class UserAddress extends Model
     public $timestamps = false;
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function user()
     {
@@ -36,18 +38,10 @@ class UserAddress extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function city()
-    {
-        return $this->belongsTo('App\Models\City', 'cities_id', 'id');
-    }
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function orders()
     {
-        return $this->hasMany('App\Models\Order', 'user_addresses_id', 'id');
+        return $this->hasMany('App\Models\Order', 'order_recipients_id', 'id');
     }
 }

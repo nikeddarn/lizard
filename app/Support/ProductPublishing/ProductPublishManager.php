@@ -80,7 +80,7 @@ class ProductPublishManager
      */
     private function isPublishingAllowed(Product $product, bool $IsOnlyAvailableAllowed):bool
     {
-        return $this->checkProductProfit($product) && (!$IsOnlyAvailableAllowed || $this->productAvailability->isProductAvailableOrExpecting($product));
+        return  (!$IsOnlyAvailableAllowed || $this->productAvailability->isProductAvailableOrExpecting($product)) && $this->checkProductProfit($product);
     }
 
     /**

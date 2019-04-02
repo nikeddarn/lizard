@@ -38,12 +38,14 @@ class CartProducts extends AbstractCartProduct
         $currentLocale = app()->getLocale();
         $localeRouteParameter = $currentLocale === config('app.canonical_locale') ? null : $currentLocale;
 
+        $productPriceColumn = 'price' . $user->price_group;
+
         foreach ($products as $product) {
             // add query parameters
             $this->createProductLinkUrl($product, $localeRouteParameter);
 
             // add product prices
-            $this->createProductPrice($product, $exchangeRate, $user);
+            $this->createProductPrice($product, $exchangeRate, $productPriceColumn);
         }
     }
 }

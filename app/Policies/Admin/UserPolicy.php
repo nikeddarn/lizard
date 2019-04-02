@@ -13,8 +13,8 @@ class UserPolicy
     /**
      * Determine whether the user can view the model.
      *
-     * @param  \App\Models\User $currentUser
-     * @param  \App\Models\User $accessingUser
+     * @param User $currentUser
+     * @param User $accessingUser
      * @return mixed
      */
     public function view(User $currentUser, User $accessingUser)
@@ -28,8 +28,8 @@ class UserPolicy
     /**
      * Determine whether the user can view the model.
      *
-     * @param  \App\Models\User $currentUser
-     * @param  \App\Models\User $accessingUser
+     * @param User $currentUser
+     * @param User $accessingUser
      * @return mixed
      */
     public function modify(User $currentUser, User $accessingUser)

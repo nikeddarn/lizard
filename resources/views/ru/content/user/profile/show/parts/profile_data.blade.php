@@ -1,6 +1,6 @@
-<div class="table-responsive">
+<div class="table-responsive my-4">
 
-    <table class="table">
+    <table class="table table-borderless">
 
         <tbody>
 

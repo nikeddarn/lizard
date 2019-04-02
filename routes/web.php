@@ -39,33 +39,31 @@ Route::get('/admin/login', 'Auth\LoginController@showAdminLoginForm')->name('adm
 
 Route::middleware(['auth:web'])->group(function () {
 
-    // balance
-    Route::get('/user/balance/{locale?}', 'User\BalanceController@show')->name('user.balance.show');
-
-    // notifications
-    Route::get('/user/notifications/{locale?}', 'User\NotificationController@show')->name('user.notifications.current');
-    Route::get('/user/notifications/mark/{id}', 'User\NotificationController@markAsRead')->name('user.notifications.mark');
-    Route::get('/user/notifications/all/{locale?}', 'User\NotificationController@show')->name('user.notifications.all');
-
-    // shipments
-    Route::get('/user/shipments/{locale?}', 'User\ShipmentController@show')->name('user.shipments.current');
-    Route::get('/user/shipments/all/{locale?}', 'User\ShipmentController@show')->name('user.shipments.all');
-
-    // orders
-    Route::get('/user/orders/{locale?}', 'User\OrderController@show')->name('user.orders.current');
-    Route::get('/user/orders/all/{locale?}', 'User\OrderController@show')->name('user.orders.all');
-
-    // reclamations
-    Route::get('/user/reclamations/{locale?}', 'User\ReclamationController@show')->name('user.reclamations.current');
-    Route::get('/user/reclamations/all/{locale?}', 'User\ReclamationController@show')->name('user.reclamations.all');
-
-    // payments
-    Route::get('/user/payments/{locale?}', 'User\PaymentController@show')->name('user.payments.current');
-    Route::get('/user/payments/all/{locale?}', 'User\PaymentController@show')->name('user.payments.all');
+//    // balance
+//    Route::get('/user/balance/{locale?}', 'User\BalanceController@show')->name('user.balance.show');
+//
+//    // notifications
+//    Route::get('/user/notifications/{locale?}', 'User\NotificationController@show')->name('user.notifications.current');
+//    Route::get('/user/notifications/mark/{id}', 'User\NotificationController@markAsRead')->name('user.notifications.mark');
+//    Route::get('/user/notifications/all/{locale?}', 'User\NotificationController@show')->name('user.notifications.all');
+//
+//    // shipments
+//    Route::get('/user/shipments/{locale?}', 'User\ShipmentController@show')->name('user.shipments.current');
+//    Route::get('/user/shipments/all/{locale?}', 'User\ShipmentController@show')->name('user.shipments.all');
+//
+//
+//
+//    // reclamations
+//    Route::get('/user/reclamations/{locale?}', 'User\ReclamationController@show')->name('user.reclamations.current');
+//    Route::get('/user/reclamations/all/{locale?}', 'User\ReclamationController@show')->name('user.reclamations.all');
+//
+//    // payments
+//    Route::get('/user/payments/{locale?}', 'User\PaymentController@show')->name('user.payments.current');
+//    Route::get('/user/payments/all/{locale?}', 'User\PaymentController@show')->name('user.payments.all');
 
     // profile
     Route::get('/user/profile/edit/{locale?}', 'User\ProfileController@edit')->name('user.profile.edit');
-    Route::get('/user/profile/{locale?}', 'User\ProfileController@index')->name('user.profile.show');
+//    Route::get('/user/profile/{locale?}', 'User\ProfileController@index')->name('user.profile.show');
 
     Route::post('/user/profile/update', 'User\ProfileController@update')->name('user.profile.save');
 
@@ -113,9 +111,10 @@ Route::post('/shop/cart/count', 'Shop\CartController@addProductCount')->name('sh
 Route::get('/shop/cart/increment/{id}', 'Shop\CartController@increaseProductCount')->name('shop.cart.increment');
 Route::get('/shop/cart/decrement/{id}', 'Shop\CartController@decreaseProductCount')->name('shop.cart.decrement');
 
-// checkout
-Route::get('/shop/checkout/create/{locale?}', 'Shop\OrderController@create')->name('shop.order.create');
-Route::post('/shop/checkout/store', 'Shop\OrderController@store')->name('shop.order.store');
+// Checkout
+Route::get('/shop/checkout/create/{locale?}', 'Shop\CheckoutController@create')->name('shop.checkout.create');
+Route::post('/shop/checkout/store', 'Shop\CheckoutController@store')->name('shop.checkout.store');
+
 
 //  Search Routes
 Route::post('/search/{locale?}', 'Shop\SearchController@index')->name('shop.search.index');
@@ -135,3 +134,13 @@ Route::get('/shop/warranty/{locale?}', 'Pages\WarrantyPageController@index')->na
 Route::get('/shop/about/{locale?}', 'Pages\AboutPageController@index')->name('shop.about.index');
 
 Route::get('/shop/contacts/{locale?}', 'Pages\ContactsPageController@index')->name('shop.contacts.index');
+
+// ------------------------------- Invoices --------------------------------------------
+
+
+// orders
+Route::get('/user/orders/{locale?}', 'User\OrderController@index')->name('user.orders.index');
+
+Route::post('/user/order/update', 'User\OrderController@update')->name('user.order.update');
+
+Route::post('/user/order/cancel', 'User\OrderController@cancel')->name('user.order.cancel');

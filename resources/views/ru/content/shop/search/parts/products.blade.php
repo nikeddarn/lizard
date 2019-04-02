@@ -8,19 +8,22 @@
 
                 <a href="{{ route('user.favourites.remove', ['id' => $product->id]) }}"
                    class="product-favourite product-favourite-remove align-items-center justify-content-center{{ $product->isFavourite ?  ' active d-flex' : ' d-none'}}"
-                   title="Удалить из избранного" data-add-title="Удалить из избранного" data-remove-title="Удалить из избранного">
+                   title="Удалить из избранного" data-add-title="Удалить из избранного"
+                   data-remove-title="Удалить из избранного">
                     <i class="svg-icon" data-feather="heart"></i>
                 </a>
                 <a href="{{ route('user.favourites.add', ['id' => $product->id]) }}"
                    class="product-favourite product-favourite-add align-items-center justify-content-center{{ $product->isFavourite ?  ' d-none' : ' d-flex'}}"
-                   title="Добавить в избранное" data-remove-title="Добавить в избранное" data-add-title="Добавить в избранное">
+                   title="Добавить в избранное" data-remove-title="Добавить в избранное"
+                   data-add-title="Добавить в избранное">
                     <i class="svg-icon" data-feather="heart"></i>
                 </a>
 
-                    <button class="product-quickview btn btn-link d-none d-md-block" title="Смотреть подробней" data-toggle="modal"
-                            data-target="#productModalDetails-{{ $product->id }}">
-                        <i class="svg-icon" data-feather="zoom-in"></i>
-                    </button>
+                <button class="product-quickview btn btn-link d-none d-md-block" title="Смотреть подробней"
+                        data-toggle="modal"
+                        data-target="#productModalDetails-{{ $product->id }}">
+                    <i class="svg-icon" data-feather="zoom-in"></i>
+                </button>
 
                 <a href="{{ $product->href }}">
 
@@ -80,8 +83,10 @@
                     @endif
                 </div>
 
-                <a href="{{ route('shop.cart.add', ['id' => $product->id]) }}"
-                   class="btn btn-sm rounded-pill btn-outline-primary">Добавить в корзину</a>
+                @if($product->cartAble)
+                    <a href="{{ route('shop.cart.add', ['id' => $product->id]) }}"
+                       class="btn btn-sm rounded-pill btn-outline-primary">Добавить в корзину</a>
+                @endif
 
             </div>
         </div>

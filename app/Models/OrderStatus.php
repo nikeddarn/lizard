@@ -17,6 +17,13 @@ class OrderStatus extends Model
     protected $table = 'order_status';
 
     /**
+     * Non auto incrementing primary key.
+     *
+     * @var bool
+     */
+    public $incrementing = false;
+
+    /**
      * The attributes that aren't mass assignable.
      *
      * @var array

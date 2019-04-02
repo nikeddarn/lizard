@@ -165,7 +165,7 @@ class LeafCategoryController extends Controller
             ->firstOrFail();
 
         if (!$category->isLeaf()) {
-            abort(422);
+            abort(404);
         }
 
         // store category's id in session to create product details breadcrumbs

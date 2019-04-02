@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+use App\Contracts\Order\OrderStatusInterface;
 use App\Support\Settings\SettingsRepository;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Carbon;
@@ -28,7 +31,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return BelongsToMany
      */
     public function cartProducts()
     {
@@ -36,7 +39,7 @@ class User extends Authenticatable
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function userCartProducts()
     {
@@ -44,7 +47,7 @@ class User extends Authenticatable
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return BelongsToMany
      */
     public function roles()
     {
@@ -52,7 +55,7 @@ class User extends Authenticatable
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function userRoles()
     {
@@ -85,7 +88,7 @@ class User extends Authenticatable
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return BelongsToMany
      */
     public function favouriteProducts()
     {
@@ -93,7 +96,7 @@ class User extends Authenticatable
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return BelongsToMany
      */
     public function recentProducts()
     {
@@ -101,7 +104,7 @@ class User extends Authenticatable
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return BelongsToMany
      */
     public function timeLimitedRecentProducts()
     {
@@ -113,17 +116,47 @@ class User extends Authenticatable
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function userAddresses()
+    public function orderAddresses()
     {
-        return $this->hasMany('App\Models\UserAddress', 'users_id', 'id');
+        return $this->hasMany('App\Models\OrderAddress', 'users_id', 'id');
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function orderRecipients()
+    {
+        return $this->hasMany('App\Models\OrderRecipient', 'users_id', 'id');
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function orders()
+    {
+        return $this->hasMany('App\Models\Order', 'users_id', 'id');
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function activeOrders()
+    {
+        return $this->hasMany('App\Models\Order', 'users_id', 'id')
+            ->whereIn('order_status_id', [
+                OrderStatusInterface::HANDLING,
+                OrderStatusInterface::COLLECTING,
+                OrderStatusInterface::COLLECTED,
+                OrderStatusInterface::DELIVERING,
+            ]);
     }
 
     /**
      * Transform timestamp to carbon.
      *
-     * @param  string  $value
+     * @param string $value
      * @return string
      */
     public function getCreatedAtAttribute($value)
@@ -134,7 +167,7 @@ class User extends Authenticatable
     /**
      * Transform timestamp to carbon.
      *
-     * @param  string  $value
+     * @param string $value
      * @return string
      */
     public function getUpdatedAtAttribute($value)
