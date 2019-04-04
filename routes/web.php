@@ -120,6 +120,13 @@ Route::post('/shop/checkout/store', 'Shop\CheckoutController@store')->name('shop
 Route::post('/search/{locale?}', 'Shop\SearchController@index')->name('shop.search.index');
 Route::get('/search/{locale?}', 'Shop\SearchController@results')->name('shop.search.results');
 
+// orders
+Route::get('/user/orders/{locale?}', 'User\OrderController@index')->name('user.orders.index');
+
+Route::post('/user/order/update', 'User\OrderController@update')->name('user.order.update');
+
+Route::post('/user/order/cancel', 'User\OrderController@cancel')->name('user.order.cancel');
+
 
 // -------------------------------- Static pages -----------------------------------
 
@@ -134,13 +141,3 @@ Route::get('/shop/warranty/{locale?}', 'Pages\WarrantyPageController@index')->na
 Route::get('/shop/about/{locale?}', 'Pages\AboutPageController@index')->name('shop.about.index');
 
 Route::get('/shop/contacts/{locale?}', 'Pages\ContactsPageController@index')->name('shop.contacts.index');
-
-// ------------------------------- Invoices --------------------------------------------
-
-
-// orders
-Route::get('/user/orders/{locale?}', 'User\OrderController@index')->name('user.orders.index');
-
-Route::post('/user/order/update', 'User\OrderController@update')->name('user.order.update');
-
-Route::post('/user/order/cancel', 'User\OrderController@cancel')->name('user.order.cancel');

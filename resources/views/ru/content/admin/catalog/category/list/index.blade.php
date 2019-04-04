@@ -62,7 +62,7 @@
             });
 
             // activate admin menu
-            let currentLink = $('#main-menu-shop-categories');
+            let currentLink = $('#main-menu-catalog-categories');
             $(currentLink).addClass('active');
 
             $(currentLink).parents('.collapse').each(function () {

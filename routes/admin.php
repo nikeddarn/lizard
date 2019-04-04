@@ -341,3 +341,12 @@ Route::post('/admin/content/warranty/update', 'Content\WarrantyContentController
 
 // upload "summernote" editor images
 Route::post('/admin/content/warranty/upload/image', 'Admin\WarrantyContentController@uploadImage')->name('admin.content.warranty.upload.image');
+
+
+
+
+// ------------------------------- Invoices --------------------------------------------
+
+
+// orders
+Route::get('/admin/orders', 'Sale\OrderController@index')->name('admin.orders.index');

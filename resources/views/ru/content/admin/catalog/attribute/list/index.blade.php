@@ -36,7 +36,7 @@
             });
 
             // activate admin menu
-            let currentLink = $('#main-menu-shop-attributes');
+            let currentLink = $('#main-menu-catalog-attributes');
             $(currentLink).addClass('active');
 
             $(currentLink).parents('.collapse').each(function () {

@@ -86,5 +86,13 @@ class AuthServiceProvider extends ServiceProvider
                 RoleInterface::CONTENT_MANAGER,
             ]);
         });
+
+        // orders
+        Gate::define('shop-orders', function ($user) {
+            return $user->hasAnyRole([
+                RoleInterface::ADMIN,
+                RoleInterface::USER_MANAGER,
+            ]);
+        });
     }
 }

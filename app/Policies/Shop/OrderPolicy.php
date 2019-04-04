@@ -71,8 +71,16 @@ class OrderPolicy
         return $this->isUserSaleManager($user) || ($order->users_id === $user->id && $order->orderStatus->id !== OrderStatusInterface::CANCELLED);
     }
 
-    private function isUserSaleManager($user):bool
+    /**
+     * @param $user
+     * @return bool
+     */
+    private function isUserSaleManager($user): bool
     {
-        return (bool)$user->roles()->where('id', RoleInterface::USER_MANAGER)->count();
+        return (bool)$user->roles()->whereIn('id', [
+            RoleInterface::ADMIN,
+            RoleInterface::USER_MANAGER,
+        ])
+            ->count();
     }
 }

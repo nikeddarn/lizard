@@ -41,7 +41,7 @@
             });
 
             // activate admin menu
-            let currentLink = $('#main-menu-shop-virtual-categories');
+            let currentLink = $('#main-menu-catalog-virtual-categories');
             $(currentLink).addClass('active');
 
             $(currentLink).parents('.collapse').each(function () {
