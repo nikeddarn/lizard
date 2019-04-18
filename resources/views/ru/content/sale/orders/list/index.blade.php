@@ -33,6 +33,26 @@
                 $(this).siblings('a[aria-expanded]').attr('aria-expanded', 'true');
             });
 
+            // confirm cancel order
+            $('.cancel-order').submit(function (event) {
+                if (confirm('Отменить заказ ?')) {
+                    return true;
+                } else {
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                }
+            });
+
+            // confirm commit order
+            $('.commit-order').submit(function (event) {
+                if (confirm('Провести заказ как отгруженный получателю?')) {
+                    return true;
+                } else {
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                }
+            });
+
         });
 
     </script>

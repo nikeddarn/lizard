@@ -7,8 +7,14 @@
 
 
 
-// -------------------------------------------------- Common styles ----------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------
+// -------------------------------------------------- Common styles ---------------------------------
+// ------------------------------------------------------------------------------------------------
+
+input:active, input:focus{
+    border: 1px solid $lizard-input-border-color;
+    outline: none!important;
+    box-shadow: none!important;
+}
 
 .table-image {
     height: 80px;
@@ -234,4 +240,11 @@ label.required:after {
 
 #sortable-slides > div.ui-sortable-helper, #sortable-groups > div.ui-sortable-helper{
     cursor: move;
+}
+
+// ------------------------------------ add product to order ------------------------------
+
+#category-products{
+    max-height: 50vh;
+    overflow-y: scroll;
 }

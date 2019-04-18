@@ -41,14 +41,12 @@ class FiltersCreator
      * Get products filters.
      *
      * @param Category|Model $category
+     * @param array $productsIds
      * @return Collection
      */
-    public function getFilters(Category $category)
+    public function getFilters(Category $category, array $productsIds)
     {
-        // get category products' ids
-        $categoryProductsIds = $category->products->pluck('id')->toArray();
-
-        $filters = $this->retrieveFilters($categoryProductsIds)
+        $filters = $this->retrieveFilters($productsIds)
             ->sortByDesc(function (Attribute $attribute) use ($category) {
                 // create attribute values urls
                 $this->createSingleFilterItemsUrls($attribute, $category->url);
@@ -112,6 +110,9 @@ class FiltersCreator
                     $query->whereIn('products_id', $productsId);
                 });
             }, '>', 1)
+            ->whereHas('productAttributes', function ($query) use ($productsId) {
+                $query->whereIn('products_id', $productsId);
+            })
             ->get();
     }
 

@@ -170,11 +170,9 @@ class CheckoutController extends Controller
         $this->attachOrderProducts($order, $cartProducts, $loggedInUser);
         $this->clearUserCart($user);
         $this->mergeUsersData($user, $loggedInUser);
-
-        event(new OrderCreated($order));
-
         DB::commit();
 
+        event(new OrderCreated($order));
 
         return redirect(route('user.orders.index'));
     }
@@ -188,7 +186,7 @@ class CheckoutController extends Controller
      */
     private function createOrder(StoreOrderRequest $request, $user): Order
     {
-        $deliveryTypeId = $request->get('delivery_type');
+        $deliveryTypeId = (int)$request->get('delivery_type');
 
         // create order recipient
         $orderRecipient = $this->orderRecipient->newQuery()->firstOrCreate([
@@ -224,7 +222,12 @@ class CheckoutController extends Controller
             'order_addresses_id' => $orderAddressId,
         ];
 
-        return $this->order->newQuery()->create($orderData);
+        $order = $this->order->newQuery()->create($orderData);
+
+        // add 'user' relation
+        $order->setRelation('user', $user);
+
+        return $order;
     }
 
     /**

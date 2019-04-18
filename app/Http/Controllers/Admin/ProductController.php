@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Contracts\Shop\ProductBadgesInterface;
+use App\Events\Shop\ProductCreated;
+use App\Events\Shop\ProductUpdated;
 use App\Http\Requests\Admin\Product\CreateProductRequest;
 use App\Http\Requests\Admin\Product\UpdateProductRequest;
 use App\Models\Attribute;
@@ -191,6 +193,8 @@ class ProductController extends Controller
         $newProductBadgeExpired = Carbon::now()->addDays(config('shop.badges.ttl.' . ProductBadgesInterface::NEW));
         $product->badges()->attach(ProductBadgesInterface::NEW, ['expired' => $newProductBadgeExpired]);
 
+        event(new ProductCreated($product));
+
         return redirect(route('admin.products.show', ['id' => $product->id]));
     }
 
@@ -267,6 +271,8 @@ class ProductController extends Controller
         }
 
         $product->update($productData);
+
+        event(new ProductUpdated($product));
 
         return redirect(route('admin.products.show', ['id' => $id]));
     }

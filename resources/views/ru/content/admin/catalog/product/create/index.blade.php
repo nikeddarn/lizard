@@ -31,6 +31,8 @@
                        aria-controls="product-price" aria-selected="false">Цены</a>
                     <a class="nav-item nav-link" data-toggle="tab" href="#product-parameters" role="tab"
                        aria-controls="product-parameters" aria-selected="false">Параметры</a>
+                    <a class="nav-item nav-link" data-toggle="tab" href="#product-media" role="tab"
+                       aria-controls="product-media" aria-selected="false">Медиа</a>
                 </div>
             </nav>
 
@@ -65,6 +67,10 @@
                 <div class="tab-pane fade" id="product-parameters" role="tabpanel"
                      aria-labelledby="product-parameters-tab">
                     @include('content.admin.catalog.product.create.parts.parameters')
+                </div>
+                <div class="tab-pane fade" id="product-media" role="tabpanel"
+                     aria-labelledby="product-media-tab">
+                    @include('content.admin.catalog.product.create.parts.media')
                 </div>
             </div>
 
@@ -298,6 +304,11 @@
 
             });
 
+            // insert files
+            $(".custom-file-input").on("change", function () {
+                var fileName = $(this).val().split("\\").pop();
+                $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+            });
 
         });
 

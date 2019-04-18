@@ -154,6 +154,22 @@ class User extends Authenticatable
     }
 
     /**
+     * @return HasMany
+     */
+    public function orderManagers()
+    {
+        return $this->hasMany('App\Models\OrderManager', 'users_id', 'id');
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function managerOrders()
+    {
+        return $this->belongsToMany('App\Models\Order', 'order_manager', 'users_id', 'orders_id')->withPivot('notified', 'took', 'completed');
+    }
+
+    /**
      * Transform timestamp to carbon.
      *
      * @param string $value
@@ -173,5 +189,15 @@ class User extends Authenticatable
     public function getUpdatedAtAttribute($value)
     {
         return $value ? Carbon::createFromFormat('Y-m-d H:i:s', $value) : null;
+    }
+
+    /**
+     * Route notifications for the sms channel.
+     *
+     * @return string
+     */
+    public function routeNotificationForSms()
+    {
+        return $this->phone;
     }
 }

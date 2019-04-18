@@ -448,6 +448,14 @@ select.selectpicker {
   float: none;
 }
 
+input:active,
+input:focus {
+  border: 1px solid #ccc;
+  outline: none !important;
+  -webkit-box-shadow: none !important;
+          box-shadow: none !important;
+}
+
 .table-image {
   height: 80px;
 }
@@ -682,5 +690,10 @@ label.required:after {
 #sortable-slides > div.ui-sortable-helper,
 #sortable-groups > div.ui-sortable-helper {
   cursor: move;
+}
+
+#category-products {
+  max-height: 50vh;
+  overflow-y: scroll;
 }
 

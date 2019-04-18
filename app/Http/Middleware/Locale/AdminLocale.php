@@ -50,7 +50,14 @@ class AdminLocale
         app()->setLocale($locale);
 
         // set locale for string functions
-        setlocale(LC_ALL, $locale);
+        switch ($locale){
+            case 'ru':
+                setlocale(LC_TIME, 'ru_RU.UTF-8');
+                break;
+            case 'uk':
+                setlocale(LC_TIME, 'uk_UA.UTF-8');
+                break;
+        }
 
         // set locale for carbon
         Carbon::setLocale($locale);

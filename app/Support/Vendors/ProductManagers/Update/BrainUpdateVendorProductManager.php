@@ -109,7 +109,7 @@ class BrainUpdateVendorProductManager extends UpdateVendorProductManager
         $productContentData = $this->provider->getContentData($vendorProductId);
 
         // set product images
-        $this->imagesData = $this->imagesDataAdapter->prepareVendorProductImagesData($productContentData->images);($productContentData->images);
+        $this->imagesData = $this->imagesDataAdapter->prepareVendorProductImagesData($productContentData->list[0]->images);
     }
 
     /**

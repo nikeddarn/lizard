@@ -8,10 +8,7 @@
                 <input type="hidden" name="order_id" value="{{ $order->id }}">
 
                 <div class="modal-header">
-                    <h5 class="modal-title text-gray-hover" id="show-order-products-{{ $order->id }}-title">Товары
-                        заказа
-                        (Id
-                        заказа: <strong>{{ $order->id }}</strong>)</h5>
+                    <h5 class="modal-title text-gray-hover" id="show-order-products-{{ $order->id }}-title">Список продуктов заказа (id заказа: <strong>{{ $order->id }}</strong>)</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>

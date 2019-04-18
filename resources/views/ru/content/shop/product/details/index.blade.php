@@ -22,6 +22,13 @@
                     @include('content.shop.product.details.parts.tabs')
                 </div>
 
+                {{--Videos--}}
+                @if($product->productVideos->count())
+                    <div class="col-12 mt-2 mt-sm-4">
+                        @include('content.shop.product.details.parts.videos')
+                    </div>
+                @endif
+
             </div>
 
         </div>

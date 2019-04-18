@@ -2,6 +2,7 @@
 
 namespace App\Events\Order;
 
+use App\Channels\SmsChannel;
 use App\Models\Order;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Database\Eloquent\Model;
@@ -18,7 +19,7 @@ class OrderCreated
     /**
      * @var Order
      */
-    private $order;
+    public $order;
 
     /**
      * Create a new event instance.

@@ -124,6 +124,7 @@ Route::get('/search/{locale?}', 'Shop\SearchController@results')->name('shop.sea
 Route::get('/user/orders/{locale?}', 'User\OrderController@index')->name('user.orders.index');
 
 Route::post('/user/order/update', 'User\OrderController@update')->name('user.order.update');
+Route::post('/user/order/update/delivery', 'User\OrderController@updateDelivery')->name('user.order.update.delivery');
 
 Route::post('/user/order/cancel', 'User\OrderController@cancel')->name('user.order.cancel');
 
@@ -141,3 +142,4 @@ Route::get('/shop/warranty/{locale?}', 'Pages\WarrantyPageController@index')->na
 Route::get('/shop/about/{locale?}', 'Pages\AboutPageController@index')->name('shop.about.index');
 
 Route::get('/shop/contacts/{locale?}', 'Pages\ContactsPageController@index')->name('shop.contacts.index');
+

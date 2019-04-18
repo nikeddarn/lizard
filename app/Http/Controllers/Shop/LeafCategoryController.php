@@ -109,8 +109,11 @@ class LeafCategoryController extends Controller
         // get products for current page
         $products = $this->getProducts($category, $sortProductsMethod);
 
+        //get productsIds
+        $productsIds = $products->pluck('id')->toArray();
+
         // create filters
-        $filters = $this->filtersCreator->getFilters($category);
+        $filters = $this->filtersCreator->getFilters($category, $productsIds);
 
         // category content
         $categoryContent = $category->content;

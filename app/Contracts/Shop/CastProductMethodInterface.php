@@ -9,7 +9,7 @@
 namespace App\Contracts\Shop;
 
 
-class CastProductMethodInterface
+interface CastProductMethodInterface
 {
     const NEW = 1;
 

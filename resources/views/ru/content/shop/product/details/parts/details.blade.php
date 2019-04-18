@@ -32,13 +32,6 @@
             </tr>
         @endif
 
-        @if(isset($product->defectRate))
-            <tr>
-                <td>Гарантийных возвратов</td>
-                <td>{{ $product->defectRate }}&nbsp;%</td>
-            </tr>
-        @endif
-
         @if(isset($product->productRate))
             <tr>
                 <td>Рейтинг</td>
@@ -51,7 +44,18 @@
                                 <span class="fa fa-star-o" aria-hidden="true"></span>
                             @endif
                         @endfor
+                        <span class="ml-2 text-lizard">{{ $product->productRateCount }}</span>
                     </div>
+                </td>
+            </tr>
+        @endif
+
+        @if(isset($product->defectRate))
+            <tr>
+                <td>Гарантийных возвратов</td>
+                <td>
+                    <span>{{ $product->defectRate }}&nbsp;%</span>
+                    <span class="ml-2 text-lizard">{{ $product->defectRateCount }}</span>
                 </td>
             </tr>
         @endif

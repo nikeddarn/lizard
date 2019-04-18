@@ -18,7 +18,10 @@
         "laravel/tinker": "^1.0",
         "mews/purifier": "^2.1",
         "snapappointments/bootstrap-select": "^1.13",
-        "teamtnt/laravel-scout-tntsearch-driver": "^7.0"
+        "teamtnt/laravel-scout-tntsearch-driver": "^7.0",
+        "ext-soap": "*",
+        "ext-simplexml": "*",
+        "ext-curl": "*"
     },
     "require-dev": {
         "beyondcode/laravel-dump-server": "^1.0",

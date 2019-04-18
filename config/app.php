@@ -1,6 +1,7 @@
 <?php
 
 use App\Contracts\Shop\LocalesInterface;
+use App\Providers\ChannelServiceProvider;
 
 return [
 
@@ -175,6 +176,9 @@ return [
         // search engines
         Laravel\Scout\ScoutServiceProvider::class,
         TeamTNT\Scout\TNTSearchScoutServiceProvider::class,
+
+        // channels
+        ChannelServiceProvider::class
 
 
     ],

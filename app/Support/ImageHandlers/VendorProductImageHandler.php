@@ -9,6 +9,7 @@ namespace App\Support\ImageHandlers;
 use App\Models\Product;
 use App\Support\Vendors\Providers\VendorProvider;
 use Exception;
+use Illuminate\Support\Facades\Log;
 use Intervention\Image\ImageManagerStatic;
 
 class VendorProductImageHandler extends ProductImageHandler
@@ -38,23 +39,29 @@ class VendorProductImageHandler extends ProductImageHandler
     public function insertVendorProductImages(Product $product, array $productImagesData)
     {
         // collect images data
-        $imagesData = collect($productImagesData)-> keyBy('image');
+        $imagesData = collect($productImagesData)->keyBy('image');
 
         // get images uri
         $imagesPaths = $imagesData->pluck('image')->toArray();
 
         $successfulImagesContent = $this->vendorProvider->getPoolQueriesResponseContent($imagesPaths);
 
-        if (empty($successfulImagesContent)){
+        if (empty($successfulImagesContent)) {
             throw new Exception('No one product image uploaded');
         }
 
         // product images folder
         $productImagesFolder = self::PRODUCT_IMAGE_DIRECTORY . $product->id . '/';
 
-        foreach ($successfulImagesContent as $imagePath => $imageContent){
-            // create image
-            $image = $this->createImageFromContent($imageContent);
+        foreach ($successfulImagesContent as $imagePath => $imageContent) {
+
+            try {
+                // create image
+                $image = $this->createImageFromContent($imageContent);
+            } catch (Exception $exception) {
+                Log::info('Can\'t create image from vendor path: ' . $imagePath);
+                continue;
+            }
 
             // get image priority
             $priority = $imagesData->get($imagePath)['priority'];

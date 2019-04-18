@@ -80,6 +80,10 @@ class CategoryProducts extends AbstractProduct
             case SortProductsInterface::RATING:
                 $query->orderByDesc('rating');
                 break;
+            case SortProductsInterface::ALPHABETICAL:
+                $locale = app()->getLocale();
+                $query->orderBy('name_' . $locale);
+                break;
         }
 
         return $query;

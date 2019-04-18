@@ -7,31 +7,11 @@ namespace App\Http\Requests\Admin\ProductAttribute;
 
 
 use App\Models\Attribute;
-use Illuminate\Http\Request;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class StoreProductAttributeRequest
+class StoreProductAttributeRequest extends FormRequest
 {
-    /**
-     * @var Request
-     */
-    private $request;
-    /**
-     * @var Attribute
-     */
-    private $attribute;
-
-    /**
-     * StoreProductAttributeRequest constructor.
-     * @param Request $request
-     * @param Attribute $attribute
-     */
-    public function __construct(Request $request, Attribute $attribute)
-    {
-        $this->request = $request;
-        $this->attribute = $attribute;
-    }
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -62,7 +42,7 @@ class StoreProductAttributeRequest
 
         $validator->after(function ($validator) use ($productsId) {
             $validator->sometimes('attributes_id', Rule::unique('product_attribute', 'attributes_id')->where('products_id', $productsId), function ($input) {
-                return !$this->attribute->newQuery()->where('id', $input->attributes_id)->first()->multiply_product_values;
+                return !Attribute::query()->where('id', $input->attributes_id)->first()->multiply_product_values;
             });
         });
     }

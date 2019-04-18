@@ -24,6 +24,7 @@
 
     @foreach($orders as $order)
         @include('content.user.orders.list.parts.update_products_modal', ['order' => $order])
+        @include('content.user.orders.list.parts.update_delivery_modal', ['order' => $order])
         @include('content.user.orders.list.parts.show_products_modal', ['order' => $order])
     @endforeach
 
@@ -65,6 +66,31 @@
                 let newProductCount = Math.max(oldProductCount + 1, 1);
                 $(productInput).val(newProductCount);
             });
+
+            // change delivery type
+            $('#delivery_type').find('input').change(function () {
+                let deliveryAddressWrapper = $('#delivery-address-wrapper');
+                let deliveryCityWrapper = $('#delivery-city-wrapper');
+
+                switch (parseInt(this.value)) {
+                    case 1:
+                        $(deliveryAddressWrapper).addClass('d-none');
+                        $(deliveryCityWrapper).addClass('d-none');
+                        break;
+                    case 2:
+                        $(deliveryAddressWrapper).removeClass('d-none');
+                        $(deliveryCityWrapper).removeClass('d-none');
+                        $('.selectpicker').selectpicker();
+                        break;
+                    case 3:
+                        $(deliveryCityWrapper).addClass('d-none');
+                        $(deliveryAddressWrapper).removeClass('d-none');
+                        break;
+                }
+            });
+
+            // activate modal with errors
+            $('.modal-input-error').closest('.modal').modal('show');
 
         });
 

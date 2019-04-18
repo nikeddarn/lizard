@@ -13,6 +13,17 @@ class OrderPolicy
     use HandlesAuthorization;
 
     /**
+     * Determine whether the user can view orders list.
+     *
+     * @param User $user
+     * @return mixed
+     */
+    public function viewList(User $user)
+    {
+        return $this->isUserOrderManager($user);
+    }
+
+    /**
      * Determine whether the user can view the order.
      *
      * @param User $user
@@ -21,18 +32,11 @@ class OrderPolicy
      */
     public function view(User $user, Order $order)
     {
-        return $this->isUserSaleManager($user) || $order->users_id === $user->id;
-    }
+        if (!$this->isUserOwnerOrManager($user, $order)) {
+            return false;
+        }
 
-    /**
-     * Determine whether the user can create orders.
-     *
-     * @param User $user
-     * @return mixed
-     */
-    public function create(User $user)
-    {
-        //
+        return true;
     }
 
     /**
@@ -44,19 +48,81 @@ class OrderPolicy
      */
     public function update(User $user, Order $order)
     {
-        return $this->isUserSaleManager($user) || ($order->orderStatus->id === OrderStatusInterface::HANDLING && $order->users_id === $user->id);
+        if (!$this->isUserOwnerOrManager($user, $order)) {
+            return false;
+        }
+
+        return in_array($order->orderStatus->id, [
+            OrderStatusInterface::HANDLING,
+            OrderStatusInterface::COLLECTING,
+            OrderStatusInterface::COLLECTED,
+        ]);
     }
 
     /**
-     * Determine whether the user can delete the order.
+     * Determine whether the user can update order delivery.
      *
      * @param User $user
      * @param Order $order
      * @return mixed
      */
-    public function delete(User $user, Order $order)
+    public function updateDelivery(User $user, Order $order)
     {
+        if (!$this->isUserOwnerOrManager($user, $order)) {
+            return false;
+        }
 
+        return in_array($order->orderStatus->id, [
+            OrderStatusInterface::HANDLING,
+            OrderStatusInterface::COLLECTING,
+            OrderStatusInterface::COLLECTED,
+            OrderStatusInterface::DELIVERING,
+        ]);
+    }
+
+    /**
+     * Determine whether the user can manage the order.
+     *
+     * @param User $user
+     * @param Order $order
+     * @return mixed
+     */
+    public function manage(User $user, Order $order)
+    {
+        if (!$this->isUserOwnerOrManager($user, $order)) {
+            return false;
+        }
+
+        $currentActiveOrderManager = $order->currentActiveOrderManager()->first();
+
+        $checkOrderStatus = in_array($order->orderStatus->id, [
+            OrderStatusInterface::HANDLING,
+            OrderStatusInterface::COLLECTING,
+            OrderStatusInterface::COLLECTED,
+            OrderStatusInterface::DELIVERING,
+        ]);
+
+        return $checkOrderStatus && (!$currentActiveOrderManager || $currentActiveOrderManager->users_id === $user->id || $user->roles()->where('id', RoleInterface::ADMIN));
+    }
+
+    /**
+     * Determine whether the manager can collect the order.
+     *
+     * @param User $user
+     * @param Order $order
+     * @return mixed
+     */
+    public function collect(User $user, Order $order)
+    {
+        if (!$this->isUserOwnerOrManager($user, $order)) {
+            return false;
+        }
+
+        return in_array($order->orderStatus->id, [
+            OrderStatusInterface::HANDLING,
+            OrderStatusInterface::COLLECTING,
+            OrderStatusInterface::COLLECTED,
+        ]);
     }
 
     /**
@@ -68,19 +134,63 @@ class OrderPolicy
      */
     public function cancel(User $user, Order $order)
     {
-        return $this->isUserSaleManager($user) || ($order->users_id === $user->id && $order->orderStatus->id !== OrderStatusInterface::CANCELLED);
+        if (!$this->isUserOwnerOrManager($user, $order)) {
+            return false;
+        }
+
+        return in_array($order->orderStatus->id, [
+            OrderStatusInterface::HANDLING,
+            OrderStatusInterface::COLLECTING,
+            OrderStatusInterface::COLLECTED,
+            OrderStatusInterface::DELIVERING,
+        ]);
     }
 
     /**
-     * @param $user
+     * Determine whether the user can update order delivery.
+     *
+     * @param User $user
+     * @param Order $order
+     * @return mixed
+     */
+    public function commit(User $user, Order $order)
+    {
+        if (!$this->isUserOrderManager($user)) {
+            return false;
+        }
+
+        return in_array($order->orderStatus->id, [
+            OrderStatusInterface::COLLECTING,
+            OrderStatusInterface::COLLECTED,
+            OrderStatusInterface::DELIVERING,
+        ]);
+    }
+
+    /**
+     *
+     *
+     * @param User $user
+     * @param Order $order
      * @return bool
      */
-    private function isUserSaleManager($user): bool
+    private function isUserOwnerOrManager(User $user, Order $order): bool
     {
-        return (bool)$user->roles()->whereIn('id', [
-            RoleInterface::ADMIN,
-            RoleInterface::USER_MANAGER,
-        ])
+        return $order->users_id === $user->id || $this->isUserOrderManager($user);
+    }
+
+    /**
+     * Is user admin or user manager ?
+     *
+     * @param User $user
+     * @return bool
+     */
+    private function isUserOrderManager(User $user)
+    {
+        return (bool)$user->roles()
+            ->whereIn('id', [
+                RoleInterface::ADMIN,
+                RoleInterface::USER_MANAGER,
+            ])
             ->count();
     }
 }

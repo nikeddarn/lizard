@@ -73,7 +73,8 @@
                             </button>
                             <div class="dropdown-menu m-0" aria-labelledby="deliveryTypeDropdown">
                                 <a class="dropdown-item"
-                                   href="{{ route(request()->route()->getName(), array_diff_key(array_merge(request()->route()->parameters(), request()->query()), ['page' => '', 'deliveryType' => ''])) }}">Все типы доставки</a>
+                                   href="{{ route(request()->route()->getName(), array_diff_key(array_merge(request()->route()->parameters(), request()->query()), ['page' => '', 'deliveryType' => ''])) }}">Все
+                                    типы доставки</a>
                                 @foreach($deliveryTypes as $deliveryType)
                                     @if(request()->get('deliveryType') == $deliveryType->id)
                                         <span
@@ -118,7 +119,8 @@
                             </button>
                             <div class="dropdown-menu m-0" aria-labelledby="orderStatusDropdown">
                                 <a class="dropdown-item"
-                                   href="{{ route(request()->route()->getName(), array_diff_key(array_merge(request()->route()->parameters(), request()->query()), ['page' => '', 'orderStatus' => ''])) }}">Все статусы заказа</a>
+                                   href="{{ route(request()->route()->getName(), array_diff_key(array_merge(request()->route()->parameters(), request()->query()), ['page' => '', 'orderStatus' => ''])) }}">Все
+                                    статусы заказа</a>
                                 @foreach($orderStatusTypes as $orderStatus)
                                     @if(request()->get('orderStatus') == $orderStatus->id)
                                         <span
@@ -147,6 +149,8 @@
                 </div>
             </td>
 
+            <td><strong>Менеджер</strong></td>
+
             <td></td>
 
         </tr>
@@ -174,50 +178,44 @@
                 </td>
 
                 <td>
+                    @if($order->currentActiveOrderManager)
+                        <div class="d-flex justify-content-center align-items-center">
+                            <span>{{ $order->currentActiveOrderManager->manager->name }}</span>
+                            <span title="Взят в работу">
+                                <i class="svg-icon-larger text-success ml-2" data-feather="play"></i>
+                            </span>
+                        </div>
+                    @elseif($order->currentNotifiedOrderManager)
+                        <span>{{ $order->currentNotifiedOrderManager->manager->name }}</span>
+                    @endif
+                </td>
 
+                <td>
                     <div class="product-actions d-flex justify-content-center align-items-start">
+                        @can('view', $order)
+                            <a href="{{ route('admin.order.show', ['order_id' => $order->id]) }}" data-toggle="tooltip"
+                               title="Просмотреть" class="btn btn-primary">
+                                <i class="svg-icon-larger" data-feather="eye"></i>
+                            </a>
+                        @endcan
 
-                        {{--                        <a href="{{ route('admin.products.show', ['id' => $product->id]) }}" data-toggle="tooltip"--}}
-                        {{--                           title="Просмотреть" class="btn btn-primary">--}}
-                        {{--                            <i class="svg-icon-larger" data-feather="eye"></i>--}}
-                        {{--                        </a>--}}
+                        @can('manage', $order)
+                            <a href="{{ route('admin.order.manage', ['order_id' => $order->id]) }}"
+                               data-toggle="tooltip" title="Взять в работу" class="btn btn-primary ml-1">
+                                <i class="svg-icon-larger" data-feather="play"></i>
+                            </a>
+                        @endcan
 
-                        {{--                        <form--}}
-                        {{--                            class="products-publish-off-form ml-1 {{ $product->published ? 'd-inline-block' : 'd-none' }}"--}}
-                        {{--                            action="{{ route('admin.products.publish.off') }}" method="post">--}}
-                        {{--                            @csrf--}}
-                        {{--                            <input type="hidden" name="product_id" value="{{ $product->id }}">--}}
-                        {{--                            <button type="submit" class="btn btn-primary" data-toggle="tooltip"--}}
-                        {{--                                    title="Выключить публикацию продукта">--}}
-                        {{--                                <i class="svg-icon-larger" data-feather="check-circle"></i>--}}
-                        {{--                            </button>--}}
-                        {{--                        </form>--}}
-
-                        {{--                        <form--}}
-                        {{--                            class="products-publish-on-form ml-1 {{ $product->published ? 'd-none' : 'd-inline-block' }}"--}}
-                        {{--                            action="{{ route('admin.products.publish.on') }}" method="post">--}}
-                        {{--                            @csrf--}}
-                        {{--                            <input type="hidden" name="product_id" value="{{ $product->id }}">--}}
-                        {{--                            <button type="submit" class="btn btn-primary btn-outline-theme" data-toggle="tooltip"--}}
-                        {{--                                    title="Включить публикацию продукта">--}}
-                        {{--                                <i class="svg-icon-larger" data-feather="check-circle"></i>--}}
-                        {{--                            </button>--}}
-                        {{--                        </form>--}}
-
-                        {{--                        <a href="{{ route('admin.products.edit', ['id' => $product->id]) }}" data-toggle="tooltip"--}}
-                        {{--                           title="Редактировать" class="btn btn-primary mx-1">--}}
-                        {{--                            <i class="svg-icon-larger" data-feather="edit"></i>--}}
-                        {{--                        </a>--}}
-
-                        {{--                        <form class="product-delete-form d-inline-block"--}}
-                        {{--                              action="{{ route('admin.products.destroy', ['id' => $product->id]) }}" method="post">--}}
-                        {{--                            @csrf--}}
-                        {{--                            @method('DELETE')--}}
-
-                        {{--                            <button type="submit" class="btn btn-danger" data-toggle="tooltip" title="Удалить">--}}
-                        {{--                                <i class="svg-icon-larger" data-feather="trash-2"></i>--}}
-                        {{--                            </button>--}}
-                        {{--                        </form>--}}
+                        @can('commit', $order)
+                            <form class="commit-order" action="{{ route('admin.order.commit') }}" method="post">
+                                @csrf
+                                <input type="hidden" name="order_id" value="{{ $order->id }}">
+                                <button type="submit" class="btn btn-success ml-1" data-toggle="tooltip"
+                                        title="Провести заказ как отгруженный">
+                                    <i class="svg-icon-larger" data-feather="check-circle"></i>
+                                </button>
+                            </form>
+                        @endcan
 
                     </div>
 

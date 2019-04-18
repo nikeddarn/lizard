@@ -120,6 +120,14 @@ class Product extends Model
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function productVideos()
+    {
+        return $this->hasMany('App\Models\ProductVideo', 'products_id', 'id');
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
     public function primaryImage()

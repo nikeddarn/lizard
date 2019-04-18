@@ -5,6 +5,8 @@
 
 namespace App\Support\ExchangeRates;
 
+use Exception;
+use Illuminate\Support\Facades\Log;
 use SimpleXMLElement;
 
 class PrivatBankExchangeRates
@@ -22,7 +24,7 @@ class PrivatBankExchangeRates
     {
         $ratesData = $this->getDataFromSource();
 
-        if (!$ratesData){
+        if (!$ratesData) {
             return null;
         }
 
@@ -39,15 +41,22 @@ class PrivatBankExchangeRates
      */
     private function getDataFromSource()
     {
-        $curl = curl_init(self::RATE_SOURCE_URL);
+        try {
+            $curl = curl_init(self::RATE_SOURCE_URL);
 
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_TIMEOUT_MS, self::CURL_TIMEOUT);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($curl, CURLOPT_TIMEOUT_MS, self::CURL_TIMEOUT);
 
-        $response = curl_exec($curl);
+            $response = curl_exec($curl);
 
-        curl_close($curl);
+            curl_close($curl);
 
-        return $response ? new SimpleXMLElement($response) : null;
+            $xmlData = new SimpleXMLElement($response);
+        } catch (Exception $exception) {
+            Log::info('Can\'t get courses from ' . self::RATE_SOURCE_URL . '<br/>' . $exception->getMessage());
+            return null;
+        }
+
+        return $xmlData;
     }
 }

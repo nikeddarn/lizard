@@ -226,8 +226,8 @@ Route::get('/admin/synchronization/queue', 'Vendor\VendorSynchronizationControll
 Route::get('/admin/synchronization/sync/{vendorId}', 'Vendor\VendorSynchronizationController@synchronize')->name('vendor.synchronization.synchronize');
 
 
-// ---------------------------------------------- Settings Routes ------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------- Settings Routes -------------------------------------------
+// ------------------------------------------------------------------------------------------------
 
 // seo
 Route::get('/admin/settings/seo/edit', 'Settings\SeoSettingsController@edit')->name('admin.settings.seo.edit');
@@ -347,6 +347,43 @@ Route::post('/admin/content/warranty/upload/image', 'Admin\WarrantyContentContro
 
 // ------------------------------- Invoices --------------------------------------------
 
-
 // orders
 Route::get('/admin/orders', 'Sale\OrderController@index')->name('admin.orders.index');
+Route::get('/admin/order/{order_id}/show', 'Sale\OrderController@show')->name('admin.order.show');
+Route::get('/admin/order/{order_id}/manage', 'Sale\OrderController@manage')->name('admin.order.manage');
+Route::post('/admin/order/cancel', 'Sale\OrderController@cancel')->name('admin.order.cancel');
+
+// order products
+Route::get('/admin/order/{order_id}/product/create', 'Sale\OrderProductController@create')->name('admin.order.product.create');
+Route::post('/admin/order/category/products', 'Sale\OrderProductController@categoryProducts')->name('admin.order.category.products');
+Route::post('/admin/order/product/store', 'Sale\OrderProductController@store')->name('admin.order.product.store');
+
+Route::get('/admin/order/{order_id}/product/{product_id}/edit', 'Sale\OrderProductController@edit')->name('admin.order.product.edit');
+Route::post('/admin/order/product/update', 'Sale\OrderProductController@update')->name('admin.order.product.update');
+
+Route::post('/admin/order/product/delete', 'Sale\OrderProductController@delete')->name('admin.order.product.delete');
+
+// order recipient
+Route::get('/admin/order/{order_id}/recipient/edit', 'Sale\OrderRecipientController@edit')->name('admin.order.recipient.edit');
+Route::post('/admin/order/recipient/update', 'Sale\OrderRecipientController@update')->name('admin.order.recipient.update');
+
+// order address
+Route::get('/admin/order/{order_id}/address/edit', 'Sale\OrderAddressController@edit')->name('admin.order.address.edit');
+Route::post('/admin/order/address/update', 'Sale\OrderAddressController@update')->name('admin.order.address.update');
+
+
+// collect order
+Route::post('/admin/order/collect', 'Sale\CollectOrderController@collect')->name('admin.order.collect');
+
+// commit order
+Route::post('/admin/order/commit', 'Sale\CommitOrderController@commit')->name('admin.order.commit');
+
+
+
+// ---------------------------------------- Notifications -----------------------------------
+
+Route::get('/admin/settings/notifications/order/edit', 'Settings\OrderNotificationController@edit')->name('admin.notifications.order.edit');
+
+Route::post('/admin/settings/notifications/order/created/update', 'Settings\OrderNotificationController@setOrderCreatedNotificationsData')->name('admin.notifications.order.created.update');
+Route::post('/admin/settings/notifications/order/updated/update', 'Settings\OrderNotificationController@setOrderUpdatedNotificationsData')->name('admin.notifications.order.updated.update');
+Route::post('/admin/settings/notifications/order/deleted/update', 'Settings\OrderNotificationController@setOrderDeletedNotificationsData')->name('admin.notifications.order.deleted.update');

@@ -15,4 +15,6 @@ interface SortProductsInterface
     const HIGH_TO_LOW = 'high-to-low';
 
     const RATING = 'rating';
+
+    const ALPHABETICAL = 'alphabetical';
 }

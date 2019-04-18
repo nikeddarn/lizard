@@ -5,7 +5,7 @@
 
 return [
     // items count per page on admin pages
-    'show_items_per_page' => 24,
+    'show_items_per_page' => 50,
 
     // sub items count per page on admin pages
     'show_item_properties_per_page' => 12,

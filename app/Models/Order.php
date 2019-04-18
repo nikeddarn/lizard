@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Order extends Model
 {
@@ -82,9 +83,52 @@ class Order extends Model
     }
 
     /**
+     * @return BelongsToMany
+     */
+    public function managers()
+    {
+        return $this->belongsToMany('App\Models\User', 'order_manager', 'orders_id', 'users_id')->withPivot('notified', 'took', 'completed');
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function orderManagers()
+    {
+        return $this->hasMany('App\Models\OrderManager', 'orders_id', 'id');
+    }
+
+    /**
+     * @return HasOne
+     */
+    public function currentOrderManager()
+    {
+        return $this->hasOne('App\Models\OrderManager', 'orders_id', 'id')
+            ->whereRaw('(IFNULL(begin_working, 0) > IFNULL(end_working, 0) OR IFNULL(notified, 0) > IFNULL(end_working, 0))');
+    }
+
+    /**
+     * @return HasOne
+     */
+    public function currentNotifiedOrderManager()
+    {
+        return $this->hasOne('App\Models\OrderManager', 'orders_id', 'id')
+            ->whereRaw('IFNULL(notified, 0) > IFNULL(end_working, 0)');
+    }
+
+    /**
+     * @return HasOne
+     */
+    public function currentActiveOrderManager()
+    {
+        return $this->hasOne('App\Models\OrderManager', 'orders_id', 'id')
+            ->whereRaw('IFNULL(begin_working, 0) > IFNULL(end_working, 0)');
+    }
+
+    /**
      * Transform timestamp to carbon.
      *
-     * @param  string $value
+     * @param string $value
      * @return string
      */
     public function getCreatedAtAttribute($value)
@@ -95,7 +139,7 @@ class Order extends Model
     /**
      * Transform timestamp to carbon.
      *
-     * @param  string $value
+     * @param string $value
      * @return string
      */
     public function getUpdatedAtAttribute($value)

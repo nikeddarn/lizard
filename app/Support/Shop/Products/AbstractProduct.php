@@ -210,12 +210,14 @@ abstract class AbstractProduct
         $showRateConfig = $this->settingsRepository->getProperty('shop.show_rate');
         if ($showRateConfig['allowed'] && $product->rating_quantity >= $showRateConfig['count']) {
             $product->productRate = $product->rating;
+            $product->productRateCount = trans_choice('shop.product.reviews', $product->defect_quantity);;
         }
 
         // defect rate
         $showDefectRateConfig = $this->settingsRepository->getProperty('shop.show_defect_rate');
         if ($showDefectRateConfig['allowed'] && $product->sold_quantity >= $showDefectRateConfig['count']) {
             $product->defectRate = $product->defect_rate;
+            $product->defectRateCount = trans_choice('shop.product.defect', $product->defect_quantity);
         }
     }
 

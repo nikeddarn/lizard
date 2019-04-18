@@ -25,7 +25,7 @@ class ProductDetailsController extends Controller
     /**
      * @var SingleProduct
      */
-    private $productCreator;
+    private $productRetriever;
     /**
      * @var ProductMetaTags
      */
@@ -39,15 +39,15 @@ class ProductDetailsController extends Controller
      * ProductDetailsController constructor.
      * @param Attribute $attribute
      * @param ProductBreadcrumbs $breadcrumbs
-     * @param SingleProduct $productCreator
+     * @param SingleProduct $productRetriever
      * @param ProductMetaTags $productMetaTags
      * @param SettingsRepository $settingsRepository
      */
-    public function __construct(Attribute $attribute, ProductBreadcrumbs $breadcrumbs, SingleProduct $productCreator, ProductMetaTags $productMetaTags, SettingsRepository $settingsRepository)
+    public function __construct(Attribute $attribute, ProductBreadcrumbs $breadcrumbs, SingleProduct $productRetriever, ProductMetaTags $productMetaTags, SettingsRepository $settingsRepository)
     {
         $this->attribute = $attribute;
         $this->breadcrumbs = $breadcrumbs;
-        $this->productCreator = $productCreator;
+        $this->productRetriever = $productRetriever;
         $this->productMetaTags = $productMetaTags;
         $this->settingsRepository = $settingsRepository;
     }
@@ -55,7 +55,7 @@ class ProductDetailsController extends Controller
     public function index(string $url)
     {
         // retrieve product
-        $product = $this->productCreator->getProduct($url);
+        $product = $this->productRetriever->getProduct($url);
 
         if (!$product){
             abort(404);

@@ -2,13 +2,25 @@
 
 namespace App\Providers;
 
+use App\Events\Order\OrderCanceled;
+use App\Events\Order\OrderCanceledByManager;
+use App\Events\Order\OrderCreated;
+use App\Events\Order\OrderUpdated;
+use App\Events\Order\OrderUpdatedByManager;
 use App\Events\Shop\CategoryDeleted;
 use App\Events\Shop\CategorySaved;
+use App\Events\Shop\ProductCreated;
 use App\Events\Shop\ProductDeleted;
 use App\Events\Shop\ProductDeleting;
 use App\Events\Shop\ProductSaved;
+use App\Events\Shop\ProductUpdated;
 use App\Events\Vendor\VendorProductInserted;
 use App\Events\Vendor\VendorProductUpdated;
+use App\Listeners\Orders\SendOrderCreatedNotifications;
+use App\Listeners\Orders\SendOrderDeletedByManagerNotifications;
+use App\Listeners\Orders\SendOrderDeletedNotifications;
+use App\Listeners\Orders\SendOrderUpdatedByManagerNotifications;
+use App\Listeners\Orders\SendOrderUpdatedNotifications;
 use App\Listeners\Shop\ArchiveOrDeleteProduct;
 use App\Listeners\Shop\UpdateParentCategoryTimestamp;
 use App\Listeners\Vendor\UpdateProductAvailability;
@@ -30,8 +42,21 @@ class EventServiceProvider extends ServiceProvider
      */
     protected $listen = [
 
+        // auth
         Registered::class => [
             SendEmailVerificationNotification::class,
+        ],
+
+        // product created
+        ProductCreated::class => [
+            UpdateProductPublishing::class,
+            UpdateProductSearchIndex::class,
+        ],
+
+        // product updated
+        ProductUpdated::class => [
+            UpdateProductPublishing::class,
+            UpdateProductSearchIndex::class,
         ],
 
         // insert new vendor product
@@ -71,6 +96,23 @@ class EventServiceProvider extends ServiceProvider
         ],
         ProductDeleted::class => [
             UpdateProductCategoryTimestamp::class,
+        ],
+
+        // orders
+        OrderCreated::class => [
+            SendOrderCreatedNotifications::class,
+        ],
+        OrderUpdated::class => [
+            SendOrderUpdatedNotifications::class,
+        ],
+        OrderUpdatedByManager::class => [
+            SendOrderUpdatedByManagerNotifications::class,
+        ],
+        OrderCanceled::class => [
+            SendOrderDeletedNotifications::class,
+        ],
+        OrderCanceledByManager::class => [
+            SendOrderDeletedByManagerNotifications::class,
         ],
     ];
 

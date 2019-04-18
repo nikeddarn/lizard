@@ -17,12 +17,12 @@
             <ul id="main-menu-shop" class="nav collapse">
 
                 {{-- Orders --}}
-                @if(Gate::allows('shop-orders'))
+                @can('viewList', \App\Models\Order::class)
                     <li class="nav-item w-100">
                         <a id="main-menu-shop-orders" href="{{ route('admin.orders.index') }}"
                            class="nav-link text-gray pl-4 submenu-link">Заказы</a>
                     </li>
-                @endif
+                @endcan
 
             </ul>
 
@@ -256,6 +256,26 @@
                     <li class="nav-item w-100">
                         <a id="main-menu-content-warranty" href="{{ route('admin.content.warranty.edit') }}"
                            class="nav-link text-gray pl-4 submenu-link">Гарантия</a>
+                    </li>
+
+                </ul>
+
+            </li>
+        @endif
+
+        {{-- Notifications--}}
+        @if(Gate::allows('settings-edit'))
+            <li class="nav-item w-100">
+
+                <a class="nav-link text-gray position-relative pl-0" data-toggle="collapse" aria-expanded="false"
+                   data-target="#main-menu-notifications" aria-controls="main-menu-notifications">Уведомления</a>
+
+                <ul id="main-menu-notifications" class="nav collapse">
+
+                    {{-- Common --}}
+                    <li class="nav-item w-100">
+                        <a id="main-menu-notifications-order" href="{{ route('admin.notifications.order.edit') }}"
+                           class="nav-link text-gray pl-4 submenu-link">Заказы</a>
                     </li>
 
                 </ul>
