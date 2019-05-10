@@ -18,7 +18,10 @@ class RedirectIfAuthenticated
     public function handle($request, Closure $next, $guard = null)
     {
         if (Auth::guard($guard)->check()) {
-            return redirect('/');
+            $locale = app()->getLocale();
+            $routeLocale = $locale === config('app.canonical_locale') ? '' : $locale;
+
+            return redirect(route('main', ['locale' => $routeLocale]));
         }
 
         return $next($request);

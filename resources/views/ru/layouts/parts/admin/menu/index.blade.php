@@ -283,6 +283,26 @@
             </li>
         @endif
 
+        {{-- Import --}}
+        @if(Gate::allows('vendor-catalog'))
+            <li class="nav-item w-100">
+
+                <a class="nav-link text-gray position-relative pl-0" data-toggle="collapse" aria-expanded="false"
+                   data-target="#main-menu-import" aria-controls="main-menu-import">Импорт</a>
+
+                <ul id="main-menu-import" class="nav collapse">
+
+                    {{-- Common --}}
+                    <li class="nav-item w-100">
+                        <a id="main-menu-import-apacer" href="{{ route('admin.import.apacer') }}"
+                           class="nav-link text-gray pl-4 submenu-link">Apacer</a>
+                    </li>
+
+                </ul>
+
+            </li>
+        @endif
+
     </ul>
 
 </div>

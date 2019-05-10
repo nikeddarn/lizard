@@ -5,6 +5,7 @@ namespace App\Listeners\Shop;
 use App\Support\Archive\ArchiveProductManager;
 use App\Support\ImageHandlers\ProductImageHandler;
 use App\Support\Settings\SettingsRepository;
+use Illuminate\Support\Facades\Storage;
 
 class ArchiveOrDeleteProduct
 {
@@ -57,7 +58,15 @@ class ArchiveOrDeleteProduct
             return false;
         } else {
             // remove product images from storage
-            $this->productImageHandler->deleteProductImage($product->id);
+            $this->productImageHandler->deleteProductImages($product->id);
+
+            // remove product videos from storage
+            $videosDirectory = 'video/products/' . $product->id;
+            Storage::disk('public')->deleteDirectory($videosDirectory);
+
+            // remove product videos from storage
+            $filesDirectory = 'files/products/' . $product->id;
+            Storage::disk('public')->deleteDirectory($filesDirectory);
 
             // continue deleting product
             return true;

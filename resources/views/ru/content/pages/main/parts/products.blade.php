@@ -13,9 +13,9 @@
                                     <div class="card-image">
                                         <img class="img-fluid w-100"
                                              src="/storage/{{ $product->primaryImage->medium }}"
-                                             alt="Изображение {{ $product->name }}"/>
+                                             alt="Изображение {{ $product->name_ru }}"/>
                                     </div>
-                                    <h2 class="h6 text-gray-hover text-center my-2">{{ $product->name }}</h2>
+                                    <h2 class="h6 text-gray-hover text-center my-2">{{ $product->name_ru }}</h2>
                                 </div>
                                 @if($product->localPrice)
                                     <div

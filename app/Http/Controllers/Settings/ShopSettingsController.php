@@ -8,6 +8,8 @@ use App\Models\Product;
 use App\Support\ProductPublishing\ProductPublishManager;
 use App\Support\Settings\SettingsRepository;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class ShopSettingsController extends Controller
 {
@@ -40,7 +42,7 @@ class ShopSettingsController extends Controller
     /**
      * Edit shop settings.
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return View
      */
     public function edit()
     {
@@ -50,7 +52,7 @@ class ShopSettingsController extends Controller
         ];
 
         $productData = [
-            'show_available_products_only' => $this->settingsRepository->getProperty('shop.show_available_products_only'),
+            'show_unavailable_products' => $this->settingsRepository->getProperty('shop.show_unavailable_products'),
             'show_products_per_page' => $this->settingsRepository->getProperty('shop.show_products_per_page'),
             'show_product_comments_per_page' => $this->settingsRepository->getProperty('shop.show_product_comments_per_page'),
             'recent_product_ttl' => $this->settingsRepository->getProperty('shop.recent_product_ttl'),
@@ -70,7 +72,7 @@ class ShopSettingsController extends Controller
      * Update SEO settings.
      *
      * @param UpdateShopSettingsRequest $request
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return RedirectResponse
      */
     public function update(UpdateShopSettingsRequest $request)
     {
@@ -86,10 +88,14 @@ class ShopSettingsController extends Controller
         ]);
 
         // shop
-        $oldShowAvailableProductsOnly = $this->settingsRepository->getProperty('shop.show_available_products_only');
-        $newShowAvailableProductsOnly = $request->has('show_available_products_only');
+        $oldShowUnavailableProducts = $this->settingsRepository->getProperty('shop.show_unavailable_products');
+        $newShowUnavailableProducts = [
+            'vendor' => $request->has('show_vendor_unavailable_products'),
+            'own' => $request->has('show_own_unavailable_products'),
+        ];
 
-        $this->settingsRepository->setProperty('shop.show_available_products_only', $newShowAvailableProductsOnly);
+
+        $this->settingsRepository->setProperty('shop.show_unavailable_products', $newShowUnavailableProducts);
         $this->settingsRepository->setProperty('shop.show_products_per_page', $request->get('show_products_per_page'));
         $this->settingsRepository->setProperty('shop.show_product_comments_per_page', $request->get('show_product_comments_per_page'));
         $this->settingsRepository->setProperty('shop.recent_product_ttl', $request->get('recent_product_ttl'));
@@ -124,22 +130,13 @@ class ShopSettingsController extends Controller
             'max_values_count' => $request->get('max_items_to_open_filter'),
         ]);
 
-        if ($oldShowAvailableProductsOnly != $newShowAvailableProductsOnly){
-            $this->updateProductPublishing();
+        // update published property for all products
+        if ($oldShowUnavailableProducts !== $newShowUnavailableProducts) {
+            $this->productPublishManager->updateAllProductsPublish();
         }
 
         return redirect(route('admin.settings.shop.edit'))->with([
             'successful' => true,
         ]);
-    }
-
-    /**
-     * Update product publishing.
-     */
-    private function updateProductPublishing()
-    {
-        $products = $this->product->newQuery()->with('availableStorageProducts', 'availableVendorProducts', 'expectingStorageProducts', 'expectingVendorProducts', 'vendorProducts')->get();
-
-        $this->productPublishManager->updateProductsPublish($products);
     }
 }

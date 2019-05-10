@@ -4,8 +4,10 @@
             <div class="card-body">
                 <form class="form-light-background-input" method="post" action="{{ route('password.update') }}">
                     @csrf
+                    <input type="hidden" name="token" value="{{ $token }}">
+
                     <div class="form-group text-center">
-                        <h3 class="bold text-gray-hover">Переустановить Пароль</h3>
+                        <h3 class="bold text-gray-hover">Переустановить пароль</h3>
                         @if (session('status'))
                             <em class="text-info">{{ session('status') }}</em>
                         @endif

@@ -12,7 +12,7 @@
                 <div class="col">
                     <span>{{ $category->name }}</span>
                 </div>
-                <div class="col-auto">
+                <div class="col-auto category-actions">
 
                     <a href="{{ route('admin.categories.up', ['id' => $category->id]) }}" data-toggle="tooltip"
                        title="Переместить выше" class="btn btn-primary">
@@ -33,6 +33,28 @@
                        title="Редактировать" class="btn btn-primary">
                         <i class="svg-icon-larger" data-feather="edit"></i>
                     </a>
+
+                    <form
+                        class="category-publish-off-form ml-1 {{ $category->published ? 'd-inline-block' : 'd-none' }}"
+                        action="{{ route('admin.category.publish.off') }}" method="post">
+                        @csrf
+                        <input type="hidden" name="category_id" value="{{ $category->id }}">
+                        <button type="submit" class="btn btn-primary" data-toggle="tooltip"
+                                title="Выключить публикацию категории">
+                            <i class="svg-icon-larger" data-feather="check-circle"></i>
+                        </button>
+                    </form>
+
+                    <form
+                        class="category-publish-on-form ml-1 {{ $category->published ? 'd-none' : 'd-inline-block' }}"
+                        action="{{ route('admin.category.publish.on') }}" method="post">
+                        @csrf
+                        <input type="hidden" name="category_id" value="{{ $category->id }}">
+                        <button type="submit" class="btn btn-primary btn-outline-theme" data-toggle="tooltip"
+                                title="Включить публикацию категории">
+                            <i class="svg-icon-larger" data-feather="check-circle"></i>
+                        </button>
+                    </form>
 
                     <form class="d-inline-block category-form ml-lg-2"
                           action="{{ route('admin.categories.destroy', ['id' => $category->id]) }}" method="post" data-check-empty-url="{{ route('admin.categories.empty', ['id' => $category->id]) }}">
@@ -57,7 +79,7 @@
                         class="d-none d-lg-inline-block float-right px-1">Продуктов:&nbsp;{{ $category->products_count }}</span>
                     <span>{{ $category->name }}</span>
                 </div>
-                <div class="col-auto">
+                <div class="col-auto category-actions">
 
                     <a href="{{ route('admin.categories.up', ['id' => $category->id]) }}" data-toggle="tooltip"
                        title="Переместить выше" class="btn btn-primary">
@@ -78,6 +100,28 @@
                        title="Редактировать" class="btn btn-primary">
                         <i class="svg-icon-larger" data-feather="edit"></i>
                     </a>
+
+                    <form
+                        class="category-publish-off-form ml-1 {{ $category->published ? 'd-inline-block' : 'd-none' }}"
+                        action="{{ route('admin.category.publish.off') }}" method="post">
+                        @csrf
+                        <input type="hidden" name="category_id" value="{{ $category->id }}">
+                        <button type="submit" class="btn btn-primary" data-toggle="tooltip"
+                                title="Выключить публикацию категории">
+                            <i class="svg-icon-larger" data-feather="check-circle"></i>
+                        </button>
+                    </form>
+
+                    <form
+                        class="category-publish-on-form ml-1 {{ $category->published ? 'd-none' : 'd-inline-block' }}"
+                        action="{{ route('admin.category.publish.on') }}" method="post">
+                        @csrf
+                        <input type="hidden" name="category_id" value="{{ $category->id }}">
+                        <button type="submit" class="btn btn-primary btn-outline-theme" data-toggle="tooltip"
+                                title="Включить публикацию категории">
+                            <i class="svg-icon-larger" data-feather="check-circle"></i>
+                        </button>
+                    </form>
 
                     <form class="d-inline-block category-form ml-lg-2"
                           action="{{ route('admin.categories.destroy', ['id' => $category->id]) }}" method="post" data-check-empty-url="{{ route('admin.categories.empty', ['id' => $category->id]) }}">

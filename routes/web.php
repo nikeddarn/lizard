@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\Locale\UserLocale;
 use Illuminate\Support\Facades\Route;
 
 /**
@@ -14,6 +15,8 @@ use Illuminate\Support\Facades\Route;
 
 // --------------------------------------------- Common Routes -------------------------------------------------
 
+Route::get('/sitemap.xml', 'SitemapController@index');
+
 Route::get('/{locale?}', 'Pages\MainPageController@index')->name('main')
     ->where('locale', '(' . implode('|', config('app.available_locales')) . ')');
 
@@ -26,44 +29,21 @@ Route::post('logout', 'Auth\LoginController@logout')->name('logout');
 Route::get('/user/register/{locale?}', 'Auth\RegisterController@showRegistrationForm')->name('register');
 Route::post('register', 'Auth\RegisterController@register');
 
-Route::get('password/reset/{locale?}', 'Auth\ForgotPasswordController@showLinkRequestForm')->name('password.request');
-Route::post('password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail')->name('password.email');
+Route::get('password/request/{locale?}', 'Auth\ForgotPasswordController@showLinkRequestForm')->name('password.request');
+Route::post('password/email/{locale?}', 'Auth\ForgotPasswordController@sendResetLinkEmail')->name('password.email')->middleware(UserLocale::class);
 Route::get('password/reset/{token}/{locale?}', 'Auth\ResetPasswordController@showResetForm')->name('password.reset');
 Route::post('password/reset', 'Auth\ResetPasswordController@reset')->name('password.update');
 
 Route::get('/admin/login', 'Auth\LoginController@showAdminLoginForm')->name('admin.login');
 
 
-// --------------------------------------------- User Routes -----------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------- User Routes --------------------------------------------------
+// ---------------------------------------------------------------------------------------------------
 
 Route::middleware(['auth:web'])->group(function () {
 
-//    // balance
-//    Route::get('/user/balance/{locale?}', 'User\BalanceController@show')->name('user.balance.show');
-//
-//    // notifications
-//    Route::get('/user/notifications/{locale?}', 'User\NotificationController@show')->name('user.notifications.current');
-//    Route::get('/user/notifications/mark/{id}', 'User\NotificationController@markAsRead')->name('user.notifications.mark');
-//    Route::get('/user/notifications/all/{locale?}', 'User\NotificationController@show')->name('user.notifications.all');
-//
-//    // shipments
-//    Route::get('/user/shipments/{locale?}', 'User\ShipmentController@show')->name('user.shipments.current');
-//    Route::get('/user/shipments/all/{locale?}', 'User\ShipmentController@show')->name('user.shipments.all');
-//
-//
-//
-//    // reclamations
-//    Route::get('/user/reclamations/{locale?}', 'User\ReclamationController@show')->name('user.reclamations.current');
-//    Route::get('/user/reclamations/all/{locale?}', 'User\ReclamationController@show')->name('user.reclamations.all');
-//
-//    // payments
-//    Route::get('/user/payments/{locale?}', 'User\PaymentController@show')->name('user.payments.current');
-//    Route::get('/user/payments/all/{locale?}', 'User\PaymentController@show')->name('user.payments.all');
-
     // profile
     Route::get('/user/profile/edit/{locale?}', 'User\ProfileController@edit')->name('user.profile.edit');
-//    Route::get('/user/profile/{locale?}', 'User\ProfileController@index')->name('user.profile.show');
 
     Route::post('/user/profile/update', 'User\ProfileController@update')->name('user.profile.save');
 
@@ -84,8 +64,8 @@ Route::get('/user/recent/{locale?}', 'User\RecentProductController@index')->name
 
 
 
-// --------------------------------------------- Shop Routes -----------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------- Shop Routes -----------------------------------------------
+// ------------------------------------------------------------------------------------------------
 
 // subcategories
 Route::get('/category/{url}/{locale?}', 'Shop\CategoryController@index')->name('shop.category.index');
@@ -105,7 +85,7 @@ Route::post('/product/comments', 'Shop\ProductCommentController@store')->name('p
 
 // user cart
 Route::get('/shop/cart/{locale?}', 'Shop\CartController@index')->name('shop.cart.index');
-Route::get('/shop/cart/add/{id}', 'Shop\CartController@addProduct')->name('shop.cart.add');
+Route::get('/shop/cart/add/{id}/{locale?}', 'Shop\CartController@addProduct')->name('shop.cart.add');
 Route::get('/shop/cart/remove/{id}', 'Shop\CartController@removeProduct')->name('shop.cart.remove');
 Route::post('/shop/cart/count', 'Shop\CartController@addProductCount')->name('shop.cart.count');
 Route::get('/shop/cart/increment/{id}', 'Shop\CartController@increaseProductCount')->name('shop.cart.increment');

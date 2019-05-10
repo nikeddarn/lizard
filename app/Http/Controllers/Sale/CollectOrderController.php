@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Sale;
 use App\Contracts\Order\OrderStatusInterface;
 use App\Models\Order;
 use App\Support\Orders\OrderManagerBroker;
+use App\Support\Orders\OrderStorage;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,16 +22,22 @@ class CollectOrderController extends Controller
      * @var Order
      */
     private $order;
+    /**
+     * @var OrderStorage
+     */
+    private $orderStorage;
 
     /**
      * CollectOrderController constructor.
      * @param Order $order
      * @param OrderManagerBroker $orderManagerBroker
+     * @param OrderStorage $orderStorage
      */
-    public function __construct(Order $order, OrderManagerBroker $orderManagerBroker)
+    public function __construct(Order $order, OrderManagerBroker $orderManagerBroker, OrderStorage $orderStorage)
     {
         $this->orderManagerBroker = $orderManagerBroker;
         $this->order = $order;
+        $this->orderStorage = $orderStorage;
     }
 
     /**
@@ -46,6 +53,11 @@ class CollectOrderController extends Controller
         $order = $this->order->newQuery()->findOrFail($orderId);
 
         $this->authorize('collect', $order);
+
+        // set order storage
+        if (!$this->orderStorage->setOrderStorage($order)){
+            // ToDo. redirect to form (manual select storage)
+        }
 
         DB::beginTransaction();
         // set order status

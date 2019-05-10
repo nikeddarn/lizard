@@ -58,19 +58,27 @@ class AboutContentController extends Controller
         }
 
         $pageData = [
+            'indexable' => 1,
             'title_ru' => $request->get('title_ru'),
             'title_uk' => $request->get('title_uk'),
             'description_ru' => $request->get('description_ru'),
             'description_uk' => $request->get('description_uk'),
             'keywords_ru' => $request->get('keywords_ru'),
             'keywords_uk' => $request->get('keywords_uk'),
+            'name_ru' => $request->get('name_ru'),
+            'name_uk' => $request->get('name_uk'),
             'content_ru' => $request->get('content_ru'),
             'content_uk' => $request->get('content_uk'),
         ];
 
-        $this->staticPage->newQuery()
-            ->where('route', self::ABOUT_PAGE_ROUTE_NAME)
-            ->update($pageData);
+        $staticPage = $this->staticPage->newQuery()->where('route', self::ABOUT_PAGE_ROUTE_NAME)->first();
+
+        if ($staticPage){
+            $staticPage->update($pageData);
+        }else{
+            $pageData['route'] = self::ABOUT_PAGE_ROUTE_NAME;
+            $this->staticPage->newQuery()->create($pageData);
+        }
 
         return back()->with([
             'successful' => true,

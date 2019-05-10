@@ -9,7 +9,7 @@
                aria-controls="left-menu-children-{{ $category->id }}" data-toggle="dropdown" aria-haspopup="true"
                aria-expanded="false" data-category-id="{{ $category->id }}">
                 <div class="w-100 d-flex justify-content-between align-items-center">
-                    <h1 class="h6 my-0 text-gray-hover">{{ $category->name }}</h1>
+                    <h1 class="h6 my-0 text-gray-hover">{{ $category->name_ru }}</h1>
                     <span>
                         <i class="svg-icon" data-feather="chevron-right"></i>
                     </span>

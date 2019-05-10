@@ -9,6 +9,7 @@ use App\Models\VendorCategory;
 use App\Support\Vendors\VendorBroker;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
@@ -45,7 +46,7 @@ class VendorSynchronizationController extends Controller
     /**
      * Show synchronized categories.
      *
-     * @return \Illuminate\Contracts\View\Factory|View
+     * @return View
      */
     public function synchronizedCategories()
     {
@@ -58,7 +59,7 @@ class VendorSynchronizationController extends Controller
 
         // get synchronized categories with products count
         $synchronizedCategories = $this->vendorCategory->newQuery()
-            ->selectRaw("vendor_categories.name_$locale AS vendor_category_name, categories.name_$locale AS local_category_name, categories.url AS local_category_url, COUNT(DISTINCT(products1.id)) AS products_count, COUNT(DISTINCT(products2.id)) AS published_products_count, vendor_local_categories.auto_add_new_products AS auto_add_products, vendors.name_$locale AS vendor_name, vendors.id AS vendor_id, vendor_categories.id AS vendor_category_id, categories.id AS local_category_id, vendor_categories.vendor_category_id AS own_vendor_category_id")
+            ->selectRaw("vendor_categories.name_$locale AS vendor_category_name, categories.name_$locale AS local_category_name, categories.url AS local_category_url, COUNT(DISTINCT(products1.id)) AS products_count, COUNT(DISTINCT(products2.id)) AS published_products_count, vendors.name_$locale AS vendor_name, vendors.id AS vendor_id, vendor_categories.id AS vendor_category_id, categories.id AS local_category_id, vendor_categories.vendor_category_id AS own_vendor_category_id, vendor_local_categories.auto_add_new_products AS auto_add_products")
             ->join('vendors', 'vendors.id', '=', 'vendor_categories.vendors_id')
             ->leftJoin('vendor_category_product', 'vendor_category_product.vendor_categories_id', '=', 'vendor_categories.id')
             ->leftJoin('vendor_products', 'vendor_category_product.vendor_products_id', '=', 'vendor_products.id')
@@ -71,10 +72,9 @@ class VendorSynchronizationController extends Controller
                 $join->on('products1.id', '=', 'products2.id');
                 $join->where('products2.published', '=', 1);
             })
-            ->groupBy("vendor_categories.id", "categories.id", "vendor_local_categories.auto_add_new_products", "vendors.name_$locale", "vendor_categories.id", "categories.id", "vendors.id", "vendor_categories.vendor_category_id")
+            ->groupBy("vendor_categories.id", "categories.id")
             ->orderByRaw('vendor_name, vendor_category_name')
             ->paginate(config('admin.show_items_per_page'));
-
         return view('content.admin.vendors.synchronization.synchronized.index')->with(compact('synchronizedCategories'));
     }
 
@@ -82,7 +82,7 @@ class VendorSynchronizationController extends Controller
      * Get vendors with counts of queued jobs.
      *
      * @param Request $request
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return View
      */
     public function synchronizationQueue(Request $request)
     {
@@ -111,9 +111,6 @@ class VendorSynchronizationController extends Controller
             ->orderBy("vendors.name_$locale")
             ->get();
 
-        // prepare data
-//        $this->prepareVendorsData($vendors);
-
         if ($request->ajax()) {
             return view('content.admin.vendors.synchronization.queue.parts.list')->with(compact('vendors'));
         } else {
@@ -125,7 +122,7 @@ class VendorSynchronizationController extends Controller
      * Synchronize given vendor.
      *
      * @param int $vendorId
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function synchronize(int $vendorId)
     {

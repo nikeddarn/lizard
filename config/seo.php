@@ -76,7 +76,7 @@ return [
     ],
 
     'changefreq' => [
-        'static' => 'monthly',
+        'static' => 'weekly',
         'category' => 'weekly',
         'leaf_category' => 'daily',
         'product' => 'daily',

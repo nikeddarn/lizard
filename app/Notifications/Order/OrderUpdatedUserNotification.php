@@ -65,8 +65,11 @@ class OrderUpdatedUserNotification extends Notification
         $bodyText = $this->replaceNotificationPlaceholders($bodyTextTemplate, $notifiable);
 
         return (new MailMessage)
-            ->greeting($headerText)
-            ->line($bodyText);
+            ->subject(trans('shop.order.updated.subject'))
+            ->markdown('mail.order.order_updated', [
+                'headerText' => $headerText,
+                'bodyText' => $bodyText,
+            ]);
     }
 
     /**

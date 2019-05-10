@@ -30,6 +30,46 @@
                 }
             });
 
+            // // turn on product publish
+            // $('.category-publish-off-form').submit(function (event) {
+            //     if (confirm('Выключить публикацию категории ?')) {
+            //         let form = $(this);
+            //         let url = form.attr('action');
+            //
+            //         $.ajax({
+            //             type: "POST",
+            //             url: url,
+            //             data: form.serialize(),
+            //             success: function () {
+            //                 $(form).removeClass('d-inline-block').addClass('d-none');
+            //                 $(form).closest('.category-actions').find('.category-publish-on-form').removeClass('d-none').addClass('d-inline-block');
+            //             }
+            //         });
+            //     }
+            //     event.preventDefault();
+            //     return false;
+            // });
+            //
+            // // turn off product publish
+            // $('.category-publish-on-form').click(function (event) {
+            //     if (confirm('Включить публикацию категории ?')) {
+            //         let form = $(this);
+            //         let url = form.attr('action');
+            //
+            //         $.ajax({
+            //             type: "POST",
+            //             url: url,
+            //             data: form.serialize(),
+            //             success: function () {
+            //                 $(form).removeClass('d-inline-block').addClass('d-none');
+            //                 $(form).closest('.category-actions').find('.category-publish-off-form').removeClass('d-none').addClass('d-inline-block');
+            //             }
+            //         });
+            //     }
+            //     event.preventDefault();
+            //     return false;
+            // });
+
             // confirm delete category
             $(".category-form").submit(function (event) {
 

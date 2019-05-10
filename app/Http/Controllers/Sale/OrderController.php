@@ -101,7 +101,7 @@ class OrderController extends Controller
      */
     public function manage(int $order_id)
     {
-        $order = $this->order->newQuery()->with('deliveryType', 'orderAddress.city', 'orderRecipient', 'products')->findOrFail($order_id);
+        $order = $this->order->newQuery()->with('deliveryType', 'orderAddress.city', 'orderRecipient', 'products', 'storage.city')->findOrFail($order_id);
 
         $this->authorize('manage', $order);
 

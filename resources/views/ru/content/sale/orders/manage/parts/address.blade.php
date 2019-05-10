@@ -4,6 +4,12 @@
             <strong>Тип доставки</strong>
             <span class="ml-4">{{ $order->deliveryType->name_ru }}</span>
         </li>
+        @if($order->storage)
+            <li class="list-group-item d-flex justify-content-between">
+                <strong>Склад самовывоза</strong>
+                <span class="ml-4">{{ $order->storage->name_ru }} ({{ $order->storage->city->name_ru }})</span>
+            </li>
+        @endif
         @if($order->orderAddress)
             @if($order->orderAddress->city)
                 <li class="list-group-item d-flex justify-content-between">

@@ -9,6 +9,7 @@ namespace App\Support\ProductBadges;
 use App\Models\Product;
 use App\Support\Settings\SettingsRepository;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 
 class ProductBadges
 {
@@ -42,7 +43,7 @@ class ProductBadges
     /**
      * Insert product badge.
      *
-     * @param Product $product
+     * @param Product|Model $product
      * @param int $badgeId
      */
     public function insertProductBadge(Product $product, int $badgeId)

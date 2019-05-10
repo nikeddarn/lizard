@@ -1,7 +1,7 @@
 <ul class="nav">
     <li class="dropdown dropdown-hover">
 
-        <a href="#" class="nav-link dropdown-toggle caret-off text-gray py-1 pr-0" id="top-panel-user-menu"
+        <a href="#" class="nav-link dropdown-toggle caret-off text-gray py-1 px-0" id="top-panel-user-menu"
            data-toggle="dropdown"
            aria-haspopup="true" aria-expanded="false" onclick="return false;">
             <i class="svg-icon" data-feather="user"></i>
@@ -11,44 +11,12 @@
 
         <div class="dropdown-menu dropdown-menu-right m-0" aria-labelledby="top-panel-user-menu">
 
-            {{--<a class="dropdown-item d-flex align-items-center px-3" href="{{ route('user.balance.show', ['locale' => request()->route('locale')]) }}">--}}
-                {{--<span>Баланс</span>--}}
-            {{--</a>--}}
-
-            {{--<a class="dropdown-item d-flex align-items-center px-3" href="{{ route('user.notifications.current', ['locale' => request()->route('locale')]) }}">--}}
-                {{--<span>Сообщения</span>&nbsp;--}}
-                {{--@if(!empty($userBadges['notifications']))--}}
-                    {{--<span class="badge rounded badge-primary badge-menu">{{ $userBadges['notifications'] }}</span>--}}
-                {{--@endif--}}
-            {{--</a>--}}
-
-            {{--<a class="dropdown-item d-flex align-items-center px-3" href="{{ route('user.shipments.current', ['locale' => request()->route('locale')]) }}">--}}
-                {{--<span>Отгрузки</span>&nbsp;--}}
-                {{--@if(!empty($userBadges['shipments']))--}}
-                    {{--<span class="badge rounded badge-primary badge-menu">{{ $userBadges['shipments'] }}</span>--}}
-                {{--@endif--}}
-            {{--</a>--}}
-
             <a class="dropdown-item d-flex align-items-center px-3" href="{{ route('user.orders.index', ['locale' => request()->route('locale')]) }}">
                 <span>Заказы</span>&nbsp;
                 @if(!empty($userBadges['orders']))
                     <span class="badge rounded badge-primary badge-menu">{{ $userBadges['orders'] }}</span>
                 @endif
             </a>
-
-            {{--<a class="dropdown-item d-flex align-items-center px-3" href="{{ route('user.reclamations.current', ['locale' => request()->route('locale')]) }}">--}}
-                {{--<span>Гарантия</span>&nbsp;--}}
-                {{--@if(!empty($userBadges['reclamations']))--}}
-                    {{--<span class="badge rounded badge-primary badge-menu">{{ $userBadges['reclamations'] }}</span>--}}
-                {{--@endif--}}
-            {{--</a>--}}
-
-            {{--<a class="dropdown-item d-flex align-items-center px-3" href="{{ route('user.payments.current', ['locale' => request()->route('locale')]) }}">--}}
-                {{--<span>Платежи</span>&nbsp;--}}
-                {{--@if(!empty($userBadges['payments']))--}}
-                    {{--<span class="badge rounded badge-primary badge-menu">{{ $userBadges['payments'] }}</span>--}}
-                {{--@endif--}}
-            {{--</a>--}}
 
             <hr>
 
@@ -75,6 +43,8 @@
 
             <form action="{{ route('logout') }}" method="POST">
                 @csrf
+                <input type="hidden" name="locale" value="ru">
+
                 <button class="dropdown-item cursor-pointer d-flex align-items-center px-3">Выйти</button>
             </form>
         </div>

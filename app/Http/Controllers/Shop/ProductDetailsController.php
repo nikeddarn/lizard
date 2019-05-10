@@ -4,15 +4,18 @@ namespace App\Http\Controllers\Shop;
 
 use App\Models\Attribute;
 use App\Support\Breadcrumbs\ProductBreadcrumbs;
+use App\Support\Headers\CacheControlHeaders;
 use App\Support\Seo\MetaTags\ProductMetaTags;
 use App\Support\Settings\SettingsRepository;
 use App\Support\Shop\Products\SingleProduct;
 use App\Support\User\RetrieveUser;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Response;
 
 class ProductDetailsController extends Controller
 {
     use RetrieveUser;
+    use CacheControlHeaders;
 
     /**
      * @var Attribute
@@ -52,14 +55,28 @@ class ProductDetailsController extends Controller
         $this->settingsRepository = $settingsRepository;
     }
 
+    /**
+     * Show product card.
+     *
+     * @param string $url
+     * @return Response
+     */
     public function index(string $url)
     {
         // retrieve product
         $product = $this->productRetriever->getProduct($url);
 
-        if (!$product){
+        if (!$product) {
             abort(404);
         }
+
+        $user = $this->getUser();
+
+        $response = response()->make();
+
+        $pageLastModified = $product->updated_at;
+
+        $this->checkAndSetLastModifiedHeader($user, $response, $pageLastModified);
 
         // get product's id
         $productId = $product->id;
@@ -88,18 +105,25 @@ class ProductDetailsController extends Controller
         $pageKeywords = $this->productMetaTags->getCategoryKeywords($product);
 
         // add product to user's recent viewed
-        $this->addProductToRecentViewed($product->id);
+        $this->addProductToRecentViewed($user, $product->id);
 
-        return view('content.shop.product.details.index')->with(compact('product', 'breadcrumbs', 'comments', 'productAttributes', 'pageTitle', 'pageDescription', 'pageKeywords'));
+        $response->setContent(view('content.shop.product.details.index')->with(compact('product', 'breadcrumbs', 'comments', 'productAttributes', 'pageTitle', 'pageDescription', 'pageKeywords')));
+
+        $this->checkAndSetEtagHeader($user, $response);
+
+        return $response;
     }
 
     /**
+     * @param $user
      * @param int $productId
      * @return void
      */
-    private function addProductToRecentViewed(int $productId)
+    private function addProductToRecentViewed($user, int $productId)
     {
-        $user = $this->getOrCreateUser();
+        if (!$user) {
+            $user = $this->createUser();
+        }
 
         $user->recentProducts()->syncWithoutDetaching([$productId]);
     }

@@ -4,9 +4,15 @@ namespace App\Http\Controllers\Pages;
 
 use App\Http\Controllers\Controller;
 use App\Models\StaticPage;
+use App\Support\Headers\CacheControlHeaders;
+use App\Support\User\RetrieveUser;
+use Illuminate\Http\Response;
 
 class PaymentsPageController extends Controller
 {
+    use RetrieveUser;
+    use CacheControlHeaders;
+
     /**
      * @var string
      */
@@ -25,16 +31,27 @@ class PaymentsPageController extends Controller
         $this->staticPage = $staticPage;
     }
 
-
     /**
      * Show main page.
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Response
      */
     public function index()
     {
+        $user = $this->getUser();
+
+        $response = response()->make();
+
         $pageData = $this->staticPage->newQuery()->where('route', self::PAYMENTS_PAGE_ROUTE_NAME)->first();
 
-        return view('content.pages.payments.index')->with(compact('pageData'));
+        $pageLastModified = $pageData->updated_at;
+
+        $this->checkAndSetLastModifiedHeader($user, $response, $pageLastModified);
+
+        $response->setContent(view('content.pages.payments.index')->with(compact('pageData')));
+
+        $this->checkAndSetEtagHeader($user, $response);
+
+        return $response;
     }
 }

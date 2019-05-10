@@ -49,7 +49,7 @@ class SingleProduct extends AbstractProduct
      */
     protected function addRelations(Builder $query, $user = null): Builder
     {
-        $query->with('productImages', 'productVideos', 'availableStorageProducts', 'expectingStorageProducts', 'availableVendorProducts', 'expectingVendorProducts', 'availableProductStorages.city', 'attributeValues.attribute');
+        $query->with('productImages', 'productVideos', 'productFiles', 'availableStorageProducts', 'expectingStorageProducts', 'availableVendorProducts', 'expectingVendorProducts', 'availableProductStorages.city', 'attributeValues.attribute');
 
         if ($user) {
             $query->with(['favouriteProducts' => function ($query) use ($user) {

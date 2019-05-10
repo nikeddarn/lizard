@@ -9,7 +9,7 @@
             @if($comment->user && $comment->user->avatar)
                 <img src="/storage/{{ $comment->user->avatar }}" class="media-object img-thumbnail" alt="аватар пользователя">
             @else
-                <img src="{{ url('/images/common/default_user_avatar.png') }}" class="media-object img-thumbnail" alt="аватар пользователя">
+                <img src="{{ url('/images/common/no_user_avatar.png') }}" class="media-object img-thumbnail" alt="аватар пользователя">
             @endif
 
             @if($comment->rating)

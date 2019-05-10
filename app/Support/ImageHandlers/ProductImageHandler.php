@@ -7,6 +7,7 @@ namespace App\Support\ImageHandlers;
 
 
 use App\Models\Product;
+use App\Models\ProductImage;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Image;
@@ -85,9 +86,32 @@ class ProductImageHandler extends ImageHandler
     /**
      * Delete all product images.
      *
+     * @param ProductImage|Model $image
+     */
+    public function deleteProductImage(ProductImage $image)
+    {
+        if ($image->image) {
+            Storage::disk('public')->delete($image->image);
+        }
+        if ($image->small) {
+            Storage::disk('public')->delete($image->small);
+        }
+
+        if ($image->medium) {
+            Storage::disk('public')->delete($image->medium);
+        }
+
+        if ($image->large) {
+            Storage::disk('public')->delete($image->large);
+        }
+    }
+
+    /**
+     * Delete all product images.
+     *
      * @param int $productId
      */
-    public function deleteProductImage(int $productId)
+    public function deleteProductImages(int $productId)
     {
         // remove product images from storage
         Storage::disk('public')->deleteDirectory(self::PRODUCT_IMAGE_DIRECTORY . $productId);

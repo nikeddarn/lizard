@@ -2,14 +2,16 @@
 
 namespace App\Http\Middleware;
 
+use Carbon\Carbon;
 use Closure;
+use Illuminate\Http\Request;
 
 class CacheControlHeaders
 {
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @param  \Closure  $next
      * @return mixed
      */
@@ -17,7 +19,7 @@ class CacheControlHeaders
     {
         $response = $next($request);
 
-        $response->header('Cache-Control', 'no-cache, must-revalidate');
+        $response->header('Cache-Control', 'private, must-revalidate');
 
         return $response;
     }

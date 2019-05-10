@@ -7,8 +7,8 @@ namespace App\Support\Shop\Products;
 
 
 use App\Models\Product;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 
 class SearchProducts extends AbstractProduct
 {
@@ -20,16 +20,19 @@ class SearchProducts extends AbstractProduct
      */
     public function getFoundProductsIds(string $searchingText): array
     {
-        return Product::search($searchingText)->get()->pluck('id')->toArray();
+        return Product::search($searchingText)
+            ->get()
+            ->pluck('id')
+            ->toArray();
     }
 
     /**
      * Get products with its properties.
      *
      * @param array $productsIds
-     * @return LengthAwarePaginator
+     * @return Collection
      */
-    public function getProducts(array $productsIds): LengthAwarePaginator
+    public function getProducts(array $productsIds): Collection
     {
         $user = $this->getUser();
 
@@ -37,7 +40,7 @@ class SearchProducts extends AbstractProduct
 
         $query = $this->addRelations($query, $user);
 
-        $products = $query->paginate($this->productsPerPage)->appends(request()->query());
+        $products = $query->get();
 
         $this->addProductsProperties($products, $user);
 
@@ -51,9 +54,9 @@ class SearchProducts extends AbstractProduct
      * @param $user
      * @return Builder
      */
-    protected function addRelations(Builder $query, $user = null): Builder
+    private function addRelations(Builder $query, $user): Builder
     {
-        $query->with('primaryImage', 'productImages', 'actualBadges', 'availableStorageProducts', 'expectingStorageProducts', 'availableVendorProducts', 'expectingVendorProducts', 'availableProductStorages.city');
+        $query->with('primaryImage', 'productImages', 'productVideos', 'actualBadges', 'availableStorageProducts', 'expectingStorageProducts', 'availableVendorProducts', 'expectingVendorProducts', 'availableProductStorages.city');
 
         if ($user) {
             $query->with(['favouriteProducts' => function ($query) use ($user) {

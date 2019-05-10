@@ -43,17 +43,21 @@ class SendOrderCreatedNotifications
         // define order manager
         $orderManager = $this->orderManagerBroker->getCurrentOrFreeOrderManager($order);
 
-        try {
-            DB::beginTransaction();
-            //set manager for given order
-            $this->orderManagerBroker->setOrderManagerNotified($order, $orderManager);
+        if ($orderManager) {
+            try {
+                DB::beginTransaction();
+                //set manager for given order
+                $this->orderManagerBroker->setOrderManagerNotified($order, $orderManager);
 
-            // notify user's manager
-            $orderManager->notify(new OrderCreatedManagerNotification($order));
-            DB::commit();
-        }catch (Exception $exception){
-            DB::rollBack();
-            Log::info('Can\'t notify user manager ' . $orderManager->name . '<br/>' . $exception->getMessage());
+                // notify user's manager
+                $orderManager->notify(new OrderCreatedManagerNotification($order));
+                DB::commit();
+            } catch (Exception $exception) {
+                DB::rollBack();
+                Log::info('Can\'t notify user manager ' . $orderManager->name . '<br/>' . $exception->getMessage());
+            }
+        }else{
+            Log::info('Can\'t notify user manager. No one manager present');
         }
     }
 }

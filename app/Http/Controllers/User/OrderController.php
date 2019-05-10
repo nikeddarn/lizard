@@ -13,6 +13,8 @@ use App\Models\City;
 use App\Models\DeliveryType;
 use App\Models\Order;
 use App\Models\OrderProduct;
+use App\Models\StaticPage;
+use App\Models\Storage;
 use App\Support\Orders\DeliveryPrice;
 use App\Support\User\RetrieveUser;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -47,6 +49,10 @@ class OrderController extends Controller
      * @var City
      */
     private $city;
+    /**
+     * @var Storage
+     */
+    private $storage;
 
     /**
      * OrderController constructor.
@@ -55,22 +61,25 @@ class OrderController extends Controller
      * @param DeliveryPrice $deliveryPrice
      * @param DeliveryType $deliveryType
      * @param City $city
+     * @param Storage $storage
      */
-    public function __construct(Order $order, OrderProduct $orderProduct, DeliveryPrice $deliveryPrice, DeliveryType $deliveryType, City $city)
+    public function __construct(Order $order, OrderProduct $orderProduct, DeliveryPrice $deliveryPrice, DeliveryType $deliveryType, City $city, Storage $storage)
     {
         $this->order = $order;
         $this->orderProduct = $orderProduct;
         $this->deliveryPrice = $deliveryPrice;
         $this->deliveryType = $deliveryType;
         $this->city = $city;
+        $this->storage = $storage;
     }
 
     /**
      * Show list of orders.
      *
+     * @param StaticPage $staticPage
      * @return View
      */
-    public function index()
+    public function index(StaticPage $staticPage)
     {
         $user = $this->getUser();
 
@@ -80,15 +89,23 @@ class OrderController extends Controller
 
         $cities = $this->city->newQuery()->has('storages')->get();
 
+        $storages = $this->storage->newQuery()->join('cities', 'storages.cities_id', '=', 'cities.id')->orderByRaw('cities.name_' . $locale)->select('storages.*')->with('city')->get();
+
         if ($user) {
             $orders = $this->getUserOrders($user);
             $lastUserAddress = $user->orderAddresses()->orderByDesc('id')->first();
+            $lastSelfDeliveryOrder = $user->orders()->whereNotNull('storages_id')->orderByDesc('id')->first();
         } else {
             $orders = null;
             $lastUserAddress = null;
         }
 
-        return view('content.user.orders.list.index')->with(compact('orders', 'locale', 'cities', 'deliveryTypes', 'lastUserAddress'));
+        $pageData = $staticPage->newQuery()->where('route', 'user.orders.index')->first();
+
+        $pageTitle = $pageData->{'title_' . $locale};
+        $noindexPage = true;
+
+        return view('content.user.orders.list.index')->with(compact('orders', 'locale', 'cities', 'deliveryTypes', 'lastUserAddress', 'pageTitle', 'noindexPage', 'storages', 'lastSelfDeliveryOrder'));
     }
 
     /**
@@ -157,6 +174,7 @@ class OrderController extends Controller
 
         if ($deliveryTypeId === DeliveryTypesInterface::SELF){
             $order->order_addresses_id = null;
+            $order->storages_id = (int)$request->get('storage_id');
             $order->save();
         }else{
             $orderAddressData = [
@@ -176,6 +194,7 @@ class OrderController extends Controller
                 $orderAddress = $order->orderAddress()->create($orderAddressData);
 
                 $order->order_addresses_id = $orderAddress->id;
+                $order->storages_id = null;
                 $order->save();
             }
         }

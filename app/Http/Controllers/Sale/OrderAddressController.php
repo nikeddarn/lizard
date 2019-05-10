@@ -8,6 +8,8 @@ use App\Models\City;
 use App\Models\DeliveryType;
 use App\Models\Order;
 use App\Http\Controllers\Controller;
+use App\Models\Storage;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -25,18 +27,24 @@ class OrderAddressController extends Controller
      * @var City
      */
     private $city;
+    /**
+     * @var Storage
+     */
+    private $storage;
 
     /**
      * OrderRecipientController constructor.
      * @param Order $order
      * @param DeliveryType $deliveryType
      * @param City $city
+     * @param Storage $storage
      */
-    public function __construct(Order $order, DeliveryType $deliveryType, City $city)
+    public function __construct(Order $order, DeliveryType $deliveryType, City $city, Storage $storage)
     {
         $this->order = $order;
         $this->deliveryType = $deliveryType;
         $this->city = $city;
+        $this->storage = $storage;
     }
 
     /**
@@ -44,7 +52,7 @@ class OrderAddressController extends Controller
      *
      * @param int $orderId
      * @return View
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function edit(int $orderId)
     {
@@ -52,18 +60,24 @@ class OrderAddressController extends Controller
 
         $this->authorize('updateDelivery', $order);
 
+        $locale = app()->getLocale();
+
+        $user = $order->user;
+
         $lastUserAddress = $order->user->orderAddresses()->orderByDesc('id')->first();
+        $lastSelfDeliveryOrder = $user->orders()->whereNotNull('storages_id')->orderByDesc('id')->first();
 
         $deliveryTypes = $this->deliveryType->newQuery()->get();
         $cities = $this->city->newQuery()->has('storages')->get();
+        $storages = $this->storage->newQuery()->join('cities', 'storages.cities_id', '=', 'cities.id')->orderByRaw('cities.name_' . $locale)->select('storages.*')->with('city')->get();
 
-        return view('content.sale.orders.edit.address.index')->with(compact('order', 'deliveryTypes', 'cities', 'lastUserAddress'));
+        return view('content.sale.orders.edit.address.index')->with(compact('order', 'deliveryTypes', 'cities', 'lastUserAddress', 'storages', 'lastSelfDeliveryOrder'));
     }
 
     /**
      * @param UpdateOrderAddressRequest $request
      * @return RedirectResponse
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function update(UpdateOrderAddressRequest $request)
     {
@@ -80,6 +94,7 @@ class OrderAddressController extends Controller
 
         if ($deliveryTypeId === DeliveryTypesInterface::SELF){
             $order->order_addresses_id = null;
+            $order->storages_id = (int)$request->get('storage_id');
             $order->save();
         }else{
             $orderAddressData = [
@@ -99,10 +114,11 @@ class OrderAddressController extends Controller
                 $orderAddress = $order->orderAddress()->create($orderAddressData);
 
                 $order->order_addresses_id = $orderAddress->id;
+                $order->storages_id = null;
                 $order->save();
             }
         }
 
-        return redirect(route('admin.order.show', ['order_id' => $orderId]));
+        return redirect(route('admin.order.manage', ['order_id' => $orderId]));
     }
 }

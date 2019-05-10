@@ -9,11 +9,14 @@ namespace App\Support\Vendors\Setup;
 use App\Contracts\Shop\AttributesInterface;
 use App\Contracts\Vendor\VendorInterface;
 use App\Models\Attribute;
+use App\Models\City;
 use App\Models\VendorStock;
 use App\Support\Repositories\AttributeRepository;
 use App\Support\Vendors\Providers\BrainSetupProvider;
 use Exception;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use stdClass;
 
 class BrainSetupManager
 {
@@ -28,16 +31,22 @@ class BrainSetupManager
      * @var AttributeRepository
      */
     private $attributeRepository;
+    /**
+     * @var City
+     */
+    private $city;
 
     /**
      * BrainSetupManager constructor.
      * @param BrainSetupProvider $vendorProvider
      * @param AttributeRepository $attributeRepository
+     * @param City $city
      */
-    public function __construct(BrainSetupProvider $vendorProvider, AttributeRepository $attributeRepository)
+    public function __construct(BrainSetupProvider $vendorProvider, AttributeRepository $attributeRepository, City $city)
     {
         $this->vendorProvider = $vendorProvider;
         $this->attributeRepository = $attributeRepository;
+        $this->city = $city;
     }
 
     /**
@@ -47,7 +56,7 @@ class BrainSetupManager
      */
     public function setup()
     {
-        $this->insertBrands();
+//        $this->insertBrands();
         $this->insertStocks();
     }
 
@@ -122,15 +131,41 @@ class BrainSetupManager
      */
     private function insertStocks()
     {
+        $cities = $this->city->newQuery()->get();
+
         $vendorStocks = $this->vendorProvider->getStocks();
 
         foreach ($vendorStocks as $stock) {
-            VendorStock::query()->firstOrCreate([
+
+            $vendorStockData = [
                 'vendors_id' => self::VENDOR_ID,
                 'vendor_stock_id' => $stock->stockID,
                 'name_ru' => $stock->name,
                 'name_uk' => $stock->name,
-            ]);
+            ];
+
+            $vendorStock = VendorStock::query()->firstOrCreate($vendorStockData);
+
+            $vendorStock->cities_id = $this->getStockCityId($stock, $cities);
+            $vendorStock->save();
         }
+    }
+
+    /**
+     * Get stock city id
+     *
+     * @param stdClass $stock
+     * @param Collection $cities
+     * @return int|null
+     */
+    private function getStockCityId(stdClass $stock, Collection $cities)
+    {
+        foreach ($cities as $city) {
+            if (stripos($stock->name, $city->name_ru) !== false || stripos($stock->name, $city->name_uk) !== false) {
+                return $city->id;
+            }
+        }
+
+        return null;
     }
 }

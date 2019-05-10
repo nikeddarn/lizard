@@ -10,12 +10,20 @@
                data-remove-title="Удалить из избранного">
                 <i class="svg-icon" data-feather="heart"></i>
             </a>
+
             <a href="{{ route('user.favourites.add', ['id' => $product->id]) }}"
                class="product-favourite product-favourite-add align-items-center justify-content-center{{ $product->isFavourite ?  ' d-none' : ' d-flex'}}"
                title="Добавить в избранное" data-remove-title="Добавить в избранное"
                data-add-title="Добавить в избранное">
                 <i class="svg-icon" data-feather="heart"></i>
             </a>
+
+            @if($product->productVideos->count())
+                <a href="{{ $product->href }}#product-video" class="product-video-review btn btn-link d-none d-md-block"
+                   title="Смотреть видеообзор">
+                    <i class="svg-icon" data-feather="video"></i>
+                </a>
+            @endif
 
             <button class="product-quickview btn btn-link d-none d-md-block" title="Смотреть подробней"
                     data-toggle="modal"
@@ -77,8 +85,8 @@
                         <i class="svg-icon text-warning" data-feather="clock"></i>
                         <span class="ml-2">Ожидается {{ $product->expectedAt->diffForHumans() }}</span>
                     @else
-                        <i class="svg-icon text-danger" data-feather="alert-circle"></i>
-                        <span class="ml-2">Нет в наличии</span>
+                        <i class="svg-icon text-info" data-feather="alert-circle"></i>
+                        <span class="ml-2">Продукт под заказ</span>
                     @endif
                 </div>
 

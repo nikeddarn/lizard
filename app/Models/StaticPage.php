@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Support\Translatable;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Mews\Purifier\Facades\Purifier;
@@ -26,18 +27,37 @@ class StaticPage extends Model
     protected $guarded = [];
 
     /**
-     * Indicates if the model should be timestamped.
-     *
-     * @var bool
-     */
-    public $timestamps = false;
-
-    /**
      * The attributes that should be selected depends on locale from JSON type field.
      *
      * @var array
      */
     public $translatable = ['title', 'description', 'keywords', 'name', 'content'];
+
+    /**
+     * @param  string $value
+     * @return void
+     */
+    public function setNameRuAttribute($value)
+    {
+        if ($value) {
+            $this->attributes['name_ru'] = Str::ucfirst($value);
+        } else {
+            $this->attributes['name_ru'] = $value;
+        }
+    }
+
+    /**
+     * @param  string $value
+     * @return void
+     */
+    public function setNameUkAttribute($value)
+    {
+        if ($value) {
+            $this->attributes['name_uk'] = Str::ucfirst($value);
+        } else {
+            $this->attributes['name_uk'] = $value;
+        }
+    }
 
     /**
      * @param  string $value
@@ -115,5 +135,27 @@ class StaticPage extends Model
         } else {
             $this->attributes['description_uk'] = $value;
         }
+    }
+
+    /**
+     * Transform timestamp to carbon.
+     *
+     * @param string $value
+     * @return string
+     */
+    public function getCreatedAtAttribute($value)
+    {
+        return $value ? Carbon::createFromFormat('Y-m-d H:i:s', $value) : null;
+    }
+
+    /**
+     * Transform timestamp to carbon.
+     *
+     * @param string $value
+     * @return string
+     */
+    public function getUpdatedAtAttribute($value)
+    {
+        return $value ? Carbon::createFromFormat('Y-m-d H:i:s', $value) : null;
     }
 }

@@ -93,6 +93,7 @@ class MainContentController extends Controller
         }
 
         $pageData = [
+            'indexable' => 1,
             'title_ru' => $request->get('title_ru'),
             'title_uk' => $request->get('title_uk'),
             'description_ru' => $request->get('description_ru'),
@@ -130,6 +131,8 @@ class MainContentController extends Controller
             ]);
         }
 
+        $this->updateMainPageTimestamp();
+
         return back()->with([
             'successful' => true,
         ]);
@@ -155,8 +158,22 @@ class MainContentController extends Controller
             ]);
         }
 
+        $this->updateMainPageTimestamp();
+
         return back()->with([
             'successful' => true,
         ]);
+    }
+
+    /**
+     * Update main page timestamp.
+     */
+    private function updateMainPageTimestamp()
+    {
+        $mainPage = $this->staticPage->newQuery()->where('route', 'main')->first();
+
+        if ($mainPage) {
+            $mainPage->touch();
+        }
     }
 }

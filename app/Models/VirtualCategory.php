@@ -33,14 +33,6 @@ class VirtualCategory extends Model
     public $translatable = ['name', 'title', 'description', 'keywords', 'content'];
 
     /**
-     * Indicates if the model should be timestamped.
-     *
-     * @var bool
-     */
-    public $timestamps = false;
-
-
-    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function category()

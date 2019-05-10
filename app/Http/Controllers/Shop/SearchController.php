@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Shop;
 use App\Support\Shop\Products\SearchProducts;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
+use Illuminate\View\View;
 
 class SearchController extends Controller
 {
@@ -23,27 +26,25 @@ class SearchController extends Controller
         $this->searchProducts = $searchProducts;
     }
 
+    /**
+     * Search for products.
+     *
+     * @param Request $request
+     * @return View
+     */
     public function index(Request $request)
     {
         if (!$request->has('search_for')) {
             abort(404);
         }
 
-        $locale = app()->getLocale();
-
         $searchingText = $request->get('search_for');
 
         $foundProductsIds = $this->searchProducts->getFoundProductsIds($searchingText);
 
-        return redirect(route('shop.search.results', ['locale' => $locale]))->with(compact('searchingText', 'foundProductsIds'));
+        return redirect(route('shop.search.results', ['locale' => app()->getLocale()]))->with(compact('searchingText', 'foundProductsIds'));
     }
 
-    /**
-     * Show found products.
-     *
-     * @param Request $request
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     */
     public function results(Request $request)
     {
         $request->session()->keep(['searchingText', 'foundProductsIds']);
@@ -52,8 +53,45 @@ class SearchController extends Controller
 
         $foundProductsIds = $request->session()->get('foundProductsIds', []);
 
-        $products = $this->searchProducts->getProducts($foundProductsIds);
+        $productsCollection = $this->searchProducts->getProducts($foundProductsIds);
+
+        $exactMatchProducts = $this->getExactMatchProducts($productsCollection, $searchingText);
+
+        if ($exactMatchProducts->count()) {
+            $productsCollection = $exactMatchProducts;
+        }
+
+        $page = request()->has('page') ? request()->get('page') : 1;
+        $perPage = config('shop.show_products_per_page');
+        $totalCount = $productsCollection->count();
+
+        $pageProducts = $productsCollection->slice($perPage * ($page -1), $perPage);
+
+        $products = (new LengthAwarePaginator($pageProducts, $totalCount, $perPage, $page))->appends(request()->query());
 
         return view('content.shop.search.index')->with(compact('searchingText', 'products'));
+    }
+
+    /**
+     * Get exact match product.
+     *
+     * @param Collection $products
+     * @param string $searchingText
+     * @return Collection
+     */
+    private function getExactMatchProducts(Collection $products, string $searchingText): Collection
+    {
+        $exactMatchProducts = collect();
+
+        foreach ($products as $product) {
+            foreach ($product->toExactMatchSearchableArray() as $productProperty) {
+                if ($productProperty && mb_stripos($productProperty, $searchingText) !== false) {
+                    $exactMatchProducts->push($product);
+                    continue 2;
+                }
+            }
+        }
+
+        return $exactMatchProducts;
     }
 }

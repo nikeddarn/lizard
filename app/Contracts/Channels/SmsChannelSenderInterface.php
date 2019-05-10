@@ -18,4 +18,11 @@ interface SmsChannelSenderInterface
      * @return bool
      */
     public function send(SmsMessage $message);
+
+    /**
+     * Get sms sender balance.
+     *
+     * @return float
+     */
+    public function getBalance():float;
 }

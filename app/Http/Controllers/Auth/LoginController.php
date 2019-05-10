@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\FavouriteProduct;
 use App\Models\RecentProduct;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class LoginController extends Controller
 {
@@ -63,7 +65,7 @@ class LoginController extends Controller
     /**
      * Show admin login form.
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return View
      */
     public function showAdminLoginForm()
     {
@@ -75,16 +77,11 @@ class LoginController extends Controller
      *
      * @param Request $request
      * @param mixed $user
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return RedirectResponse
      */
     protected function authenticated(Request $request, $user)
     {
-        // set intended for redirect to admin
-        if ($user->isEmployee()) {
-            return redirect(route('admin.overview'));
-        } else {
-            return back();
-        }
+        return redirect()->intended($this->redirectTo);
     }
 
     /**
@@ -94,9 +91,11 @@ class LoginController extends Controller
      */
     protected function loggedOut()
     {
-        // redirect to main page if previous url was one od user's page
+        // redirect to main page if previous url was one of user's page
         if (stristr(url()->previous(), 'user')) {
-            return redirect('/');
+            $locale = request()->get('locale');
+
+            return redirect(route('main', ['locale' => $locale]));
         } else {
             return back();
         }
@@ -105,10 +104,9 @@ class LoginController extends Controller
     /**
      * Validate the user login request.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param Request $request
      * @return void
      *
-     * @throws \Illuminate\Validation\ValidationException
      */
     protected function validateLogin(Request $request)
     {

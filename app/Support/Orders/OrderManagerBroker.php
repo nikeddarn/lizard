@@ -191,6 +191,7 @@ class OrderManagerBroker
     private function getFreeOrderManager()
     {
         $userManager = $this->user->newQuery()
+            ->whereNotNull('phone')
             ->whereHas('userRoles', function ($query) {
                 $query->where('roles_id', RoleInterface::USER_MANAGER);
             })
@@ -202,6 +203,7 @@ class OrderManagerBroker
 
         if (!$userManager) {
             $userManager = $this->user->newQuery()
+                ->whereNotNull('phone')
                 ->whereHas('userRoles', function ($query) {
                     $query->where('roles_id', RoleInterface::ADMIN);
                 })

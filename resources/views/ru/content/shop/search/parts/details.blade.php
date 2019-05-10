@@ -149,8 +149,8 @@
                                                 </div>
                                             @else
                                                 <div class="text-gray">
-                                                    <i class="svg-icon text-danger" data-feather="alert-circle"></i>
-                                                    <span class="ml-2">Нет в наличии</span>
+                                                    <i class="svg-icon text-info" data-feather="alert-circle"></i>
+                                                    <span class="ml-2">Продукт под заказ</span>
                                                 </div>
                                             @endif
                                         </td>

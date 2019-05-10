@@ -7,6 +7,7 @@ use App\Http\Requests\Content\Slide\InsertSlideRequest;
 use App\Http\Requests\Content\Slide\UpdateSlideRequest;
 use App\Models\Slide;
 use App\Models\Slider;
+use App\Models\StaticPage;
 use App\Support\ImageHandlers\SliderImageHandler;
 use App\Http\Controllers\Controller;
 
@@ -25,18 +26,24 @@ class SlideController extends Controller
      * @var SliderImageHandler
      */
     private $imageHandler;
+    /**
+     * @var StaticPage
+     */
+    private $staticPage;
 
     /**
      * SeoSettingsController constructor.
      * @param Slider $slider
      * @param Slide $slide
      * @param SliderImageHandler $imageHandler
+     * @param StaticPage $staticPage
      */
-    public function __construct(Slider $slider, Slide $slide, SliderImageHandler $imageHandler)
+    public function __construct(Slider $slider, Slide $slide, SliderImageHandler $imageHandler, StaticPage $staticPage)
     {
         $this->slide = $slide;
         $this->slider = $slider;
         $this->imageHandler = $imageHandler;
+        $this->staticPage = $staticPage;
     }
 
     /**
@@ -81,6 +88,8 @@ class SlideController extends Controller
 
         $this->slide->newQuery()->create($slideData);
 
+        $this->updateMainPageTimestamp();
+
         return redirect(route('admin.content.main.edit'));
     }
 
@@ -122,6 +131,8 @@ class SlideController extends Controller
 
         $slide->update($slideData);
 
+        $this->updateMainPageTimestamp();
+
         return redirect(route('admin.content.main.edit'));
     }
 
@@ -143,6 +154,20 @@ class SlideController extends Controller
 
         $slide->delete();
 
+        $this->updateMainPageTimestamp();
+
         return back();
+    }
+
+    /**
+     * Update main page timestamp.
+     */
+    private function updateMainPageTimestamp()
+    {
+        $mainPage = $this->staticPage->newQuery()->where('route', 'main')->first();
+
+        if ($mainPage) {
+            $mainPage->touch();
+        }
     }
 }

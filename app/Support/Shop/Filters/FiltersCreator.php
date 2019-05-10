@@ -41,12 +41,14 @@ class FiltersCreator
      * Get products filters.
      *
      * @param Category|Model $category
-     * @param array $productsIds
      * @return Collection
      */
-    public function getFilters(Category $category, array $productsIds)
+    public function getFilters(Category $category)
     {
-        $filters = $this->retrieveFilters($productsIds)
+        // get category products' ids
+        $categoryProductsIds = $category->products->pluck('id')->toArray();
+
+        $filters = $this->retrieveFilters($categoryProductsIds)
             ->sortByDesc(function (Attribute $attribute) use ($category) {
                 // create attribute values urls
                 $this->createSingleFilterItemsUrls($attribute, $category->url);

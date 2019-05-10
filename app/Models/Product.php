@@ -40,24 +40,36 @@ class Product extends Model
     public function toSearchableArray()
     {
         return [
-            'id' => $this->id,
-            'url' => $this->url,
+            $this->getKeyName() => $this->getKey(),
             'name_ru' => $this->name_ru,
             'name_uk' => $this->name_uk,
             'model_ru' => $this->model_ru,
             'model_uk' => $this->model_uk,
             'articul' => $this->articul,
             'code' => $this->code,
-            'title_ru' => $this->title_ru,
-            'title_uk' => $this->title_uk,
-            'description_ru' => $this->description_ru,
-            'description_uk' => $this->description_uk,
             'brief_content_ru' => $this->brief_content_ru,
             'brief_content_uk' => $this->brief_content_uk,
             'content_ru' => $this->content_ru,
             'content_uk' => $this->content_uk,
             'manufacturer_ru' => $this->manufacturer_ru,
             'manufacturer_uk' => $this->manufacturer_uk,
+        ];
+    }
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array
+     */
+    public function toExactMatchSearchableArray()
+    {
+        return [
+            'articul' => $this->articul,
+            'code' => $this->code,
+            'model_ru' => $this->model_ru,
+            'model_uk' => $this->model_uk,
+            'name_ru' => $this->name_ru,
+            'name_uk' => $this->name_uk,
         ];
     }
 
@@ -128,6 +140,14 @@ class Product extends Model
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function productFiles()
+    {
+        return $this->hasMany('App\Models\ProductFile', 'products_id', 'id');
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
     public function primaryImage()
@@ -182,6 +202,19 @@ class Product extends Model
     {
         return $this->hasMany('App\Models\StorageProduct', 'products_id', 'id')
             ->where('storage_departments_id', '=', StorageDepartmentsInterface::STOCK);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function availableOrExpectingStorageProducts()
+    {
+        return $this->hasMany('App\Models\StorageProduct', 'products_id', 'id')
+            ->where('storage_departments_id', '=', StorageDepartmentsInterface::STOCK)
+            ->where(function ($query) {
+                $query->where('available_quantity', '>', 0)
+                    ->orWhereNotNull('available_time');
+            });
     }
 
     /**
@@ -295,6 +328,18 @@ class Product extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough|\Illuminate\Database\Query\Builder
      */
+    public function availableOrExpectingVendorProducts()
+    {
+        return $this->hasMany('App\Models\VendorProduct', 'products_id', 'id')
+            ->where(function ($query) {
+                $query->where('available', '>', 0)
+                    ->orWhereNotNull('available_time');
+            });
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough|\Illuminate\Database\Query\Builder
+     */
     public function availableVendorProducts()
     {
         return $this->hasMany('App\Models\VendorProduct', 'products_id', 'id')
@@ -335,7 +380,7 @@ class Product extends Model
     }
 
     /**
-     * @param  string $value
+     * @param string $value
      * @return void
      */
     public function setBriefContentRuAttribute($value)
@@ -348,7 +393,7 @@ class Product extends Model
     }
 
     /**
-     * @param  string $value
+     * @param string $value
      * @return void
      */
     public function setBriefContentUkAttribute($value)
@@ -361,7 +406,7 @@ class Product extends Model
     }
 
     /**
-     * @param  string $value
+     * @param string $value
      * @return void
      */
     public function setContentRuAttribute($value)
@@ -374,7 +419,7 @@ class Product extends Model
     }
 
     /**
-     * @param  string $value
+     * @param string $value
      * @return void
      */
     public function setContentUkAttribute($value)
@@ -387,7 +432,7 @@ class Product extends Model
     }
 
     /**
-     * @param  string $value
+     * @param string $value
      * @return void
      */
     public function setManufacturerRuAttribute($value)
@@ -400,7 +445,7 @@ class Product extends Model
     }
 
     /**
-     * @param  string $value
+     * @param string $value
      * @return void
      */
     public function setManufacturerUkAttribute($value)
@@ -413,7 +458,7 @@ class Product extends Model
     }
 
     /**
-     * @param  string $value
+     * @param string $value
      * @return void
      */
     public function setNameRuAttribute($value)
@@ -426,7 +471,7 @@ class Product extends Model
     }
 
     /**
-     * @param  string $value
+     * @param string $value
      * @return void
      */
     public function setNameUkAttribute($value)
@@ -439,7 +484,7 @@ class Product extends Model
     }
 
     /**
-     * @param  string $value
+     * @param string $value
      * @return void
      */
     public function setTitleRuAttribute($value)
@@ -452,7 +497,7 @@ class Product extends Model
     }
 
     /**
-     * @param  string $value
+     * @param string $value
      * @return void
      */
     public function setTitleUkAttribute($value)
@@ -465,7 +510,7 @@ class Product extends Model
     }
 
     /**
-     * @param  string $value
+     * @param string $value
      * @return void
      */
     public function setDescriptionRuAttribute($value)
@@ -478,7 +523,7 @@ class Product extends Model
     }
 
     /**
-     * @param  string $value
+     * @param string $value
      * @return void
      */
     public function setDescriptionUkAttribute($value)
@@ -491,7 +536,7 @@ class Product extends Model
     }
 
     /**
-     * @param  string $value
+     * @param string $value
      * @return void
      */
     public function setUrlAttribute($value)
@@ -506,7 +551,7 @@ class Product extends Model
     /**
      * Transform timestamp to carbon.
      *
-     * @param  string $value
+     * @param string $value
      * @return string
      */
     public function getCreatedAtAttribute($value)
@@ -517,7 +562,7 @@ class Product extends Model
     /**
      * Transform timestamp to carbon.
      *
-     * @param  string $value
+     * @param string $value
      * @return string
      */
     public function getUpdatedAtAttribute($value)

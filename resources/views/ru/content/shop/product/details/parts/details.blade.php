@@ -15,6 +15,7 @@
 <form id="add-to-cart" method="post" action="{{ route('shop.cart.count') }}">
     @csrf
     <input type="hidden" name="product_id[]" value="{{ $product->id }}">
+    <input type="hidden" name="locale" value="ru">
 
     <table class="table product-details text-gray-hover">
         <tbody>
@@ -84,8 +85,8 @@
                     <i class="svg-icon text-warning" data-feather="clock"></i>
                     <span class="ml-2">Ожидается {{ $product->expectedAt->diffForHumans() }}</span>
                 @else
-                    <i class="svg-icon text-danger" data-feather="alert-circle"></i>
-                    <span class="ml-2">Нет в наличии</span>
+                    <i class="svg-icon text-info" data-feather="alert-circle"></i>
+                    <span class="ml-2">Продукт под заказ</span>
                 @endif
             </td>
         </tr>
@@ -115,11 +116,24 @@
             </tr>
         @endif
 
+        @if($product->productFiles->count())
+            <tr>
+                <td colspan="2">
+                    @foreach($product->productFiles as $productFile)
+                        <a href="{{ '/storage/' . $productFile->url }}" class="h6 text-lizard mr-5" title="Скачать">
+                            <i class="svg-icon-larger" data-feather="file"></i>
+                            <span>{{ $productFile->name_ru }}</span>
+                        </a>
+                    @endforeach
+                </td>
+            </tr>
+        @endif
+
         </tbody>
     </table>
 
     @if($product->cartAble)
-        <div class="row d-sm-flex align-items-end justify-content-around my-4">
+        <div class="row d-sm-flex align-items-end justify-content-around my-5">
 
             <div class="col-12 col-sm-auto">
                 <input id="productQuantity" class="d-inline-block" name="count[]" required

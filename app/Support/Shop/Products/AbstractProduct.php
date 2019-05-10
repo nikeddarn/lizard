@@ -63,7 +63,7 @@ abstract class AbstractProduct
      *
      * @return Builder
      */
-    protected function getRetrieveProductQuery():Builder
+    protected function getRetrieveProductQuery(): Builder
     {
         return $this->product->newQuery();
     }
@@ -74,11 +74,13 @@ abstract class AbstractProduct
      * @param Category $category
      * @return Builder
      */
-    protected function getRetrieveCategoryProductsQuery(Category $category):Builder
+    protected function getRetrieveCategoryProductsQuery(Category $category): Builder
     {
         return $category->products()->getQuery()
-            ->where('published', 1)
-            ->where('is_archive', 0);
+            ->where([
+                ['published', '=', 1],
+                ['is_archive', '=', 0],
+            ]);
     }
 
     /**
@@ -129,13 +131,13 @@ abstract class AbstractProduct
         // get settings
         $showUsdPriceSettings = $this->settingsRepository->getProperty('currencies.show_usd_price');
 
-        if ($showUsdPriceSettings['allowed']){
-            if (auth('web')->check()){
+        if ($showUsdPriceSettings['allowed']) {
+            if (auth('web')->check()) {
                 return auth('web')->user()->price_group >= $showUsdPriceSettings['min_user_price_group'];
-            }else{
+            } else {
                 return $showUsdPriceSettings['min_user_price_group'] === 1;
             }
-        }else{
+        } else {
             return false;
         }
     }
@@ -153,7 +155,7 @@ abstract class AbstractProduct
         // product prices
         $productPrice = $product->$productPriceColumn;
 
-        if ($productPrice){
+        if ($productPrice) {
             if ($isUsdPriceAllowed) {
                 $product->price = number_format($productPrice);
             }
@@ -174,10 +176,10 @@ abstract class AbstractProduct
         $isProductAvailable = $this->productAvailability->isProductAvailable($product);
         $product->isAvailable = $isProductAvailable;
 
-        if (!$isProductAvailable){
+        if (!$isProductAvailable) {
             $productExpectedAt = $this->productAvailability->getProductExpectedTime($product);
 
-            if ($productExpectedAt){
+            if ($productExpectedAt) {
                 $product->isExpectedToday = ($productExpectedAt < Carbon::today()->addDay()) ? true : false;
                 $product->isExpectedTomorrow = (!$product->isExpectedToday && $productExpectedAt < Carbon::today()->addDays(2)) ? true : false;
                 $product->expectedAt = $productExpectedAt;

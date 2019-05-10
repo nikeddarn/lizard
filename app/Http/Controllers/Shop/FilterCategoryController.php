@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AttributeValue;
 use App\Models\Category;
 use App\Support\Breadcrumbs\FilteredCategoryBreadcrumbs;
+use App\Support\Headers\CacheControlHeaders;
 use App\Support\Seo\Canonical\CanonicalLinkGenerator;
 use App\Support\Seo\MetaTags\FilterCategoryMetaTags;
 use App\Support\Seo\Pagination\PaginationLinksGenerator;
@@ -14,13 +15,17 @@ use App\Support\Shop\Filters\MultiFiltersCreator;
 use App\Support\Shop\Products\FilteredCategoryProducts;
 use App\Support\Url\UrlGenerators\ShowProductsUrlGenerator;
 use App\Support\Url\UrlGenerators\SortProductsUrlGenerator;
+use App\Support\User\RetrieveUser;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
-use Illuminate\View\View;
 
 class FilterCategoryController extends Controller
 {
+    use RetrieveUser;
+    use CacheControlHeaders;
+
     /**
      * @var Category
      */
@@ -94,14 +99,22 @@ class FilterCategoryController extends Controller
      *
      * @param string $url
      * @param string $filterItemUrl
-     * @return View
+     * @return Response
      */
-    public function index(string $url, string $filterItemUrl): View
+    public function index(string $url, string $filterItemUrl)
     {
         // retrieve selected filter attribute value
         $selectedAttributeValues = $this->getSelectedAttributesValues($filterItemUrl);
 
         $category = $this->getCategory($url, $selectedAttributeValues->first());
+
+        $user = $this->getUser();
+
+        $response = response()->make();
+
+        $pageLastModified = $category->updated_at;
+
+        $this->checkAndSetLastModifiedHeader($user, $response, $pageLastModified);
 
         // store category's id in session to create product details breadcrumbs
         session()->flash('product_category_id', $category->id);
@@ -153,7 +166,11 @@ class FilterCategoryController extends Controller
         $pageDescription = $this->filterCategoryMetaTags->getCategoryDescription($category, $selectedAttributeValues);
         $pageKeywords = $this->filterCategoryMetaTags->getCategoryKeywords($category, $selectedAttributeValues);
 
-        return view($this->getViewPath())->with(compact('categoryContent', 'categoryName', 'breadcrumbs', 'products', 'filters', 'usedFilters', 'sortProductsUrls', 'sortProductsMethod', 'showProductsUrls', 'paginationLinks', 'metaCanonical', 'noindexPage', 'pageTitle', 'pageDescription', 'pageKeywords'));
+        $response->setContent(view($this->getViewPath())->with(compact('categoryContent', 'categoryName', 'breadcrumbs', 'products', 'filters', 'usedFilters', 'sortProductsUrls', 'sortProductsMethod', 'showProductsUrls', 'paginationLinks', 'metaCanonical', 'noindexPage', 'pageTitle', 'pageDescription', 'pageKeywords')));
+
+        $this->checkAndSetEtagHeader($user, $response);
+
+        return $response;
     }
 
     /**
@@ -203,8 +220,15 @@ class FilterCategoryController extends Controller
     private function getCategory(string $url, AttributeValue $attributeValue): Category
     {
         $category = $this->category->newQuery()
+            ->where('published', 1)
             ->where('url', $url)
-            ->with(['products'])
+            ->with(['products' => function($query){
+                $query->where([
+                    ['published', '=', 1],
+                    ['is_archive', '=', 0],
+                ])
+                    ->select('id');
+            }])
             ->with(['virtualCategories' => function ($query) use ($attributeValue) {
                 $query->where('attribute_values_id', $attributeValue->id);
             }])

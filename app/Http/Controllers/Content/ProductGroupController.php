@@ -9,6 +9,7 @@ use App\Models\CastProductMethod;
 use App\Models\Category;
 use App\Models\ProductGroup;
 use App\Http\Controllers\Controller;
+use App\Models\StaticPage;
 
 class ProductGroupController extends Controller
 {
@@ -24,18 +25,24 @@ class ProductGroupController extends Controller
      * @var CastProductMethod
      */
     private $castProductMethod;
+    /**
+     * @var StaticPage
+     */
+    private $staticPage;
 
     /**
      * SeoSettingsController constructor.
      * @param ProductGroup $productGroup
      * @param Category $category
      * @param CastProductMethod $castProductMethod
+     * @param StaticPage $staticPage
      */
-    public function __construct(ProductGroup $productGroup, Category $category, CastProductMethod $castProductMethod)
+    public function __construct(ProductGroup $productGroup, Category $category, CastProductMethod $castProductMethod, StaticPage $staticPage)
     {
         $this->productGroup = $productGroup;
         $this->category = $category;
         $this->castProductMethod = $castProductMethod;
+        $this->staticPage = $staticPage;
     }
 
     /**
@@ -73,6 +80,8 @@ class ProductGroupController extends Controller
         ];
 
         $this->productGroup->newQuery()->create($groupData);
+
+        $this->updateMainPageTimestamp();
 
         return redirect(route('admin.content.main.edit'));
     }
@@ -117,6 +126,8 @@ class ProductGroupController extends Controller
 
         $group->update($groupData);
 
+        $this->updateMainPageTimestamp();
+
         return redirect(route('admin.content.main.edit'));
     }
 
@@ -132,6 +143,20 @@ class ProductGroupController extends Controller
 
         $this->productGroup->newQuery()->where('id', $groupId)->delete();
 
+        $this->updateMainPageTimestamp();
+
         return back();
+    }
+
+    /**
+     * Update main page timestamp.
+     */
+    private function updateMainPageTimestamp()
+    {
+        $mainPage = $this->staticPage->newQuery()->where('route', 'main')->first();
+
+        if ($mainPage) {
+            $mainPage->touch();
+        }
     }
 }

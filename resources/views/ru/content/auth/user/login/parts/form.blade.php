@@ -40,7 +40,7 @@
                                     меня</label>
                             </div>
                             <u>
-                                <a href="{{ route('password.request') }}" class="text-primary small">Забыли пароль ?</a>
+                                <a href="{{ route('password.request', ['locale' => config('app.canonical_locale') === 'ru' ? '' : 'ru']) }}" class="text-primary small">Забыли пароль ?</a>
                             </u>
                         </div>
                         <button type="submit" class="btn btn-primary btn-block">ВОЙТИ</button>
@@ -54,6 +54,7 @@
                 <div class="col-md-6 col-register">
                     <form class="form-light-background-input" id="registration-form" role="form" method="POST"
                           action="{{ url('/register') }}">
+                        @csrf
                         <div class="form-group text-center text-gray-hover">
                             <h3 class="bold">Зарегистрируйтесь</h3>
                         </div>

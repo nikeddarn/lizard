@@ -1,5 +1,21 @@
 @extends('layouts.common')
 
+@section('meta')
+
+    @if(!empty($pageData['title_ru']))
+        <title>{{ $pageData['title_ru'] }}</title>
+    @endif
+
+    @if(!empty($pageData['description_ru']))
+        <meta name="description" content="{{ $pageData['description_ru'] }}">
+    @endif
+
+    @if(!empty($pageData['keywords_ru']))
+        <meta name="keywords" content="{{ $pageData['keywords_ru'] }}">
+    @endif
+
+@endsection
+
 @section('content')
 
     <div class="container">
@@ -37,6 +53,7 @@
         $(document).ready(function () {
 
             $('#delivery_type').find('input').change(function () {
+                let deliveryStorageWrapper = $('#delivery-storage-wrapper');
                 let deliveryAddressWrapper = $('#delivery-address-wrapper');
                 let deliveryCityWrapper = $('#delivery-city-wrapper');
                 let totalAmountField = $('#total-amount');
@@ -44,6 +61,7 @@
 
                 switch (parseInt(this.value)) {
                     case 1:
+                        $(deliveryStorageWrapper).removeClass('d-none');
                         $(deliveryAddressWrapper).addClass('d-none');
                         $(deliveryCityWrapper).addClass('d-none');
 
@@ -53,6 +71,7 @@
                     case 2:
                         $(deliveryAddressWrapper).removeClass('d-none');
                         $(deliveryCityWrapper).removeClass('d-none');
+                        $(deliveryStorageWrapper).addClass('d-none');
                         $('.selectpicker').selectpicker();
 
                         // add delivery sum to order sum
@@ -60,8 +79,9 @@
                         $(totalAmountField).html(new Intl.NumberFormat().format(totalAmount + deliverySum));
                         break;
                     case 3:
-                        $(deliveryCityWrapper).addClass('d-none');
                         $(deliveryAddressWrapper).removeClass('d-none');
+                        $(deliveryCityWrapper).addClass('d-none');
+                        $(deliveryStorageWrapper).addClass('d-none');
 
                         // set total sum as order sum
                         $(totalAmountField).html(new Intl.NumberFormat().format(totalAmount));

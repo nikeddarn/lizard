@@ -22,7 +22,7 @@ class ProductAvailability
      */
     public function isProductAvailableOrExpecting(Product $product):bool
     {
-        return (bool)$product->availableStorageProducts->count() || (bool)$product->availableVendorProducts->count() || $product->expectingStorageProducts->count() || $product->expectingVendorProducts->count();
+        return (bool)$product->availableOrExpectingStorageProducts->count() || (bool)$product->availableOrExpectingVendorProducts->count();
     }
 
     /**

@@ -37,6 +37,14 @@ class Order extends Model
     /**
      * @return BelongsTo
      */
+    public function storage()
+    {
+        return $this->belongsTo('App\Models\Storage', 'storages_id', 'id');
+    }
+
+    /**
+     * @return BelongsTo
+     */
     public function orderStatus()
     {
         return $this->belongsTo('App\Models\OrderStatus', 'order_status_id', 'id');

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Events\Shop\CategoryDeleted;
 use App\Events\Shop\CategorySaved;
 use App\Models\Support\Translatable;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Kalnoy\Nestedset\NodeTrait;
@@ -43,6 +44,7 @@ class Category extends Model
      */
     protected $dispatchesEvents = [
         'created' => CategorySaved::class,
+        'saved' => CategorySaved::class,
         'deleted' => CategoryDeleted::class,
     ];
 
@@ -218,5 +220,27 @@ class Category extends Model
         } else {
             $this->attributes['url'] = $value;
         }
+    }
+
+    /**
+     * Transform timestamp to carbon.
+     *
+     * @param string $value
+     * @return string
+     */
+    public function getCreatedAtAttribute($value)
+    {
+        return $value ? Carbon::createFromFormat('Y-m-d H:i:s', $value) : null;
+    }
+
+    /**
+     * Transform timestamp to carbon.
+     *
+     * @param string $value
+     * @return string
+     */
+    public function getUpdatedAtAttribute($value)
+    {
+        return $value ? Carbon::createFromFormat('Y-m-d H:i:s', $value) : null;
     }
 }

@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection ALL */
 
 namespace App\Http\Controllers\Admin;
 
@@ -8,18 +8,22 @@ use App\Events\Shop\ProductUpdated;
 use App\Http\Requests\Admin\Product\CreateProductRequest;
 use App\Http\Requests\Admin\Product\UpdateProductRequest;
 use App\Models\Attribute;
-use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Filter;
 use App\Models\Product;
 use App\Support\ImageHandlers\ProductImageHandler;
-use Carbon\Carbon;
+use App\Support\ProductBadges\ProductBadges;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class ProductController extends Controller
 {
@@ -40,9 +44,9 @@ class ProductController extends Controller
      */
     private $filter;
     /**
-     * @var Brand
+     * @var ProductBadges
      */
-    private $brand;
+    private $productBadges;
 
     /**
      * CategoryController constructor.
@@ -50,22 +54,22 @@ class ProductController extends Controller
      * @param Category $category
      * @param Attribute $attribute
      * @param Filter $filter
-     * @param Brand $brand
+     * @param ProductBadges $productBadges
      */
-    public function __construct(Product $product, Category $category, Attribute $attribute, Filter $filter, Brand $brand)
+    public function __construct(Product $product, Category $category, Attribute $attribute, Filter $filter, ProductBadges $productBadges)
     {
         $this->product = $product;
         $this->category = $category;
         $this->attribute = $attribute;
         $this->filter = $filter;
-        $this->brand = $brand;
+        $this->productBadges = $productBadges;
     }
 
     /**
      * Display a listing of the resource.
      *
      * @param Request $request
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function index(Request $request)
     {
@@ -97,7 +101,7 @@ class ProductController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function create()
     {
@@ -120,14 +124,12 @@ class ProductController extends Controller
 
         $filters = $this->filter->newQuery()->orderBy("name_$locale")->get();
 
-        $brands = $this->brand->newQuery()->get();
-
         // redirect to create category if no one category exists
         if (!$categories->count()) {
             return redirect(route('admin.categories.create'))->withErrors(['no_categories' => trans('validation.no_categories')]);
         }
 
-        return view('content.admin.catalog.product.create.index')->with(compact('categories', 'attributes', 'filters', 'brands'));
+        return view('content.admin.catalog.product.create.index')->with(compact('categories', 'attributes', 'filters'));
     }
 
     /**
@@ -135,7 +137,7 @@ class ProductController extends Controller
      *
      * @param CreateProductRequest $request
      * @param ProductImageHandler $imageHandler
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function store(CreateProductRequest $request, ProductImageHandler $imageHandler)
     {
@@ -143,19 +145,8 @@ class ProductController extends Controller
             abort(401);
         }
 
-        $productData = $request->only(['name_ru', 'name_uk', 'model_ru', 'model_uk', 'articul', 'code', 'url', 'title_ru', 'title_uk', 'description_ru', 'description_uk', 'keywords_ru', 'keywords_uk', 'brief_content_ru', 'brief_content_uk', 'content_ru', 'content_uk', 'manufacturer_ru', 'manufacturer_uk', 'min_order_quantity', 'price1', 'price2', 'price3', 'is_new', 'warranty', 'weight', 'length', 'width', 'height', 'volume']);
-
-        // calculate product volume
-        if (!$request->get('volume') && $request->has(['length', 'width', 'height'])) {
-            $productData['volume'] = ($request->get('length') * $request->get('width') * $request->get('height')) / pow(10, 6);
-        }
-
-        // insert brand
-        $brandId = $request->get('brands_id');
-        if ($brandId > 0) {
-            $productData['brands_id'] = $brandId;
-        }
-
+        // create product
+        $productData = $this->getProductData($request);
         $product = $this->product->newQuery()->create($productData);
 
         // insert images
@@ -164,16 +155,7 @@ class ProductController extends Controller
         }
 
         // insert attributes
-        if ($request->has('attribute_id')) {
-
-            $attributesValues = $request->get('attribute_value_id');
-
-            foreach ($request->get('attribute_id') as $key => $attributeId) {
-                if ($attributeId) {
-                    $product->attributes()->attach($attributeId, ['attribute_values_id' => $attributesValues[$key]]);
-                }
-            }
-        }
+        $this->insertProductAttributes($product, $request);
 
         // insert filters
         if ($request->has('filter_id')) {
@@ -190,9 +172,15 @@ class ProductController extends Controller
         }
 
         // add 'new' badge
-        $newProductBadgeExpired = Carbon::now()->addDays(config('shop.badges.ttl.' . ProductBadgesInterface::NEW));
-        $product->badges()->attach(ProductBadgesInterface::NEW, ['expired' => $newProductBadgeExpired]);
+        $this->productBadges->insertProductBadge($product, ProductBadgesInterface::NEW);
 
+        // insert specification
+        $this->insertProductFiles($product, $request);
+
+        // insert video
+        $this->insertProductVideo($product, $request);
+
+        // fire event
         event(new ProductCreated($product));
 
         return redirect(route('admin.products.show', ['id' => $product->id]));
@@ -202,7 +190,7 @@ class ProductController extends Controller
      * Display the specified resource.
      *
      * @param string $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function show(string $id)
     {
@@ -210,7 +198,7 @@ class ProductController extends Controller
             abort(401);
         }
 
-        $product = $this->product->newQuery()->with('productImages', 'productAttributes.attributeValue.attribute', 'filters', 'categories', 'brand', 'vendors')->findOrFail($id);
+        $product = $this->product->newQuery()->with('productImages', 'productAttributes.attributeValue.attribute', 'filters', 'categories', 'brand', 'vendors', 'productVideos', 'productFiles')->findOrFail($id);
 
         return view('content.admin.catalog.product.show.index')->with(compact('product'));
     }
@@ -219,7 +207,7 @@ class ProductController extends Controller
      * Show the form for editing the specified resource.
      *
      * @param string $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function edit(string $id)
     {
@@ -229,9 +217,7 @@ class ProductController extends Controller
 
         $product = $this->product->newQuery()->with('brand')->findOrFail($id);
 
-        $brands = $this->brand->newQuery()->get();
-
-        return view('content.admin.catalog.product.update.index')->with(compact('product', 'brands'));
+        return view('content.admin.catalog.product.update.index')->with(compact('product'));
     }
 
     /**
@@ -239,7 +225,7 @@ class ProductController extends Controller
      *
      * @param UpdateProductRequest $request
      * @param string $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function update(UpdateProductRequest $request, string $id)
     {
@@ -247,31 +233,19 @@ class ProductController extends Controller
             abort(401);
         }
 
-        $productData = $request->only(['name_ru', 'name_uk', 'model_ru', 'model_uk', 'articul', 'code', 'url', 'title_ru', 'title_uk', 'description_ru', 'description_uk', 'keywords_ru', 'keywords_uk', 'brief_content_ru', 'brief_content_uk', 'content_ru', 'content_uk', 'manufacturer_ru', 'manufacturer_uk', 'min_order_quantity', 'price1', 'price2', 'price3', 'is_new', 'warranty', 'weight', 'length', 'width', 'height', 'volume']);
-
-        // calculate product volume
-        if (!$request->get('volume') && $request->has(['length', 'width', 'height'])) {
-            $productData['volume'] = ($request->get('length') * $request->get('width') * $request->get('height')) / pow(10, 6);
-        }
-
-        // insert brand
-        $brandId = (int)$request->get('brands_id');
-        if ($brandId === 0) {
-            $productData['brands_id'] = null;
-        } else {
-            $productData['brands_id'] = $brandId;
-        }
+        $productData = $this->getProductData($request);
 
         $product = $this->product->newQuery()->findOrFail($id);
 
+        // add 'discount' badge
         if ($productData['price1'] < $product->price1 || $productData['price2'] < $product->price2 || $productData['price3'] < $product->price3) {
-            // add 'discount' badge
-            $discountProductBadgeExpired = Carbon::now()->addDays(config('shop.badges.ttl.' . ProductBadgesInterface::PRICE_DOWN));
-            $product->badges()->syncWithoutDetaching([ProductBadgesInterface::PRICE_DOWN => ['expired' => $discountProductBadgeExpired]]);
+            $this->productBadges->insertProductBadge($product, ProductBadgesInterface::PRICE_DOWN);
         }
 
+        // update product
         $product->update($productData);
 
+        // fire event
         event(new ProductUpdated($product));
 
         return redirect(route('admin.products.show', ['id' => $id]));
@@ -281,8 +255,8 @@ class ProductController extends Controller
      * Remove the specified resource from storage.
      *
      * @param string $id
-     * @return \Illuminate\Http\Response
-     * @throws \Exception
+     * @return Response
+     * @throws Exception
      */
     public function destroy(string $id)
     {
@@ -312,7 +286,7 @@ class ProductController extends Controller
      * @param Request $request
      * @param ProductImageHandler $imageHandler
      * @return string
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function uploadImage(Request $request, ProductImageHandler $imageHandler)
     {
@@ -386,6 +360,44 @@ class ProductController extends Controller
     }
 
     /**
+     * Create product data from request.
+     *
+     * @param Request $request
+     * @return array
+     */
+    private function getProductData(Request $request)
+    {
+        $productData = $request->only(['name_ru', 'name_uk', 'model_ru', 'model_uk', 'articul', 'code', 'url', 'title_ru', 'title_uk', 'description_ru', 'description_uk', 'keywords_ru', 'keywords_uk', 'brief_content_ru', 'brief_content_uk', 'content_ru', 'content_uk', 'manufacturer_ru', 'manufacturer_uk', 'min_order_quantity', 'price1', 'price2', 'price3', 'is_new', 'warranty', 'weight', 'length', 'width', 'height', 'volume']);
+
+        // calculate product volume
+        if (!$request->get('volume') && $request->has(['length', 'width', 'height'])) {
+            $productData['volume'] = ($request->get('length') * $request->get('width') * $request->get('height')) / pow(10, 6);
+        }
+
+        return $productData;
+    }
+
+    /**
+     * Insert product attributes.
+     *
+     * @param Product|Model $product
+     * @param CreateProductRequest $request
+     */
+    private function insertProductAttributes(Product $product, CreateProductRequest $request)
+    {
+        if ($request->has('attribute_id')) {
+
+            $attributesValues = $request->get('attribute_value_id');
+
+            foreach ($request->get('attribute_id') as $key => $attributeId) {
+                if ($attributeId) {
+                    $product->attributes()->attach($attributeId, ['attribute_values_id' => $attributesValues[$key]]);
+                }
+            }
+        }
+    }
+
+    /**
      * Create and store images.
      *
      * @param ProductImageHandler $imageHandler
@@ -402,6 +414,72 @@ class ProductController extends Controller
 
             // create product images
             $imageHandler->insertProductImage($product, $image, $priority);
+        }
+    }
+
+    /**
+     * Insert product specification.
+     *
+     * @param Product|Model $product
+     * @param CreateProductRequest $request
+     */
+    private function insertProductFiles(Product $product, CreateProductRequest $request)
+    {
+        if ($request->has('product_file')) {
+            $productFilesFolder = 'files/products/' . $product->id . '/';
+
+            $locale = app()->getLocale();
+            $fileName = Str::slug($request->get('product_file_name_' . $locale));
+
+            $destinationPath = $productFilesFolder . $fileName . '.' . $request->file('product_file')->extension();
+
+            $file = $request->file('product_file')->get();
+
+            Storage::disk('public')->put($destinationPath, $file);
+
+            $productFileData = [
+                'name_ru' => $request->get('product_file_name_ru'),
+                'name_uk' => $request->get('product_file_name_uk'),
+                'url' => $destinationPath,
+            ];
+
+            $product->productFiles()->create($productFileData);
+        }
+    }
+
+    /**
+     * Insert product video.
+     *
+     * @param Product|Model $product
+     * @param CreateProductRequest $request
+     */
+    private function insertProductVideo(Product $product, CreateProductRequest $request)
+    {
+        if ($request->get('video_youtube')) {
+            $productVideoData = [
+                'youtube' => $request->get('video_youtube'),
+            ];
+
+            $product->productVideos()->create($productVideoData);
+        } elseif ($request->has('video_mp4') || $request->has('video_webm')) {
+            $productVideoData = [];
+            $productVideoFolder = 'video/products/' . $product->id . '/';
+
+            if ($request->has('video_mp4')) {
+                $destinationPath = $productVideoFolder . uniqid() . '.' . $request->file('video_mp4')->extension();
+                $productVideoData['mp4'] = $destinationPath;
+                $video = $request->file('video_mp4')->get();
+                Storage::disk('public')->put($destinationPath, $video);
+            }
+
+            if ($request->has('video_webm')) {
+                $destinationPath = $productVideoFolder . uniqid() . '.' . $request->file('video_webm')->extension();
+                $productVideoData['webm'] = $destinationPath;
+                $video = $request->file('video_webm')->get();
+                Storage::disk('public')->put($destinationPath, $video);
+            }
+
+            $product->productVideos()->create($productVideoData);
         }
     }
 

@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\StaticPage;
 use App\Models\User;
 use App\Support\ImageHandlers\UserImageHandler;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
@@ -16,13 +19,21 @@ class ProfileController extends Controller
     /**
      * Show user profile form with user profile data.
      *
+     * @param StaticPage $staticPage
      * @return View
      */
-    public function edit()
+    public function edit(StaticPage $staticPage)
     {
-        return view('content.user.profile.edit.index')->with([
-            'userProfile' => auth('web')->user(),
-        ]);
+        $pageData = $staticPage->newQuery()->where('route', 'user.profile.edit')->first();
+
+        $locale = app()->getLocale();
+
+        $pageTitle = $pageData->{'title_' . $locale};
+        $noindexPage = true;
+
+        $userProfile = auth('web')->user();
+
+        return view('content.user.profile.edit.index')->with(compact('userProfile', 'pageTitle', 'noindexPage'));
     }
 
     /**
@@ -30,11 +41,13 @@ class ProfileController extends Controller
      *
      * @param Request $request
      * @param UserImageHandler $imageHandler
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
-     * @throws \Illuminate\Validation\ValidationException
+     * @return RedirectResponse
+     * @throws ValidationException
      */
     public function update(Request $request, UserImageHandler $imageHandler)
     {
+        $locale = $request->get('locale');
+
         $this->validate($request, $this->rules($request->user()));
 
         // create user data
@@ -43,7 +56,7 @@ class ProfileController extends Controller
         // update user
         $request->user()->update($userData);
 
-        return redirect(route('user.profile.edit'));
+        return redirect(route('user.profile.edit', ['locale' => $locale]));
     }
 
     /**

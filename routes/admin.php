@@ -2,8 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/sitemap.xml', 'SitemapController@index');
-
 // --------------------------------------------- Admin Routes --------------------------------------
 
 // overview page
@@ -23,6 +21,10 @@ Route::get('/admin/categories/{id}/down', 'Admin\CategoryController@down')->name
 Route::post('/admin/categories/upload/image', 'Admin\CategoryController@uploadImage')->name('admin.categories.upload.image');
 // is category empty  ?
 Route::get('/admin/categories/{id}/empty', 'Admin\CategoryController@isEmpty')->name('admin.categories.empty');
+
+// category publishing
+Route::post('/admin/category/publish/on', 'Admin\CategoryController@publishCategory')->name('admin.category.publish.on');
+Route::post('/admin/category/publish/off', 'Admin\CategoryController@unPublishCategory')->name('admin.category.publish.off');
 
 // category filters
 //    Route::get('/admin/categories/{id}/filter/create', 'Admin\CategoryFilterController@create')->name('admin.categories.filter.create');
@@ -64,6 +66,16 @@ Route::post('/admin/products/image/{id}/priority', 'Admin\ProductImageController
 Route::get('/admin/products/{id}/attribute/create', 'Admin\ProductAttributeController@create')->name('admin.products.attribute.create');
 Route::post('/admin/products/attribute', 'Admin\ProductAttributeController@store')->name('admin.products.attribute.store');
 Route::delete('/admin/products/attribute/destroy', 'Admin\ProductAttributeController@destroy')->name('admin.products.attribute.destroy');
+
+// product videos
+Route::get('/admin/products/{id}/video/create', 'Admin\ProductVideoController@create')->name('admin.products.video.create');
+Route::post('/admin/products/video', 'Admin\ProductVideoController@store')->name('admin.products.video.store');
+Route::delete('/admin/products/video/{id}', 'Admin\ProductVideoController@destroy')->name('admin.products.video.destroy');
+
+// product files
+Route::get('/admin/products/{id}/file/create', 'Admin\ProductFileController@create')->name('admin.products.file.create');
+Route::post('/admin/products/file', 'Admin\ProductFileController@store')->name('admin.products.file.store');
+Route::delete('/admin/products/file/{id}', 'Admin\ProductFileController@destroy')->name('admin.products.file.destroy');
 
 // product filters
 //Route::get('/admin/products/{id}/filter/create', 'Admin\ProductFilterController@create')->name('admin.products.filter.create');
@@ -387,3 +399,9 @@ Route::get('/admin/settings/notifications/order/edit', 'Settings\OrderNotificati
 Route::post('/admin/settings/notifications/order/created/update', 'Settings\OrderNotificationController@setOrderCreatedNotificationsData')->name('admin.notifications.order.created.update');
 Route::post('/admin/settings/notifications/order/updated/update', 'Settings\OrderNotificationController@setOrderUpdatedNotificationsData')->name('admin.notifications.order.updated.update');
 Route::post('/admin/settings/notifications/order/deleted/update', 'Settings\OrderNotificationController@setOrderDeletedNotificationsData')->name('admin.notifications.order.deleted.update');
+
+// --------------------------------- Import -------------------------------------------------
+
+Route::get('/admin/import/apacer', 'Import\ApacerImportController@index')->name('admin.import.apacer');
+
+Route::post('/admin/import/apacer', 'Import\ApacerImportController@import')->name('admin.import.apacer');

@@ -47,12 +47,14 @@ class CommitOrderController extends Controller
 
         $this->authorize('commit', $order);
 
+        $manager = auth('web')->user();
+
         DB::beginTransaction();
         // set order status
         $this->changeOrderStatus($order);
 
         // close manager session
-        $this->orderManagerBroker->commitOrder($order, auth('web')->user());
+        $this->orderManagerBroker->commitOrder($order, $manager);
 
         // update user statistics
 

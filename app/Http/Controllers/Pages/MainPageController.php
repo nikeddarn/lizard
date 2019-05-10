@@ -11,12 +11,16 @@ use App\Models\ProductGroup;
 use App\Models\Slider;
 use App\Models\StaticPage;
 use App\Support\ExchangeRates\ExchangeRates;
+use App\Support\Headers\CacheControlHeaders;
 use App\Support\User\RetrieveUser;
+use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 
 class MainPageController extends Controller
 {
     use RetrieveUser;
+    use CacheControlHeaders;
+
     /**
      * @var string
      */
@@ -69,18 +73,27 @@ class MainPageController extends Controller
         $this->exchangeRates = $exchangeRates;
     }
 
-
     /**
      * Show main page.
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Response
      */
     public function index()
     {
-        $locale = app()->getLocale();
+        $user = $this->getUser();
+
+        $response = response()->make();
 
         $pageData = $this->staticPage->newQuery()->where('route', self::MAIN_PAGE_ROUTE_NAME)
             ->first();
+
+        $pageLastModified = $pageData->updated_at;
+
+        $this->checkAndSetLastModifiedHeader($user, $response, $pageLastModified);
+
+        $locale = app()->getLocale();
+        $productRouteLocale = $locale === config('app.canonical_locale') ? '' : $locale;
+
 
         $mainSlider = $this->slider->newQuery()
             ->where('key', self::MAIN_PAGE_SLIDER_KEY)
@@ -89,18 +102,22 @@ class MainPageController extends Controller
             }])
             ->first();
 
-        $productGroups = $this->getProductGroups($locale);
+        $productGroups = $this->getProductGroups($productRouteLocale);
 
-        return view('content.pages.main.index')->with(compact('pageData', 'mainSlider', 'productGroups'));
+        $response->setContent(view('content.pages.main.index', compact('pageData', 'mainSlider', 'productGroups')));
+
+        $this->checkAndSetEtagHeader($user, $response);
+
+        return $response;
     }
 
     /**
      * Get products groups.
      *
-     * @param string $locale
+     * @param string $productRouteLocale
      * @return Collection
      */
-    private function getProductGroups(string $locale): Collection
+    private function getProductGroups(string $productRouteLocale): Collection
     {
         $course = $this->exchangeRates->getRate();
 
@@ -116,9 +133,9 @@ class MainPageController extends Controller
         }
 
         // cast group with products count more then in condition
-        $filteredGroups = $productGroups->filter(function (ProductGroup $productGroup) use ($userPriceGroup, $course, $locale) {
+        $filteredGroups = $productGroups->filter(function (ProductGroup $productGroup) use ($userPriceGroup, $course, $productRouteLocale) {
             if ($productGroup->products->count() > $productGroup->min_count_to_show) {
-                $this->setProductProperties($productGroup->products, $userPriceGroup, $course, $locale);
+                $this->setProductProperties($productGroup->products, $userPriceGroup, $course, $productRouteLocale);
                 return true;
             } else {
                 return false;
@@ -170,16 +187,16 @@ class MainPageController extends Controller
      * @param Collection $products
      * @param int $userPriceGroup
      * @param float $course
-     * @param string $locale
+     * @param string $productRouteLocale
      */
-    private function setProductProperties(Collection $products, int $userPriceGroup, float $course, string $locale)
+    private function setProductProperties(Collection $products, int $userPriceGroup, float $course, string $productRouteLocale)
     {
         foreach ($products as $product) {
             if ($course) {
                 $product->localPrice = number_format($product->{'price' . $userPriceGroup} * $course);
             }
 
-            $product->href = route('shop.product.index', ['url' => $product->url, 'locale' => $locale]);
+            $product->href = route('shop.product.index', ['url' => $product->url, 'locale' => $productRouteLocale]);
         }
     }
 }

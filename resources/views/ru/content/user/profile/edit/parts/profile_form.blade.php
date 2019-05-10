@@ -1,7 +1,7 @@
 <form id="change-profile-form" role="form" method="POST" action="{{ route('user.profile.save') }}"
       enctype="multipart/form-data">
-
     @csrf
+    <input type="hidden" name="locale" value="ru">
 
     <div class="row my-4 custom-form">
 

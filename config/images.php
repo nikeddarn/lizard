@@ -37,5 +37,5 @@ return [
         'avatar_width' => 400,
     ],
 
-    'main_slider_width' => 1920,
+    'main_slider_width' => 980,
 ];

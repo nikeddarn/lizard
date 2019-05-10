@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Models\StaticPage;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
@@ -14,28 +16,38 @@ class PasswordController extends Controller
     /**
      * Show change password form.
      *
+     * @param StaticPage $staticPage
      * @return View
      */
-    public function showChangePasswordForm()
+    public function showChangePasswordForm(StaticPage $staticPage)
     {
-        return view('content.user.password.index');
+        $pageData = $staticPage->newQuery()->where('route', 'user.password.show')->first();
+
+        $locale = app()->getLocale();
+
+        $pageTitle = $pageData->{'title_' . $locale};
+        $noindexPage = true;
+
+        return view('content.user.password.index')->with(compact('pageTitle', 'noindexPage'));
     }
 
     /**
      * Check and reset user password.
      *
      * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return RedirectResponse
      */
     public function changePassword(Request $request)
     {
+        $locale = $request->get('locale');
+
         $user = $request->user();
 
         $this->validator($request->except('_token'), $user)->validate();
 
         $this->resetPassword($request->only('password'), $user);
 
-        return redirect(route('user.profile.show'));
+        return redirect(route('user.profile.edit', ['locale' => $locale]));
     }
 
     /**

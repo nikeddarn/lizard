@@ -39,7 +39,7 @@ class OrderCreatedUserNotification extends Notification
     /**
      * Get the notification's delivery channels.
      *
-     * @param  mixed $notifiable
+     * @param mixed $notifiable
      * @return array
      */
     public function via($notifiable)
@@ -50,7 +50,7 @@ class OrderCreatedUserNotification extends Notification
     /**
      * Get the mail representation of the notification.
      *
-     * @param  mixed $notifiable
+     * @param mixed $notifiable
      * @return MailMessage
      */
     public function toMail($notifiable)
@@ -65,14 +65,17 @@ class OrderCreatedUserNotification extends Notification
         $bodyText = $this->replaceNotificationPlaceholders($bodyTextTemplate, $notifiable);
 
         return (new MailMessage)
-            ->greeting($headerText)
-            ->line($bodyText);
+            ->subject(trans('shop.order.created.subject'))
+            ->markdown('mail.order.order_created', [
+                'headerText' => $headerText,
+                'bodyText' => $bodyText,
+            ]);
     }
 
     /**
      * Get the sms representation of the notification.
      *
-     * @param  mixed $notifiable
+     * @param mixed $notifiable
      * @return SmsMessage
      * @throws Exception
      */
@@ -98,7 +101,7 @@ class OrderCreatedUserNotification extends Notification
      * @param $notifiable
      * @return string
      */
-    private function replaceNotificationPlaceholders(string $textTemplate, $notifiable):string
+    private function replaceNotificationPlaceholders(string $textTemplate, $notifiable): string
     {
         $replacementPatterns = [
             '/USER_NAME/',

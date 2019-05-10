@@ -7,19 +7,24 @@ use App\Http\Controllers\Controller;
 use App\Models\AttributeValue;
 use App\Models\Category;
 use App\Support\Breadcrumbs\FilteredCategoryBreadcrumbs;
+use App\Support\Headers\CacheControlHeaders;
 use App\Support\Seo\MetaTags\MultiFilterCategoryMetaTags;
 use App\Support\Seo\Pagination\PaginationLinksGenerator;
 use App\Support\Shop\Filters\MultiFiltersCreator;
 use App\Support\Shop\Products\FilteredCategoryProducts;
 use App\Support\Url\UrlGenerators\ShowProductsUrlGenerator;
 use App\Support\Url\UrlGenerators\SortProductsUrlGenerator;
+use App\Support\User\RetrieveUser;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
-use Illuminate\View\View;
 
 class MultiFilterCategoryController extends Controller
 {
+    use RetrieveUser;
+    use CacheControlHeaders;
+
     /**
      * @var Category
      */
@@ -86,11 +91,19 @@ class MultiFilterCategoryController extends Controller
      * Show products of given leaf category.
      *
      * @param string $url
-     * @return View
+     * @return Response
      */
-    public function index(string $url): View
+    public function index(string $url)
     {
         $category = $this->getCategory($url);
+
+        $user = $this->getUser();
+
+        $response = response()->make();
+
+        $pageLastModified = $category->updated_at;
+
+        $this->checkAndSetLastModifiedHeader($user, $response, $pageLastModified);
 
         $selectedAttributeValues = $this->getSelectedAttributesValues();
 
@@ -129,7 +142,11 @@ class MultiFilterCategoryController extends Controller
         $pageDescription = $this->multiFilterCategoryMetaTags->getCategoryDescription($category, $selectedAttributeValues);
         $pageKeywords = $this->multiFilterCategoryMetaTags->getCategoryKeywords($category, $selectedAttributeValues);
 
-        return view($this->getViewPath())->with(compact('breadcrumbs', 'products', 'filters', 'usedFilters', 'sortProductsUrls', 'sortProductsMethod', 'showProductsUrls', 'noindexPage', 'categoryName', 'pageTitle', 'pageDescription', 'pageKeywords'));
+        $response->setContent(view($this->getViewPath())->with(compact('breadcrumbs', 'products', 'filters', 'usedFilters', 'sortProductsUrls', 'sortProductsMethod', 'showProductsUrls', 'noindexPage', 'categoryName', 'pageTitle', 'pageDescription', 'pageKeywords')));
+
+        $this->checkAndSetEtagHeader($user, $response);
+
+        return $response;
     }
 
     /**
@@ -161,6 +178,7 @@ class MultiFilterCategoryController extends Controller
     private function getCategory(string $url): Category
     {
         $category = $this->category->newQuery()
+            ->where('published', 1)
             ->where('url', $url)
             ->with('products')->firstOrFail();
 

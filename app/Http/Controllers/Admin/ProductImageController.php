@@ -7,6 +7,9 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use App\Support\ImageHandlers\ProductImageHandler;
 use App\Http\Controllers\Controller;
+use Exception;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Gate;
 
 class ProductImageController extends Controller
@@ -35,7 +38,7 @@ class ProductImageController extends Controller
      * Show the form for creating a new resource.
      *
      * @param string $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function create(string $id)
     {
@@ -55,7 +58,7 @@ class ProductImageController extends Controller
      *
      * @param StoreProductImageRequest $request
      * @param ProductImageHandler $imageHandler
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function store(StoreProductImageRequest $request, ProductImageHandler $imageHandler)
     {
@@ -79,8 +82,8 @@ class ProductImageController extends Controller
      *
      * @param string $id
      * @param ProductImageHandler $imageHandler
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
-     * @throws \Exception
+     * @return RedirectResponse
+     * @throws Exception
      */
     public function destroy(string $id, ProductImageHandler $imageHandler)
     {
@@ -102,7 +105,7 @@ class ProductImageController extends Controller
         }
 
         // remove images from storage
-        $imageHandler->deleteProductImage($productId);
+        $imageHandler->deleteProductImage($image);
 
         // delete image
         $image->delete();
@@ -115,7 +118,7 @@ class ProductImageController extends Controller
      * Set given image as priority.
      *
      * @param string $id
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return RedirectResponse
      */
     public function priority(string $id)
     {

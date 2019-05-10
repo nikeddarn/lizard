@@ -155,6 +155,7 @@ return [
     'multiply_product_values' => 'The :attribute attribute does not allow multi values ​​for product',
     'product_in_stock' => 'The product is already presents or reserved in stock',
     'product_has_not_price' => 'The product has not price',
+    'multiply_product_video_source' => 'Video source can be youtube link or video file in one or two formats',
 
     // user
     'balance_not_zero' => 'Can not delete user. Balance is not zero.',

@@ -6,6 +6,7 @@ use App\Contracts\Shop\UrlParametersInterface;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Support\Breadcrumbs\CategoryBreadcrumbs;
+use App\Support\Headers\CacheControlHeaders;
 use App\Support\Seo\Canonical\CanonicalLinkGenerator;
 use App\Support\Seo\MetaTags\LeafCategoryMetaTags;
 use App\Support\Seo\Pagination\PaginationLinksGenerator;
@@ -13,12 +14,16 @@ use App\Support\Shop\Filters\FiltersCreator;
 use App\Support\Shop\Products\CategoryProducts;
 use App\Support\Url\UrlGenerators\ShowProductsUrlGenerator;
 use App\Support\Url\UrlGenerators\SortProductsUrlGenerator;
+use App\Support\User\RetrieveUser;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\View\View;
+use Illuminate\Http\Response;
 
 class LeafCategoryController extends Controller
 {
+    use RetrieveUser;
+    use CacheControlHeaders;
+
     /**
      * @var Category
      */
@@ -40,10 +45,7 @@ class LeafCategoryController extends Controller
      */
     private $breadcrumbs;
     /**
-     * @var FiltersCreator// title, description, keywords
-        $pageTitle = $this->categoryMetaTags->getCategoryTitle($category);
-        $pageDescription = $this->categoryMetaTags->getCategoryDescription($category);
-        $pageKeywords = $this->categoryMetaTags->getCategoryKeywords($category);
+     * @var FiltersCreator
      */
     private $filtersCreator;
     /**
@@ -88,11 +90,19 @@ class LeafCategoryController extends Controller
      * Show products of given leaf category.
      *
      * @param string $categoryUrl
-     * @return View
+     * @return Response
      */
-    public function index(string $categoryUrl): View
+    public function index(string $categoryUrl)
     {
         $category = $this->getCategory($categoryUrl);
+
+        $user = $this->getUser();
+
+        $response = response()->make();
+
+        $pageLastModified = $category->updated_at;
+
+        $this->checkAndSetLastModifiedHeader($user, $response, $pageLastModified);
 
         // define sort products method
         $sortProductsMethod = $this->sortProductsUrlGenerator->getCurrentQueryStringParameterValue();
@@ -109,11 +119,8 @@ class LeafCategoryController extends Controller
         // get products for current page
         $products = $this->getProducts($category, $sortProductsMethod);
 
-        //get productsIds
-        $productsIds = $products->pluck('id')->toArray();
-
         // create filters
-        $filters = $this->filtersCreator->getFilters($category, $productsIds);
+        $filters = $this->filtersCreator->getFilters($category);
 
         // category content
         $categoryContent = $category->content;
@@ -132,7 +139,11 @@ class LeafCategoryController extends Controller
         $pageDescription = $this->categoryMetaTags->getCategoryDescription($category);
         $pageKeywords = $this->categoryMetaTags->getCategoryKeywords($category);
 
-        return view($this->getViewPath())->with(compact('categoryContent', 'categoryName', 'breadcrumbs', 'products', 'filters', 'sortProductsUrls', 'sortProductsMethod', 'showProductsUrls', 'paginationLinks', 'metaCanonical', 'pageTitle', 'pageDescription', 'pageKeywords'));
+        $response->setContent(view($this->getViewPath())->with(compact('categoryContent', 'categoryName', 'breadcrumbs', 'products', 'filters', 'sortProductsUrls', 'sortProductsMethod', 'showProductsUrls', 'paginationLinks', 'metaCanonical', 'pageTitle', 'pageDescription', 'pageKeywords')));
+
+        $this->checkAndSetEtagHeader($user, $response);
+
+        return $response;
     }
 
     /**
@@ -163,8 +174,15 @@ class LeafCategoryController extends Controller
     private function getCategory(string $categoryUrl): Category
     {
         $category = $this->category->newQuery()
+            ->where('published', 1)
             ->where('url', $categoryUrl)
-            ->with('products')
+            ->with(['products' => function($query){
+                $query->where([
+                    ['published', '=', 1],
+                    ['is_archive', '=', 0],
+                    ])
+                ->select('id');
+            }])
             ->firstOrFail();
 
         if (!$category->isLeaf()) {

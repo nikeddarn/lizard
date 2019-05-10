@@ -15,6 +15,8 @@ use App\Models\OrderRecipient;
 use App\Models\OrderStatus;
 use App\Models\Product;
 use App\Models\RecentProduct;
+use App\Models\StaticPage;
+use App\Models\Storage;
 use App\Models\User;
 use App\Models\OrderAddress;
 use App\Models\UserCartProduct;
@@ -74,6 +76,10 @@ class CheckoutController extends Controller
      * @var RecentProduct
      */
     private $recentProduct;
+    /**
+     * @var StaticPage
+     */
+    private $staticPage;
 
     /**
      * OrderController constructor.
@@ -87,8 +93,9 @@ class CheckoutController extends Controller
      * @param ExchangeRates $exchangeRates
      * @param FavouriteProduct $favouriteProduct
      * @param RecentProduct $recentProduct
+     * @param StaticPage $staticPage
      */
-    public function __construct(OrderAddress $orderAddress, OrderRecipient $orderRecipient, Order $order, DeliveryPrice $deliveryPrice, UserCartProduct $userCartProduct, OrderStatus $orderStatus, User $user, ExchangeRates $exchangeRates, FavouriteProduct $favouriteProduct, RecentProduct $recentProduct)
+    public function __construct(OrderAddress $orderAddress, OrderRecipient $orderRecipient, Order $order, DeliveryPrice $deliveryPrice, UserCartProduct $userCartProduct, OrderStatus $orderStatus, User $user, ExchangeRates $exchangeRates, FavouriteProduct $favouriteProduct, RecentProduct $recentProduct, StaticPage $staticPage)
     {
         $this->orderAddress = $orderAddress;
         $this->order = $order;
@@ -100,6 +107,7 @@ class CheckoutController extends Controller
         $this->orderRecipient = $orderRecipient;
         $this->favouriteProduct = $favouriteProduct;
         $this->recentProduct = $recentProduct;
+        $this->staticPage = $staticPage;
     }
 
     /**
@@ -108,14 +116,16 @@ class CheckoutController extends Controller
      * @param DeliveryType $deliveryType
      * @param City $city
      * @param CartProducts $cartProducts
+     * @param Storage $storage
      * @return View
      */
-    public function create(DeliveryType $deliveryType, City $city, CartProducts $cartProducts)
+    public function create(DeliveryType $deliveryType, City $city, CartProducts $cartProducts, Storage $storage)
     {
         $user = $this->getOrCreateUser();
 
         $lastUserAddress = $user->orderAddresses()->orderByDesc('id')->first();
         $lastUserRecipient = $user->orderRecipients()->orderByDesc('id')->first();
+        $lastSelfDeliveryOrder = $user->orders()->whereNotNull('storages_id')->orderByDesc('id')->first();
 
         $products = $cartProducts->getProducts($user);
 
@@ -133,9 +143,15 @@ class CheckoutController extends Controller
 
         $deliveryTypes = $deliveryType->newQuery()->get();
 
-        $cities = $city->newQuery()->has('storages')->get();
+        $locale = app()->getLocale();
 
-        return view('content.shop.checkout.index')->with(compact('user', 'lastUserAddress', 'lastUserRecipient', 'deliveryTypes', 'cartProductsCount', 'cities', 'amount', 'formattedAmount', 'courierDeliverySum'));
+        $cities = $city->newQuery()->has('storages')->orderBy('name_' . $locale)->get();
+
+        $storages = $storage->newQuery()->join('cities', 'storages.cities_id', '=', 'cities.id')->orderByRaw('cities.name_' . $locale)->select('storages.*')->with('city')->get();
+
+        $pageData = $this->staticPage->newQuery()->where('route', 'shop.checkout.create')->first();
+
+        return view('content.shop.checkout.index')->with(compact('user', 'lastUserAddress', 'lastUserRecipient', 'deliveryTypes', 'cartProductsCount', 'cities', 'amount', 'formattedAmount', 'courierDeliverySum', 'storages', 'lastSelfDeliveryOrder', 'pageData'));
     }
 
     /**
@@ -195,8 +211,19 @@ class CheckoutController extends Controller
             'phone' => $request->get('phone'),
         ]);
 
-        // create order delivery address
-        if ($deliveryTypeId !== DeliveryTypesInterface::SELF) {
+        // create order data
+        $orderData = [
+            'order_status_id' => OrderStatusInterface::HANDLING,
+            'delivery_types_id' => $deliveryTypeId,
+            'users_id' => $user->id,
+            'order_recipients_id' => $orderRecipient->id,
+        ];
+
+
+        if ($deliveryTypeId === DeliveryTypesInterface::SELF) {
+            // add storage id to order
+            $orderData['storages_id'] = (int)$request->get('storage_id');
+        } else {
             $orderAddressData = [
                 'users_id' => $user->id,
                 'address' => $request->get('address'),
@@ -206,22 +233,14 @@ class CheckoutController extends Controller
                 $orderAddressData['cities_id'] = $request->get('city_id');
             }
 
+            // create order address
             $orderAddress = $this->orderAddress->newQuery()->firstOrCreate($orderAddressData);
 
-            $orderAddressId = $orderAddress->id;
-        } else {
-            $orderAddressId = null;
+            // add address id to order
+            $orderData['order_addresses_id'] = $orderAddress->id;
         }
 
         // create order
-        $orderData = [
-            'order_status_id' => OrderStatusInterface::HANDLING,
-            'delivery_types_id' => $deliveryTypeId,
-            'users_id' => $user->id,
-            'order_recipients_id' => $orderRecipient->id,
-            'order_addresses_id' => $orderAddressId,
-        ];
-
         $order = $this->order->newQuery()->create($orderData);
 
         // add 'user' relation

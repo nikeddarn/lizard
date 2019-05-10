@@ -65,8 +65,11 @@ class OrderDeletedUserNotification extends Notification
         $bodyText = $this->replaceNotificationPlaceholders($bodyTextTemplate, $notifiable);
 
         return (new MailMessage)
-            ->greeting($headerText)
-            ->line($bodyText);
+            ->subject(trans('shop.order.deleted.subject'))
+            ->markdown('mail.order.order_deleted', [
+                'headerText' => $headerText,
+                'bodyText' => $bodyText,
+            ]);
     }
 
     /**

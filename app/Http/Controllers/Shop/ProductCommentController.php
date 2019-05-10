@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Shop;
 
 use App\Models\Product;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class ProductCommentController extends Controller
 {
@@ -30,6 +32,10 @@ class ProductCommentController extends Controller
     }
 
 
+    /**
+     * @return RedirectResponse
+     * @throws ValidationException
+     */
     public function store()
     {
         $this->validate($this->request, [

@@ -5,8 +5,10 @@ namespace App\Http\Controllers\User;
 use App\Models\FavouriteProduct;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\StaticPage;
 use App\Support\Shop\Products\FavouriteProducts;
 use App\Support\User\RetrieveUser;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -30,6 +32,10 @@ class FavouriteProductController extends Controller
      * @var Product
      */
     private $product;
+    /**
+     * @var StaticPage
+     */
+    private $staticPage;
 
     /**
      * FavouriteProductController constructor.
@@ -37,13 +43,15 @@ class FavouriteProductController extends Controller
      * @param FavouriteProduct $favouriteProduct
      * @param FavouriteProducts $favouriteProducts
      * @param Product $product
+     * @param StaticPage $staticPage
      */
-    public function __construct(Request $request, FavouriteProduct $favouriteProduct, FavouriteProducts $favouriteProducts, Product $product)
+    public function __construct(Request $request, FavouriteProduct $favouriteProduct, FavouriteProducts $favouriteProducts, Product $product, StaticPage $staticPage)
     {
         $this->request = $request;
         $this->favouriteProduct = $favouriteProduct;
         $this->favouriteProducts = $favouriteProducts;
         $this->product = $product;
+        $this->staticPage = $staticPage;
     }
 
     /**
@@ -61,14 +69,21 @@ class FavouriteProductController extends Controller
 
         $favouriteProducts = $this->favouriteProducts->getProducts();
 
-        return $view->with(compact('favouriteProducts'));
+        $pageData = $this->staticPage->newQuery()->where('route', 'user.favourites.index')->first();
+
+        $locale = app()->getLocale();
+
+        $pageTitle = $pageData->{'title_' . $locale};
+        $noindexPage = true;
+
+        return $view->with(compact('favouriteProducts', 'pageTitle', 'noindexPage'));
     }
 
     /**
      * Store a newly created resource in storage.
      *
      * @param string $id
-     * @return bool|\Illuminate\Http\RedirectResponse
+     * @return bool|RedirectResponse
      */
     public function addProductToFavourite(string $id)
     {
@@ -83,7 +98,7 @@ class FavouriteProductController extends Controller
      * Remove the specified resource from storage.
      *
      * @param string $id
-     * @return \Illuminate\Http\RedirectResponse|string
+     * @return RedirectResponse|string
      * @throws \Exception
      */
     public function removeProductFromFavourite(string $id)

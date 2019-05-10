@@ -25,8 +25,8 @@
                     <i class="svg-icon text-warning" data-feather="clock"></i>
                     <span class="ml-2">Ожидается {{ $product->expectedAt->diffForHumans() }}</span>
                 @else
-                    <i class="svg-icon text-danger" data-feather="alert-circle"></i>
-                    <span class="ml-2">Нет в наличии</span>
+                    <i class="svg-icon text-info" data-feather="alert-circle"></i>
+                    <span class="ml-2">Продукт под заказ</span>
                 @endif
             </div>
 

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Contracts\Order\OrderStatusInterface;
+use App\Notifications\ResetPassword;
 use App\Support\Settings\SettingsRepository;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -199,5 +200,15 @@ class User extends Authenticatable
     public function routeNotificationForSms()
     {
         return $this->phone;
+    }
+
+    /**
+     * Send reset password notification.
+     *
+     * @param string $token
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPassword($token));
     }
 }

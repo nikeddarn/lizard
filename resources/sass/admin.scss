@@ -228,6 +228,7 @@ label.required:after {
     right: 0;
     opacity: 0;
     transition: .3s;
+    z-index: 10;
 }
 
 .slider-item:hover .slider-item-control, .group-item:hover .group-item-control{

@@ -4,28 +4,29 @@
 
     <div class="container">
 
-        <div class="card card-body p-2 my-4">
-            <h1 class="h5 text-gray-hover m-0">
+        <div class="card card-body p-4 my-4">
+
+            <h1 class="h5 text-center text-gray-hover mb-5">
                 <span>Результаты поиска по запросу:</span>
                 <span class="ml-2 ml-lg-4">{{ $searchingText }}</span>
             </h1>
-        </div>
 
-        @if($products->count())
-
-            <div class="row">
-                @include('content.shop.search.parts.products')
-            </div>
-
-
-            @if($products->lastPage() !== 1)
+            @if($products->count())
                 <div class="row">
-                    <div class="col-12 my-4">
-                        @include('layouts.parts.pagination.products.index', ['paginator' => $products])
-                    </div>
+                    @include('content.shop.search.parts.products')
                 </div>
+            @else
+                <p class="h5 text-gray-hover">Ничего не найдено</p>
             @endif
 
+        </div>
+
+        @if($products->count() && $products->lastPage() !== 1)
+            <div class="row">
+                <div class="col-12 my-4">
+                    @include('layouts.parts.pagination.products.index', ['paginator' => $products])
+                </div>
+            </div>
         @endif
 
     </div>

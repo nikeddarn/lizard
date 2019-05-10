@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Support\ImageHandlers\CategoryImageHandler;
 use App\Support\Settings\SettingsRepository;
 use Exception;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
@@ -357,5 +358,62 @@ class CategoryController extends Controller
         $category = $this->category->newQuery()->withCount('products')->findOrFail($id);
 
         return ($category->isLeaf() && !$category->products_count) ? 'true' : 'false';
+    }
+
+    /**
+     * Set product published.
+     *
+     * @return bool|RedirectResponse
+     */
+    public function publishCategory()
+    {
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
+
+        $categoryId = (int)request()->get('category_id');
+
+        $descendantsCategories = $this->category->newQuery()->descendantsAndSelf($categoryId);
+        $ancestorsCategories = $this->category->newQuery()->ancestorsAndSelf($categoryId);
+
+        $categories = $descendantsCategories->merge($ancestorsCategories);
+
+        foreach ($categories as $category) {
+            $category->published = 1;
+            $category->save();
+        }
+
+        if (request()->ajax()) {
+            return 'true';
+        } else {
+            return back();
+        }
+    }
+
+    /**
+     * Set product un published.
+     *
+     * @return bool|RedirectResponse
+     */
+    public function unPublishCategory()
+    {
+        if (Gate::denies('local-catalog-edit', auth('web')->user())) {
+            abort(401);
+        }
+
+        $categoryId = (int)request()->get('category_id');
+
+        $categories = $this->category->newQuery()->descendantsAndSelf($categoryId);
+
+        foreach ($categories as $category) {
+            $category->published = 0;
+            $category->save();
+        }
+
+        if (request()->ajax()) {
+            return 'true';
+        } else {
+            return back();
+        }
     }
 }

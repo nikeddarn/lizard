@@ -57,14 +57,41 @@ class AlphaSmsSender implements SmsChannelSenderInterface, SmsTypesInterface
     }
 
     /**
+     * Get sms sender balance.
+     *
+     * @return float
+     * @throws GuzzleException
+     */
+    public function getBalance(): float
+    {
+        $url = config('channels.phone.alphasms.sent_xml_message_url');
+        $options = [
+            'headers' => [
+                'Content-Type' => 'text/xml; charset=UTF8',
+            ],
+            'body' => $this->createBalanceData(),
+        ];
+
+        $response = $this->client->request('POST', $url, $options);
+
+        $responseContent = $response->getBody()->getContents();
+
+        $responseXml = new SimpleXMLElement($responseContent);
+
+        $balance = $responseXml->balance[0]->amount;
+
+        return floatval($balance);
+    }
+
+    /**
      * Create message data.
      *
      * @param SmsMessage $message
      * @return mixed
      */
-    public function createMessageData(SmsMessage $message)
+    private function createMessageData(SmsMessage $message)
     {
-        $alphasmsKey = env('ALPHASMS_KEY', config('channels.phone.alphasms.key'));
+        $alphasmsKey = config('channels.phone.alphasms.key');
 
         $sender = $message->sender ? $message->sender : config('channels.phone.alphasms.sender');
         $type = $message->type ? $message->type : self::SIMPLE;
@@ -80,17 +107,34 @@ class AlphaSmsSender implements SmsChannelSenderInterface, SmsTypesInterface
         $xmlMsg->addAttribute('sender', $sender);
         $xmlMsg->addAttribute('type', $type);
 
-        if ($message->beginTransfer){
+        if ($message->beginTransfer) {
             $xmlMsg->addAttribute('date_beg', $message->beginTransfer);
         }
 
-        if ($message->endTransfer){
+        if ($message->endTransfer) {
             $xmlMsg->addAttribute('date_end', $message->endTransfer);
         }
 
-        if ($xmlMsg->url){
+        if ($xmlMsg->url) {
             $xmlMessage->addAttribute('url', $message->url);
         }
+
+        return $xmlPackage->asXML();
+    }
+
+    /**
+     * Create message data.
+     *
+     * @return mixed
+     */
+    private function createBalanceData()
+    {
+        $alphasmsKey = config('channels.phone.alphasms.key');
+
+        $xmlPackage = new SimpleXMLElement('<package></package>');
+        $xmlPackage->addAttribute('key', $alphasmsKey);
+
+        $xmlPackage->addChild('balance');
 
         return $xmlPackage->asXML();
     }

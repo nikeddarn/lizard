@@ -10,7 +10,6 @@ use App\Models\Product;
 use App\Models\VendorCategory;
 use App\Support\ProductAvailability\ProductAvailability;
 use App\Support\Settings\SettingsRepository;
-use Illuminate\Support\Collection;
 
 class ProductPublishManager
 {
@@ -26,18 +25,63 @@ class ProductPublishManager
      * @var SettingsRepository
      */
     private $settingsRepository;
+    /**
+     * @var Product
+     */
+    private $product;
 
     /**
      * ProductPublishManager constructor.
      * @param ProductAvailability $productAvailability
      * @param VendorCategory $vendorCategory
      * @param SettingsRepository $settingsRepository
+     * @param Product $product
      */
-    public function __construct(ProductAvailability $productAvailability, VendorCategory $vendorCategory, SettingsRepository $settingsRepository)
+    public function __construct(ProductAvailability $productAvailability, VendorCategory $vendorCategory, SettingsRepository $settingsRepository, Product $product)
     {
         $this->productAvailability = $productAvailability;
         $this->vendorCategory = $vendorCategory;
         $this->settingsRepository = $settingsRepository;
+        $this->product = $product;
+    }
+
+    /**
+     * Update publish for all products.
+     */
+    public function updateAllProductsPublish()
+    {
+        $products = $this->product->newQuery()
+            ->select(['id', 'price1', 'price2', 'price3'])
+            ->with('availableOrExpectingVendorProducts', 'availableOrExpectingStorageProducts')
+            ->with(['vendorProducts' => function ($query) {
+                $query->select(['id', 'products_id', 'price'])->with('vendorCategories');
+            }])
+            ->get()
+            ->keyBy('id');
+
+        $showUnavailableProducts = $this->settingsRepository->getProperty('shop.show_unavailable_products');
+
+        $publishedProductsIds = [];
+        $unpublishedProductsIds = [];
+
+        foreach ($products as $product) {
+            if ($this->isPublishingAllowed($product, $showUnavailableProducts) && $this->checkProductProfit($product)) {
+                $publishedProductsIds[] = $product->id;
+            } else {
+                $unpublishedProductsIds[] = $product->id;
+            }
+        }
+
+        Product::withoutSyncingToSearch(function () use ($publishedProductsIds, $unpublishedProductsIds) {
+            // set products published
+            Product::query()->whereIn('id', $publishedProductsIds)->update([
+                'published' => 1,
+            ]);
+            // set products unpublished
+            Product::query()->whereIn('id', $unpublishedProductsIds)->update([
+                'published' => 0,
+            ]);
+        });
     }
 
     /**
@@ -47,40 +91,21 @@ class ProductPublishManager
      */
     public function updateProductPublish(Product $product)
     {
-        $IsOnlyAvailableAllowed = $this->settingsRepository->getProperty('shop.show_available_products_only');
+        $showUnavailableProducts = $this->settingsRepository->getProperty('shop.show_unavailable_products');
 
         // set publishing
-        $product->published = (int)$this->isPublishingAllowed($product, $IsOnlyAvailableAllowed);
+        $product->published = (int)($this->isPublishingAllowed($product, $showUnavailableProducts) && $this->checkProductProfit($product));
         $product->save();
     }
 
     /**
-     * Update products publish.
-     *
-     * @param Collection $products
-     */
-    public function updateProductsPublish(Collection $products)
-    {
-        $IsOnlyAvailableAllowed = $this->settingsRepository->getProperty('shop.show_available_products_only');
-
-        foreach ($products as $product) {
-
-            Product::withoutSyncingToSearch(function () use ($product, $IsOnlyAvailableAllowed) {
-                // set publishing
-                $product->published = (int)$this->isPublishingAllowed($product, $IsOnlyAvailableAllowed);
-                $product->save();
-            });
-        }
-    }
-
-    /**
      * @param Product $product
-     * @param bool $IsOnlyAvailableAllowed
+     * @param array $showUnavailableProducts
      * @return bool
      */
-    private function isPublishingAllowed(Product $product, bool $IsOnlyAvailableAllowed):bool
+    private function isPublishingAllowed(Product $product, array $showUnavailableProducts): bool
     {
-        return  (!$IsOnlyAvailableAllowed || $this->productAvailability->isProductAvailableOrExpecting($product)) && $this->checkProductProfit($product);
+        return $this->productAvailability->isProductAvailableOrExpecting($product) || ($product->vendorProducts->count() && $showUnavailableProducts['vendor']) || (!$product->vendorProducts->count() && $showUnavailableProducts['own']);
     }
 
     /**
@@ -91,7 +116,7 @@ class ProductPublishManager
      */
     private function checkProductProfit(Product $product): bool
     {
-        if (!$product->vendorProducts->count()){
+        if (!$product->vendorProducts->count()) {
             return true;
         }
 

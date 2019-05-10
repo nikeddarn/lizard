@@ -2,10 +2,10 @@
     <div class="col-sm-8 col-md-6 col-lg-5 col-xl-4">
         <div class="card card-login-repair">
             <div class="card-body">
-                <form class="form-light-background-input" method="post" action="{{ route('password.email') }}">
+                <form class="form-light-background-input" method="post" action="{{ route('password.email', ['locale' => config('app.canonical_locale') === 'ru' ? '' : 'ru']) }}">
                     @csrf
                     <div class="form-group text-center">
-                        <h3 class="bold text-gray-hover">Восстановить Пароль</h3>
+                        <h3 class="bold text-gray-hover">Восстановить пароль</h3>
                         @if (session('status'))
                         <em class="text-info">{{ session('status') }}</em>
                         @endif
@@ -23,7 +23,7 @@
                     <button type="submit" class="btn btn-danger btn-block reset-done">ВОССТАНОВИТЬ</button>
                 </form>
                 <hr>
-                <a class="btn btn-light btn-sm text-gray-hover" href="{{ url('/login') }}">
+                <a class="btn btn-light btn-sm text-gray-hover" href="{{ route('login', ['locale' => config('app.canonical_locale') === 'ru' ? '' : 'ru']) }}">
                     <i class="svg-icon-larger" data-feather="arrow-left"></i>
                     <span>Назад в форму входа</span>
                 </a>

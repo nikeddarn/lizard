@@ -1,5 +1,21 @@
 @extends('layouts.common')
 
+@section('meta')
+
+    @if(!empty($pageData['title_ru']))
+        <title>{{ $pageData['title_ru'] }}</title>
+    @endif
+
+    @if(!empty($pageData['description_ru']))
+        <meta name="description" content="{{ $pageData['description_ru'] }}">
+    @endif
+
+    @if(!empty($pageData['keywords_ru']))
+        <meta name="keywords" content="{{ $pageData['keywords_ru'] }}">
+    @endif
+
+@endsection
+
 @section('content')
 
     <div class="container">

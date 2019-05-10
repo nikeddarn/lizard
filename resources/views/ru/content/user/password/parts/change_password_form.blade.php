@@ -1,6 +1,6 @@
 <form id="change-password-form" role="form" method="POST" action="{{ route('user.password.change') }}">
-
     @csrf
+    <input type="hidden" name="locale" value="ru">
 
     <div class="row my-4 custom-form">
 

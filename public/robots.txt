@@ -7,3 +7,5 @@ Disallow: /logout/
 Disallow: /register/
 Disallow: /password/
 Disallow: /search/
+Disallow: /cart/
+Disallow: /checkout/

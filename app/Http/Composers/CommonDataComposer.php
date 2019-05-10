@@ -101,7 +101,8 @@ class CommonDataComposer
     {
         $routeLocale = $this->request->route()->parameter('locale');
 
-        $categories = $this->category->defaultOrder()
+        $categories = $this->category->where('published', 1)
+            ->defaultOrder()
             ->get()
             ->each(function (Category $category) use ($routeLocale) {
                 if ($category->isLeaf()) {

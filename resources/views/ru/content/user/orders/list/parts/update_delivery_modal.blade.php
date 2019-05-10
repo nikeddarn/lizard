@@ -69,6 +69,23 @@
                         <div class="col-12">
                             <div class="row">
                                 <div class="col-6">
+                                    <div id="delivery-storage-wrapper"
+                                         class="form-group{{ old('delivery_type', $order->delivery_types_id) != \App\Contracts\Order\DeliveryTypesInterface::SELF ? ' d-none' : ''}}">
+                                        <label class="bold text-gray-hover" for="delivery-storage">Склад самовывоза</label>
+                                        <select id="delivery-storage" name="storage_id" class="selectpicker w-100">
+                                            @foreach($storages as $storage)
+                                                <option
+                                                    value="{{ $storage->id }}" {{ old('storage_id', $order->storages_id ? $order->storages_id : ($lastSelfDeliveryOrder ? $lastSelfDeliveryOrder->storages_id : null)) == $storage->id ? ' selected="selected"' : '' }}>{{ $storage->city->name_ru }} - {{ $storage->name_ru }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="row">
+                                <div class="col-6">
                                     <div id="delivery-city-wrapper"
                                          class="form-group{{ old('delivery_type', $order->delivery_types_id) != \App\Contracts\Order\DeliveryTypesInterface::COURIER ? ' d-none' : ''}}">
                                         <label class="bold text-gray-hover" for="delivery-city">Город доставки</label>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\StaticPage;
 use App\Support\Shop\Products\RecentProducts;
 use Illuminate\View\View;
 
@@ -12,14 +13,20 @@ class RecentProductController extends Controller
      * @var RecentProducts
      */
     private $recentProducts;
+    /**
+     * @var StaticPage
+     */
+    private $staticPage;
 
     /**
      * FavouriteProductController constructor.
      * @param RecentProducts $recentProducts
+     * @param StaticPage $staticPage
      */
-    public function __construct(RecentProducts $recentProducts)
+    public function __construct(RecentProducts $recentProducts, StaticPage $staticPage)
     {
         $this->recentProducts = $recentProducts;
+        $this->staticPage = $staticPage;
     }
 
     /**
@@ -38,6 +45,13 @@ class RecentProductController extends Controller
 
         $recentProducts = $this->recentProducts->getProducts();
 
-        return $view->with(compact('recentProducts'));
+        $pageData = $this->staticPage->newQuery()->where('route', 'user.recent.index')->first();
+
+        $locale = app()->getLocale();
+
+        $pageTitle = $pageData->{'title_' . $locale};
+        $noindexPage = true;
+
+        return $view->with(compact('recentProducts', 'pageTitle', 'noindexPage'));
     }
 }

@@ -8,6 +8,7 @@ namespace App\Channels;
 
 use App\Contracts\Channels\SmsChannelSenderInterface;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -48,5 +49,20 @@ class SmsChannel
         } catch (Throwable $exception) {
             Log::info('Can\'t send sms message: ' . $exception->getMessage());
         }
+    }
+
+    /**
+     * Get sms sender balance.
+     *
+     * @return float
+     */
+    public function getBalance():float
+    {
+        $balanceCacheTTL = config('channels.phone.sms_sender_balance_ttl');
+
+        return Cache::remember('smsSenderBalance', $balanceCacheTTL, function () {
+            // get balance from sender
+            return $this->smsChannelSender->getBalance();
+        });
     }
 }
