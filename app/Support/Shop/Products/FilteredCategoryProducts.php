@@ -51,7 +51,9 @@ class FilteredCategoryProducts extends CategoryProducts
     private function constraintQueryWithFilters(Builder $query, Collection $selectedAttributeValues): Builder
     {
         foreach ($selectedAttributeValues->groupBy('attributes_id') as $groupedAttributeValues) {
+
             $query->whereHas('productAttributes', function ($query) use ($groupedAttributeValues) {
+                $query->where('attributes_id', $groupedAttributeValues->first()->attributes_id);
                 $query->whereIn('attribute_values_id', $groupedAttributeValues->pluck('id')->toArray());
             });
         }

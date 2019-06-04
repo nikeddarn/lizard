@@ -57,6 +57,8 @@ class ProductCommentController extends Controller
 
         $product->productComments()->create($commentData);
 
+        $product->touch();
+
         // update product rating
         if ($this->request->get('rating')){
             $product->rating = ($product->rating * $product->rating_quantity + $this->request->get('rating')) / ($product->rating_quantity + 1);

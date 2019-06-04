@@ -58,11 +58,20 @@ class BrainProductAttributesDataAdapter
         $attributesData = [];
 
         foreach (array_keys($productAttributesDataRu) as $key) {
-            $attributeId = $this->getAttribute($productAttributesDataRu[$key], $productAttributesDataUa[$key])->id;
-            $attributeValueId = $this->getAttributeValue($attributeId, $productAttributesDataRu[$key], $productAttributesDataUa[$key])->id;
+            $attribute = $this->getAttribute($productAttributesDataRu[$key], $productAttributesDataUa[$key]);
 
-            $attributesData[$attributeValueId] = [
-                'attributes_id' => $attributeId,
+            if (!$attribute){
+                continue;
+            }
+
+            $attributeValue = $this->getAttributeValue($attribute->id, $productAttributesDataRu[$key], $productAttributesDataUa[$key]);
+
+            if (!$attributeValue){
+                continue;
+            }
+
+            $attributesData[$attributeValue->id] = [
+                'attributes_id' => $attribute->id,
             ];
         }
 
@@ -127,13 +136,19 @@ class BrainProductAttributesDataAdapter
         $attributeValue = $this->repository->getAttributeValueByVendorId(self::VENDOR_ID, $vendorAttributeValueId);
 
         if (!$attributeValue) {
+            $attributeUrl = Str::slug($attributeDataRu->ValueName);
+
+            // not insert able attribute value
+            if (!$attributeUrl){
+                return null;
+            }
 
             // prepare attribute data
             $attributeValueData = [
                 'attributes_id' => $attributeId,
                 'value_ru' => $attributeDataRu->ValueName,
                 'value_uk' => $attributeDataUa->ValueName,
-                'url' => Str::slug($attributeDataRu->ValueName),
+                'url' => $attributeUrl,
             ];
 
             // try to retrieve existing attribute of another vendor by data

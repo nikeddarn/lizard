@@ -45,7 +45,7 @@ class ProductImageHandler extends ImageHandler
      * @param string $sourcePath
      * @param int $priority
      */
-    public function insertProductImage(Product $product, string $sourcePath, int $priority)
+    public function insertProductImage(Product $product, string $sourcePath, int $priority = 1)
     {
         // create image
         $image = $this->createImageFromFile($sourcePath);

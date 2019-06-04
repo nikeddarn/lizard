@@ -84,7 +84,9 @@ class AttributeRepository
 
         $searchDoubleKeys = config('vendor.search_double_by.attribute_value');
 
-        return AttributeValue::query()->where(function ($query) use ($searchDoubleKeys, $vendorAttributeValueData) {
+        return AttributeValue::query()
+            ->where('attributes_id', $vendorAttributeValueData['attributes_id'])
+            ->where(function ($query) use ($searchDoubleKeys, $vendorAttributeValueData) {
             foreach ($searchDoubleKeys as $field) {
                 $query->orWhere($field, $vendorAttributeValueData[$field]);
             }

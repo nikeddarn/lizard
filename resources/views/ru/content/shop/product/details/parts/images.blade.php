@@ -4,13 +4,13 @@
         <img id="zoom-image" src="/storage/{{ $product->productImages->first()->large }}"
              data-zoom-image="/storage/{{ $product->productImages->first()->large }}">
     @else
-        <img src="/images/common/no_image.png">
+        <img src="{{ url('/images/common/no_image.png') }}">
     @endif
 </div>
 
 @if($product->productImages->count() > 1)
 
-    <div class="owl-carousel owl-theme">
+    <div id="productImagesCarousel" class="owl-carousel owl-theme">
 
         @foreach($product->productImages as $image)
 

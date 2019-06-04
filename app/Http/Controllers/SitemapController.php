@@ -8,7 +8,9 @@ use App\Models\Product;
 use App\Models\StaticPage;
 use App\Models\VirtualCategory;
 use Carbon\Carbon;
+use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use stdClass;
 
 class SitemapController extends Controller
@@ -56,7 +58,7 @@ class SitemapController extends Controller
     /**
      * Create sitemap.
      *
-     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     * @return Response
      */
     public function index()
     {
@@ -120,6 +122,7 @@ class SitemapController extends Controller
         $siteMapItems = collect();
 
         $categories = $this->category->newQuery()
+            ->defaultOrder()
             ->where('published', 1)
             ->with(['virtualCategories' => function ($query) {
                 $query->select(['updated_at']);
@@ -127,7 +130,7 @@ class SitemapController extends Controller
                     $query->select(['url', 'updated_at']);
                 }]);
             }])
-            ->get(['url', 'updated_at']);
+            ->get(['id', 'parent_id', '_lft', '_rgt', 'published', 'url', 'updated_at']);
 
         // leaf category changefreq
         $leafCategoryChangefreq = config('seo.changefreq.leaf_category');
@@ -136,7 +139,6 @@ class SitemapController extends Controller
         $categoryChangefreq = config('seo.changefreq.category');
 
         foreach ($categories as $category) {
-
             if ($category->isLeaf()) {
                 // leaf category sitemap item
                 $siteMapItems->push($this->createLeafCategorySitemapItem($category, $leafCategoryChangefreq));
@@ -154,6 +156,9 @@ class SitemapController extends Controller
                 $siteMapItems->push($this->createVirtualCategorySitemapItem($categoryUrl, $virtualCategory, $leafCategoryChangefreq));
             }
         }
+
+        // add cross attribute with categories items
+        $siteMapItems = $siteMapItems->merge($this->createAttributeCrossCategoriesItems($leafCategoryChangefreq));
 
         return $siteMapItems;
     }
@@ -196,6 +201,69 @@ class SitemapController extends Controller
     }
 
     /**
+     * Get virtual categories items.
+     *
+     * @param string $leafCategoryChangefreq
+     * @return Collection
+     */
+    private function createAttributeCrossCategoriesItems(string $leafCategoryChangefreq)
+    {
+        $siteMapItems = collect();
+
+        $attributesCountQuery = DB::table('attributes')
+            ->join('attribute_values', 'attribute_values.attributes_id', '=', 'attributes.id')
+            ->join('product_attribute', function ($join) {
+                $join->on('product_attribute.attribute_values_id', '=', 'attribute_values.id')
+                    ->whereRaw('product_attribute.attributes_id = attributes.id');
+            })
+            ->join('products', function ($join) {
+                $join->on('products.id', '=', 'product_attribute.products_id')
+                    ->where('products.published', 1);
+            })
+            ->join('category_product', 'category_product.products_id', '=', 'products.id')
+            ->join('categories', function ($join) {
+                $join->on('categories.id', '=', 'category_product.categories_id')
+                    ->where('categories.published', 1);
+            })
+            ->selectRaw('attributes.id as aggregate_attribute_id, categories.id as aggregate_category_id, count(distinct(attribute_values.id)) as attribute_values_count')
+            ->groupBy('attributes.id', 'categories.id');
+
+        $attributesValues = $this->attributeValue->newQuery()
+            ->doesntHave('virtualCategories')
+            ->join('attributes', function ($join) {
+                $join->on('attributes.id', '=', 'attribute_values.attributes_id')
+                    ->where('attributes.indexable', 1);
+            })
+            ->join('product_attribute', function ($join) {
+                $join->on('product_attribute.attribute_values_id', '=', 'attribute_values.id')
+                    ->whereRaw('product_attribute.attributes_id = attributes.id');
+            })
+            ->join('products', function ($join) {
+                $join->on('products.id', '=', 'product_attribute.products_id')
+                    ->where('products.published', 1);
+            })
+            ->join('category_product', 'category_product.products_id', '=', 'products.id')
+            ->join('categories', function ($join) {
+                $join->on('categories.id', '=', 'category_product.categories_id')
+                    ->where('categories.published', 1);
+            })
+            ->selectRaw('attributes.id as attribute_id, attribute_values.id, attribute_values.url, attribute_values.attributes_id, categories.id as category_id, categories.url as category_url, categories.updated_at as category_updated_at')
+            ->distinct()
+            ->joinSub($attributesCountQuery, 'attribute_values_aggregates', function ($join) {
+                $join->on('attributes.id', '=', 'attribute_values_aggregates.aggregate_attribute_id')
+                    ->on('categories.id', '=', 'attribute_values_aggregates.aggregate_category_id');
+            })
+            ->whereRaw('attribute_values_aggregates.attribute_values_count > 1')
+            ->get();
+
+        foreach ($attributesValues as $attributesValue) {
+            $siteMapItems->push($this->createAttributeCrossCategorySitemapItem($attributesValue, $leafCategoryChangefreq));
+        }
+
+        return $siteMapItems;
+    }
+
+    /**
      * Create sitemap item of virtual category.
      *
      * @param string $categoryUrl
@@ -207,8 +275,26 @@ class SitemapController extends Controller
     {
         $item = new stdClass();
 
-        $item->url = route('shop.category.filter.single', ['url' => $categoryUrl, 'filter' => $virtualCategory->attributeValue->url]);
+        $item->url = route('shop.category.filter.single', ['url' => $categoryUrl, 'attribute' => $virtualCategory->attributeValue->attributes_id, 'filter' => $virtualCategory->attributeValue->url]);
         $item->lastmod = Carbon::createFromFormat('Y-m-d H:i:s', $virtualCategory->updated_at, self::TIMEZONE)->format(self::LASTMOD_FORMAT);
+        $item->changefreq = $changefreq;
+
+        return $item;
+    }
+
+    /**
+     * Create sitemap item of virtual category.
+     *
+     * @param AttributeValue $attributeValue
+     * @param string $changefreq
+     * @return stdClass
+     */
+    private function createAttributeCrossCategorySitemapItem(AttributeValue $attributeValue, string $changefreq): stdClass
+    {
+        $item = new stdClass();
+
+        $item->url = route('shop.category.filter.single', ['url' => $attributeValue->category_url, 'attribute' => $attributeValue->attributes_id, 'filter' => $attributeValue->url]);
+        $item->lastmod = Carbon::createFromFormat('Y-m-d H:i:s', $attributeValue->category_updated_at, self::TIMEZONE)->format(self::LASTMOD_FORMAT);
         $item->changefreq = $changefreq;
 
         return $item;

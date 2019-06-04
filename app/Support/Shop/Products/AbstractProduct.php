@@ -40,6 +40,10 @@ abstract class AbstractProduct
      * @var Product
      */
     private $product;
+    /**
+     * @var Category
+     */
+    private $category;
 
     /**
      * CategoryProductsCreator constructor.
@@ -47,13 +51,15 @@ abstract class AbstractProduct
      * @param ProductAvailability $productAvailability
      * @param SettingsRepository $settingsRepository
      * @param Product $product
+     * @param Category $category
      */
-    public function __construct(ExchangeRates $exchangeRates, ProductAvailability $productAvailability, SettingsRepository $settingsRepository, Product $product)
+    public function __construct(ExchangeRates $exchangeRates, ProductAvailability $productAvailability, SettingsRepository $settingsRepository, Product $product, Category $category)
     {
         $this->exchangeRates = $exchangeRates;
         $this->productAvailability = $productAvailability;
         $this->settingsRepository = $settingsRepository;
         $this->product = $product;
+        $this->category = $category;
 
         $this->productsPerPage = $settingsRepository->getProperty('shop.show_products_per_page');
     }
@@ -66,6 +72,16 @@ abstract class AbstractProduct
     protected function getRetrieveProductQuery(): Builder
     {
         return $this->product->newQuery();
+    }
+
+    /**
+     * Get retrieve category Builder.
+     *
+     * @return Builder
+     */
+    protected function getRetrieveCategoryQuery(): Builder
+    {
+        return $this->category->newQuery();
     }
 
     /**

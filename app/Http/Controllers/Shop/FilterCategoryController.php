@@ -98,13 +98,14 @@ class FilterCategoryController extends Controller
      * Show products of given leaf category.
      *
      * @param string $url
+     * @param string $attributeId
      * @param string $filterItemUrl
      * @return Response
      */
-    public function index(string $url, string $filterItemUrl)
+    public function index(string $url, string $attributeId, string $filterItemUrl)
     {
         // retrieve selected filter attribute value
-        $selectedAttributeValues = $this->getSelectedAttributesValues($filterItemUrl);
+        $selectedAttributeValues = $this->getSelectedAttributesValues($attributeId, $filterItemUrl);
 
         $category = $this->getCategory($url, $selectedAttributeValues->first());
 
@@ -146,12 +147,12 @@ class FilterCategoryController extends Controller
         // seo pagination links
         $paginationLinks = $this->paginationLinksGenerator->createSeoLinks($products);
 
-        if ($this->isPageIndexable($selectedAttributeValues->first())){
+        if ($this->isPageIndexable($selectedAttributeValues->first())) {
             // allow index this page for robots
             $noindexPage = false;
             // seo canonical url
             $metaCanonical = $this->canonicalLinkGenerator->createCanonicalLinkUrl();
-        }else{
+        } else {
             // disallow index this page for robots
             $noindexPage = true;
             // without seo canonical
@@ -196,12 +197,16 @@ class FilterCategoryController extends Controller
     /**
      * Get attribute value of selected filter.
      *
+     * @param string $attributeId
      * @param string $filterItemUrl
      * @return Collection
      */
-    private function getSelectedAttributesValues(string $filterItemUrl): Collection
+    private function getSelectedAttributesValues(string $attributeId, string $filterItemUrl): Collection
     {
-        $attributeValues = $this->attributeValue->newQuery()->where('url', $filterItemUrl)->with('attribute')->get();
+        $attributeValues = $this->attributeValue->newQuery()
+            ->where('url', $filterItemUrl)
+            ->where('attributes_id', $attributeId)
+            ->with('attribute')->get();
 
         if ($attributeValues->count() !== 1) {
             abort(404);
@@ -222,7 +227,7 @@ class FilterCategoryController extends Controller
         $category = $this->category->newQuery()
             ->where('published', 1)
             ->where('url', $url)
-            ->with(['products' => function($query){
+            ->with(['products' => function ($query) {
                 $query->where([
                     ['published', '=', 1],
                     ['is_archive', '=', 0],

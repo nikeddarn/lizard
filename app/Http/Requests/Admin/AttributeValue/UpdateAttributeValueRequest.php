@@ -17,9 +17,9 @@ class UpdateAttributeValueRequest extends FormRequest
         $uniqueRile = Rule::unique('attribute_values')->ignore(request('id'), 'id');
 
         return [
-            'value_ru' => ['string', 'max:128', $uniqueRile],
-            'value_uk' => ['string', 'max:128', $uniqueRile],
-            'url' => ['string', 'max:256', $uniqueRile],
+            'value_ru' => ['required', 'string', 'max:128', $uniqueRile],
+            'value_uk' => ['required', 'string', 'max:128', $uniqueRile],
+            'url' => ['required', 'string', 'max:256', $uniqueRile],
             'image' => 'nullable|image',
         ];
     }

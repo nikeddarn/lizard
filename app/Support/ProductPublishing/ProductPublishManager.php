@@ -54,7 +54,7 @@ class ProductPublishManager
             ->select(['id', 'price1', 'price2', 'price3'])
             ->with('availableOrExpectingVendorProducts', 'availableOrExpectingStorageProducts')
             ->with(['vendorProducts' => function ($query) {
-                $query->select(['id', 'products_id', 'price'])->with('vendorCategories');
+                $query->select(['id', 'products_id', 'price', 'is_bookable'])->with('vendorCategories');
             }])
             ->get()
             ->keyBy('id');
@@ -105,7 +105,23 @@ class ProductPublishManager
      */
     private function isPublishingAllowed(Product $product, array $showUnavailableProducts): bool
     {
-        return $this->productAvailability->isProductAvailableOrExpecting($product) || ($product->vendorProducts->count() && $showUnavailableProducts['vendor']) || (!$product->vendorProducts->count() && $showUnavailableProducts['own']);
+        if ($this->productAvailability->isProductAvailableOrExpecting($product)){
+            return true;
+        }
+
+        if ($product->vendorProducts->where('is_bookable', 1)->count()){
+            return true;
+        }
+
+        if ($product->vendorProducts->count() && $showUnavailableProducts['vendor']){
+            return true;
+        }
+
+        if (!$product->vendorProducts->count() && $showUnavailableProducts['own']){
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -116,31 +132,40 @@ class ProductPublishManager
      */
     private function checkProductProfit(Product $product): bool
     {
-        if (!$product->vendorProducts->count()) {
+        if (!$product->vendorProducts->count() || !$product->price1) {
             return true;
         }
 
         // calculate min vendor's offer price
         $minVendorsPrice = $product->vendorProducts->min('price');
 
-        if ($product->price1 && $minVendorsPrice) {
-            $vendorCategories = $this->vendorCategory->newQuery()->whereHas('vendorProducts', function ($query) use ($product) {
-                $query->where('products_id', $product->id);
-            });
-
-            //get min profit sum to publish product
-            $minProfitSumToPublish = $vendorCategories->min('publish_product_min_profit_sum');
-            //get min profit percents to publish product
-            $minProfitPercentsToPublish = $vendorCategories->min('publish_product_min_profit_percent');
-
-            // max profit sum
-            $maxProductProfitSum = $product->price1 - $minVendorsPrice;
-            // max profit percents
-            $maxProductProfitPercents = $maxProductProfitSum / $minVendorsPrice * 100;
-
-            return $maxProductProfitSum > $minProfitSumToPublish || $maxProductProfitPercents > $minProfitPercentsToPublish;
-        } else {
+        if (!$minVendorsPrice){
             return true;
         }
+
+        $vendorCategories = $this->vendorCategory->newQuery()->whereHas('vendorProducts', function ($query) use ($product) {
+            $query->where('products_id', $product->id);
+        })->get();
+
+        if (!$vendorCategories->count()){
+            return true;
+        }
+
+        //get min profit sum to publish product
+        $minProfitSumToPublish = $vendorCategories->min('publish_product_min_profit_sum');
+
+        //get min profit percents to publish product
+        $minProfitPercentsToPublish = $vendorCategories->min('publish_product_min_profit_percent');
+
+        if (!($minProfitSumToPublish && $minProfitPercentsToPublish)){
+            return true;
+        }
+
+        // max profit sum
+        $maxProductProfitSum = $product->price1 - $minVendorsPrice;
+        // max profit percents
+        $maxProductProfitPercents = $maxProductProfitSum / $minVendorsPrice * 100;
+
+        return $maxProductProfitSum > $minProfitSumToPublish || $maxProductProfitPercents > $minProfitPercentsToPublish;
     }
 }

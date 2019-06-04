@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin\AttributeValue;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreAttributeValueRequest extends FormRequest
 {
@@ -13,11 +14,13 @@ class StoreAttributeValueRequest extends FormRequest
      */
     public function rules()
     {
+        $unique = Rule::unique('attribute_values')->where('attributes_id', request()->get('attributeId'));
+
         return [
             'attributeId' => 'integer',
-            'value_ru' => ['string', 'max:128', 'unique'],
-            'value_uk' => ['string', 'max:128', 'unique'],
-            'url' => ['string', 'max:256', 'unique'],
+            'value_ru' => ['required', 'string', 'max:128', $unique],
+            'value_uk' => ['required', 'string', 'max:128', $unique],
+            'url' => ['required', 'string', 'max:256', $unique],
             'image' => 'nullable|image',
         ];
     }

@@ -22,7 +22,9 @@
         "mews/purifier": "^2.1",
         "phpoffice/phpspreadsheet": "^1.6",
         "snapappointments/bootstrap-select": "^1.13",
-        "teamtnt/laravel-scout-tntsearch-driver": "^7.0"
+        "stichoza/google-translate-php": "^4.0",
+        "teamtnt/laravel-scout-tntsearch-driver": "^7.0",
+        "ext-dom": "*"
     },
     "require-dev": {
         "beyondcode/laravel-dump-server": "^1.0",

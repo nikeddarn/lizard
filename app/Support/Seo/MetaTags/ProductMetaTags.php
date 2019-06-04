@@ -65,14 +65,14 @@ class ProductMetaTags
      * @param Product $product
      * @return array
      */
-    public function getCategoryTitle(Product $product)
+    public function getProductTitle(Product $product)
     {
         if ($product->title) {
             return $product->title;
         }
 
         if (empty($this->titlePattern)) {
-            $this->createCategoryPatterns($product);
+            $this->createProductPatterns($product);
         }
 
         return preg_replace($this->replacementPatterns, $this->replacementValues, $this->titlePattern);
@@ -84,14 +84,14 @@ class ProductMetaTags
      * @param Product $product
      * @return array
      */
-    public function getCategoryDescription(Product $product)
+    public function getProductDescription(Product $product)
     {
         if ($product->description) {
             return $product->description;
         }
 
         if (empty($this->descriptionPattern)) {
-            $this->createCategoryPatterns($product);
+            $this->createProductPatterns($product);
         }
 
         return preg_replace($this->replacementPatterns, $this->replacementValues, $this->descriptionPattern);
@@ -103,14 +103,14 @@ class ProductMetaTags
      * @param Product $product
      * @return string
      */
-    public function getCategoryKeywords(Product $product): string
+    public function getProductKeywords(Product $product): string
     {
         if ($product->keywords) {
             return $product->keywords;
         }
 
         if (empty($this->keywordsPattern)) {
-            $this->createCategoryPatterns($product);
+            $this->createProductPatterns($product);
         }
 
         // unique not null keywords
@@ -124,7 +124,7 @@ class ProductMetaTags
      *
      * @param Product $product
      */
-    private function createCategoryPatterns(Product $product)
+    private function createProductPatterns(Product $product)
     {
         // calculate product price
         $productPrice = number_format($product->price1 * $this->exchangeRates->getRate(), 0, '', '&thinsp;');
@@ -142,12 +142,12 @@ class ProductMetaTags
         $this->replacementPatterns = [
             '/PRODUCT_NAME/',
             '/ATTRIBUTES_WITH_VALUES/',
-            '/\[([^\[]*)PRODUCT_MODEL([^\]]*)\]/',
-            '/\[([^\[]*)PRODUCT_ARTICUL([^\]]*)\]/',
-            '/\[([^\[]*)PRODUCT_CODE([^\]]*)\]/',
-            '/\[([^\[]*)PRODUCT_MANUFACTURER([^\]]*)\]/',
-            '/\[([^\[]*)PRODUCT_PRICE([^\]]*)\]/',
-            '/\[([^\[]*)PRODUCT_WARRANTY([^\]]*)\]/',
+            '/\[([^\]]+)?PRODUCT_MODEL([^\]]+)?\]|PRODUCT_MODEL/',
+            '/\[([^\]]+)?PRODUCT_ARTICUL([^\]]+)?\]|PRODUCT_ARTICUL/',
+            '/\[([^\]]+)?PRODUCT_CODE([^\]]+)?\]|PRODUCT_CODE/',
+            '/\[([^\]]+)?PRODUCT_MANUFACTURER([^\]]+)?\]|PRODUCT_MANUFACTURER/',
+            '/\[([^\]]+)?PRODUCT_PRICE([^\]]+)?\]|PRODUCT_PRICE/',
+            '/\[([^\]]+)?PRODUCT_WARRANTY([^\]]+)?\]|PRODUCT_WARRANTY/',
         ];
 
         $this->replacementValues = [

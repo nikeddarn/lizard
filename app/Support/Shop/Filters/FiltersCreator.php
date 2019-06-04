@@ -24,15 +24,21 @@ class FiltersCreator
      * @var Attribute
      */
     private $attribute;
+    /**
+     * @var AttributeValue
+     */
+    private $attributeValue;
 
     /**
      * FiltersCreator constructor.
      * @param Attribute $attribute
+     * @param AttributeValue $attributeValue
      * @param SettingsRepository $settingsRepository
      */
-    public function __construct(Attribute $attribute, SettingsRepository $settingsRepository)
+    public function __construct(Attribute $attribute, AttributeValue $attributeValue, SettingsRepository $settingsRepository)
     {
         $this->attribute = $attribute;
+        $this->attributeValue = $attributeValue;
 
         $this->filtersCount = $settingsRepository->getProperty('shop.products_filters_show');
     }
@@ -48,7 +54,13 @@ class FiltersCreator
         // get category products' ids
         $categoryProductsIds = $category->products->pluck('id')->toArray();
 
-        $filters = $this->retrieveFilters($categoryProductsIds)
+        // set is filter opened
+        $openedFiltersCount = 0;
+
+        return $this->retrieveFilters($categoryProductsIds)
+            ->each(function (Attribute $attribute) use ($categoryProductsIds) {
+                $attribute->setRelation('attributeValues', $this->retrieveAttributeValues($attribute->id, $categoryProductsIds));
+            })
             ->sortByDesc(function (Attribute $attribute) use ($category) {
                 // create attribute values urls
                 $this->createSingleFilterItemsUrls($attribute, $category->url);
@@ -59,36 +71,32 @@ class FiltersCreator
             ->sortByDesc(function (Attribute $attribute) use ($category) {
                 // sort by opened desc
                 return $attribute->showable;
+            })
+            ->each(function (Attribute $attribute) use ($categoryProductsIds, &$openedFiltersCount) {
+                $attributeValuesCount = $attribute->attributeValues->count();
+
+                if ($openedFiltersCount < $this->filtersCount['min']) {
+                    if ($attributeValuesCount <= $this->filtersCount['max_values_count']) {
+                        $attribute->opened = true;
+                        $openedFiltersCount++;
+                    } else {
+                        $attribute->opened = false;
+                    }
+                } elseif ($openedFiltersCount >= $this->filtersCount['max']) {
+                    $attribute->opened = false;
+                } else {
+                    if ($attribute->showable && $attributeValuesCount <= $this->filtersCount['max_values_count']) {
+                        $attribute->opened = true;
+                        $openedFiltersCount++;
+                    } else {
+                        $attribute->opened = false;
+                    }
+                }
             });
-
-        // set is filter opened
-        $openedFiltersCount = 0;
-
-        foreach ($filters as $filter) {
-            if ($openedFiltersCount < $this->filtersCount['min']) {
-                if ($filter->attribute_values_count <= $this->filtersCount['max_values_count']) {
-                    $filter->opened = true;
-                    $openedFiltersCount++;
-                } else {
-                    $filter->opened = false;
-                }
-            } elseif ($openedFiltersCount >= $this->filtersCount['max']) {
-                $filter->opened = false;
-            } else {
-                if ($filter->showable && $filter->attribute_values_count <= $this->filtersCount['max_values_count']) {
-                    $filter->opened = true;
-                    $openedFiltersCount++;
-                } else {
-                    $filter->opened = false;
-                }
-            }
-        }
-
-        return $filters;
     }
 
     /**
-     * Retrieve all products filters that has more than one values.
+     * Retrieve all products filters.
      *
      * @param array $productsId
      * @return Collection
@@ -96,23 +104,31 @@ class FiltersCreator
     protected function retrieveFilters(array $productsId): Collection
     {
         return $this->attribute->newQuery()
-            ->orderBy('defined_attribute_id')
-            ->with(['attributeValues' => function ($query) use ($productsId) {
-                $query->whereHas('productAttributes', function ($query) use ($productsId) {
-                    $query->whereIn('products_id', $productsId);
-                });
-            }])
-            ->withCount(['attributeValues' => function ($query) use ($productsId) {
-                $query->whereHas('productAttributes', function ($query) use ($productsId) {
-                    $query->whereIn('products_id', $productsId);
-                });
-            }])
             ->whereHas('attributeValues', function ($query) use ($productsId) {
                 $query->whereHas('productAttributes', function ($query) use ($productsId) {
                     $query->whereIn('products_id', $productsId);
                 });
             }, '>', 1)
             ->whereHas('productAttributes', function ($query) use ($productsId) {
+                $query->whereIn('products_id', $productsId);
+            })
+            ->orderBy('defined_attribute_id')
+            ->get();
+    }
+
+    /**
+     * Retrieve attribute values.
+     *
+     * @param int $attributeId
+     * @param array $productsId
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    protected function retrieveAttributeValues(int $attributeId, array $productsId)
+    {
+        return $this->attributeValue->newQuery()
+            ->where('attributes_id', $attributeId)
+            ->whereHas('productAttributes', function ($query) use ($attributeId, $productsId) {
+                $query->where('attributes_id', $attributeId);
                 $query->whereIn('products_id', $productsId);
             })
             ->get();
@@ -146,6 +162,7 @@ class FiltersCreator
     {
         $routeParameters = [
             'url' => $categoryUrl,
+            'attribute' => $attributeValue->attributes_id,
             'filter' => $attributeValue->url,
             'locale' => $localeParameterValue,
         ];

@@ -34,6 +34,20 @@
         </div>
     </div>
 
+    {{--Linked products--}}
+    @if($linkedProducts && $linkedProducts->count())
+        <div class="multi-items-carousel my-4">
+            @include('content.shop.product.details.parts.linked_products')
+        </div>
+    @endif
+
+    {{--Linked categories--}}
+    @if($linkedCategories && $linkedCategories->count())
+        <div class="multi-items-carousel my-4">
+            @include('content.shop.product.details.parts.linked_categories')
+        </div>
+    @endif
+
     {{-- cart modal--}}
     @include('elements.cart.cart_modal')
 
@@ -66,6 +80,21 @@
 
     <script>
 
+        function normalizeSlideHeights() {
+            $('.multi-items-carousel').each(function(){
+                let items = $('.card', this);
+                // reset the height
+                items.css('min-height', 0);
+                // set the height
+                let maxHeight = Math.max.apply(null,
+                    items.map(function(){
+                        return $(this).outerHeight()}).get() );
+                items.css('min-height', maxHeight + 'px');
+            })
+        }
+
+        $(window).on('load resize orientationchange', normalizeSlideHeights);
+
         $(document).ready(function () {
 
             // activate Touch Spin
@@ -96,7 +125,7 @@
             });
 
             // product images carousel
-            $('.owl-carousel').owlCarousel({
+            $('#productImagesCarousel').owlCarousel({
                 dots: false,
                 nav: true,
                 navText: ['<i class="fa fa-angle-left"></i>', '<i class="fa fa-angle-right"></i>'],
@@ -134,6 +163,62 @@
                         $(cartModal).modal();
                     }
                 });
+            });
+
+            let relatedProductsCarousel = $('#relatedProductsCarousel');
+            let relatedProductsCarouselItems = $(relatedProductsCarousel).children().length;
+
+            $(relatedProductsCarousel).owlCarousel({
+                loop: true,
+                margin: 15,
+                autoplay: true,
+                autoplayTimeout: 6000,
+                autoplayHoverPause: true,
+                smartSpeed: 800,
+                dots: false,
+                nav: true,
+                navText: ['<i class="fa fa-angle-left"></i>', '<i class="fa fa-angle-right"></i>'],
+                lazyLoad: true,
+                lazyLoadEager: true,
+                responsive: {
+                    0: {
+                        items: Math.min(relatedProductsCarouselItems, 2),
+                    },
+                    768: {
+                        items: Math.min(relatedProductsCarouselItems, 3),
+                    },
+                    1200: {
+                        items: Math.min(relatedProductsCarouselItems, 4),
+                    }
+                },
+            });
+
+            let relatedCategoriesCarousel = $('#relatedCategoriesCarousel');
+            let relatedCategoriesCarouselItems = $(relatedCategoriesCarousel).children().length;
+
+            $(relatedCategoriesCarousel).owlCarousel({
+                loop: true,
+                margin: 15,
+                autoplay: true,
+                autoplayTimeout: 8000,
+                autoplayHoverPause: true,
+                smartSpeed: 800,
+                dots: false,
+                nav: true,
+                navText: ['<i class="fa fa-angle-left"></i>', '<i class="fa fa-angle-right"></i>'],
+                lazyLoad: true,
+                lazyLoadEager: true,
+                responsive: {
+                    0: {
+                        items: Math.min(relatedCategoriesCarouselItems, 2),
+                    },
+                    768: {
+                        items: Math.min(relatedCategoriesCarouselItems, 3),
+                    },
+                    1200: {
+                        items: Math.min(relatedCategoriesCarouselItems, 4),
+                    }
+                },
             });
 
         });

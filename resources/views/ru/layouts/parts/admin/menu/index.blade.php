@@ -76,33 +76,31 @@
                 <ul id="main-menu-vendors"
                     class="nav collapse">
 
-                    @foreach($vendors as $vendor)
                         <li class="nav-item w-100">
 
                             <a class="nav-link text-gray position-relative pl-4 pr-4" data-toggle="collapse"
-                               aria-expanded="false" data-target="#main-menu-vendors-{{ $vendor->id }}"
-                               aria-controls="main-menu-vendors-{{ $vendor->id }}">{{ $vendor->name }}</a>
+                               aria-expanded="false" data-target="#main-menu-vendors-brain"
+                               aria-controls="main-menu-vendors-brain">Brain</a>
 
-                            <ul id="main-menu-vendors-{{ $vendor->id }}" class="nav collapse">
+                            <ul id="main-menu-vendors-brain" class="nav collapse">
 
                                 {{-- Categories tree --}}
                                 <li class="nav-item w-100">
-                                    <a id="main-menu-vendors-{{ $vendor->id }}-categories-tree"
-                                       href="{{ route('vendor.catalog.categories.tree', ['vendorId' => $vendor->id]) }}"
+                                    <a id="main-menu-vendors-brain-categories-tree"
+                                       href="{{ route('vendor.catalog.categories.tree', ['vendorId' => \App\Contracts\Vendor\VendorInterface::BRAIN]) }}"
                                        class="nav-link text-gray pl-5 submenu-link">Дерево категорий</a>
                                 </li>
 
                                 {{-- Downloaded categories --}}
                                 <li class="nav-item w-100">
-                                    <a id="main-menu-vendors-{{ $vendor->id }}-categories-downloaded"
-                                       href="{{ route('vendor.category.list', ['vendorId' => $vendor->id]) }}"
+                                    <a id="main-menu-vendors-brain-categories-downloaded"
+                                       href="{{ route('vendor.category.list', ['vendorId' => \App\Contracts\Vendor\VendorInterface::BRAIN]) }}"
                                        class="nav-link text-gray pl-5 submenu-link">Загруженные категории</a>
                                 </li>
 
                             </ul>
 
                         </li>
-                    @endforeach
 
                 </ul>
 
@@ -296,6 +294,54 @@
                     <li class="nav-item w-100">
                         <a id="main-menu-import-apacer" href="{{ route('admin.import.apacer') }}"
                            class="nav-link text-gray pl-4 submenu-link">Apacer</a>
+                    </li>
+
+                </ul>
+
+            </li>
+        @endif
+
+        {{-- Export --}}
+        @if(Gate::allows('vendor-catalog'))
+            <li class="nav-item w-100">
+
+                <a class="nav-link text-gray position-relative pl-0" data-toggle="collapse" aria-expanded="false"
+                   data-target="#main-menu-export" aria-controls="main-menu-export">Экспорт</a>
+
+                <ul id="main-menu-export" class="nav collapse">
+
+                    {{-- Hotline --}}
+                    <li class="nav-item w-100">
+
+                        <a class="nav-link text-gray position-relative pl-4 pr-4" data-toggle="collapse"
+                           aria-expanded="false" data-target="#main-menu-export-hotline"
+                           aria-controls="main-menu-export-hotline">Hotline</a>
+
+                        <ul id="main-menu-export-hotline" class="nav collapse">
+
+                            {{-- Settings --}}
+                            <li class="nav-item w-100">
+                                <a id="main-menu-export-hotline-settings"
+                                   href="{{ route('admin.export.hotline.settings.edit') }}"
+                                   class="nav-link text-gray pl-5 submenu-link">Настройки</a>
+                            </li>
+
+                            {{-- Categories tree --}}
+                            <li class="nav-item w-100">
+                                <a id="main-menu-export-hotline-categories-tree"
+                                   href="{{ route('admin.export.hotline.categories') }}"
+                                   class="nav-link text-gray pl-5 submenu-link">Загрузить категории Hotline</a>
+                            </li>
+
+                            {{-- Sync Categories --}}
+                            <li class="nav-item w-100">
+                                <a id="main-menu-export-hotline-sync-list"
+                                   href="{{ route('admin.export.hotline.sync.list') }}"
+                                   class="nav-link text-gray pl-5 submenu-link">Синхронизировать категории Hotline</a>
+                            </li>
+
+                        </ul>
+
                     </li>
 
                 </ul>

@@ -57,6 +57,14 @@ class AttributeValue extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
+    public function virtualCategories()
+    {
+        return $this->hasMany('App\Models\virtualCategory', 'attribute_values_id', 'id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function vendorAttributeValues()
     {
         return $this->hasMany('App\Models\VendorAttributeValue', 'attribute_values_id', 'id');
@@ -76,36 +84,6 @@ class AttributeValue extends Model
     public function products()
     {
         return $this->belongsToMany('App\Models\Product', 'product_attribute', 'attribute_values_id', 'products_id');
-    }
-
-    /**
-     * Set attribute's name_ru.
-     *
-     * @param  string $value
-     * @return void
-     */
-    public function setValueRuAttribute($value)
-    {
-        if ($value) {
-            $this->attributes['value_ru'] = Str::ucfirst(Str::lower($value));
-        } else {
-            $this->attributes['value_ru'] = $value;
-        }
-    }
-
-    /**
-     * Set attribute's name_uk.
-     *
-     * @param  string $value
-     * @return void
-     */
-    public function setValueUkAttribute($value)
-    {
-        if ($value) {
-        $this->attributes['value_uk'] = Str::ucfirst(Str::lower($value));
-        } else {
-            $this->attributes['value_uk'] = $value;
-        }
     }
 
     /**

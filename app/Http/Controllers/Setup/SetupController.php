@@ -7,6 +7,7 @@ use App\Models\Attribute;
 use App\Models\Badge;
 use App\Models\CastProductMethod;
 use App\Models\City;
+use App\Models\Dealer;
 use App\Models\DeliveryType;
 use App\Models\OrderStatus;
 use App\Models\Role;
@@ -51,7 +52,8 @@ class SetupController extends Controller
 //        $this->fillLibraries();
 //        $this->insertLocalStorages();
 //        $this->insertVendors();
-        $this->setupStaticPages();
+        $this->insertDealers();
+//        $this->setupStaticPages();
 
         return view('elements.setup.setup_complete');
     }
@@ -237,6 +239,13 @@ class SetupController extends Controller
     {
         foreach (require app_path('Http/Controllers/Setup/Libraries/vendors.php') as $vendor) {
             Vendor::query()->firstOrCreate($vendor);
+        }
+    }
+
+    private function insertDealers()
+    {
+        foreach (require app_path('Http/Controllers/Setup/Libraries/dealers.php') as $vendor) {
+            Dealer::query()->firstOrCreate($vendor);
         }
     }
 }

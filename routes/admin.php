@@ -405,3 +405,22 @@ Route::post('/admin/settings/notifications/order/deleted/update', 'Settings\Orde
 Route::get('/admin/import/apacer', 'Import\ApacerImportController@index')->name('admin.import.apacer');
 
 Route::post('/admin/import/apacer', 'Import\ApacerImportController@import')->name('admin.import.apacer');
+
+// --------------------------------- Export -------------------------------------------------
+
+Route::get('/admin/export/hotline/categories', 'Export\Hotline\HotlineCategoryController@create')->name('admin.export.hotline.categories');
+Route::post('/admin/export/hotline/categories', 'Export\Hotline\HotlineCategoryController@store')->name('admin.export.hotline.categories');
+
+
+Route::get('/admin/export/hotline/sync/list', 'Export\Hotline\HotlineSyncController@index')->name('admin.export.hotline.sync.list');
+
+Route::get('/admin/export/hotline/sync/create/{category_id}', 'Export\Hotline\HotlineSyncController@create')->name('admin.export.hotline.sync.create');
+Route::post('/admin/export/hotline/sync/store', 'Export\Hotline\HotlineSyncController@store')->name('admin.export.hotline.sync.store');
+
+Route::post('/admin/export/hotline/sync/delete', 'Export\Hotline\HotlineSyncController@delete')->name('admin.export.hotline.sync.delete');
+
+Route::post('/admin/export/hotline/sync/publish/on', 'Export\Hotline\HotlineSyncController@publish')->name('admin.export.hotline.sync.publish.on');
+Route::post('/admin/export/hotline/sync/publish/off', 'Export\Hotline\HotlineSyncController@unPublish')->name('admin.export.hotline.sync.publish.off');
+
+Route::get('/admin/export/hotline/settings', 'Export\Hotline\HotlineSettingsController@edit')->name('admin.export.hotline.settings.edit');
+Route::post('/admin/export/hotline/settings', 'Export\Hotline\HotlineSettingsController@update')->name('admin.export.hotline.settings.store');

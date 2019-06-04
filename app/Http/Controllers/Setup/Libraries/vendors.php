@@ -13,4 +13,10 @@ return [
         'name_ru' => 'Brain',
         'name_uk' => 'Brain',
     ],
+
+    [
+        'id' => VendorInterface::APACER,
+        'name_ru' => 'Apacer',
+        'name_uk' => 'Apacer',
+    ],
 ];

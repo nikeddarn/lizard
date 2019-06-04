@@ -82,6 +82,22 @@ class Category extends Model
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function dealerCategories()
+    {
+        return $this->belongsToMany('App\Models\DealerCategory', 'local_dealer_category', 'categories_id', 'dealer_categories_id', 'id')->withPivot('published');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function localDealerCategories()
+    {
+        return $this->hasMany('App\Models\LocalDealerCategory', 'categories_id', 'id');
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function virtualCategories()

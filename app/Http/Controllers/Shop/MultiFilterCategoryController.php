@@ -180,7 +180,14 @@ class MultiFilterCategoryController extends Controller
         $category = $this->category->newQuery()
             ->where('published', 1)
             ->where('url', $url)
-            ->with('products')->firstOrFail();
+            ->with(['products' => function ($query) {
+                $query->where([
+                    ['published', '=', 1],
+                    ['is_archive', '=', 0],
+                ])
+                    ->select('id');
+            }])
+            ->firstOrFail();
 
         if (!$category->isLeaf()) {
             abort(404);
@@ -196,10 +203,10 @@ class MultiFilterCategoryController extends Controller
      */
     private function getSelectedAttributesValues(): Collection
     {
-        $selectedValuesUrls = explode(',', request()->get(UrlParametersInterface::FILTERED_PRODUCTS));
+        $selectedValuesIds = explode('-', request()->get(UrlParametersInterface::FILTERED_PRODUCTS));
 
         $selectedAttributeValues = $this->attributeValue->newQuery()
-            ->whereIn('url', $selectedValuesUrls)
+            ->whereIn('id', $selectedValuesIds)
             ->get();
 
         if ($selectedAttributeValues->count() < 2) {

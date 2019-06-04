@@ -120,7 +120,7 @@
             <tr>
                 <td colspan="2">
                     @foreach($product->productFiles as $productFile)
-                        <a href="{{ '/storage/' . $productFile->url }}" class="h6 text-lizard mr-5" title="Завантажити">
+                        <a href="{{ '/storage/' . $productFile->url }}" class="h6 text-lizard mr-5" title="Завантажити" download>
                             <i class="svg-icon-larger" data-feather="file"></i>
                             <span>{{ $productFile->name_uk }}</span>
                         </a>

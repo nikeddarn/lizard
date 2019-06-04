@@ -24,6 +24,9 @@ class MultiFiltersCreator extends FiltersCreator
      */
     public function getMultiFilters(Category $category, Collection $selectedAttributeValues)
     {
+        // set is filter opened
+        $openedFiltersCount = 0;
+
         // get category products' ids
         $categoryProductsIds = $category->products->pluck('id')->toArray();
 
@@ -31,7 +34,10 @@ class MultiFiltersCreator extends FiltersCreator
         $selectedFiltersIds = $selectedAttributeValues->pluck('attributes_id')->toArray();
 
         // retrieve possible filters
-        $filters = $this->retrieveFilters($categoryProductsIds)
+        return $this->retrieveFilters($categoryProductsIds)
+            ->each(function (Attribute $attribute) use ($categoryProductsIds) {
+                $attribute->setRelation('attributeValues', $this->retrieveAttributeValues($attribute->id, $categoryProductsIds));
+            })
             ->sortByDesc(function (Attribute $attribute) use ($category, $selectedAttributeValues) {
                 // create attribute values urls
                 $this->createMultiFilterItemsUrls($attribute, $category->url, $selectedAttributeValues);
@@ -42,35 +48,31 @@ class MultiFiltersCreator extends FiltersCreator
             ->sortByDesc(function (Attribute $attribute) use ($category) {
                 // sort by opened desc
                 return $attribute->showable;
+            })
+            ->each(function (Attribute $attribute) use ($categoryProductsIds, $selectedFiltersIds, &$openedFiltersCount) {
+                $attributeValuesCount = $attribute->attributeValues->count();
+
+                if (in_array($attribute->id, $selectedFiltersIds)) {
+                    $attribute->opened = true;
+                    $openedFiltersCount++;
+                } elseif ($openedFiltersCount < $this->filtersCount['min']) {
+                    if ($attributeValuesCount <= $this->filtersCount['max_values_count']) {
+                        $attribute->opened = true;
+                        $openedFiltersCount++;
+                    } else {
+                        $attribute->opened = false;
+                    }
+                } elseif ($openedFiltersCount >= $this->filtersCount['max']) {
+                    $attribute->opened = false;
+                } else {
+                    if ($attribute->showable && $attributeValuesCount <= $this->filtersCount['max_values_count']) {
+                        $attribute->opened = true;
+                        $openedFiltersCount++;
+                    } else {
+                        $attribute->opened = false;
+                    }
+                }
             });
-
-        // set is filter opened
-        $openedFiltersCount = 0;
-
-        foreach ($filters as $filter) {
-            if (in_array($filter->id, $selectedFiltersIds)) {
-                $filter->opened = true;
-                $openedFiltersCount++;
-            } elseif ($openedFiltersCount < $this->filtersCount['min']) {
-                if ($filter->attribute_values_count <= $this->filtersCount['max_values_count']) {
-                    $filter->opened = true;
-                    $openedFiltersCount++;
-                } else {
-                    $filter->opened = false;
-                }
-            } elseif ($openedFiltersCount >= $this->filtersCount['max']) {
-                $filter->opened = false;
-            } else {
-                if ($filter->showable && $filter->attribute_values_count <= $this->filtersCount['max_values_count']) {
-                    $filter->opened = true;
-                    $openedFiltersCount++;
-                } else {
-                    $filter->opened = false;
-                }
-            }
-        }
-
-        return $filters;
     }
 
     /**
@@ -175,7 +177,7 @@ class MultiFiltersCreator extends FiltersCreator
     private function createMultiFilterItemUrl(Collection $newSelectedAttributeValues, string $categoryUrl, string $localeParameterValue = null): string
     {
         // value of 'filter' query string parameter
-        $filterQueryStringValue = implode(',', $newSelectedAttributeValues->pluck('url')->toArray());
+        $filterQueryStringValue = implode('-', $newSelectedAttributeValues->pluck('id')->toArray());
 
         $routeParameters = [
             'url' => $categoryUrl,
