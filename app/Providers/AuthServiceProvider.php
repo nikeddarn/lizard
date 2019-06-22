@@ -71,7 +71,7 @@ class AuthServiceProvider extends ServiceProvider
             ]);
         });
 
-        // show and edit admins
+        // show and edit settings
         Gate::define('settings-edit', function ($user) {
             return $user->hasAnyRole([
                 RoleInterface::ADMIN,

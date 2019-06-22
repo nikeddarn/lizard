@@ -93,9 +93,36 @@ class ProductController extends Controller
 
         $products = $query->paginate(config('admin.show_items_per_page'))->appends(request()->query());
 
-        return view('content.admin.catalog.product.list.index')->with([
-            'products' => $products,
-        ]);
+        return view('content.admin.catalog.product.list.index')->with(compact('products'));
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @param Request $request
+     * @return Response
+     */
+    public function search(Request $request)
+    {
+        if (Gate::denies('local-catalog-show', auth('web')->user())) {
+            abort(401);
+        }
+
+        $locale = app()->getLocale();
+
+        $searchText = request()->get('search_for');
+
+        $products = $this->product->newQuery()
+            ->where('products.name_ru', 'LIKE', '%' . $searchText . '%')
+            ->leftJoin('vendor_products', 'vendor_products.products_id', '=', 'products.id')
+            ->leftJoin('vendors', 'vendor_products.vendors_id', '=', 'vendors.id')
+            ->leftJoin('category_product', 'category_product.products_id', '=', 'products.id')
+            ->leftJoin('categories', 'category_product.categories_id', '=', 'categories.id')
+            ->selectRaw("products.*, vendors.name_$locale AS vendor_name, categories.name_$locale AS category_name")
+            ->with('categories', 'primaryImage', 'vendors')
+            ->get();
+
+        return view('content.admin.catalog.product.search.index')->with(compact('products', 'searchText'));
     }
 
     /**

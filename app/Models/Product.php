@@ -364,6 +364,22 @@ class Product extends Model
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function dealerProducts()
+    {
+        return $this->hasMany('App\Models\DealerProduct', 'products_id', 'id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function dealerProduct()
+    {
+        return $this->hasOne('App\Models\DealerProduct', 'products_id', 'id');
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function brand()
@@ -377,6 +393,14 @@ class Product extends Model
     public function vendors()
     {
         return $this->belongsToMany('App\Models\Vendor', 'vendor_products', 'products_id', 'vendors_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function dealers()
+    {
+        return $this->belongsToMany('App\Models\Dealer', 'dealer_product', 'products_id', 'dealers_id');
     }
 
     /**

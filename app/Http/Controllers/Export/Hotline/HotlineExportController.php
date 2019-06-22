@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Export\Hotline;
 
+use App\Contracts\Dealer\DealerInterface;
 use App\Contracts\Order\DeliveryTypesInterface;
 use App\Contracts\Shop\AttributesInterface;
 use App\Http\Controllers\Controller;
@@ -84,7 +85,7 @@ class HotlineExportController extends Controller
         $commonSettings = $this->settingsRepository->getProperty('export.hotline.common');
 
         $xml->addChild('date', date('Y-m-d H:i', time()));
-        $xml->addChild('firmName', $commonSettings['firm_name']);
+        $xml->addChild('firmName', htmlspecialchars($commonSettings['firm_name']));
         $xml->addChild('firmId', $commonSettings['firm_id']);
         $xml->addChild('rate', $rate);
     }
@@ -140,7 +141,7 @@ class HotlineExportController extends Controller
         foreach ($categories as $category) {
             $categoryElement = $categoriesElement->addChild('category');
             $categoryElement->addChild('id', $category->id);
-            $categoryElement->addChild('name', $category->dealerCategories->first()->name);
+            $categoryElement->addChild('name', htmlspecialchars($category->dealerCategories->first()->name));
         }
 
         return $categories->pluck('id')->toArray();
@@ -159,6 +160,10 @@ class HotlineExportController extends Controller
         $products = $this->product->newQuery()
             ->where('price1', '>', 0)
             ->where('published', '=', 1)
+            ->whereHas('dealerProduct', function ($query) {
+                $query->where('dealers_id', DealerInterface::HOTLINE);
+                $query->where('published', '=', 1);
+            })
             ->whereHas('categoryProducts', function ($query) use ($categoriesIds) {
                 $query->whereIn('categories_id', $categoriesIds);
             })
@@ -188,19 +193,19 @@ class HotlineExportController extends Controller
             $productElement->addChild('categoryId', $product->categoryProducts->first()->categories_id);
 
             if ($product->articul) {
-                $productElement->addChild('code', $product->articul);
+                $productElement->addChild('code', htmlspecialchars($product->articul));
             } elseif ($product->code) {
-                $productElement->addChild('code', $product->code);
+                $productElement->addChild('code', htmlspecialchars($product->code));
             }
 
             if ($product->productAttributes->count()) {
-                $productElement->addChild('vendor', $product->productAttributes->first()->attributeValue->value);
+                $productElement->addChild('vendor', htmlspecialchars($product->productAttributes->first()->attributeValue->value));
             }
 
-            $productElement->addChild('name', $product->name);
+            $productElement->addChild('name', htmlspecialchars($product->name));
 
             if ($product->brief_content) {
-                $productElement->addChild('description', strip_tags($product->brief_content));
+                $productElement->addChild('description', htmlspecialchars(strip_tags($product->brief_content)));
             }
 
             $productElement->addChild('url', url(route('shop.product.index', [
@@ -212,8 +217,8 @@ class HotlineExportController extends Controller
                 $productElement->addChild('image', url('storage/' . $product->primaryImage->large));
             }
 
-            $productElement->addChild('priceRUAH', $product->price1);
-            $productElement->addChild('priceRUSD', $product->price1 / $rate);
+            $productElement->addChild('priceRUAH', $product->price1 * $rate);
+            $productElement->addChild('priceRUSD', $product->price1);
 
             if ($this->productAvailability->isProductAvailable($product)) {
                 $productElement->addChild('stock', 'В наличии');
@@ -232,11 +237,11 @@ class HotlineExportController extends Controller
             }
 
             if ($product->warranty) {
-                $productElement->addChild('guarantee', $product->warranty);
+                $productElement->addChild('guarantee', htmlspecialchars($product->warranty));
             }
 
             if ($product->manufacturer) {
-                $productElement->addChild('param', $product->manufacturer)->addAttribute('name', 'Страна изготовления');
+                $productElement->addChild('param', htmlspecialchars($product->manufacturer))->addAttribute('name', 'Страна изготовления');
             }
 
             if (!$product->is_new) {

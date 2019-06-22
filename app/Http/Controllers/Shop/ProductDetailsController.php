@@ -14,6 +14,7 @@ use App\Support\User\RetrieveUser;
 use App\Http\Controllers\Controller;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Response;
+use Jaybizzle\CrawlerDetect\CrawlerDetect;
 
 class ProductDetailsController extends Controller
 {
@@ -44,6 +45,10 @@ class ProductDetailsController extends Controller
      * @var AttributeValue
      */
     private $attributeValue;
+    /**
+     * @var CrawlerDetect
+     */
+    private $crawlerDetect;
 
     /**
      * ProductDetailsController constructor.
@@ -53,8 +58,9 @@ class ProductDetailsController extends Controller
      * @param SingleProduct $productRetriever
      * @param ProductMetaTags $productMetaTags
      * @param SettingsRepository $settingsRepository
+     * @param CrawlerDetect $crawlerDetect
      */
-    public function __construct(Attribute $attribute, AttributeValue $attributeValue, ProductBreadcrumbs $breadcrumbs, SingleProduct $productRetriever, ProductMetaTags $productMetaTags, SettingsRepository $settingsRepository)
+    public function __construct(Attribute $attribute, AttributeValue $attributeValue, ProductBreadcrumbs $breadcrumbs, SingleProduct $productRetriever, ProductMetaTags $productMetaTags, SettingsRepository $settingsRepository, CrawlerDetect $crawlerDetect)
     {
         $this->attribute = $attribute;
         $this->breadcrumbs = $breadcrumbs;
@@ -62,6 +68,7 @@ class ProductDetailsController extends Controller
         $this->productMetaTags = $productMetaTags;
         $this->settingsRepository = $settingsRepository;
         $this->attributeValue = $attributeValue;
+        $this->crawlerDetect = $crawlerDetect;
     }
 
     /**
@@ -163,10 +170,12 @@ class ProductDetailsController extends Controller
      */
     private function addProductToRecentViewed($user, int $productId)
     {
-        if (!$user) {
-            $user = $this->createUser();
-        }
+        if (!$this->crawlerDetect->isCrawler()) {
+            if (!$user) {
+                $user = $this->createUser();
+            }
 
-        $user->recentProducts()->syncWithoutDetaching([$productId]);
+            $user->recentProducts()->syncWithoutDetaching([$productId]);
+        }
     }
 }

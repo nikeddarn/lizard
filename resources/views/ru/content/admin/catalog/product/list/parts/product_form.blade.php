@@ -247,7 +247,7 @@
                 </div>
             </td>
 
-            {{-- Name--}}
+            {{-- Vendors--}}
             <td>
                 <div class="d-flex justify-content-around align-items-start">
                     @if(request()->query('sortBy') === 'vendor')

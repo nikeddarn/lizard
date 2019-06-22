@@ -5,6 +5,10 @@
     @include('content.admin.catalog.product.list.parts.header')
 
     @if($products->count())
+        <div class="card card-body my-4">
+            @include('content.admin.catalog.product.list.parts.search')
+        </div>
+
         <div class="card card-body">
             @include('content.admin.catalog.product.list.parts.product_form')
         </div>

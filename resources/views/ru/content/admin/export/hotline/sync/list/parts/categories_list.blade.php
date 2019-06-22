@@ -60,6 +60,12 @@
                                 </button>
                             </form>
 
+                            <a href="{{ route('admin.export.hotline.products.list', ['category_id' => $category->id]) }}"
+                               data-toggle="tooltip"
+                               title="Выбрать продукты для экспорта" class="btn btn-primary">
+                                <i class="svg-icon-larger" data-feather="list"></i>
+                            </a>
+
                             <form class="d-inline-block category-form ml-lg-2"
                                   action="{{ route('admin.export.hotline.sync.delete') }}" method="post">
                                 @csrf

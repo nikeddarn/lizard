@@ -42,6 +42,7 @@ Route::delete('/admin/categories/virtual/{id}', 'Admin\VirtualCategoryController
 
 // products
 Route::get('/admin/products', 'Admin\ProductController@index')->name('admin.products.index');
+Route::post('/admin/products/search', 'Admin\ProductController@search')->name('admin.products.search');
 Route::get('/admin/products/create', 'Admin\ProductController@create')->name('admin.products.create');
 Route::post('/admin/products', 'Admin\ProductController@store')->name('admin.products.store');
 Route::get('/admin/products/show/{id}', 'Admin\ProductController@show')->name('admin.products.show');
@@ -424,3 +425,9 @@ Route::post('/admin/export/hotline/sync/publish/off', 'Export\Hotline\HotlineSyn
 
 Route::get('/admin/export/hotline/settings', 'Export\Hotline\HotlineSettingsController@edit')->name('admin.export.hotline.settings.edit');
 Route::post('/admin/export/hotline/settings', 'Export\Hotline\HotlineSettingsController@update')->name('admin.export.hotline.settings.store');
+
+Route::get('/admin/export/hotline/products/{category_id}', 'Export\Hotline\HotlineProductController@index')->name('admin.export.hotline.products.list');
+Route::post('/admin/export/hotline/products/{category_id}/search', 'Export\Hotline\HotlineProductController@search')->name('admin.export.hotline.products.search');
+
+Route::post('/admin/export/hotline/product/publish/on', 'Export\Hotline\HotlineProductController@publish')->name('admin.export.hotline.product.publish.on');
+Route::post('/admin/export/hotline/product/publish/off', 'Export\Hotline\HotlineProductController@unPublish')->name('admin.export.hotline.product.publish.off');
