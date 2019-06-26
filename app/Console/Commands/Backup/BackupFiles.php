@@ -68,7 +68,7 @@ END_SCRIPT';
 cd ' . self::REMOTE_BACKUP_DIR . '
 lcd ' . self::LOCAL_BACKUP_DIR . '
 
-put -R *
+put -P 4 -R *
 
 quit
 END_SCRIPT';

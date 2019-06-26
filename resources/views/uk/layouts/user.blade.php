@@ -58,5 +58,11 @@
 
 </div>
 
+{{-- common scripts--}}
+@include('layouts.parts.scripts.common')
+
+{{-- Yield custom page's scripts if exists--}}
+@yield('scripts')
+
 </body>
 </html>

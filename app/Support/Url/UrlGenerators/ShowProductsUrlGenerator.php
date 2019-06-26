@@ -14,8 +14,8 @@ class ShowProductsUrlGenerator extends UrlGenerator
      * @var array
      */
     private $iconClasses = [
-        ShowProductsInterface::GRID => 'fa fa-th-large',
-        ShowProductsInterface::LIST => 'fa fa-list-ul',
+        ShowProductsInterface::GRID => 'grid',
+        ShowProductsInterface::LIST => 'list',
     ];
 
     public function __construct()

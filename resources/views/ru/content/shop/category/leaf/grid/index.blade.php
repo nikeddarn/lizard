@@ -81,7 +81,9 @@
     </div>
 
     {{-- product filters modal--}}
-    @include('content.shop.category.leaf.grid.parts.filters_modal')
+    <div class="d-block d-md-none">
+        @include('content.shop.category.leaf.grid.parts.filters_modal')
+    </div>
 
     {{-- cart modal--}}
     @include('elements.cart.cart_modal')

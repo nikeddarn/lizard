@@ -31,16 +31,16 @@
         @if(count($showProductsUrls) > 1)
             @foreach($showProductsUrls as $showMethod => $showMethodData)
                 @if($showMethodData['class'] === 'disabled')
-                    <span href="{{ $showMethodData['url'] }}"
+                    <span
                           class="btn btn-icon rounded-pill btn-sm btn-primary ml-1"
                           title="{{ trans("shop.show_products_method.$showMethod") }}">
-                <i class="{{ $showMethodData['icon'] }}"></i>
+                <i class="svg-icon-smaller" data-feather="{{ $showMethodData['icon'] }}"></i>
             </span>
                 @else
                     <a href="{{ $showMethodData['url'] }}"
                        class="btn btn-icon rounded-pill btn-sm btn-primary btn-outline-theme ml-1"
                        title="{{ trans("shop.show_products_method.$showMethod") }}">
-                        <i class="{{ $showMethodData['icon'] }}"></i>
+                        <i class="svg-icon-smaller" data-feather="{{ $showMethodData['icon'] }}"></i>
                     </a>
                 @endif
             @endforeach

@@ -29,7 +29,7 @@ class Kernel extends ConsoleKernel
      * @return void
      */
     protected function schedule(Schedule $schedule)
-    {Log::info(date('H:i:s', time()));
+    {
         // check for new products
         $schedule->command(SyncNewVendorProducts::class)
             ->twiceDaily(7, 14)

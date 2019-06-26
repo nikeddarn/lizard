@@ -61,5 +61,3 @@
     });
 
 </script>
-
-@yield('scripts')

@@ -126,6 +126,8 @@
 
             // product images carousel
             $('#productImagesCarousel').owlCarousel({
+                lazyLoad: true,
+                lazyLoadEager: 1,
                 dots: false,
                 nav: true,
                 navText: ['<i class="fa fa-angle-left"></i>', '<i class="fa fa-angle-right"></i>'],
@@ -169,6 +171,8 @@
             let relatedProductsCarouselItems = $(relatedProductsCarousel).children().length;
 
             $(relatedProductsCarousel).owlCarousel({
+                lazyLoad: true,
+                lazyLoadEager: 1,
                 loop: true,
                 margin: 15,
                 autoplay: true,
@@ -178,8 +182,6 @@
                 dots: false,
                 nav: true,
                 navText: ['<i class="fa fa-angle-left"></i>', '<i class="fa fa-angle-right"></i>'],
-                lazyLoad: true,
-                lazyLoadEager: true,
                 responsive: {
                     0: {
                         items: Math.min(relatedProductsCarouselItems, 2),
@@ -197,6 +199,8 @@
             let relatedCategoriesCarouselItems = $(relatedCategoriesCarousel).children().length;
 
             $(relatedCategoriesCarousel).owlCarousel({
+                lazyLoad: true,
+                lazyLoadEager: 1,
                 loop: true,
                 margin: 15,
                 autoplay: true,
@@ -206,8 +210,6 @@
                 dots: false,
                 nav: true,
                 navText: ['<i class="fa fa-angle-left"></i>', '<i class="fa fa-angle-right"></i>'],
-                lazyLoad: true,
-                lazyLoadEager: true,
                 responsive: {
                     0: {
                         items: Math.min(relatedCategoriesCarouselItems, 2),

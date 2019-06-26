@@ -40,5 +40,8 @@
 
 </div>
 
+{{-- Yield custom page's scripts if exists--}}
+@yield('scripts')
+
 </body>
 </html>

@@ -7,7 +7,7 @@ use Illuminate\Console\Command;
 
 class BackupDatabase extends Command
 {
-    const LOCAL_BACKUP_DIR = '/tmp/backup/dump';
+    const LOCAL_BACKUP_DIR = '/backup/dump';
 
     const FTP_SERVER = "backup60.freehost.com.ua";
 

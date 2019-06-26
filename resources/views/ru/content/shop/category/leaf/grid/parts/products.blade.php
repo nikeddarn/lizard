@@ -102,7 +102,9 @@
         </div>
 
         {{-- product details modal--}}
-        @include('content.shop.category.leaf.grid.parts.details', ['product' => $product])
+        <div class="d-none d-md-block">
+            @include('content.shop.category.leaf.grid.parts.details', ['product' => $product])
+        </div>
 
     </div>
 

@@ -20,7 +20,8 @@
                 </a>
 
                 @if($product->productVideos->count())
-                    <a href="{{ $product->href }}#product-video" class="product-video-review btn btn-link d-none d-md-block"
+                    <a href="{{ $product->href }}#product-video"
+                       class="product-video-review btn btn-link d-none d-md-block"
                        title="Дивитися відеоогляд">
                         <i class="svg-icon" data-feather="video"></i>
                     </a>
@@ -102,7 +103,9 @@
         </div>
 
         {{-- product details modal--}}
-        @include('content.shop.category.leaf.list.parts.details', ['product' => $product])
+        <div class="d-none d-md-block">
+            @include('content.shop.category.leaf.list.parts.details', ['product' => $product])
+        </div>
 
     </div>
 

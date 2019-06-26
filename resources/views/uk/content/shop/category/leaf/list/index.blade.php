@@ -39,13 +39,13 @@
                         @endif
                     </div>
 
-                        <div class="col d-none d-lg-block">
-                            <h1 class="h5 text-gray-hover m-0">{{ $categoryName }}</h1>
-                        </div>
+                    <div class="col d-none d-lg-block">
+                        <h1 class="h5 text-gray-hover m-0">{{ $categoryName }}</h1>
+                    </div>
 
-                        <div class="col-auto col-md-12 col-lg-auto ml-auto">
-                            @include('content.shop.category.leaf.list.parts.product-control')
-                        </div>
+                    <div class="col-auto col-md-12 col-lg-auto ml-auto">
+                        @include('content.shop.category.leaf.list.parts.product-control')
+                    </div>
 
                 </div>
 
@@ -81,7 +81,9 @@
     </div>
 
     {{-- product filters modal--}}
-    @include('content.shop.category.leaf.list.parts.filters_modal')
+    <div class="d-block d-md-none">
+        @include('content.shop.category.leaf.list.parts.filters_modal')
+    </div>
 
     {{-- cart modal--}}
     @include('elements.cart.cart_modal')
